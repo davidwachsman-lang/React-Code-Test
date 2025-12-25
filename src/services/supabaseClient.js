@@ -4,14 +4,18 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Supabase environment variables are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+  console.error('Supabase environment variables are missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel environment variables.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: false
+export const supabase = createClient(
+  supabaseUrl || '',
+  supabaseAnonKey || '',
+  {
+    auth: {
+      persistSession: false
+    }
   }
-});
+);
 
 export const handleSupabaseResult = ({ data, error }) => {
   if (error) {

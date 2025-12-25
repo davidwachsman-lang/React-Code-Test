@@ -1,0 +1,135 @@
+.followups-widget {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(55, 65, 81, 0.8);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.widget-header h3 {
+  margin: 0;
+  color: #e5e7eb;
+  font-size: 1.25rem;
+}
+
+.widget-count {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.widget-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.followup-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.overdue-title {
+  color: #f87171;
+}
+
+.today-title {
+  color: #fbbf24;
+}
+
+.followup-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.followup-item {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(55, 65, 81, 0.8);
+  border-radius: 6px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.followup-item:hover {
+  border-color: #3b82f6;
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.followup-item.overdue {
+  border-left: 4px solid #ef4444;
+}
+
+.followup-item.today {
+  border-left: 4px solid #fbbf24;
+}
+
+.followup-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.followup-company {
+  font-weight: 600;
+  color: #e5e7eb;
+  font-size: 0.875rem;
+}
+
+.followup-days {
+  background: #ef4444;
+  color: white;
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.followup-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.followup-contact {
+  flex: 1;
+}
+
+.followup-date {
+  color: #6b7280;
+}
+
+.no-followups {
+  text-align: center;
+  padding: 2rem;
+  color: #9ca3af;
+}
+
+.error {
+  color: #ef4444;
+}
+

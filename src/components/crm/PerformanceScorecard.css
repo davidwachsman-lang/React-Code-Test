@@ -1,0 +1,357 @@
+.performance-scorecard {
+  padding: 1.5rem;
+  color: #f1f5f9;
+}
+
+.scorecard-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  color: #94a3b8;
+}
+
+/* Header Section - Two Boxes */
+.scorecard-header {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.scorecard-header-box {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.scorecard-header-box label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.scorecard-header-input {
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 6px;
+  color: #f1f5f9;
+  font-size: 1rem;
+  font-weight: 500;
+  width: 100%;
+}
+
+.scorecard-header-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.scorecard-header-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #3b82f6;
+  margin-top: 0.25rem;
+}
+
+.scorecard-header-value-green {
+  color: #10b981;
+}
+
+.scorecard-header-value-large {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #10b981;
+  margin-top: 0.25rem;
+}
+
+.scorecard-header-note {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+/* Table Container */
+.scorecard-table-container {
+  overflow-x: auto;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(55, 65, 81, 0.8);
+  border-radius: 8px;
+  padding: 1rem;
+  width: 100%;
+}
+
+.scorecard-table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.scorecard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.scorecard-table thead {
+  background: rgba(30, 41, 59, 0.8);
+  border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.scorecard-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #e5e7eb;
+  white-space: nowrap;
+  border-right: 1px solid rgba(55, 65, 81, 0.5);
+}
+
+.scorecard-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.scorecard-table th.sortable:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.sort-indicator {
+  margin-left: 0.5rem;
+  color: #3b82f6;
+  font-size: 0.75rem;
+}
+
+.scorecard-table tbody tr {
+  border-bottom: 1px solid rgba(55, 65, 81, 0.5);
+  transition: background-color 0.2s;
+}
+
+.scorecard-table tbody tr:hover {
+  background: rgba(30, 41, 59, 0.4);
+}
+
+.scorecard-table td {
+  padding: 0.75rem;
+  color: #e5e7eb;
+  border-right: 1px solid rgba(55, 65, 81, 0.3);
+  vertical-align: middle;
+}
+
+.scorecard-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #94a3b8;
+}
+
+/* Filter */
+.scorecard-filter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(55, 65, 81, 0.8);
+  border-radius: 8px;
+}
+
+.scorecard-filter label {
+  font-weight: 600;
+  color: #e5e7eb;
+  font-size: 0.875rem;
+}
+
+.scorecard-filter-select {
+  padding: 0.5rem 1rem;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 6px;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  min-width: 200px;
+  cursor: pointer;
+}
+
+.scorecard-filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* KPI Description Cell */
+.kpi-description-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.kpi-description-title {
+  font-weight: 600;
+  color: #e5e7eb;
+  font-size: 0.875rem;
+}
+
+.kpi-target-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kpi-target-input label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+/* Actual Number Cell */
+.actual-number-cell {
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+/* Bonus Percent Cell */
+.bonus-percent-cell {
+  font-weight: 600;
+  color: #10b981;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+/* KPI Color Coding */
+.kpi-color-red {
+  color: #ef4444 !important;
+  font-weight: 600;
+}
+
+.kpi-color-yellow {
+  color: #fbbf24 !important;
+  font-weight: 600;
+}
+
+.kpi-color-green {
+  color: #10b981 !important;
+  font-weight: 600;
+}
+
+/* Bonus Amount Cell */
+.bonus-amount-cell {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #10b981;
+  text-align: center;
+}
+
+/* Rating/Comments Cell */
+.rating-comments-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scorecard-input-small {
+  padding: 0.4rem;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 4px;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  width: 80px;
+}
+
+.scorecard-input-small:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* Input Fields */
+.scorecard-input {
+  padding: 0.5rem;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 4px;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  width: 100%;
+  max-width: 120px;
+}
+
+.scorecard-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.scorecard-select {
+  padding: 0.5rem;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 4px;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  width: 100%;
+  min-width: 150px;
+  cursor: pointer;
+}
+
+.scorecard-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.scorecard-textarea {
+  padding: 0.5rem;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 4px;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  width: 100%;
+  min-width: 200px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.scorecard-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .scorecard-header {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .performance-scorecard {
+    padding: 1rem;
+  }
+  
+  .scorecard-table-container {
+    padding: 0.5rem;
+  }
+  
+  .scorecard-table {
+    font-size: 0.75rem;
+  }
+  
+  .scorecard-table th,
+  .scorecard-table td {
+    padding: 0.5rem;
+  }
+}
+

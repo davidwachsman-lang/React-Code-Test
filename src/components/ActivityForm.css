@@ -1,0 +1,83 @@
+.activity-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(55, 65, 81, 0.8);
+}
+
+.activity-form .form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.activity-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.activity-form label {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.activity-form input,
+.activity-form select,
+.activity-form textarea {
+  padding: 0.5rem;
+  border: 1px solid rgba(55, 65, 81, 0.8);
+  border-radius: 6px;
+  background: rgba(30, 41, 59, 0.8);
+  color: #e5e7eb;
+  font-size: 0.875rem;
+}
+
+.activity-form input:focus,
+.activity-form select:focus,
+.activity-form textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.activity-form .form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.activity-form .btn-primary,
+.activity-form .btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.activity-form .btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.activity-form .btn-primary:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+.activity-form .btn-secondary {
+  background: rgba(55, 65, 81, 0.8);
+  color: #e5e7eb;
+}
+
+.activity-form .btn-secondary:hover {
+  background: rgba(75, 85, 99, 0.8);
+}
+

@@ -1,0 +1,173 @@
+.expectations-content {
+  padding: 2rem 0;
+}
+
+.expectations-date {
+  font-size: 1rem !important;
+  color: #64748b !important;
+  margin-bottom: 2rem !important;
+}
+
+.expectations-section {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
+  padding: 2.5rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.section-title {
+  color: #f1f5f9;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Team Expectations Grid */
+.expectations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.expectation-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.expectation-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.expectation-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #3b82f6;
+  min-width: 50px;
+  flex-shrink: 0;
+}
+
+.expectation-content h3 {
+  color: #f1f5f9;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.expectation-content p {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Role-Specific Expectations */
+.role-expectations {
+  margin-top: 3rem;
+}
+
+.role-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.role-section {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.role-section:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.role-title {
+  color: #60a5fa;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.role-expectations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.role-expectation-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.75rem;
+  background: rgba(30, 41, 59, 0.3);
+  border-radius: 6px;
+  border-left: 3px solid rgba(59, 130, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.role-expectation-item:hover {
+  background: rgba(30, 41, 59, 0.5);
+  border-left-color: #3b82f6;
+  transform: translateX(4px);
+}
+
+.role-number {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #3b82f6;
+  min-width: 35px;
+  flex-shrink: 0;
+}
+
+.role-text {
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .expectations-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .expectation-card {
+    flex-direction: column;
+  }
+  
+  .expectation-number {
+    min-width: auto;
+  }
+  
+  .role-tiles-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .role-section {
+    padding: 1.5rem;
+  }
+}

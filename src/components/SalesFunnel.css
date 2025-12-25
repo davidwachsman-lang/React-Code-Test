@@ -1,0 +1,92 @@
+.sales-funnel-wrapper {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.funnel-container {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.funnel-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 50px;
+  position: relative;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.funnel-bar {
+  flex-shrink: 0;
+  height: 42px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  min-width: 60px;
+  max-width: 50%; /* Make bars narrower - max 50% of container width */
+}
+
+.funnel-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    transparent 100%);
+  pointer-events: none;
+}
+
+.funnel-bar:hover {
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+
+.funnel-label {
+  flex: 0 0 280px; /* Fixed width to ensure visibility, with space for count */
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 280px;
+  flex-shrink: 0;
+}
+
+.funnel-label-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  line-height: 1.4;
+  white-space: normal;
+  overflow: visible;
+}
+
+.funnel-count-display {
+  flex: 0 0 50px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  min-width: 50px;
+  text-align: right;
+  padding-right: 1rem;
+  margin-left: auto;
+}
+

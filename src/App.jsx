@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import Intake from './pages/Intake';
 import DispatchAndScheduling from './pages/DispatchAndScheduling';
@@ -30,6 +30,55 @@ function ScrollToTop() {
 function AppContent() {
   const location = useLocation();
   const isTestRoute = location.pathname === '/sales-test';
+  
+  // Check if we should only show CRM (for Vercel deployment)
+  // Option 1: Build-time env var (requires rebuild after setting in Vercel)
+  const envCrmOnly = import.meta.env.VITE_CRM_ONLY === 'true';
+  
+  // Option 2: Runtime check - look for 'crm-only' in URL or localStorage
+  // This allows switching without rebuilding
+  const urlParams = new URLSearchParams(window.location.search);
+  // Accept both ?crm-only=true and ?crm-only (just the presence of the param)
+  const urlCrmOnly = urlParams.has('crm-only') || urlParams.get('crm-only') === 'true';
+  const storedCrmOnly = localStorage.getItem('crm-only-mode') === 'true';
+  
+  // Use env var first, then fall back to runtime checks
+  const crmOnlyMode = envCrmOnly || urlCrmOnly || storedCrmOnly;
+  
+  // Debug logging
+  console.log('CRM Only Mode Check:', {
+    envCrmOnly,
+    urlCrmOnly,
+    storedCrmOnly,
+    crmOnlyMode,
+    search: window.location.search
+  });
+  
+  // If URL param is set, store it in localStorage for future visits
+  if (urlCrmOnly && !storedCrmOnly) {
+    localStorage.setItem('crm-only-mode', 'true');
+  }
+  
+  // Allow disabling via ?crm-only=false
+  if (urlParams.get('crm-only') === 'false') {
+    localStorage.removeItem('crm-only-mode');
+  }
+
+  // If CRM-only mode, show only CRM without navigation
+  if (crmOnlyMode) {
+    return (
+      <div className="App">
+        <ScrollToTop />
+        <div className="app-content" style={{ marginLeft: 0 }}>
+          <Routes>
+            <Route path="/" element={<CRM />} />
+            <Route path="/crm" element={<CRM />} />
+            <Route path="/*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="App">

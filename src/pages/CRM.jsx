@@ -51,6 +51,7 @@ function CRM() {
     topTargetsOnly: false,
     needsFollowup: false,
     prospectType: 'all',
+    industry: 'all',
     searchTerm: ''
   });
   const [showQuickActivityForm, setShowQuickActivityForm] = useState(false);
@@ -167,6 +168,9 @@ function CRM() {
 
       // Prospect type filter
       if (filters.prospectType !== 'all' && record.prospect_type !== filters.prospectType) return false;
+
+      // Industry filter
+      if (filters.industry !== 'all' && record.industry !== filters.industry) return false;
 
       // Top targets filter
       if (filters.topTargetsOnly && !record.is_top_target) return false;

@@ -8,6 +8,7 @@ function CRMFilters({ filters, onFilterChange }) {
     topTargetsOnly = false,
     needsFollowup = false,
     prospectType = 'all',
+    industry = 'all',
     searchTerm = ''
   } = filters || {};
 
@@ -51,6 +52,26 @@ function CRMFilters({ filters, onFilterChange }) {
             <option value="commercial">Commercial</option>
             <option value="agent">Agent</option>
             <option value="adjuster">Adjuster</option>
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label>Industry</label>
+          <select
+            value={industry}
+            onChange={(e) => onFilterChange({ industry: e.target.value })}
+            className="filter-select"
+          >
+            <option value="all">All Industries</option>
+            <option value="multi_family">Multi-Family</option>
+            <option value="retail">Retail</option>
+            <option value="office">Office</option>
+            <option value="hotel">Hotel</option>
+            <option value="restaurant">Restaurant</option>
+            <option value="healthcare">Healthcare</option>
+            <option value="school">School</option>
+            <option value="warehouse">Warehouse</option>
+            <option value="other">Other</option>
           </select>
         </div>
 

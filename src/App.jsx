@@ -45,12 +45,22 @@ function AppContent() {
   // Use env var first, then fall back to runtime checks
   const crmOnlyMode = envCrmOnly || urlCrmOnly || storedCrmOnly;
   
+  // Check if we should only show Estimate Tool (for Vercel deployment)
+  const envEstimateOnly = import.meta.env.VITE_ESTIMATE_ONLY === 'true';
+  const urlEstimateOnly = urlParams.has('estimate-only') || urlParams.get('estimate-only') === 'true';
+  const storedEstimateOnly = localStorage.getItem('estimate-only-mode') === 'true';
+  const estimateOnlyMode = envEstimateOnly || urlEstimateOnly || storedEstimateOnly;
+  
   // Debug logging
-  console.log('CRM Only Mode Check:', {
+  console.log('Deployment Mode Check:', {
     envCrmOnly,
     urlCrmOnly,
     storedCrmOnly,
     crmOnlyMode,
+    envEstimateOnly,
+    urlEstimateOnly,
+    storedEstimateOnly,
+    estimateOnlyMode,
     search: window.location.search
   });
   
@@ -58,11 +68,36 @@ function AppContent() {
   if (urlCrmOnly && !storedCrmOnly) {
     localStorage.setItem('crm-only-mode', 'true');
   }
+  if (urlEstimateOnly && !storedEstimateOnly) {
+    localStorage.setItem('estimate-only-mode', 'true');
+  }
   
-  // Allow disabling via ?crm-only=false
+  // Allow disabling via URL params
   if (urlParams.get('crm-only') === 'false') {
     localStorage.removeItem('crm-only-mode');
   }
+  if (urlParams.get('estimate-only') === 'false') {
+    localStorage.removeItem('estimate-only-mode');
+  }
+
+  // If Estimate-only mode, show only Estimating without navigation
+  if (estimateOnlyMode) {
+    console.log('Estimate-only mode active, rendering Estimating component');
+    return (
+      <div className="App">
+        <ScrollToTop />
+        <div className="app-content" style={{ marginLeft: 0 }}>
+          <Routes>
+            <Route path="/" element={<Estimating />} />
+            <Route path="/estimating" element={<Estimating />} />
+            <Route path="/*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </div>
+    );
+  }
+  
+  console.log('Full app mode active, estimateOnlyMode:', estimateOnlyMode);
 
   // If CRM-only mode, show only CRM without navigation
   if (crmOnlyMode) {

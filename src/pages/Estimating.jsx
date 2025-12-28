@@ -1,7 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './Page.css';
 import './Estimating.css';
 import { estimateService } from '../services';
+import { jsPDF } from 'jspdf';
+import { supabase } from '../services/supabaseClient';
+import QRCode from 'qrcode';
 
 // Master Price List
 const PRICE_LIST = {
@@ -39,12 +42,28 @@ const PRICE_LIST = {
   "Hydroxol, Ozone, Fogging": { uom: "CF", price: 0.05 },
   "Specialized Drying - Wood Floor mat system -per system": { uom: "Day", price: 200.00 },
   "Debris Disposal - per pick up truck load": { uom: "Each", price: 50.00 },
-  "Dumpster/Dump Trailer up to 20 yards": { uom: "Each", price: 675.00 }
+  "Dumpster/Dump Trailer up to 20 yards": { uom: "Each", price: 675.00 },
+  "Sub-Contract (Bid Item)": { uom: "Each", price: 0.00 },
+  "Toilet Detach": { uom: "Each", price: 50.00 }
 };
+
+// Items that are considered materials (taxable)
+const MATERIAL_ITEMS = [
+  "Containment Barrier - plastic up to 6 mil & tape",
+  "Zippers",
+  "Bags - for debris removal",
+  "PPE - gloves, N95, booties, basic PPE - 2 changes per person per day",
+  "Apply Antimicrobial",
+  "Hydroxol, Ozone, Fogging",
+  "Cabinet Removal - If needed",
+  "Counter Removal - if needed",
+  "Sub-Contract (Bid Item)",
+  "Toilet Detach"
+];
 
 const PROJECT_MANAGERS = [
   "Leo Champion",
-  "Taylor Garrett",
+  "Aaron Kacel",
   "Kevin Shell",
   "Bryan Turpin",
   "Scottie Smith",
@@ -58,8 +77,11 @@ function Estimating() {
   const [estimateName, setEstimateName] = useState('');
   const [savedEstimates, setSavedEstimates] = useState([]);
   const [saveStatus, setSaveStatus] = useState('');
+  const [currentEstimateId, setCurrentEstimateId] = useState(null);
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(false);
   const addressInputRef = useRef(null);
   const autocompleteRef = useRef(null);
+  const autoSaveTimeoutRef = useRef(null);
 
   // Job Details State
   const [jobDetails, setJobDetails] = useState({
@@ -83,10 +105,25 @@ function Estimating() {
     { id: 1, name: '', length: '', width: '', height: '' }
   ]);
 
-  // Line Items State
-  const [lineItems, setLineItems] = useState([
-    { id: 1, item: '', uom: '', price: 0, qty: 1 }
-  ]);
+  // Line Items State - now organized by room
+  // Each room will have its own array of line items
+  // We'll store line items as: { roomId: roomId, items: [...] }
+  const [roomLineItems, setRoomLineItems] = useState({});
+
+  // Initialize line items for rooms when they're added
+  useEffect(() => {
+    const roomsNeedingInit = rooms.filter(room => !roomLineItems[room.id]);
+    if (roomsNeedingInit.length > 0) {
+      setRoomLineItems(prev => {
+        const updated = { ...prev };
+        roomsNeedingInit.forEach(room => {
+          updated[room.id] = [];
+        });
+        return updated;
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rooms]);
 
   // Load saved estimates on mount
   useEffect(() => {
@@ -96,7 +133,9 @@ function Estimating() {
   // Calculate totals whenever line items or job details change
   useEffect(() => {
     calculateTotals();
-  }, [lineItems, jobDetails.afterHours, jobDetails.waterCategory]);
+  }, [roomLineItems, jobDetails.afterHours, jobDetails.waterCategory]);
+
+  // Auto-save functionality (debounced) - defined after saveEstimate
 
   // Initialize Google Places Autocomplete
   useEffect(() => {
@@ -151,7 +190,7 @@ function Estimating() {
     }
   };
 
-  const saveEstimate = async () => {
+  const saveEstimate = async (isAutoSave = false) => {
     let name = estimateName.trim();
     if (!name) {
       name = `${jobDetails.clientName || 'Unnamed'} - ${new Date().toLocaleDateString()}`;
@@ -166,30 +205,64 @@ function Estimating() {
       EstimateData: JSON.stringify({
         jobDetails,
         rooms,
-        lineItems
+        roomLineItems
       }),
-      TotalAmount: calculateTotal(),
+      TotalAmount: calculateTotals().grandTotal,
       Status: 'Draft'
     };
 
     try {
-      const result = await estimateService.create(estimateData);
+      let result;
+      if (currentEstimateId) {
+        // Update existing estimate
+        result = await estimateService.update(currentEstimateId, estimateData);
+      } else {
+        // Create new estimate
+        result = await estimateService.create(estimateData);
+        setCurrentEstimateId(result.EstimateID);
+      }
       
+      if (!isAutoSave) {
       setSaveStatus(`✓ Estimate saved to database: ${name}`);
       setTimeout(() => setSaveStatus(''), 3000);
+      }
       loadSavedEstimates();
     } catch (error) {
+      if (!isAutoSave) {
       setSaveStatus('Error saving estimate to database');
       console.error('Error saving:', error);
       
       // Fallback to localStorage
       const estimates = JSON.parse(localStorage.getItem('spwc_estimates') || '{}');
-      estimates[name] = { name, jobDetails, rooms, lineItems, savedAt: new Date().toISOString() };
+        estimates[name] = { name, jobDetails, rooms, roomLineItems, savedAt: new Date().toISOString() };
       localStorage.setItem('spwc_estimates', JSON.stringify(estimates));
       setSaveStatus(`✓ Estimate saved locally: ${name}`);
       setTimeout(() => setSaveStatus(''), 3000);
+      }
     }
   };
+
+  // Auto-save functionality (debounced)
+  useEffect(() => {
+    if (autoSaveEnabled && currentEstimateId) {
+      // Clear existing timeout
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+      
+      // Set new timeout for auto-save (3 seconds after last change)
+      autoSaveTimeoutRef.current = setTimeout(() => {
+        saveEstimate(true); // Pass true to indicate auto-save
+      }, 3000);
+      
+      return () => {
+        if (autoSaveTimeoutRef.current) {
+          clearTimeout(autoSaveTimeoutRef.current);
+        }
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [estimateName, jobDetails, rooms, roomLineItems, autoSaveEnabled, currentEstimateId]);
 
   const loadEstimate = async (idOrName) => {
     if (!idOrName) return;
@@ -203,9 +276,19 @@ function Estimating() {
         const parsedData = JSON.parse(estimate.EstimateData);
         
         setEstimateName(estimate.EstimateName);
+        setCurrentEstimateId(estimate.EstimateID);
         setJobDetails(parsedData.jobDetails || {});
         setRooms(parsedData.rooms || [{ id: 1, name: '', length: '', width: '', height: '' }]);
-        setLineItems(parsedData.lineItems || [{ id: 1, item: '', uom: '', price: 0, qty: 1 }]);
+        // Handle migration from old format (lineItems) to new format (roomLineItems)
+        if (parsedData.roomLineItems) {
+          setRoomLineItems(parsedData.roomLineItems);
+        } else if (parsedData.lineItems) {
+          // Migrate old format: assign all line items to first room
+          const firstRoomId = parsedData.rooms?.[0]?.id || 1;
+          setRoomLineItems({ [firstRoomId]: parsedData.lineItems });
+        } else {
+          setRoomLineItems({});
+        }
         setSaveStatus(`✓ Estimate loaded from database: ${estimate.EstimateName}`);
         setTimeout(() => setSaveStatus(''), 3000);
       } else {
@@ -217,7 +300,14 @@ function Estimating() {
           setEstimateName(data.name);
           setJobDetails(data.jobDetails);
           setRooms(data.rooms || [{ id: 1, name: '', length: '', width: '', height: '' }]);
-          setLineItems(data.lineItems || [{ id: 1, item: '', uom: '', price: 0, qty: 1 }]);
+          if (data.roomLineItems) {
+            setRoomLineItems(data.roomLineItems);
+          } else if (data.lineItems) {
+            const firstRoomId = data.rooms?.[0]?.id || 1;
+            setRoomLineItems({ [firstRoomId]: data.lineItems });
+          } else {
+            setRoomLineItems({});
+          }
           setSaveStatus(`✓ Estimate loaded: ${idOrName}`);
           setTimeout(() => setSaveStatus(''), 3000);
         }
@@ -268,6 +358,7 @@ function Estimating() {
 
   const newEstimate = () => {
     setEstimateName('');
+    setCurrentEstimateId(null);
     setJobDetails({
       date: new Date().toISOString().split('T')[0],
       jobNumber: '',
@@ -284,54 +375,392 @@ function Estimating() {
       scopeDescription: ''
     });
     setRooms([{ id: 1, name: '', length: '', width: '', height: '' }]);
-    setLineItems([{ id: 1, item: '', uom: '', price: 0, qty: 1 }]);
+    setRoomLineItems({});
     setSaveStatus('New estimate started');
     setTimeout(() => setSaveStatus(''), 3000);
   };
 
-  const exportEstimate = () => {
-    const data = {
-      name: estimateName,
-      jobDetails,
-      rooms,
-      lineItems,
-      exportedAt: new Date().toISOString()
-    };
-
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${(estimateName || 'estimate').replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    setSaveStatus('✓ Estimate exported to file');
-    setTimeout(() => setSaveStatus(''), 3000);
-  };
-
-  const importEstimate = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
+  // Generate PDF and upload to Supabase Storage
+  const generateAndSavePDF = async () => {
+    // Try to save estimate first if it doesn't exist, but don't block PDF generation
+    let estimateId = currentEstimateId;
+    if (!estimateId) {
       try {
-        const data = JSON.parse(e.target.result);
-        setEstimateName(data.name || '');
-        setJobDetails(data.jobDetails);
-        setRooms(data.rooms || [{ id: 1, name: '', length: '', width: '', height: '' }]);
-        setLineItems(data.lineItems || [{ id: 1, item: '', uom: '', price: 0, qty: 1 }]);
-        setSaveStatus('✓ Estimate imported successfully');
-        setTimeout(() => setSaveStatus(''), 3000);
+        await saveEstimate(false);
+        // Wait a moment for state to update, then check again
+        await new Promise(resolve => setTimeout(resolve, 500));
+        estimateId = currentEstimateId;
       } catch (error) {
-        alert('Error importing estimate file');
-        console.error('Import error:', error);
+        console.error('Error saving estimate before PDF generation:', error);
+        // Continue with PDF generation anyway
       }
-    };
-    reader.readAsText(file);
-    event.target.value = '';
+    }
+
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 20;
+      let yPos = 20;
+
+      // Header with Logo
+      const logoY = 10;
+      let logoHeight = 0;
+      const logoWidth = 60;
+      
+      // Try to load logo from public folder (with timeout to prevent hanging)
+      try {
+        // Try both Logo.png and logo.png (case sensitivity)
+        const logoPaths = ['/Logo.png', '/logo.png'];
+        let logoDataUrl = null;
+        
+        for (const logoPath of logoPaths) {
+          try {
+            const logoPromise = fetch(logoPath).then(async (response) => {
+              if (response.ok) {
+                const blob = await response.blob();
+                return new Promise((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => resolve(reader.result);
+                  reader.onerror = reject;
+                  reader.readAsDataURL(blob);
+                });
+              }
+              return null;
+            });
+            
+            // Add timeout to prevent hanging
+            const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 1000));
+            logoDataUrl = await Promise.race([logoPromise, timeoutPromise]);
+            
+            if (logoDataUrl) break;
+          } catch (e) {
+            continue;
+          }
+        }
+        
+        if (logoDataUrl) {
+          // Determine image format from data URL
+          const format = logoDataUrl.includes('data:image/png') ? 'PNG' : 'JPEG';
+          logoHeight = 20; // Adjust based on your logo aspect ratio (width/height)
+          const logoX = pageWidth / 2 - logoWidth / 2;
+          doc.addImage(logoDataUrl, format, logoX, logoY, logoWidth, logoHeight);
+        }
+      } catch (error) {
+        console.log('Logo not found or error loading:', error);
+        // Continue without logo
+      }
+      
+      // Set yPos after logo (or start position if no logo)
+      // Ensure we always have content on the first page
+      if (logoHeight > 0) {
+        yPos = logoY + logoHeight + 8; // Reduced spacing from 15 to 8
+      } else {
+        yPos = 20; // Start at normal position if no logo
+      }
+      
+      // Title - moved down and smaller font
+      doc.setFontSize(18);
+      doc.setFont(undefined, 'bold');
+      doc.text('SPWC LLC ESTIMATE', pageWidth / 2, yPos, { align: 'center' });
+      yPos += 15;
+
+      // Job Details - in specified order
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'normal');
+      // Format date as MM-DD-YEAR
+      const formatDate = (dateString) => {
+        if (!dateString) {
+          const today = new Date();
+          const month = String(today.getMonth() + 1).padStart(2, '0');
+          const day = String(today.getDate()).padStart(2, '0');
+          const year = today.getFullYear();
+          return `${month}-${day}-${year}`;
+        }
+        const date = new Date(dateString);
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${month}-${day}-${year}`;
+      };
+      doc.text(`Date: ${formatDate(jobDetails.date)}`, margin, yPos);
+      yPos += 8;
+      doc.text(`Client Name: ${jobDetails.clientName || 'N/A'}`, margin, yPos);
+      yPos += 8;
+      const phone = jobDetails.clientPhone || 'N/A';
+      const email = jobDetails.clientEmail || 'N/A';
+      doc.text(`Client Contact Info: ${phone}, ${email}`, margin, yPos);
+      yPos += 8;
+      doc.text(`Property Address: ${jobDetails.propertyAddress || 'N/A'}`, margin, yPos);
+      yPos += 8;
+      doc.text(`Project Manager: ${jobDetails.projectManager || 'N/A'}`, margin, yPos);
+      yPos += 8;
+      doc.text(`Job Number: ${jobDetails.jobNumber ? `- ${jobDetails.jobNumber}` : 'N/A'}`, margin, yPos);
+      yPos += 8;
+      // Payment Terms - last item before scope
+      if (jobDetails.paymentTerms) {
+        const paymentTermsText = {
+          'full': 'Payment in Full upon Authorization',
+          'phased': 'Phased Project Payments (50/50)',
+          'milestone': 'Milestone Schedule',
+          'net15': 'Net 15',
+          'net30': 'Net 30',
+          'net45': 'Net 45',
+          'net60': 'Net 60',
+          'dueOnCompletion': 'Due on Completion',
+          'custom': jobDetails.paymentTermsCustom || 'Custom Payment Terms'
+        };
+        doc.text(`Payment Terms: ${paymentTermsText[jobDetails.paymentTerms] || jobDetails.paymentTerms}`, margin, yPos);
+        yPos += 8;
+      }
+      yPos += 7; // Extra spacing before scope
+
+      // Scope Section
+      if (jobDetails.scopeDescription) {
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text('Scope', margin, yPos);
+        yPos += 10;
+        
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        const scopeLines = doc.splitTextToSize(jobDetails.scopeDescription, pageWidth - (margin * 2));
+        doc.text(scopeLines, margin, yPos);
+        yPos += (scopeLines.length * 6) + 10;
+      }
+
+      // Line separator
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, yPos, pageWidth - margin, yPos);
+      yPos += 10;
+
+      // Mitigation Line Items by Room - Simple Table
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text('Mitigation Line Items by Room', margin, yPos);
+      yPos += 10;
+
+      // Table headers
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      const colWidths = {
+        room: 40,
+        item: 90,
+        qty: 30,
+        total: 30
+      };
+      const tableStartX = margin;
+      
+      doc.text('Room', tableStartX, yPos);
+      doc.text('Item Description', tableStartX + colWidths.room, yPos);
+      doc.text('Qty', tableStartX + colWidths.room + colWidths.item, yPos);
+      doc.text('Total $', pageWidth - margin, yPos, { align: 'right' });
+      yPos += 8;
+      
+      // Table line
+      doc.setDrawColor(0, 0, 0);
+      doc.line(tableStartX, yPos, pageWidth - margin, yPos);
+      yPos += 6;
+
+      doc.setFont(undefined, 'normal');
+      
+      rooms.forEach(room => {
+        const roomItems = roomLineItems[room.id] || [];
+        if (roomItems.length > 0) {
+          roomItems.forEach((item) => {
+            if (yPos > 270) {
+              doc.addPage();
+              yPos = 20;
+              // Redraw headers on new page
+              doc.setFont(undefined, 'bold');
+              doc.text('Room', tableStartX, yPos);
+              doc.text('Item Description', tableStartX + colWidths.room, yPos);
+              doc.text('Qty', tableStartX + colWidths.room + colWidths.item, yPos);
+              doc.text('Total $', pageWidth - margin, yPos, { align: 'right' });
+              yPos += 8;
+              doc.line(tableStartX, yPos, pageWidth - margin, yPos);
+              yPos += 6;
+              doc.setFont(undefined, 'normal');
+            }
+            
+            const lineTotal = calculateLineTotal(item);
+            const roomName = room.name || `Room ${room.id}`;
+            const qtyText = `${item.qty || 0} ${item.uom || ''}`;
+            
+            doc.text(roomName, tableStartX, yPos);
+            doc.text(item.item || 'Item', tableStartX + colWidths.room, yPos);
+            doc.text(qtyText, tableStartX + colWidths.room + colWidths.item, yPos);
+            doc.text(`$${lineTotal.toFixed(2)}`, pageWidth - margin, yPos, { align: 'right' });
+            yPos += 7;
+          });
+        }
+      });
+
+      yPos += 5;
+      doc.setDrawColor(0, 0, 0);
+      doc.line(margin, yPos, pageWidth - margin, yPos);
+      yPos += 10;
+
+      // Totals - Tax and Grand Total only
+      const totals = calculateTotals();
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      doc.text(`Tax (9.75% on materials): $${totals.taxAmount.toFixed(2)}`, pageWidth - margin, yPos, { align: 'right' });
+      yPos += 10;
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text(`GRAND TOTAL: $${totals.grandTotal.toFixed(2)}`, pageWidth - margin, yPos, { align: 'right' });
+
+      // Add new page for legal section and signatures
+      doc.addPage();
+      yPos = 20;
+
+      // QR Code Payment Section at top
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text('Pay Online', pageWidth / 2, yPos, { align: 'center' });
+      yPos += 10;
+      
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      const paymentText = "Scan QR code or visit payment link to pay this estimate online";
+      const paymentLines = doc.splitTextToSize(paymentText, pageWidth - (margin * 2));
+      doc.text(paymentLines, pageWidth / 2, yPos, { align: 'center' });
+      yPos += 10;
+      
+      // Generate and add QR code
+      const paymentUrl = 'https://connect.intuit.com/pay/ServproOfWilsonCounty/scs-v1-a686d70ef3e4437585c7ff97faab9864341e074cc01d43268d76a7b47b1405c0106cafa2d92949d4a7b3a06ce1777f33?locale=EN_US';
+      try {
+        const qrCodeDataUrl = await QRCode.toDataURL(paymentUrl, {
+          width: 60,
+          margin: 1
+        });
+        
+        // Add QR code image (centered)
+        const qrSize = 60;
+        const qrX = pageWidth / 2 - qrSize / 2;
+        doc.addImage(qrCodeDataUrl, 'PNG', qrX, yPos, qrSize, qrSize);
+        yPos += qrSize + 10;
+      } catch (error) {
+        console.error('Error generating QR code:', error);
+        // Continue without QR code if generation fails
+      }
+      
+      // Payment link (as clickable text)
+      doc.setTextColor(0, 0, 255);
+      const linkText = 'Click here to pay online';
+      const linkWidth = doc.getTextWidth(linkText);
+      doc.text(linkText, pageWidth / 2, yPos, { align: 'center' });
+      // Add link annotation
+      doc.link(pageWidth / 2 - linkWidth / 2, yPos - 4, linkWidth, 5, { url: paymentUrl });
+      doc.setTextColor(0, 0, 0);
+      yPos += 15;
+
+      // Legal Section - Acknowledgement and Authorization
+      doc.setFontSize(16);
+      doc.setFont(undefined, 'bold');
+      doc.text('Acknowledgement and Authorization', margin, yPos);
+      yPos += 15;
+
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      
+      const legalText1 = "I, the undersigned Customer, hereby acknowledge and agree that this Estimate is a preliminary projection of anticipated costs prepared by SPWC, LLC (\"SPWC\") based on conditions and information reasonably known to SPWC at the time of issuance, and that it is not a guarantee. I understand that the Estimate was generated using a computerized estimating system, which assigns pre-determined standard costs and prices to items and services and multiplies those figures by units or hours. I understand and agree to this method of pricing.";
+      const legalLines1 = doc.splitTextToSize(legalText1, pageWidth - (margin * 2));
+      doc.text(legalLines1, margin, yPos);
+      yPos += (legalLines1.length * 4.5) + 5;
+
+      const legalText2 = "I further understand that site conditions, scope, or other relevant information may change or be discovered as work progresses, and that SPWC reserves the right to revise this Estimate accordingly. Any such revisions will be documented in a written change order and must be approved by me in writing before any additional work is performed. I also understand that I am fully and solely responsible for the cost of SPWC's work, and if my insurer fails or refuses to pay any amount due to SPWC, I will remain fully and solely responsible for payment of all amounts due to SPWC. My payment obligations are absolute, independent of any insurance proceeds, and not contingent upon receipt of payment from any insurer.";
+      const legalLines2 = doc.splitTextToSize(legalText2, pageWidth - (margin * 2));
+      doc.text(legalLines2, margin, yPos);
+      yPos += (legalLines2.length * 4.5) + 5;
+
+      const legalText3 = "Finally, I understand that this Estimate is expressly incorporated into and made part of the Authorization to Perform Services and Direction of Payment signed by me and SPWC, and that the work described herein is governed by the terms of that Authorization.";
+      const legalLines3 = doc.splitTextToSize(legalText3, pageWidth - (margin * 2));
+      doc.text(legalLines3, margin, yPos);
+      yPos += (legalLines3.length * 4.5) + 20;
+
+      // Signature blocks
+      const signatureY = doc.internal.pageSize.getHeight() - 60;
+      const signatureWidth = 80;
+      const leftSignatureX = margin;
+      const rightSignatureX = pageWidth - margin - signatureWidth;
+
+      // Customer signature
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.5);
+      doc.line(leftSignatureX, signatureY, leftSignatureX + signatureWidth, signatureY);
+      yPos = signatureY + 8;
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      doc.text(jobDetails.clientName || 'Customer Name', leftSignatureX, yPos);
+      yPos += 6;
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      doc.text('Customer Signature & Date', leftSignatureX, yPos);
+
+      // PM signature
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.5);
+      doc.line(rightSignatureX, signatureY, rightSignatureX + signatureWidth, signatureY);
+      yPos = signatureY + 8;
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'bold');
+      doc.text(jobDetails.projectManager || 'Project Manager', rightSignatureX, yPos);
+      yPos += 6;
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      doc.text('SPWC LLC Representative & Date', rightSignatureX, yPos);
+
+      // Generate PDF blob
+      const pdfBlob = doc.output('blob');
+      const fileName = `${(estimateName || 'estimate').replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+      
+      // Always download PDF locally first
+      doc.save(fileName);
+      
+      // Try to upload to Supabase Storage if estimate is saved
+      if (estimateId) {
+        try {
+          const filePath = `estimates/${estimateId}/${fileName}`;
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('estimates')
+            .upload(filePath, pdfBlob, {
+              contentType: 'application/pdf',
+              upsert: true
+            });
+
+          if (!uploadError) {
+            // Get public URL
+            const { data: urlData } = supabase.storage
+              .from('estimates')
+              .getPublicUrl(filePath);
+
+            // Update estimate record with PDF URL
+            await estimateService.update(estimateId, {
+              PDFUrl: urlData.publicUrl
+            });
+            
+            setSaveStatus(`✓ PDF generated and saved to Supabase: ${fileName}`);
+            setTimeout(() => setSaveStatus(''), 5000);
+          } else {
+            console.error('Error uploading PDF to Supabase:', uploadError);
+            setSaveStatus(`✓ PDF generated and downloaded. Could not upload to Supabase.`);
+            setTimeout(() => setSaveStatus(''), 5000);
+          }
+        } catch (error) {
+          console.error('Error saving PDF to Supabase:', error);
+          setSaveStatus(`✓ PDF generated and downloaded. Could not save to Supabase.`);
+          setTimeout(() => setSaveStatus(''), 5000);
+        }
+      } else {
+        setSaveStatus(`✓ PDF generated and downloaded: ${fileName}`);
+        setTimeout(() => setSaveStatus(''), 3000);
+      }
+      } catch (error) {
+      console.error('Error generating PDF:', error);
+      setSaveStatus('Error generating PDF');
+      setTimeout(() => setSaveStatus(''), 3000);
+      }
   };
 
   // Room Functions
@@ -344,6 +773,11 @@ function Estimating() {
       height: ''
     };
     setRooms([...rooms, newRoom]);
+    // Initialize empty line items array for new room
+    setRoomLineItems(prev => ({
+      ...prev,
+      [newRoom.id]: []
+    }));
   };
 
   const updateRoom = (id, field, value) => {
@@ -353,8 +787,22 @@ function Estimating() {
   };
 
   const removeRoom = (id) => {
-    if (rooms.length > 1) {
+    const room = rooms.find(r => r.id === id);
+    const roomName = room?.name || `Room ${id}`;
+    
+    if (rooms.length === 1) {
+      alert('You must have at least one room. Please add another room before deleting this one.');
+      return;
+    }
+    
+    if (window.confirm(`Are you sure you want to delete "${roomName}"? This will also remove all line items associated with this room.`)) {
       setRooms(rooms.filter(room => room.id !== id));
+      // Remove line items for this room
+      setRoomLineItems(prev => {
+        const updated = { ...prev };
+        delete updated[id];
+        return updated;
+      });
     }
   };
 
@@ -372,20 +820,33 @@ function Estimating() {
   };
 
   // Line Item Functions
-  const addLineItem = () => {
+  // Get all line items across all rooms for calculations
+  const getAllLineItems = () => {
+    return Object.values(roomLineItems).flat();
+  };
+
+  const addLineItem = (roomId) => {
+    const roomItems = roomLineItems[roomId] || [];
     const newItem = {
-      id: lineItems.length > 0 ? Math.max(...lineItems.map(i => i.id)) + 1 : 1,
+      id: Date.now() + Math.random(), // Unique ID
       item: '',
       uom: '',
       price: 0,
       qty: 1
     };
-    setLineItems([...lineItems, newItem]);
+    setRoomLineItems(prev => ({
+      ...prev,
+      [roomId]: [...roomItems, newItem]
+    }));
   };
 
-  const updateLineItem = (id, field, value) => {
-    setLineItems(lineItems.map(item => {
-      if (item.id === id) {
+  const updateLineItem = (roomId, itemId, field, value) => {
+    setRoomLineItems(prev => {
+      const roomItems = prev[roomId] || [];
+      return {
+        ...prev,
+        [roomId]: roomItems.map(item => {
+          if (item.id === itemId) {
         const updated = { ...item, [field]: value };
         
         // If item name changed, update UOM and price
@@ -397,13 +858,22 @@ function Estimating() {
         return updated;
       }
       return item;
-    }));
+        })
+      };
+    });
   };
 
-  const removeLineItem = (id) => {
-    if (lineItems.length > 1) {
-      setLineItems(lineItems.filter(item => item.id !== id));
-    }
+  const removeLineItem = (roomId, itemId) => {
+    setRoomLineItems(prev => {
+      const roomItems = prev[roomId] || [];
+      if (roomItems.length > 0) {
+        return {
+          ...prev,
+          [roomId]: roomItems.filter(item => item.id !== itemId)
+        };
+      }
+      return prev;
+    });
   };
 
   const calculateLineTotal = (item) => {
@@ -412,7 +882,8 @@ function Estimating() {
 
   // Calculate Totals
   const calculateTotals = () => {
-    const subTotal = lineItems.reduce((sum, item) => sum + calculateLineTotal(item), 0);
+    const allLineItems = getAllLineItems();
+    const subTotal = allLineItems.reduce((sum, item) => sum + calculateLineTotal(item), 0);
     
     // Surcharge calculation
     let surchargeCount = 0;
@@ -422,16 +893,21 @@ function Estimating() {
     const surchargeAmount = subTotal * 0.30 * surchargeCount;
     const subTotalWithSurcharge = subTotal + surchargeAmount;
     
-    // Tax calculation (25% of subtotal is taxable)
-    const taxableBase = subTotal * 0.25;
-    const taxAmount = taxableBase * 0.0975;
+    // Tax calculation - only on materials, not labor
+    const materialsTotal = allLineItems.reduce((sum, item) => {
+      if (MATERIAL_ITEMS.includes(item.item)) {
+        return sum + calculateLineTotal(item);
+      }
+      return sum;
+    }, 0);
     
+    const taxAmount = materialsTotal * 0.0975; // 9.75% tax on materials only
     const grandTotal = subTotalWithSurcharge + taxAmount;
     
     return {
       subTotal: subTotalWithSurcharge,
       surchargeAmount,
-      taxableBase,
+      taxableBase: materialsTotal, // Now shows materials total instead of 25% of subtotal
       taxAmount,
       grandTotal,
       hasSurcharge: surchargeCount > 0
@@ -464,7 +940,7 @@ function Estimating() {
       scopeText += `This scope includes the pack-out, cleaning, and restoration of salvageable personal property.`;
     }
     
-    // Add room summary
+    // Add room summary with square footage
     const validRooms = rooms.filter(r => r.name && r.length && r.width);
     if (validRooms.length > 0) {
       const totalSF = validRooms.reduce((sum, room) => {
@@ -472,8 +948,8 @@ function Estimating() {
         return sum + metrics.sf;
       }, 0);
       
-      const roomNames = [...new Set(validRooms.map(r => r.name))];
-      scopeText += ` The work is estimated to affect ${roomNames.length} ${roomNames.length === 1 ? 'room' : 'rooms'} (${roomNames.join(', ')}), totaling approximately ${Math.round(totalSF).toLocaleString()} SF.`;
+      const roomCount = validRooms.length;
+      scopeText += ` Mitigation needed for approximately ${Math.round(totalSF).toLocaleString()} square feet in ${roomCount} ${roomCount === 1 ? 'room' : 'rooms'}.`;
     }
     
     scopeText += `\n\nAdditional work may be required based on findings during the mitigation process.`;
@@ -486,7 +962,7 @@ function Estimating() {
   return (
     <div className="page-container estimating-page">
       <div className="estimate-container">
-        <h1>SPWC LLC Estimate Tool</h1>
+        <h1>SPWC Estimate Tool v2</h1>
 
         {/* Estimate Management */}
         <div className="estimate-management">
@@ -525,19 +1001,23 @@ function Estimating() {
           </div>
           
           <div className="management-actions">
-            <button onClick={saveEstimate}>💾 Save Estimate</button>
-            <button onClick={exportEstimate}>📥 Export to File</button>
-            <button onClick={() => document.getElementById('import-file').click()}>
-              📤 Import from File
-            </button>
+            <button onClick={() => saveEstimate(false)}>💾 Save Estimate</button>
+            <button onClick={generateAndSavePDF}>📄 Generate PDF</button>
             <button onClick={deleteEstimate} className="delete-btn">🗑️ Delete Selected</button>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
             <input
-              type="file"
-              id="import-file"
-              accept=".json"
-              style={{ display: 'none' }}
-              onChange={importEstimate}
-            />
+                type="checkbox"
+                checked={autoSaveEnabled}
+                onChange={(e) => {
+                  setAutoSaveEnabled(e.target.checked);
+                  if (e.target.checked && !currentEstimateId) {
+                    alert('Please save the estimate first to enable auto-save');
+                    setAutoSaveEnabled(false);
+                  }
+                }}
+              />
+              <span style={{ fontSize: '0.9rem' }}>Auto-save</span>
+            </label>
           </div>
           
           {saveStatus && <div className="save-status">{saveStatus}</div>}
@@ -685,6 +1165,11 @@ function Estimating() {
               <option value="full">Payment in Full upon Authorization</option>
               <option value="phased">Phased Project Payments (50/50)</option>
               <option value="milestone">Milestone Schedule</option>
+              <option value="net15">Net 15</option>
+              <option value="net30">Net 30</option>
+              <option value="net45">Net 45</option>
+              <option value="net60">Net 60</option>
+              <option value="dueOnCompletion">Due on Completion</option>
             </select>
           </div>
         </div>
@@ -717,7 +1202,6 @@ function Estimating() {
               <th style={{ width: '11%' }}>CF</th>
               <th style={{ width: '11%' }}>Perimeter</th>
               <th style={{ width: '11%' }}>Wall Area</th>
-              <th style={{ width: '6%' }}></th>
             </tr>
           </thead>
           <tbody>
@@ -792,15 +1276,6 @@ function Estimating() {
                       className="readonly"
                     />
                   </td>
-                  <td>
-                    <button
-                      onClick={() => removeRoom(room.id)}
-                      className="remove-btn"
-                      disabled={rooms.length === 1}
-                    >
-                      X
-                    </button>
-                  </td>
                 </tr>
               );
             })}
@@ -810,28 +1285,58 @@ function Estimating() {
           <button onClick={addRoom} className="add-btn">+ Add Room</button>
         </div>
 
-        {/* Line Items Table */}
-        <h2>Mitigation Action Line Items</h2>
+        {/* Line Items by Room */}
+        <h2>Mitigation Action Line Items by Room</h2>
+        {rooms.map(room => {
+          const roomItems = roomLineItems[room.id] || [];
+          return (
+            <div key={room.id} style={{ marginBottom: '30px', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '15px' }}>
+              <h3 style={{ marginTop: '0', marginBottom: '15px', color: '#1e293b' }}>
+                {room.name || `Room ${room.id}`}
+              </h3>
         <table className="estimate-table">
           <thead>
             <tr>
-              <th style={{ width: '35%' }}>Item Description</th>
+                    <th style={{ width: '15%' }}>Room</th>
+                    <th style={{ width: '30%' }}>Item Description</th>
               <th style={{ width: '10%' }}>UOM</th>
-              <th style={{ width: '15%' }}>Unit Price</th>
+                    <th style={{ width: '12%' }}>Unit Price</th>
               <th style={{ width: '10%' }}>Quantity</th>
-              <th style={{ width: '15%' }}>Line Total</th>
+                    <th style={{ width: '13%' }}>Line Total</th>
               <th style={{ width: '10%' }}></th>
             </tr>
           </thead>
           <tbody>
-            {lineItems.map(item => {
+                  {roomItems.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>
+                        No line items for this room yet. Click "Add Line Item" below to add items.
+                      </td>
+                    </tr>
+                  ) : (
+                    roomItems.map(item => {
               const lineTotal = calculateLineTotal(item);
               return (
                 <tr key={item.id}>
+                          <td>
+                            <input
+                              type="text"
+                              value={room.name || `Room ${room.id}`}
+                              readOnly
+                              className="readonly"
+                              style={{ 
+                                fontWeight: '600', 
+                                backgroundColor: '#f1f5f9',
+                                border: '1px solid #cbd5e1',
+                                padding: '8px',
+                                borderRadius: '4px'
+                              }}
+                            />
+                          </td>
                   <td>
                     <select
                       value={item.item}
-                      onChange={(e) => updateLineItem(item.id, 'item', e.target.value)}
+                              onChange={(e) => updateLineItem(room.id, item.id, 'item', e.target.value)}
                     >
                       <option value="">--- Select an Item ---</option>
                       {Object.keys(PRICE_LIST).map(itemName => (
@@ -859,7 +1364,7 @@ function Estimating() {
                     <input
                       type="number"
                       value={item.qty}
-                      onChange={(e) => updateLineItem(item.id, 'qty', e.target.value)}
+                              onChange={(e) => updateLineItem(room.id, item.id, 'qty', e.target.value)}
                       min="0"
                       step="any"
                     />
@@ -874,22 +1379,27 @@ function Estimating() {
                   </td>
                   <td>
                     <button
-                      onClick={() => removeLineItem(item.id)}
+                              onClick={() => removeLineItem(room.id, item.id)}
                       className="remove-btn"
-                      disabled={lineItems.length === 1}
                     >
                       X
                     </button>
                   </td>
                 </tr>
               );
-            })}
+                    })
+                  )}
           </tbody>
         </table>
+              <div className="button-row" style={{ marginTop: '10px' }}>
+                <button onClick={() => addLineItem(room.id)} className="add-btn">+ Add Line Item to {room.name || `Room ${room.id}`}</button>
+              </div>
+            </div>
+          );
+        })}
         
-        <div className="button-row">
-          <button onClick={addLineItem} className="add-btn">+ Add Line Item</button>
-          <button onClick={() => window.print()} className="print-btn">Create Customer Estimate</button>
+        <div className="button-row" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+          <button onClick={generateAndSavePDF} className="print-btn">📄 Create Customer Estimate</button>
         </div>
 
         {/* Totals */}
@@ -906,12 +1416,8 @@ function Estimating() {
             </div>
           )}
           <div className="total-line">
-            <span className="total-label">Tax (9.75%):</span>
+            <span className="total-label">Tax (9.75% on materials):</span>
             <span className="total-value">$ {formatCurrency(totals.taxAmount)}</span>
-          </div>
-          <div className="total-line" style={{ fontSize: '12px', color: '#94a3b8' }}>
-            <span className="total-label">Taxable portion:</span>
-            <span className="total-value">$ {formatCurrency(totals.taxableBase)}</span>
           </div>
           <div className="total-line grand-total">
             <span className="total-label">Grand Total:</span>

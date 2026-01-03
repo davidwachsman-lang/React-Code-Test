@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import intakeService from '../services/intakeService';
 import './Intake.css';
 
 
 function Intake() {
+  const addressInputRef = useRef(null);
+  const autocompleteRef = useRef(null);
+  
   const [formData, setFormData] = useState({
     division: 'HB - Nashville',
     propertyType: '',
     callerType: '', callerName: '', callerPhone: '', callerEmail: '', relationship: '',
-    address: '', city: '', state: '', zip: '', access: '', onsiteName: '', onsitePhone: '',
+    address: '', city: '', state: '', zip: '', latitude: '', longitude: '', access: '', onsiteName: '', onsitePhone: '',
     lossType: '', source: '', lossDate: '', activeLeak: '', category: '', wclass: '', sqft: '',
     carrier: '', claim: '', adjName: '', adjEmail: '', adjPhone: '', deductible: '', coverage: '',
     urgency: '', arrival: '', notes: '', branch: '', assigned: '',
@@ -125,7 +128,7 @@ function Intake() {
     setFormData({
       division: 'HB - Nashville',
       callerType: '', callerName: '', callerPhone: '', callerEmail: '', relationship: '',
-      address: '', city: '', state: '', zip: '', access: '', onsiteName: '', onsitePhone: '',
+      address: '', city: '', state: '', zip: '', latitude: '', longitude: '', access: '', onsiteName: '', onsitePhone: '',
       lossType: '', source: '', lossDate: '', activeLeak: '', category: '', wclass: '', sqft: '',
       carrier: '', claim: '', adjName: '', adjEmail: '', adjPhone: '', deductible: '', coverage: '',
       urgency: '', arrival: '', notes: '', branch: '', assigned: '',
@@ -135,6 +138,204 @@ function Intake() {
     setCustomerForms([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Initialize Google Places Autocomplete using new PlaceAutocompleteElement API
+  useEffect(() => {
+    let retryCount = 0;
+    const maxRetries = 50;
+
+    const initAutocomplete = () => {
+      if (!addressInputRef.current || !document.contains(addressInputRef.current)) {
+        retryCount++;
+        if (retryCount < maxRetries) {
+          setTimeout(initAutocomplete, 100);
+        }
+        return;
+      }
+
+      if (!window.google || !window.google.maps || !window.google.maps.places || !window.google.maps.places.PlaceAutocompleteElement) {
+        retryCount++;
+        if (retryCount < maxRetries) {
+          setTimeout(initAutocomplete, 100);
+        } else {
+          console.warn('Google Maps API not loaded. Autocomplete will not work. You can still type addresses manually.');
+          console.warn('Make sure you have enabled "Places API (New)" in Google Cloud Console.');
+        }
+        return;
+      }
+
+      try {
+        // Create the web component if it doesn't exist
+        if (!customElements.get('gmp-place-autocomplete')) {
+          customElements.define(
+            'gmp-place-autocomplete',
+            window.google.maps.places.PlaceAutocompleteElement
+          );
+        }
+
+        // Create autocomplete element
+        const autocompleteElement = document.createElement('gmp-place-autocomplete');
+        autocompleteElement.setAttribute('id', 'intake-address-autocomplete');
+        autocompleteElement.setAttribute('placeholder', 'Start typing address...');
+        autocompleteElement.setAttribute('requested-result-type', 'address');
+        autocompleteElement.setAttribute('country-restrictions', 'us');
+        
+        // Create a wrapper div with white background for better contrast
+        const wrapper = document.createElement('div');
+        wrapper.className = 'autocomplete-wrapper';
+        wrapper.style.width = '100%';
+        wrapper.style.padding = '0.75rem';
+        wrapper.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+        wrapper.style.borderRadius = '8px';
+        wrapper.style.backgroundColor = '#ffffff'; // White background for better contrast
+        wrapper.style.transition = 'all 0.3s ease';
+        wrapper.style.boxSizing = 'border-box';
+        
+        // Style the element
+        autocompleteElement.style.width = '100%';
+        autocompleteElement.style.setProperty('--gmpx-color-surface', 'transparent', 'important');
+        autocompleteElement.style.setProperty('--gmpx-color-on-surface', '#1e293b', 'important');
+        autocompleteElement.style.setProperty('--gmpx-color-outline', 'transparent', 'important');
+        autocompleteElement.style.padding = '0';
+        autocompleteElement.style.border = 'none';
+        autocompleteElement.style.background = 'transparent';
+        autocompleteElement.style.margin = '0';
+        autocompleteElement.style.boxShadow = 'none';
+        autocompleteElement.style.outline = 'none';
+
+        // Replace the input with the wrapper containing autocomplete element
+        const inputParent = addressInputRef.current.parentNode;
+        
+        // Hide the original input but keep it for form submission
+        addressInputRef.current.style.display = 'none';
+        addressInputRef.current.style.visibility = 'hidden';
+        addressInputRef.current.style.position = 'absolute';
+        addressInputRef.current.style.width = '1px';
+        addressInputRef.current.style.height = '1px';
+        addressInputRef.current.style.opacity = '0';
+        addressInputRef.current.style.pointerEvents = 'none';
+        
+        // Put autocomplete element inside wrapper
+        wrapper.appendChild(autocompleteElement);
+        
+        // Insert wrapper in place of the original input
+        inputParent.insertBefore(wrapper, addressInputRef.current);
+        
+        // Add focus styles to wrapper
+        const handleWrapperFocus = () => {
+          wrapper.style.borderColor = '#3b82f6';
+          wrapper.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+          wrapper.style.backgroundColor = '#ffffff'; // Stay white on focus
+        };
+        
+        const handleWrapperBlur = () => {
+          wrapper.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+          wrapper.style.boxShadow = 'none';
+          wrapper.style.backgroundColor = '#ffffff'; // White background
+        };
+        
+        // Listen for focus events on the autocomplete element
+        autocompleteElement.addEventListener('focusin', handleWrapperFocus);
+        autocompleteElement.addEventListener('focusout', handleWrapperBlur);
+
+        // Handle place selection
+        autocompleteElement.addEventListener('gmp-placeselect', async (event) => {
+          try {
+            const place = event.place;
+            if (place) {
+              const address = place.formattedAddress || place.displayName || '';
+              
+              let city = '';
+              let state = '';
+              let zip = '';
+              let latitude = '';
+              let longitude = '';
+              
+              if (place.addressComponents) {
+                place.addressComponents.forEach(component => {
+                  const types = component.types;
+                  if (types.includes('locality')) {
+                    city = component.longText || component.shortText || '';
+                  }
+                  if (types.includes('administrative_area_level_1')) {
+                    state = component.shortText || component.longText || '';
+                  }
+                  if (types.includes('postal_code')) {
+                    zip = component.longText || component.shortText || '';
+                  }
+                });
+              }
+              
+              if (place.location) {
+                if (typeof place.location.lat === 'function') {
+                  latitude = place.location.lat().toString();
+                  longitude = place.location.lng().toString();
+                } else {
+                  latitude = place.location.lat?.toString() || '';
+                  longitude = place.location.lng?.toString() || '';
+                }
+              }
+              
+              addressInputRef.current.value = address;
+              
+              setFormData(prev => ({
+                ...prev,
+                address: address,
+                city: city,
+                state: state,
+                zip: zip,
+                latitude: latitude,
+                longitude: longitude
+              }));
+              
+              if (latitude && longitude) {
+                console.log('Intake - Coordinates captured:', { latitude, longitude });
+              }
+            }
+          } catch (error) {
+            console.error('Error processing place selection:', error);
+          }
+        });
+
+        // Sync autocomplete value to hidden input
+        autocompleteElement.addEventListener('input', (event) => {
+          addressInputRef.current.value = event.target.value || '';
+          setFormData(prev => ({
+            ...prev,
+            address: event.target.value || ''
+          }));
+        });
+
+        autocompleteRef.current = { element: autocompleteElement, wrapper: wrapper };
+      } catch (error) {
+        console.error('Google Places initialization error:', error);
+        if (addressInputRef.current) {
+          addressInputRef.current.style.display = 'block';
+        }
+      }
+    };
+
+    const timeoutId = setTimeout(initAutocomplete, 200);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (autocompleteRef.current) {
+        const element = autocompleteRef.current.element || autocompleteRef.current;
+        const wrapper = autocompleteRef.current.wrapper;
+        
+        // Remove wrapper (which contains the element)
+        if (wrapper && wrapper.parentNode) {
+          wrapper.remove();
+        } else if (element && element.parentNode) {
+          element.remove();
+        }
+        autocompleteRef.current = null;
+      }
+      if (addressInputRef.current) {
+        addressInputRef.current.style.display = 'block';
+      }
+    };
+  }, []);
 
   return (
     <div className="intake-wrap">
@@ -197,21 +398,16 @@ function Intake() {
           <section className="intake-panel">
             <p className="section-title">PROPERTY & ACCESS</p>
             <div className="intake-grid">
-              <div className="col-6">
+              <div className="col-12">
                 <label htmlFor="address">Address</label>
-                <input id="address" value={formData.address} onChange={handleInputChange} placeholder="123 Main St" required />
-              </div>
-              <div className="col-3">
-                <label htmlFor="city">City</label>
-                <input id="city" value={formData.city} onChange={handleInputChange} placeholder="Nashville" required />
-              </div>
-              <div className="col-2">
-                <label htmlFor="state">State</label>
-                <input id="state" value={formData.state} onChange={handleInputChange} placeholder="TN" required />
-              </div>
-              <div className="col-2">
-                <label htmlFor="zip">ZIP</label>
-                <input id="zip" value={formData.zip} onChange={handleInputChange} placeholder="37201" required />
+                <input 
+                  id="address" 
+                  ref={addressInputRef}
+                  value={formData.address} 
+                  onChange={handleInputChange} 
+                  placeholder="Start typing address..." 
+                  required 
+                />
               </div>
               <div className="col-4">
                 <label htmlFor="access">Access Instructions</label>
@@ -338,21 +534,16 @@ function Intake() {
       <section className="intake-panel">
         <p className="section-title">PROPERTY & ACCESS</p>
         <div className="intake-grid">
-          <div className="col-6">
+          <div className="col-12">
             <label htmlFor="address">Loss Address</label>
-            <input id="address" value={formData.address} onChange={handleInputChange} placeholder="123 Main St" required />
-          </div>
-          <div className="col-2">
-            <label htmlFor="city">City</label>
-            <input id="city" value={formData.city} onChange={handleInputChange} />
-          </div>
-          <div className="col-2">
-            <label htmlFor="state">State</label>
-            <input id="state" maxLength="2" value={formData.state} onChange={handleInputChange} placeholder="TN" />
-          </div>
-          <div className="col-2">
-            <label htmlFor="zip">ZIP</label>
-            <input id="zip" value={formData.zip} onChange={handleInputChange} />
+            <input 
+              id="address" 
+              ref={addressInputRef}
+              value={formData.address} 
+              onChange={handleInputChange} 
+              placeholder="Start typing address..." 
+              required 
+            />
           </div>
           <div className="col-6">
             <label htmlFor="access">Access Instructions</label>

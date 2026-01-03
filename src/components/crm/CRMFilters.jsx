@@ -87,6 +87,8 @@ function CRMFilters({ filters, onFilterChange }) {
             <option value="paige">Paige</option>
             <option value="matt">Matt</option>
             <option value="tony">Tony</option>
+            <option value="david">David</option>
+            <option value="mike">Mike</option>
           </select>
         </div>
 

@@ -115,6 +115,23 @@ const Expectations2026Icon = () => (
   </svg>
 );
 
+const StormIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/>
+    <polyline points="13 11 9 17 15 17 11 23"/>
+  </svg>
+);
+
+const SandboxIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+    <line x1="9" y1="3" x2="9" y2="21"/>
+    <line x1="15" y1="3" x2="15" y2="21"/>
+    <line x1="3" y1="9" x2="21" y2="9"/>
+    <line x1="3" y1="15" x2="21" y2="15"/>
+  </svg>
+);
+
 const ChevronIcon = ({ direction }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     {direction === 'left' ? (
@@ -143,7 +160,9 @@ function Navigation() {
     { path: '/war-room', label: 'Daily War Room', icon: <WarRoomIcon /> },
     { path: '/financials', label: 'Financials & Billing', icon: <FinancialsIcon /> },
     { path: '/tm-estimate', label: 'T&M Estimate', icon: <TMEstimateIcon /> },
-    { path: '/expectations-2026', label: '2026 Expectations', icon: <Expectations2026Icon /> }
+    { path: '/storm', label: 'Storm', icon: <StormIcon /> },
+    { path: '/expectations-2026', label: '2026 Expectations', icon: <Expectations2026Icon /> },
+    { path: '/sandbox', label: 'Sandbox', icon: <SandboxIcon /> }
   ];
 
   const isActive = (path) => {

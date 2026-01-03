@@ -112,7 +112,18 @@ function ROITable({ records = [], onRecordClick }) {
       columnHelper.accessor('primary_sales_rep', {
         id: 'primary_sales_rep',
         header: 'Sales Rep',
-        cell: (info) => info.getValue() || 'Unassigned',
+        cell: (info) => {
+          const value = info.getValue();
+          if (!value) return 'Unassigned';
+          // Capitalize first letter
+          return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+        },
+        cell: (info) => {
+          const value = info.getValue();
+          if (!value) return 'Unassigned';
+          // Capitalize first letter
+          return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+        },
         enableSorting: true,
         size: 160,
       }),

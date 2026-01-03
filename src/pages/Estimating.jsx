@@ -91,6 +91,11 @@ function Estimating() {
     clientPhone: '',
     clientEmail: '',
     propertyAddress: '',
+    city: '',
+    state: '',
+    zip: '',
+    latitude: '',
+    longitude: '',
     projectManager: '',
     pmEmail: '',
     scopeType: '',
@@ -137,40 +142,200 @@ function Estimating() {
 
   // Auto-save functionality (debounced) - defined after saveEstimate
 
-  // Initialize Google Places Autocomplete
+  // Initialize Google Places Autocomplete using new PlaceAutocompleteElement API
   useEffect(() => {
-    const initAutocomplete = () => {
-      if (addressInputRef.current && window.google && window.google.maps && window.google.maps.places) {
-        try {
-          autocompleteRef.current = new window.google.maps.places.Autocomplete(
-            addressInputRef.current,
-            {
-              types: ['address'],
-              componentRestrictions: { country: 'us' }
-            }
-          );
+    let retryCount = 0;
+    const maxRetries = 50;
 
-          autocompleteRef.current.addListener('place_changed', () => {
-            const place = autocompleteRef.current.getPlace();
-            if (place.formatted_address) {
-              setJobDetails(prev => ({ ...prev, propertyAddress: place.formatted_address }));
-            }
-          });
-        } catch (error) {
-          console.log('Google Places initialization error:', error);
+    const initAutocomplete = () => {
+      if (!addressInputRef.current || !document.contains(addressInputRef.current)) {
+        retryCount++;
+        if (retryCount < maxRetries) {
+          setTimeout(initAutocomplete, 100);
         }
-      } else {
-        // Retry after a short delay if Google Maps isn't loaded yet
-        setTimeout(initAutocomplete, 100);
+        return;
+      }
+
+      if (!window.google || !window.google.maps || !window.google.maps.places || !window.google.maps.places.PlaceAutocompleteElement) {
+        retryCount++;
+        if (retryCount < maxRetries) {
+          setTimeout(initAutocomplete, 100);
+        } else {
+          console.warn('Google Maps API not loaded. Autocomplete will not work. You can still type addresses manually.');
+          console.warn('Make sure you have enabled "Places API (New)" in Google Cloud Console.');
+        }
+        return;
+      }
+
+      try {
+        // Create the web component if it doesn't exist
+        if (!customElements.get('gmp-place-autocomplete')) {
+          customElements.define(
+            'gmp-place-autocomplete',
+            window.google.maps.places.PlaceAutocompleteElement
+          );
+        }
+
+        // Create autocomplete element
+        const autocompleteElement = document.createElement('gmp-place-autocomplete');
+        autocompleteElement.setAttribute('id', 'estimate-address-autocomplete');
+        autocompleteElement.setAttribute('placeholder', 'Start typing address...');
+        autocompleteElement.setAttribute('requested-result-type', 'address');
+        autocompleteElement.setAttribute('country-restrictions', 'us');
+        
+        // Create a wrapper div with white background for better contrast
+        const wrapper = document.createElement('div');
+        wrapper.className = 'autocomplete-wrapper';
+        wrapper.style.width = '100%';
+        wrapper.style.padding = '0.75rem';
+        wrapper.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+        wrapper.style.borderRadius = '8px';
+        wrapper.style.backgroundColor = '#ffffff'; // White background for better contrast
+        wrapper.style.transition = 'all 0.3s ease';
+        wrapper.style.boxSizing = 'border-box';
+        
+        // Style the element
+        autocompleteElement.style.width = '100%';
+        autocompleteElement.style.setProperty('--gmpx-color-surface', 'transparent', 'important');
+        autocompleteElement.style.setProperty('--gmpx-color-on-surface', '#1e293b', 'important');
+        autocompleteElement.style.setProperty('--gmpx-color-outline', 'transparent', 'important');
+        autocompleteElement.style.padding = '0';
+        autocompleteElement.style.border = 'none';
+        autocompleteElement.style.background = 'transparent';
+        autocompleteElement.style.margin = '0';
+        autocompleteElement.style.boxShadow = 'none';
+        autocompleteElement.style.outline = 'none';
+
+        // Replace the input with the wrapper containing autocomplete element
+        const inputParent = addressInputRef.current.parentNode;
+        
+        // Hide the original input but keep it for form submission
+        addressInputRef.current.style.display = 'none';
+        addressInputRef.current.style.visibility = 'hidden';
+        addressInputRef.current.style.position = 'absolute';
+        addressInputRef.current.style.width = '1px';
+        addressInputRef.current.style.height = '1px';
+        addressInputRef.current.style.opacity = '0';
+        addressInputRef.current.style.pointerEvents = 'none';
+        
+        // Put autocomplete element inside wrapper
+        wrapper.appendChild(autocompleteElement);
+        
+        // Insert wrapper in place of the original input
+        inputParent.insertBefore(wrapper, addressInputRef.current);
+        
+        // Add focus styles to wrapper
+        const handleWrapperFocus = () => {
+          wrapper.style.borderColor = '#3b82f6';
+          wrapper.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+          wrapper.style.backgroundColor = '#ffffff'; // Stay white on focus
+        };
+        
+        const handleWrapperBlur = () => {
+          wrapper.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+          wrapper.style.boxShadow = 'none';
+          wrapper.style.backgroundColor = '#ffffff'; // White background
+        };
+        
+        // Listen for focus events on the autocomplete element
+        autocompleteElement.addEventListener('focusin', handleWrapperFocus);
+        autocompleteElement.addEventListener('focusout', handleWrapperBlur);
+
+        // Handle place selection
+        autocompleteElement.addEventListener('gmp-placeselect', async (event) => {
+          try {
+            const place = event.place;
+            if (place) {
+              const address = place.formattedAddress || place.displayName || '';
+              
+              let city = '';
+              let state = '';
+              let zip = '';
+              let latitude = '';
+              let longitude = '';
+              
+              if (place.addressComponents) {
+                place.addressComponents.forEach(component => {
+                  const types = component.types;
+                  if (types.includes('locality')) {
+                    city = component.longText || component.shortText || '';
+                  }
+                  if (types.includes('administrative_area_level_1')) {
+                    state = component.shortText || component.longText || '';
+                  }
+                  if (types.includes('postal_code')) {
+                    zip = component.longText || component.shortText || '';
+                  }
+                });
+              }
+              
+              if (place.location) {
+                if (typeof place.location.lat === 'function') {
+                  latitude = place.location.lat().toString();
+                  longitude = place.location.lng().toString();
+                } else {
+                  latitude = place.location.lat?.toString() || '';
+                  longitude = place.location.lng?.toString() || '';
+                }
+              }
+              
+              addressInputRef.current.value = address;
+              
+              setJobDetails(prev => ({
+                ...prev,
+                propertyAddress: address,
+                city: city,
+                state: state,
+                zip: zip,
+                latitude: latitude,
+                longitude: longitude
+              }));
+              
+              if (latitude && longitude) {
+                console.log('Estimate - Coordinates captured:', { latitude, longitude });
+              }
+            }
+          } catch (error) {
+            console.error('Error processing place selection:', error);
+          }
+        });
+
+        // Sync autocomplete value to hidden input
+        autocompleteElement.addEventListener('input', (event) => {
+          addressInputRef.current.value = event.target.value || '';
+          setJobDetails(prev => ({
+            ...prev,
+            propertyAddress: event.target.value || ''
+          }));
+        });
+
+        autocompleteRef.current = { element: autocompleteElement, wrapper: wrapper };
+      } catch (error) {
+        console.error('Google Places initialization error:', error);
+        if (addressInputRef.current) {
+          addressInputRef.current.style.display = 'block';
+        }
       }
     };
 
-    initAutocomplete();
+    const timeoutId = setTimeout(initAutocomplete, 200);
 
-    // Cleanup
     return () => {
-      if (autocompleteRef.current && window.google && window.google.maps && window.google.maps.event) {
-        window.google.maps.event.clearInstanceListeners(addressInputRef.current);
+      clearTimeout(timeoutId);
+      if (autocompleteRef.current) {
+        const element = autocompleteRef.current.element || autocompleteRef.current;
+        const wrapper = autocompleteRef.current.wrapper;
+        
+        // Remove wrapper (which contains the element)
+        if (wrapper && wrapper.parentNode) {
+          wrapper.remove();
+        } else if (element && element.parentNode) {
+          element.remove();
+        }
+        autocompleteRef.current = null;
+      }
+      if (addressInputRef.current) {
+        addressInputRef.current.style.display = 'block';
       }
     };
   }, []);
@@ -366,6 +531,11 @@ function Estimating() {
       clientPhone: '',
       clientEmail: '',
       propertyAddress: '',
+      city: '',
+      state: '',
+      zip: '',
+      latitude: '',
+      longitude: '',
       projectManager: '',
       pmEmail: '',
       scopeType: '',

@@ -257,6 +257,11 @@
   background: rgba(30, 41, 59, 1);
 }
 
+.btn-action.btn-delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
 .crm-table-empty {
   padding: 2rem;
   text-align: center;

@@ -15,6 +15,8 @@ import TMEstimate from './pages/TMEstimate';
 import ReportingAndAnalytics from './pages/ReportingAndAnalytics';
 import DailyWarRoom from './pages/DailyWarRoom';
 import Expectations2026 from './pages/Expectations2026';
+import Storm from './pages/Storm';
+import Sandbox from './pages/Sandbox';
 import './App.css';
 
 function ScrollToTop() {
@@ -133,7 +135,9 @@ function AppContent() {
           <Route path="/tm-estimate" element={<TMEstimate />} />
           <Route path="/reporting" element={<ReportingAndAnalytics />} />
           <Route path="/war-room" element={<DailyWarRoom />} />
+          <Route path="/storm" element={<Storm />} />
           <Route path="/expectations-2026" element={<Expectations2026 />} />
+          <Route path="/sandbox" element={<Sandbox />} />
           <Route path="/sales-test" element={<CRM />} />
           <Route path="/" element={<Intake />} />
         </Routes>

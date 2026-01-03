@@ -105,6 +105,25 @@ const jobService = {
       .order('created_at', { ascending: false });
     return handleSupabaseResult(response);
   },
+
+  // Get jobs by property_id
+  async getByPropertyId(propertyId) {
+    const response = await supabase
+      .from(TABLE)
+      .select('*')
+      .eq('property_id', propertyId)
+      .order('created_at', { ascending: false });
+    return handleSupabaseResult(response);
+  },
+
+  // Set property_id to null for jobs (used when deleting properties)
+  async clearPropertyId(propertyId) {
+    const response = await supabase
+      .from(TABLE)
+      .update({ property_id: null })
+      .eq('property_id', propertyId);
+    return handleSupabaseResult(response);
+  },
 };
 
 export default jobService;

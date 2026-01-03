@@ -8,6 +8,7 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
+import * as XLSX from 'xlsx';
 import crmService from '../../services/crmService';
 import './CRMTable.css';
 
@@ -17,7 +18,8 @@ function CRMTable({
   records = [], 
   onRecordClick, 
   onQuickLogActivity,
-  onToggleTopTarget 
+  onToggleTopTarget,
+  onDelete
 }) {
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
@@ -87,7 +89,7 @@ function CRMTable({
     }
   };
 
-  const handleExportCSV = () => {
+  const handleExportExcel = () => {
     const headers = [
       'Star',
       'Company Name',
@@ -113,23 +115,36 @@ function CRMTable({
         : record.estimated_job_value
         ? formatCurrency(record.estimated_job_value)
         : 'N/A',
-      record.primary_sales_rep || 'Unassigned'
+      record.primary_sales_rep 
+        ? record.primary_sales_rep.charAt(0).toUpperCase() + record.primary_sales_rep.slice(1).toLowerCase()
+        : 'Unassigned'
     ]);
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
+    // Create worksheet with headers and data
+    const worksheetData = [headers, ...rows];
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `crm_records_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Set column widths for better readability
+    const columnWidths = [
+      { wch: 5 },   // Star
+      { wch: 25 },  // Company Name
+      { wch: 20 },  // Contact Name
+      { wch: 30 },  // Email
+      { wch: 15 },  // Phone
+      { wch: 15 },  // Stage
+      { wch: 15 },  // Next Follow-up
+      { wch: 15 },  // Value
+      { wch: 15 }   // Sales Rep
+    ];
+    worksheet['!cols'] = columnWidths;
+
+    // Create workbook and add worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'CRM Records');
+
+    // Generate Excel file and download
+    const fileName = `crm_records_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
   };
 
   const columns = useMemo(
@@ -172,7 +187,12 @@ function CRMTable({
       columnHelper.accessor('primary_sales_rep', {
         id: 'primary_sales_rep',
         header: 'Sales Rep',
-        cell: (info) => info.getValue() || 'Unassigned',
+        cell: (info) => {
+          const value = info.getValue();
+          if (!value) return 'Unassigned';
+          // Capitalize first letter
+          return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+        },
         enableSorting: true,
         size: 160,
       }),
@@ -283,7 +303,7 @@ function CRMTable({
       }),
       columnHelper.display({
         id: 'actions',
-        header: 'Add Notes',
+        header: 'Actions',
         cell: (info) => (
           <div className="crm-table-actions" onClick={(e) => e.stopPropagation()}>
             {onQuickLogActivity && (
@@ -295,12 +315,21 @@ function CRMTable({
                 📝
               </button>
             )}
+            {onDelete && (
+              <button
+                className="btn-action btn-delete"
+                onClick={() => onDelete(info.row.original.id)}
+                title="Delete record"
+              >
+                🗑️
+              </button>
+            )}
           </div>
         ),
         size: 120,
       }),
     ],
-    [onRecordClick, onQuickLogActivity, onToggleTopTarget]
+    [onRecordClick, onQuickLogActivity, onToggleTopTarget, onDelete]
   );
 
   const table = useReactTable({
@@ -335,8 +364,8 @@ function CRMTable({
     <div className="crm-table-container">
       <div className="crm-table-controls">
         <div className="crm-table-actions-bar">
-          <button onClick={handleExportCSV} className="btn-export">
-            Export CSV
+          <button onClick={handleExportExcel} className="btn-export">
+            Export Excel
           </button>
         </div>
       </div>

@@ -6,7 +6,6 @@ import crmService from '../services/crmService';
 import SalesFunnel from '../components/SalesFunnel';
 import CRMTable from '../components/crm/CRMTable';
 import ROITable from '../components/crm/ROITable';
-import PerformanceScorecard from '../components/crm/PerformanceScorecard';
 import CRMFilters from '../components/crm/CRMFilters';
 import CRMForm from '../components/crm/CRMForm';
 import CRMDetail from '../components/crm/CRMDetail';
@@ -225,13 +224,13 @@ function CRM() {
   };
 
   const handleDeleteCRMRecord = async (id) => {
-    if (window.confirm('Are you sure you want to delete this CRM record?')) {
+    if (window.confirm('Are you sure you want to hide this CRM record? It will be permanently hidden from all CRM views but data will be preserved.')) {
       try {
         await deleteCRMRecord(() => crmService.delete(id));
         refetch();
       } catch (error) {
-        console.error('Error deleting CRM record:', error);
-        alert('Failed to delete CRM record: ' + error.message);
+        console.error('Error hiding CRM record:', error);
+        alert('Failed to hide CRM record: ' + error.message);
       }
     }
   };
@@ -560,13 +559,6 @@ function CRM() {
           ROI View
         </button>
         <button 
-          className={`action-btn ${activeTab === 'scorecard' ? 'action-btn-green' : 'action-btn-gray'}`}
-          onClick={() => setActiveTab('scorecard')}
-        >
-          <span className="btn-icon">⭐</span>
-          Performance Scorecard
-        </button>
-        <button 
           className={`action-btn ${activeTab === 'funnel' ? 'action-btn-purple' : 'action-btn-gray'}`}
           onClick={() => setActiveTab('funnel')}
         >
@@ -660,6 +652,7 @@ function CRM() {
               onRecordClick={handleEdit}
               onQuickLogActivity={handleQuickLogActivity}
               onToggleTopTarget={handleToggleTopTarget}
+              onDelete={handleDeleteCRMRecord}
             />
           )}
                 </div>
@@ -717,15 +710,6 @@ function CRM() {
         </div>
       )}
 
-      {/* Performance Scorecard View */}
-      {activeTab === 'scorecard' && (
-        <div className="customers-container">
-          <div className="customers-header">
-            <h2>Performance Scorecard</h2>
-          </div>
-          <PerformanceScorecard />
-        </div>
-      )}
 
       {/* Sales Funnel View */}
       {activeTab === 'funnel' && (

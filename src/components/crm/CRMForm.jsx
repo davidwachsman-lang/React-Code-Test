@@ -585,6 +585,60 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
       </div>
 
       <div className="form-section-divider"></div>
+      <div className="form-section-header">Sales Rep Assignment</div>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label>Primary Sales Rep</label>
+          <select
+            name="primary_sales_rep"
+            value={formData.primary_sales_rep}
+            onChange={handleInputChange}
+          >
+            <option value="">Unassigned</option>
+            <option value="bri">Bri</option>
+            <option value="paige">Paige</option>
+            <option value="matt">Matt</option>
+            <option value="tony">Tony</option>
+            <option value="david">David</option>
+            <option value="mike">Mike</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Secondary Sales Rep</label>
+          <select
+            name="secondary_sales_rep"
+            value={formData.secondary_sales_rep}
+            onChange={handleInputChange}
+          >
+            <option value="">Unassigned</option>
+            <option value="bri">Bri</option>
+            <option value="paige">Paige</option>
+            <option value="matt">Matt</option>
+            <option value="tony">Tony</option>
+            <option value="david">David</option>
+            <option value="mike">Mike</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Account Manager</label>
+          <select
+            name="account_manager"
+            value={formData.account_manager}
+            onChange={handleInputChange}
+          >
+            <option value="">Unassigned</option>
+            <option value="bri">Bri</option>
+            <option value="paige">Paige</option>
+            <option value="matt">Matt</option>
+            <option value="tony">Tony</option>
+            <option value="david">David</option>
+            <option value="mike">Mike</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="form-section-divider"></div>
       <div className="form-section-header">Key Dates</div>
 
       <div className="form-row">

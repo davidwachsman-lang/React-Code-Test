@@ -1,18 +1,32 @@
 // CRM Service - Supabase queries for CRM Records
 import { supabase, handleSupabaseResult } from './supabaseClient';
+import propertyService from './propertyService';
+import jobService from './jobService';
 
 const TABLE = 'crm_records';
 
 const crmService = {
-  // Get all CRM records
+  // Get all CRM records (excluding deleted/hidden ones)
   async getAll() {
-    const response = await supabase
+    let response = await supabase
       .from(TABLE)
       .select(`
         *,
         parent:crm_records!parent_id(id, company_name)
       `)
+      .neq('is_deleted', true) // Exclude records where is_deleted is true
       .order('created_at', { ascending: false });
+    
+    // If column doesn't exist, try without the filter
+    if (response.error && response.error.message && response.error.message.includes('is_deleted')) {
+      response = await supabase
+        .from(TABLE)
+        .select(`
+          *,
+          parent:crm_records!parent_id(id, company_name)
+        `)
+        .order('created_at', { ascending: false });
+    }
     
     const result = handleSupabaseResult(response);
     
@@ -48,6 +62,7 @@ const crmService = {
                 .from(TABLE)
                 .select('company_name')
                 .eq('id', record.parent_id)
+                .neq('is_deleted', true)
                 .maybeSingle();
               const parent = handleSupabaseResult(parentResponse);
               return {
@@ -76,13 +91,23 @@ const crmService = {
     return handleSupabaseResult(response);
   },
 
-  // Get CRM record by ID
+  // Get CRM record by ID (excluding deleted)
   async getById(id) {
-    const response = await supabase
+    let response = await supabase
       .from(TABLE)
       .select('*')
       .eq('id', id)
+      .neq('is_deleted', true)
       .maybeSingle();
+    
+    if (response.error && response.error.message && response.error.message.includes('is_deleted')) {
+      response = await supabase
+        .from(TABLE)
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+    }
+    
     return handleSupabaseResult(response);
   },
 
@@ -140,43 +165,83 @@ const crmService = {
     return handleSupabaseResult(response);
   },
 
-  // Delete CRM record
+  // Soft delete CRM record (marks as deleted/hidden instead of actually deleting)
+  // This preserves all data but hides the record from CRM views
   async delete(id) {
-    const response = await supabase
-      .from(TABLE)
-      .delete()
-      .eq('id', id);
-    return handleSupabaseResult(response);
+    try {
+      // Mark the record as deleted instead of actually deleting it
+      const response = await supabase
+        .from(TABLE)
+        .update({ is_deleted: true, deleted_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      return handleSupabaseResult(response);
+    } catch (error) {
+      console.error('Error soft deleting CRM record:', error);
+      throw error;
+    }
   },
 
-  // Search CRM records
+  // Search CRM records (excluding deleted)
   async search(query) {
     const searchValue = `%${query || ''}%`;
-    const response = await supabase
+    let response = await supabase
       .from(TABLE)
       .select('*')
+      .neq('is_deleted', true)
       .or(`company_name.ilike.${searchValue},first_name.ilike.${searchValue},last_name.ilike.${searchValue},email.ilike.${searchValue},phone_primary.ilike.${searchValue}`)
       .order('created_at', { ascending: false });
+    
+    // If column doesn't exist, try without the filter
+    if (response.error && response.error.message && response.error.message.includes('is_deleted')) {
+      response = await supabase
+        .from(TABLE)
+        .select('*')
+        .or(`company_name.ilike.${searchValue},first_name.ilike.${searchValue},last_name.ilike.${searchValue},email.ilike.${searchValue},phone_primary.ilike.${searchValue}`)
+        .order('created_at', { ascending: false });
+    }
+    
     return handleSupabaseResult(response);
   },
 
-  // Get CRM records by relationship_stage
+  // Get CRM records by relationship_stage (excluding deleted)
   async getByStage(stage) {
-    const response = await supabase
+    let response = await supabase
       .from(TABLE)
       .select('*')
       .eq('relationship_stage', stage)
+      .neq('is_deleted', true)
       .order('created_at', { ascending: false });
+    
+    if (response.error && response.error.message && response.error.message.includes('is_deleted')) {
+      response = await supabase
+        .from(TABLE)
+        .select('*')
+        .eq('relationship_stage', stage)
+        .order('created_at', { ascending: false });
+    }
+    
     return handleSupabaseResult(response);
   },
 
-  // Get CRM records by sales rep (primary, secondary, or account manager)
+  // Get CRM records by sales rep (primary, secondary, or account manager) (excluding deleted)
   async getBySalesRep(userId) {
-    const response = await supabase
+    let response = await supabase
       .from(TABLE)
       .select('*')
+      .neq('is_deleted', true)
       .or(`primary_sales_rep.eq.${userId},secondary_sales_rep.eq.${userId},account_manager.eq.${userId}`)
       .order('created_at', { ascending: false });
+    
+    if (response.error && response.error.message && response.error.message.includes('is_deleted')) {
+      response = await supabase
+        .from(TABLE)
+        .select('*')
+        .or(`primary_sales_rep.eq.${userId},secondary_sales_rep.eq.${userId},account_manager.eq.${userId}`)
+        .order('created_at', { ascending: false });
+    }
+    
     return handleSupabaseResult(response);
   },
 
@@ -206,15 +271,26 @@ const crmService = {
     return handleSupabaseResult(response);
   },
 
-  // Get CRM records needing followup (next_followup_date <= today)
+  // Get CRM records needing followup (next_followup_date <= today) (excluding deleted)
   async getNeedingFollowup() {
     const today = new Date().toISOString().split('T')[0];
-    const response = await supabase
+    let response = await supabase
       .from(TABLE)
       .select('*')
+      .neq('is_deleted', true)
       .lte('next_followup_date', today)
       .not('next_followup_date', 'is', null)
       .order('next_followup_date', { ascending: true });
+    
+    if (response.error && response.error.message && response.error.message.includes('is_deleted')) {
+      response = await supabase
+        .from(TABLE)
+        .select('*')
+        .lte('next_followup_date', today)
+        .not('next_followup_date', 'is', null)
+        .order('next_followup_date', { ascending: true });
+    }
+    
     return handleSupabaseResult(response);
   },
 
@@ -237,13 +313,23 @@ const crmService = {
     return handleSupabaseResult(response);
   },
 
-  // Get child CRM records (by parent_id)
+  // Get child CRM records (by parent_id) (excluding deleted)
   async getChildren(parentId) {
-    const response = await supabase
+    let response = await supabase
       .from(TABLE)
       .select('*')
       .eq('parent_id', parentId)
+      .neq('is_deleted', true)
       .order('created_at', { ascending: false });
+    
+    if (response.error && response.error.message && response.error.message.includes('is_deleted')) {
+      response = await supabase
+        .from(TABLE)
+        .select('*')
+        .eq('parent_id', parentId)
+        .order('created_at', { ascending: false });
+    }
+    
     return handleSupabaseResult(response);
   },
 

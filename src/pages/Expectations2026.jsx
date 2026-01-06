@@ -21,18 +21,25 @@ function Expectations2026() {
       'Close jobs cleanly – paperwork, billing, and follow-up matter.'
     ],
     'Estimators': [
-      'Capture all affected areas, trades, and line items so work is never missed or under-scoped.',
+      'Capture all affected areas, trades, and line items to prevent missed scope and downstream rework.',
       'Produce accurate, complete, and defensible estimates that reflect the full scope of loss and withstand carrier and customer review.',
       'Coordinate with project managers and field teams to ensure scopes are practical, buildable, and executable.',
       'Meet estimate turnaround timelines and communicate early if delays or complexities arise.',
       'Maintain clean, audit-ready documentation including photos, notes, sketches, and estimate narratives.'
     ],
     'Crew Chiefs': [
-      'Lead by example – attitude sets the tone.',
+      'Lead by example – attitude and professionalism set the tone.',
       'Run safe, organized, professional job sites.',
       'Follow drying, demolition, and safety protocols exactly.',
       'Protect customer property and maintain cleanliness.',
       'Communicate daily job status clearly and accurately.'
+    ],
+    'Job File Coordinators': [
+      'Support clear, consistent communication with internal and external customers.',
+      'Own job file integrity and accuracy from start to finish.',
+      'Ensure scope, approvals, and documentation align to customer expectations.',
+      'Support billing speed and accuracy.',
+      'Surface gaps and issues early before they impact the customer.'
     ],
     'Technicians': [
       'Follow instructions, SOPs, and safety requirements.',
@@ -42,7 +49,7 @@ function Expectations2026() {
       'Support your team – no egos, no shortcuts.'
     ],
     'Sales / Business Development': [
-      'Set honest expectations with customers and partners.',
+      'Set honest, realistic expectations with customers and partners.',
       'Represent the brand professionally at all times.',
       'Document opportunities and handoffs clearly.',
       'Stay within process and approval guidelines.',
@@ -57,7 +64,7 @@ function Expectations2026() {
     ],
     'Leadership + Management': [
       'Hold people accountable – fairly and promptly.',
-      'Be visible, clear, and consistent.',
+      'Be visible, clear, direct, and consistent.',
       'Remove obstacles for the team.',
       'Communicate the "why," not just the "what."',
       'Model the behavior expected of everyone else.'
@@ -221,7 +228,7 @@ function Expectations2026() {
 
         {/* Role-Specific Expectations */}
         <section className="expectations-section role-expectations">
-          <h2 className="section-title">Role-Specific Expectations</h2>
+          <h2 className="section-title">Role-Specific Expectations & Performance Management</h2>
           
           <div className="role-selector">
             <label htmlFor="role-select">Select Role:</label>

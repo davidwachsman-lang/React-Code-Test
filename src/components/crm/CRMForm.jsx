@@ -602,6 +602,8 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
             <option value="tony">Tony</option>
             <option value="david">David</option>
             <option value="mike">Mike</option>
+            <option value="ainsley">Ainsley</option>
+            <option value="joe">Joe</option>
           </select>
         </div>
         <div className="form-group">
@@ -618,6 +620,8 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
             <option value="tony">Tony</option>
             <option value="david">David</option>
             <option value="mike">Mike</option>
+            <option value="ainsley">Ainsley</option>
+            <option value="joe">Joe</option>
           </select>
         </div>
         <div className="form-group">
@@ -634,6 +638,8 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
             <option value="tony">Tony</option>
             <option value="david">David</option>
             <option value="mike">Mike</option>
+            <option value="ainsley">Ainsley</option>
+            <option value="joe">Joe</option>
           </select>
         </div>
       </div>

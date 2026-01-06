@@ -26,6 +26,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop trigger if it exists, then create it
+DROP TRIGGER IF EXISTS role_expectations_notes_updated_at ON role_expectations_notes;
+
 -- Create trigger to automatically update updated_at
 CREATE TRIGGER role_expectations_notes_updated_at
   BEFORE UPDATE ON role_expectations_notes

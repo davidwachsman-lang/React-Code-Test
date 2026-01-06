@@ -28,11 +28,10 @@
 /* Action Buttons */
 .crm-action-buttons {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 0.75rem;
   flex-shrink: 0;
   margin-top: 0.5rem;
-  overflow-x: auto;
 }
 
 .action-btn {
@@ -50,8 +49,13 @@
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
   flex-shrink: 0;
+  width: 180px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
+  line-height: 1.3;
 }
 
 .action-btn:hover {
@@ -903,7 +907,7 @@
   background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
   border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 0.75rem;
   overflow-x: auto;
 }
 
@@ -911,6 +915,8 @@
   width: 100%;
   border-collapse: collapse;
   min-width: 600px;
+  background: rgba(15, 23, 42, 0.4);
+  font-size: 0.8rem;
 }
 
 .top-targets-table thead {
@@ -919,47 +925,110 @@
 }
 
 .top-targets-table th {
-  padding: 1rem;
-  text-align: left;
-  color: #60a5fa;
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  color: #f1f5f9;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  border-right: 1px solid rgba(59, 130, 246, 0.2);
+  line-height: 1.2;
 }
 
-.top-targets-table th:first-child {
-  width: 60px;
+.top-targets-position-header {
+  width: 50px;
   text-align: center;
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.top-targets-section-header {
+  background: rgba(59, 130, 246, 0.2) !important;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #60a5fa;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.3rem 0.5rem;
+}
+
+.top-targets-rep-header {
+  min-width: 100px;
+  max-width: 120px;
+  text-align: center;
+  background: rgba(59, 130, 246, 0.1);
+  font-weight: 600;
+  font-size: 0.7rem;
 }
 
 .top-targets-table td {
-  padding: 1rem;
-  color: #cbd5e1;
-  font-size: 0.95rem;
+  padding: 0.35rem 0.4rem;
+  color: #f1f5f9;
+  font-size: 0.75rem;
   border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  border-right: 1px solid rgba(59, 130, 246, 0.1);
+  text-align: center;
+  line-height: 1.3;
 }
 
-.rank-cell {
+.top-targets-position-cell {
   text-align: center;
   font-weight: 600;
   color: #94a3b8;
-  width: 60px;
+  background: rgba(59, 130, 246, 0.05);
+  width: 50px;
+  font-size: 0.7rem;
 }
 
-.target-cell {
+.top-targets-cell {
+  cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
+  min-height: 32px;
+  position: relative;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.top-targets-cell:hover {
+  background: rgba(59, 130, 246, 0.2) !important;
+  transform: scale(1.01);
+  box-shadow: 0 1px 4px rgba(59, 130, 246, 0.3);
+}
+
+.top-targets-empty {
   color: #64748b;
+  font-style: italic;
+  font-size: 0.7rem;
 }
 
-.target-cell-clickable {
-  color: #f1f5f9;
+/* Status color coding */
+.top-targets-status-red {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-left: 4px solid #ef4444;
 }
 
-.target-cell-clickable:hover {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
+.top-targets-status-red:hover {
+  background: rgba(239, 68, 68, 0.3) !important;
+}
+
+.top-targets-status-yellow {
+  background: rgba(234, 179, 8, 0.2) !important;
+  border-left: 4px solid #eab308;
+}
+
+.top-targets-status-yellow:hover {
+  background: rgba(234, 179, 8, 0.3) !important;
+}
+
+.top-targets-status-green {
+  background: rgba(34, 197, 94, 0.2) !important;
+  border-left: 4px solid #22c55e;
+}
+
+.top-targets-status-green:hover {
+  background: rgba(34, 197, 94, 0.3) !important;
 }
 
 /* Dashboard Grid */

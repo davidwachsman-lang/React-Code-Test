@@ -4,6 +4,7 @@ import { useCRM, useTopTargets, useCRMNeedingFollowup, useActiveProspects, useHo
 import { useCreateCRMRecord, useUpdateCRMRecord, useDeleteCRMRecord } from '../hooks/useCRMRecord';
 import crmService from '../services/crmService';
 import activityTrackingService from '../services/activityTrackingService';
+import topTargetsService from '../services/topTargetsService';
 import SalesFunnel from '../components/SalesFunnel';
 import CRMTable from '../components/crm/CRMTable';
 import ROITable from '../components/crm/ROITable';
@@ -43,7 +44,7 @@ function CRM() {
   const [editingRecord, setEditingRecord] = useState(null);
   const [viewingRecord, setViewingRecord] = useState(null);
   const [parentRecord, setParentRecord] = useState(null);
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'hot', 'atRisk', 'inactive', 'lost', 'dashboard', 'funnel', 'playbook', 'roi'
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'hot', 'atRisk', 'inactive', 'lost', 'dashboard', 'funnel', 'playbook', 'roi', 'topTargets'
   const [selectedSalesRep, setSelectedSalesRep] = useState('all');
   const [filters, setFilters] = useState({
     relationship_stage: 'all',
@@ -70,6 +71,14 @@ function CRM() {
     insightMeetings: 0,
     initialCommitments: 0,
     referralJobs: 0
+  });
+  const [topTargetsData, setTopTargetsData] = useState({});
+  const [loadingTopTargets, setLoadingTopTargets] = useState(false);
+  const [showTopTargetModal, setShowTopTargetModal] = useState(false);
+  const [editingTarget, setEditingTarget] = useState(null);
+  const [targetFormData, setTargetFormData] = useState({
+    companyName: '',
+    status: ''
   });
 
   // Load activity data when week changes or when activity tab is active
@@ -136,6 +145,238 @@ function CRM() {
     
     loadActivityData();
   }, [activeTab, selectedWeekStart]);
+
+  // Sales rep sections for Top 10 Targets
+  const topTargetsSections = [
+    { name: 'HB Nashville', reps: ['Ainsley', 'Joe', 'Paige', 'Bri'] },
+    { name: 'National', reps: ['Matt', 'Tony'] },
+    { name: 'Other', reps: ['David', 'Mike'] }
+  ];
+  const allTopTargetsReps = topTargetsSections.flatMap(section => section.reps);
+
+  // Initial targets data to populate (from Top 10 Targets PowerPoint table)
+  const initialTargetsData = {
+    'Bri': [
+      'Country Music Hall of Fame',
+      'Fire Station Wilson Co (11 Total)'
+    ],
+    'Matt': [
+      'National Management Resources',
+      'Mercy Housing',
+      'Sewanee Univ',
+      'Union',
+      'Cumberland Univ',
+      'GT',
+      'Share Source',
+      'Univ of Tenn Med Ctr',
+      'Higginbotham',
+      'Belmont Univ.'
+    ],
+    'Tony': [
+      'Cushman & Wakefield',
+      'Avison Young',
+      'Charles Hawkins Co',
+      'Commonwealth Commercial Partners',
+      'Holladay Properties',
+      'Brookside Properties',
+      'Lincoln Property Company',
+      'Taubman Centers, Inc.',
+      'Southeast Venture LLC',
+      'Tony G (nashRE)'
+    ],
+    'Paige': [
+      'Willow Bridge',
+      'Greystar',
+      'Avison Young',
+      'Lion Real Estate Group',
+      'Schatten Properties',
+      'New Earth Residential',
+      'TC Restaurant Group',
+      'Evergreen',
+      'Colliers',
+      'Fairfield Residential',
+      'Freeman Webb (Local)'
+    ],
+    'Mike': [
+      // Mike's column appears to be empty in the table
+    ],
+    'David': [
+      'HCA',
+      'Acadia',
+      'Strategic Hospitality',
+      'Taylor Farms',
+      'Oliver Hospitality',
+      'Southern Land Co',
+      'Abe\'s Garden',
+      'Ghertner and Co',
+      'AMZ'
+    ]
+  };
+
+  // Load top targets data when tab is active
+  useEffect(() => {
+    if (activeTab !== 'topTargets') return;
+    
+    const loadTopTargets = async () => {
+      setLoadingTopTargets(true);
+      try {
+        // Load existing data first (fast)
+        const allTargets = await topTargetsService.getAll();
+        
+        // Transform and display data immediately
+        const targetsObj = {};
+        allTopTargetsReps.forEach(rep => {
+          targetsObj[rep] = {};
+          for (let i = 1; i <= 10; i++) {
+            targetsObj[rep][i] = { companyName: '', status: '', id: null };
+          }
+        });
+        
+        allTargets.forEach(target => {
+          const repName = target.sales_rep.charAt(0).toUpperCase() + target.sales_rep.slice(1).toLowerCase();
+          if (targetsObj[repName] && target.target_position >= 1 && target.target_position <= 10) {
+            targetsObj[repName][target.target_position] = {
+              companyName: target.company_name || '',
+              status: target.status || '',
+              id: target.id
+            };
+          }
+        });
+        
+        // Show data immediately
+        setTopTargetsData(targetsObj);
+        setLoadingTopTargets(false);
+        
+        // Check if sync is needed (only sync if data is missing or different)
+        let needsSync = false;
+        for (const [salesRep, targets] of Object.entries(initialTargetsData)) {
+          const existingTargets = allTargets.filter(
+            t => t.sales_rep.toLowerCase() === salesRep.toLowerCase()
+          );
+          // Check if we need to sync (missing data or first target doesn't match)
+          if (existingTargets.length === 0 || 
+              (targets.length > 0 && existingTargets[0]?.company_name !== targets[0])) {
+            needsSync = true;
+            break;
+          }
+        }
+        
+        // Sync in background if needed (don't block UI)
+        if (needsSync) {
+          console.log('Syncing targets data in background...');
+          const syncPromises = [];
+          
+          for (const [salesRep, targets] of Object.entries(initialTargetsData)) {
+            // Update targets for this sales rep (up to 10 positions)
+            for (let i = 0; i < targets.length && i < 10; i++) {
+              const existingTarget = allTargets.find(
+                t => t.sales_rep.toLowerCase() === salesRep.toLowerCase() && t.target_position === i + 1
+              );
+              // Only update if different
+              if (!existingTarget || existingTarget.company_name !== targets[i]) {
+                syncPromises.push(
+                  topTargetsService.upsert({
+                    sales_rep: salesRep,
+                    target_position: i + 1,
+                    company_name: targets[i],
+                    status: existingTarget?.status || null
+                  })
+                );
+              }
+            }
+          }
+          
+          // Run all syncs in parallel (much faster)
+          if (syncPromises.length > 0) {
+            await Promise.all(syncPromises);
+            // Reload and update after sync
+            const reloadedTargets = await topTargetsService.getAll();
+            const updatedTargetsObj = {};
+            allTopTargetsReps.forEach(rep => {
+              updatedTargetsObj[rep] = {};
+              for (let i = 1; i <= 10; i++) {
+                updatedTargetsObj[rep][i] = { companyName: '', status: '', id: null };
+              }
+            });
+            reloadedTargets.forEach(target => {
+              const repName = target.sales_rep.charAt(0).toUpperCase() + target.sales_rep.slice(1).toLowerCase();
+              if (updatedTargetsObj[repName] && target.target_position >= 1 && target.target_position <= 10) {
+                updatedTargetsObj[repName][target.target_position] = {
+                  companyName: target.company_name || '',
+                  status: target.status || '',
+                  id: target.id
+                };
+              }
+            });
+            setTopTargetsData(updatedTargetsObj);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading top targets:', error);
+        setLoadingTopTargets(false);
+      }
+    };
+    
+    loadTopTargets();
+  }, [activeTab]);
+
+  // Handle target cell click
+  const handleTargetCellClick = (salesRep, position) => {
+    const target = topTargetsData[salesRep]?.[position] || { companyName: '', status: '', id: null };
+    setEditingTarget({ salesRep, position, id: target.id });
+    setTargetFormData({
+      companyName: target.companyName,
+      status: target.status
+    });
+    setShowTopTargetModal(true);
+  };
+
+  // Handle target form submission
+  const handleTargetFormSubmit = async (e) => {
+    e.preventDefault();
+    if (!editingTarget) return;
+    
+    setLoadingTopTargets(true);
+    try {
+      await topTargetsService.upsert({
+        sales_rep: editingTarget.salesRep,
+        target_position: editingTarget.position,
+        company_name: targetFormData.companyName.trim() || null,
+        status: targetFormData.status || null
+      });
+      
+      // Reload targets data
+      const allTargets = await topTargetsService.getAll();
+      const targetsObj = {};
+      
+      allTopTargetsReps.forEach(rep => {
+        targetsObj[rep] = {};
+        for (let i = 1; i <= 10; i++) {
+          targetsObj[rep][i] = { companyName: '', status: '', id: null };
+        }
+      });
+      
+      allTargets.forEach(target => {
+        const repName = target.sales_rep.charAt(0).toUpperCase() + target.sales_rep.slice(1).toLowerCase();
+        if (targetsObj[repName] && target.target_position >= 1 && target.target_position <= 10) {
+          targetsObj[repName][target.target_position] = {
+            companyName: target.company_name || '',
+            status: target.status || '',
+            id: target.id
+          };
+        }
+      });
+      
+      setTopTargetsData(targetsObj);
+      setShowTopTargetModal(false);
+      setEditingTarget(null);
+    } catch (error) {
+      console.error('Error saving target:', error);
+      alert('Failed to save target: ' + (error.message || 'Unknown error'));
+    } finally {
+      setLoadingTopTargets(false);
+    }
+  };
 
   // Handle activity form submission
   const handleActivityFormSubmit = async (e) => {
@@ -715,6 +956,13 @@ function CRM() {
         >
           <span className="btn-icon">📝</span>
           Activity Tracking
+        </button>
+        <button 
+          className={`action-btn ${activeTab === 'topTargets' ? 'action-btn-green' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('topTargets')}
+        >
+          <span className="btn-icon">🎯</span>
+          Top 10 Targets
         </button>
       </div>
 
@@ -1761,6 +2009,116 @@ function CRM() {
                 </button>
                 <button type="submit" className="btn-primary" disabled={savingActivity}>
                   {savingActivity ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Top 10 Targets View */}
+      {activeTab === 'topTargets' && (
+        <div className="customers-container">
+          <div className="customers-header">
+            <h2>Top 10 Targets</h2>
+          </div>
+          {loadingTopTargets ? (
+            <div className="crm-loading">
+              <p>Loading targets...</p>
+            </div>
+          ) : (
+            <div className="top-targets-table-container">
+              <table className="top-targets-table">
+                <thead>
+                  <tr>
+                    <th rowSpan="2" className="top-targets-position-header">Position</th>
+                    {topTargetsSections.map(section => (
+                      <th key={section.name} colSpan={section.reps.length} className="top-targets-section-header">
+                        {section.name}
+                      </th>
+                    ))}
+                  </tr>
+                  <tr>
+                    {topTargetsSections.map(section =>
+                      section.reps.map(rep => (
+                        <th key={rep} className="top-targets-rep-header">{rep}</th>
+                      ))
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(position => (
+                    <tr key={position}>
+                      <td className="top-targets-position-cell">{position}</td>
+                      {topTargetsSections.map(section =>
+                        section.reps.map(rep => {
+                          const target = topTargetsData[rep]?.[position] || { companyName: '', status: '', id: null };
+                          const statusClass = target.status ? `top-targets-status-${target.status}` : '';
+                          return (
+                            <td
+                              key={rep}
+                              className={`top-targets-cell ${statusClass}`}
+                              onClick={() => handleTargetCellClick(rep, position)}
+                            >
+                              {target.companyName || <span className="top-targets-empty">Click to add</span>}
+                            </td>
+                          );
+                        })
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Top Target Edit Modal */}
+      {showTopTargetModal && editingTarget && (
+        <div className="modal-overlay" onClick={() => {
+          setShowTopTargetModal(false);
+          setEditingTarget(null);
+        }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <div className="modal-header">
+              <h2>Edit Target - {editingTarget.salesRep} (Position {editingTarget.position})</h2>
+              <button className="close-btn" onClick={() => {
+                setShowTopTargetModal(false);
+                setEditingTarget(null);
+              }}>×</button>
+            </div>
+            <form onSubmit={handleTargetFormSubmit}>
+              <div className="form-group">
+                <label>Company Name</label>
+                <input
+                  type="text"
+                  value={targetFormData.companyName}
+                  onChange={(e) => setTargetFormData({...targetFormData, companyName: e.target.value})}
+                  placeholder="Enter company name"
+                />
+              </div>
+              <div className="form-group">
+                <label>Status</label>
+                <select
+                  value={targetFormData.status}
+                  onChange={(e) => setTargetFormData({...targetFormData, status: e.target.value})}
+                >
+                  <option value="">Select status...</option>
+                  <option value="green">Green (On Track)</option>
+                  <option value="yellow">Yellow (In Progress)</option>
+                  <option value="red">Red (Stalled/Need Help)</option>
+                </select>
+              </div>
+              <div className="form-actions">
+                <button type="button" className="btn-secondary" onClick={() => {
+                  setShowTopTargetModal(false);
+                  setEditingTarget(null);
+                }}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary" disabled={loadingTopTargets}>
+                  {loadingTopTargets ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>

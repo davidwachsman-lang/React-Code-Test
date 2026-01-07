@@ -30,7 +30,8 @@ const topTargetsService = {
       sales_rep: targetData.sales_rep,
       target_position: targetData.target_position,
       company_name: targetData.company_name || null,
-      status: targetData.status || null
+      status: targetData.status || null,
+      notes: targetData.notes || null
     };
 
     const response = await supabase
@@ -48,7 +49,8 @@ const topTargetsService = {
   async update(id, targetData) {
     const data = {
       company_name: targetData.company_name || null,
-      status: targetData.status || null
+      status: targetData.status || null,
+      notes: targetData.notes || null
     };
 
     const response = await supabase
@@ -71,4 +73,5 @@ const topTargetsService = {
 };
 
 export default topTargetsService;
+
 

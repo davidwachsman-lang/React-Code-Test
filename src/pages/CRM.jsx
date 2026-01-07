@@ -78,7 +78,8 @@ function CRM() {
   const [editingTarget, setEditingTarget] = useState(null);
   const [targetFormData, setTargetFormData] = useState({
     companyName: '',
-    status: ''
+    status: '',
+    notes: ''
   });
 
   // Load activity data when week changes or when activity tab is active
@@ -148,18 +149,13 @@ function CRM() {
 
   // Sales rep sections for Top 10 Targets
   const topTargetsSections = [
-    { name: 'HB Nashville', reps: ['Ainsley', 'Joe', 'Paige', 'Bri'] },
-    { name: 'National', reps: ['Matt', 'Tony'] },
-    { name: 'Other', reps: ['David', 'Mike'] }
+    { name: 'HB Nashville', reps: ['Ainsley', 'Joe', 'Paige'] },
+    { name: 'National', reps: ['Matt', 'Tony'] }
   ];
   const allTopTargetsReps = topTargetsSections.flatMap(section => section.reps);
 
   // Initial targets data to populate (from Top 10 Targets PowerPoint table)
   const initialTargetsData = {
-    'Bri': [
-      'Country Music Hall of Fame',
-      'Fire Station Wilson Co (11 Total)'
-    ],
     'Matt': [
       'National Management Resources',
       'Mercy Housing',
@@ -196,20 +192,6 @@ function CRM() {
       'Colliers',
       'Fairfield Residential',
       'Freeman Webb (Local)'
-    ],
-    'Mike': [
-      // Mike's column appears to be empty in the table
-    ],
-    'David': [
-      'HCA',
-      'Acadia',
-      'Strategic Hospitality',
-      'Taylor Farms',
-      'Oliver Hospitality',
-      'Southern Land Co',
-      'Abe\'s Garden',
-      'Ghertner and Co',
-      'AMZ'
     ]
   };
 
@@ -228,7 +210,7 @@ function CRM() {
         allTopTargetsReps.forEach(rep => {
           targetsObj[rep] = {};
           for (let i = 1; i <= 10; i++) {
-            targetsObj[rep][i] = { companyName: '', status: '', id: null };
+            targetsObj[rep][i] = { companyName: '', status: '', notes: '', id: null };
           }
         });
         
@@ -238,6 +220,7 @@ function CRM() {
             targetsObj[repName][target.target_position] = {
               companyName: target.company_name || '',
               status: target.status || '',
+              notes: target.notes || '',
               id: target.id
             };
           }
@@ -322,11 +305,12 @@ function CRM() {
 
   // Handle target cell click
   const handleTargetCellClick = (salesRep, position) => {
-    const target = topTargetsData[salesRep]?.[position] || { companyName: '', status: '', id: null };
+    const target = topTargetsData[salesRep]?.[position] || { companyName: '', status: '', notes: '', id: null };
     setEditingTarget({ salesRep, position, id: target.id });
     setTargetFormData({
       companyName: target.companyName,
-      status: target.status
+      status: target.status,
+      notes: target.notes || ''
     });
     setShowTopTargetModal(true);
   };
@@ -342,7 +326,8 @@ function CRM() {
         sales_rep: editingTarget.salesRep,
         target_position: editingTarget.position,
         company_name: targetFormData.companyName.trim() || null,
-        status: targetFormData.status || null
+        status: targetFormData.status || null,
+        notes: targetFormData.notes.trim() || null
       });
       
       // Reload targets data
@@ -352,7 +337,7 @@ function CRM() {
       allTopTargetsReps.forEach(rep => {
         targetsObj[rep] = {};
         for (let i = 1; i <= 10; i++) {
-          targetsObj[rep][i] = { companyName: '', status: '', id: null };
+          targetsObj[rep][i] = { companyName: '', status: '', notes: '', id: null };
         }
       });
       
@@ -362,6 +347,7 @@ function CRM() {
           targetsObj[repName][target.target_position] = {
             companyName: target.company_name || '',
             status: target.status || '',
+            notes: target.notes || '',
             id: target.id
           };
         }
@@ -1117,7 +1103,6 @@ function CRM() {
                 className="sales-rep-select"
               >
                 <option value="all">All Reps</option>
-                <option value="bri">Bri</option>
                 <option value="paige">Paige</option>
                 <option value="matt">Matt</option>
                 <option value="tony">Tony</option>
@@ -2052,15 +2037,21 @@ function CRM() {
                       <td className="top-targets-position-cell">{position}</td>
                       {topTargetsSections.map(section =>
                         section.reps.map(rep => {
-                          const target = topTargetsData[rep]?.[position] || { companyName: '', status: '', id: null };
+                          const target = topTargetsData[rep]?.[position] || { companyName: '', status: '', notes: '', id: null };
                           const statusClass = target.status ? `top-targets-status-${target.status}` : '';
                           return (
                             <td
                               key={rep}
                               className={`top-targets-cell ${statusClass}`}
                               onClick={() => handleTargetCellClick(rep, position)}
+                              title={target.notes ? `Notes: ${target.notes}` : ''}
                             >
-                              {target.companyName || <span className="top-targets-empty">Click to add</span>}
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                {target.companyName || <span className="top-targets-empty">Click to add</span>}
+                                {target.notes && (
+                                  <span style={{ fontSize: '0.85rem', color: '#60a5fa', flexShrink: 0 }} title={target.notes}>📝</span>
+                                )}
+                              </div>
                             </td>
                           );
                         })
@@ -2109,6 +2100,26 @@ function CRM() {
                   <option value="yellow">Yellow (In Progress)</option>
                   <option value="red">Red (Stalled/Need Help)</option>
                 </select>
+              </div>
+              <div className="form-group">
+                <label>Notes</label>
+                <textarea
+                  value={targetFormData.notes}
+                  onChange={(e) => setTargetFormData({...targetFormData, notes: e.target.value})}
+                  placeholder="Add notes about this target..."
+                  rows="4"
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    borderRadius: '4px',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                    color: '#f1f5f9',
+                    fontSize: '0.95rem',
+                    fontFamily: 'inherit',
+                    resize: 'vertical'
+                  }}
+                />
               </div>
               <div className="form-actions">
                 <button type="button" className="btn-secondary" onClick={() => {

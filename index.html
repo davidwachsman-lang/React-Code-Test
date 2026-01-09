@@ -5,15 +5,23 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RestoreLogic.AI</title>
-    <!-- Google Places API -->
+    <!-- Google Places API - Standard loading -->
     <script>
       window.googleMapsLoaded = false;
+      window.googleMapsError = null;
       window.initGoogleMaps = function() {
         window.googleMapsLoaded = true;
+        console.log('✓ Google Maps API loaded successfully');
+      };
+      window.gm_authFailure = function() {
+        window.googleMapsError = 'Google Maps authentication failed. Check API key and billing.';
+        console.error(window.googleMapsError);
       };
     </script>
-    <script async defer
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDr-fsgvYFv916-fICA781RT6VaCbeZh_Q&libraries=places&loading=async&callback=initGoogleMaps">
+    <script 
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDr-fsgvYFv916-fICA781RT6VaCbeZh_Q&libraries=places&callback=initGoogleMaps"
+      async defer
+      onerror="window.googleMapsError = 'Failed to load Google Maps API'; console.error(window.googleMapsError);">
     </script>
   </head>
   <body>

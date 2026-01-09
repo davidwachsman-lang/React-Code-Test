@@ -1,13 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
+import stormEventService from '../services/stormEventService';
 import './Page.css';
 import './Storm.css';
 
 function Storm() {
-  const [activeView, setActiveView] = useState(null);
-  const [manageEventTab, setManageEventTab] = useState('intake');
+  console.log('Storm component rendering...');
+  const [activeTab, setActiveTab] = useState('events');
   const addressInputRef = useRef(null);
   const autocompleteRef = useRef(null);
+  
+  // Storm Events State
+  const [stormEvents, setStormEvents] = useState([]);
+  const [selectedEventId, setSelectedEventId] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [loadingEvents, setLoadingEvents] = useState(false);
+  const [showAddEventForm, setShowAddEventForm] = useState(false);
+  const [eventFormData, setEventFormData] = useState({
+    location: 'HB Nashville',
+    locationOther: '',
+    stormType: '',
+    stormTypeOther: '',
+    eventDate: new Date().toISOString().split('T')[0]
+  });
+
   const [intakeFormData, setIntakeFormData] = useState({
+    // Property Type
+    propertyType: 'residential', // 'residential' | 'commercial'
     // Customer Info
     customerName: '',
     customerPhone: '',
@@ -18,22 +36,32 @@ function Storm() {
     zip: '',
     latitude: '',
     longitude: '',
-    // Emergency Details
-    standingWaterNow: false,
-    waterReceded: false,
-    structuralDamageVisible: false,
-    electricalHazard: false,
-    moldVisible: false,
-    sewageContamination: false,
-    affectedAreaSize: '',
-    waterDepth: '',
-    // Priority
-    priority: '',
-    // Insurance
-    hasInsurance: false,
-    insuranceCompany: '',
-    cashPrivatePay: false,
-    unknownWillCallBack: false,
+    // Onsite Contact
+    onsiteContactName: '',
+    onsiteContactPhone: '',
+    onsiteSameAsCustomer: false,
+    // Commercial only
+    msaOnFile: false,
+    // Property Information - Shared
+    causeOfLoss: '',
+    causeFixed: false,
+    sqftAffected: '',
+    powerAtLocation: '',
+    tarpingNeeded: false,
+    boardupNeeded: false,
+    // Residential specific
+    roomsAffected: '',
+    foundationType: '',
+    basementType: '',
+    // Commercial specific
+    unitsAffected: '',
+    floorsAffected: '',
+    parkingLocation: '',
+    // Payment Info
+    paymentMethod: '', // 'insurance', 'self_pay', 'quote_request'
+    insuranceProvider: '',
+    insuranceClaimNumber: '',
+    depositExplained: false,
     // Notes
     notes: '',
     // Intake Taken By
@@ -42,9 +70,92 @@ function Storm() {
     intakeTime: ''
   });
 
+  // Load storm events on mount
+  const loadStormEvents = async () => {
+    setLoadingEvents(true);
+    try {
+      const events = await stormEventService.getAll();
+      setStormEvents(events || []);
+    } catch (error) {
+      console.error('Error loading storm events:', error);
+      setStormEvents([]);
+    } finally {
+      setLoadingEvents(false);
+    }
+  };
+
+  useEffect(() => {
+    try {
+      loadStormEvents();
+    } catch (error) {
+      console.error('Error in useEffect loading events:', error);
+      setStormEvents([]);
+      setLoadingEvents(false);
+    }
+  }, []);
+
+  // Handle event form input changes
+  const handleEventInputChange = (e) => {
+    const { name, value } = e.target;
+    setEventFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle event form submission
+  const handleEventSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const location = eventFormData.location === 'Other' 
+        ? eventFormData.locationOther 
+        : eventFormData.location;
+      
+      const eventName = `${eventFormData.stormType} - ${location} (${eventFormData.eventDate})`;
+      
+      const newEvent = await stormEventService.create({
+        event_name: eventName,
+        event_date: eventFormData.eventDate,
+        location: location,
+        storm_type: eventFormData.stormType,
+        storm_type_other: eventFormData.stormType === 'Other' ? eventFormData.stormTypeOther : null,
+        is_active: true
+      });
+      
+      // Refresh events list
+      await loadStormEvents();
+      
+      // Select the new event
+      setSelectedEventId(newEvent.id);
+      setSelectedEvent(newEvent);
+      
+      // Reset form and hide it
+      setEventFormData({
+        location: 'HB Nashville',
+        locationOther: '',
+        stormType: '',
+        stormTypeOther: '',
+        eventDate: new Date().toISOString().split('T')[0]
+      });
+      setShowAddEventForm(false);
+      
+      alert('Storm event created successfully!');
+    } catch (error) {
+      console.error('Error creating storm event:', error);
+      alert(`Failed to create storm event: ${error.message}`);
+    }
+  };
+
+  // Handle selecting an event from the table
+  const handleSelectEvent = (event) => {
+    setSelectedEventId(event.id);
+    setSelectedEvent(event);
+  };
+
   // Set date and time when component mounts or when intake tab is selected
   useEffect(() => {
-    if (manageEventTab === 'intake') {
+    if (activeTab === 'intake') {
       const now = new Date();
       const dateStr = now.toLocaleDateString('en-US', { 
         year: 'numeric', 
@@ -63,19 +174,29 @@ function Storm() {
         intakeTime: prev.intakeTime || timeStr
       }));
     }
-  }, [manageEventTab]);
+  }, [activeTab]);
 
-  // Initialize Google Places Autocomplete for property address using new PlaceAutocompleteElement
+  // State for autocomplete status
+  const [autocompleteStatus, setAutocompleteStatus] = useState('loading');
+
+  // Initialize Google Places Autocomplete for property address
   useEffect(() => {
-    // Only initialize when manage event is active and intake tab is selected
-    if (activeView !== 'manage-event' || manageEventTab !== 'intake') {
+    // Only initialize when intake tab is selected
+    if (activeTab !== 'intake') {
       return;
     }
 
     let retryCount = 0;
-    const maxRetries = 50; // 5 seconds max wait time
+    const maxRetries = 30; // 3 seconds max wait time
 
     const initAutocomplete = () => {
+      // Check for Google Maps errors first
+      if (window.googleMapsError) {
+        console.error('Google Maps Error:', window.googleMapsError);
+        setAutocompleteStatus('error');
+        return;
+      }
+
       // Check if input element exists and is in the DOM
       if (!addressInputRef.current || !document.contains(addressInputRef.current)) {
         retryCount++;
@@ -85,299 +206,117 @@ function Storm() {
         return;
       }
 
-      // Check if Google Maps API is loaded with new Places API
-      if (!window.google || !window.google.maps || !window.google.maps.places || !window.google.maps.places.PlaceAutocompleteElement) {
+      // Check if Google Maps API is loaded with standard Places library
+      if (!window.google || !window.google.maps || !window.google.maps.places || !window.google.maps.places.Autocomplete) {
         retryCount++;
         if (retryCount < maxRetries) {
           setTimeout(initAutocomplete, 100);
         } else {
-          console.warn('Google Maps API not loaded. Autocomplete will not work. You can still type addresses manually.');
-          console.warn('Make sure you have enabled "Places API (New)" in Google Cloud Console.');
+          console.warn('Google Maps API not loaded after 3 seconds. Autocomplete disabled.');
+          setAutocompleteStatus('unavailable');
         }
         return;
       }
 
-      // Initialize new PlaceAutocompleteElement
+      // Initialize standard Google Places Autocomplete
       try {
-        // Create the web component if it doesn't exist
-        if (!customElements.get('gmp-place-autocomplete')) {
-          customElements.define(
-            'gmp-place-autocomplete',
-            window.google.maps.places.PlaceAutocompleteElement
-          );
-        }
-
-        // Create autocomplete element
-        const autocompleteElement = document.createElement('gmp-place-autocomplete');
-        autocompleteElement.setAttribute('id', 'property-address-autocomplete');
-        autocompleteElement.setAttribute('placeholder', 'Start typing address...');
-        autocompleteElement.setAttribute('requested-result-type', 'address');
-        autocompleteElement.setAttribute('country-restrictions', 'us');
+        console.log('Initializing Google Places Autocomplete...');
         
-        // Style the element to match other form inputs exactly
-        autocompleteElement.style.width = '100%';
-        // Use lighter background for better contrast with dark text
-        autocompleteElement.style.setProperty('--gmpx-color-surface', 'rgba(51, 65, 85, 0.9)', 'important');
-        autocompleteElement.style.setProperty('--gmpx-color-on-surface', '#1e293b', 'important');
-        autocompleteElement.style.setProperty('--gmpx-color-on-surface-variant', '#334155', 'important');
-        autocompleteElement.style.setProperty('--gmpx-color-primary', '#3b82f6', 'important');
-        autocompleteElement.style.setProperty('--gmpx-color-outline', 'rgba(59, 130, 246, 0.3)', 'important');
-        autocompleteElement.style.setProperty('--gmpx-font-family-base', 'inherit', 'important');
-        autocompleteElement.style.setProperty('--gmpx-font-size-base', '0.95rem', 'important');
+        // Create autocomplete instance directly on the input element
+        const autocompleteInstance = new window.google.maps.places.Autocomplete(
+          addressInputRef.current,
+          {
+            types: ['address'],
+            componentRestrictions: { country: 'us' },
+            fields: ['formatted_address', 'address_components', 'geometry', 'name']
+          }
+        );
         
-        // Create a wrapper div with the styling we want
-        const wrapper = document.createElement('div');
-        wrapper.className = 'autocomplete-wrapper';
-        wrapper.style.width = '100%';
-        wrapper.style.padding = '0.75rem';
-        wrapper.style.border = '1px solid rgba(59, 130, 246, 0.3)';
-        wrapper.style.borderRadius = '8px';
-        wrapper.style.backgroundColor = '#ffffff'; // White background for better contrast
-        wrapper.style.transition = 'all 0.3s ease';
-        wrapper.style.boxSizing = 'border-box';
+        console.log('✓ Autocomplete initialized successfully');
+        setAutocompleteStatus('ready');
         
-        // Style the autocomplete element itself - make it completely transparent and remove all borders
-        autocompleteElement.style.width = '100%';
-        autocompleteElement.style.display = 'block';
-        autocompleteElement.style.padding = '0';
-        autocompleteElement.style.border = 'none';
-        autocompleteElement.style.borderRadius = '0';
-        autocompleteElement.style.background = 'transparent';
-        autocompleteElement.style.margin = '0';
-        autocompleteElement.style.boxShadow = 'none';
-        autocompleteElement.style.outline = 'none';
-        
-        // Function to inject styles into shadow DOM
-        const injectShadowStyles = () => {
-          if (autocompleteElement.shadowRoot) {
-            // Check if styles already injected
-            if (autocompleteElement.shadowRoot.querySelector('style[data-custom-styles]')) {
+        // Listen for place selection
+        autocompleteInstance.addListener('place_changed', () => {
+          try {
+            const place = autocompleteInstance.getPlace();
+            console.log('Place selected:', place);
+            
+            if (!place || !place.geometry) {
+              console.warn('No geometry found for selected place');
               return;
             }
             
-            const style = document.createElement('style');
-            style.setAttribute('data-custom-styles', 'true');
-            style.textContent = `
-              * {
-                box-sizing: border-box !important;
-              }
-              input,
-              input[type="text"],
-              input[type="search"],
-              [role="combobox"],
-              [role="textbox"] {
-                color: #1e293b !important;
-                background-color: transparent !important;
-                border: none !important;
-                border-radius: 0 !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                font-size: 0.95rem !important;
-                font-family: inherit !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-                outline: none !important;
-                box-shadow: none !important;
-                pointer-events: auto !important;
-                cursor: text !important;
-              }
-              input::placeholder,
-              [role="combobox"]::placeholder,
-              [role="textbox"]::placeholder {
-                color: #64748b !important;
-                opacity: 1 !important;
-              }
-              input:focus,
-              [role="combobox"]:focus,
-              [role="textbox"]:focus {
-                outline: none !important;
-                border: none !important;
-                box-shadow: none !important;
-                background-color: transparent !important;
-                color: #1e293b !important;
-              }
-            `;
-            autocompleteElement.shadowRoot.appendChild(style);
-            
-            // Also directly style any input elements found - remove all borders and backgrounds
-            const inputs = autocompleteElement.shadowRoot.querySelectorAll('input, [role="combobox"], [role="textbox"]');
-            inputs.forEach(input => {
-              input.style.color = '#1e293b';
-              input.style.backgroundColor = 'transparent';
-              input.style.border = 'none';
-              input.style.borderRadius = '0';
-              input.style.padding = '0';
-              input.style.margin = '0';
-              input.style.fontSize = '0.95rem';
-              input.style.fontFamily = 'inherit';
-              input.style.width = '100%';
-              input.style.boxSizing = 'border-box';
-              input.style.outline = 'none';
-              input.style.boxShadow = 'none';
-              input.style.pointerEvents = 'auto';
-              input.style.cursor = 'text';
-              // Ensure input is not disabled
-              input.disabled = false;
-              input.readOnly = false;
-            });
-            
-            // Also remove borders from any containers
-            const containers = autocompleteElement.shadowRoot.querySelectorAll('div, form');
-            containers.forEach(container => {
-              container.style.border = 'none';
-              container.style.boxShadow = 'none';
-              container.style.backgroundColor = 'transparent';
-            });
-          } else {
-            // Retry if shadow root isn't ready yet
-            setTimeout(injectShadowStyles, 50);
-          }
-        };
-
-        // Replace the input with the wrapper containing autocomplete element
-        const inputParent = addressInputRef.current.parentNode;
-        
-        // Hide the original input completely but keep it for form submission
-        addressInputRef.current.style.display = 'none';
-        addressInputRef.current.style.visibility = 'hidden';
-        addressInputRef.current.style.position = 'absolute';
-        addressInputRef.current.style.width = '1px';
-        addressInputRef.current.style.height = '1px';
-        addressInputRef.current.style.opacity = '0';
-        addressInputRef.current.style.pointerEvents = 'none';
-        addressInputRef.current.setAttribute('tabindex', '-1');
-        addressInputRef.current.setAttribute('aria-hidden', 'true');
-        
-        // Put autocomplete element inside wrapper
-        wrapper.appendChild(autocompleteElement);
-        
-        // Insert wrapper in place of the original input
-        inputParent.insertBefore(wrapper, addressInputRef.current);
-        
-        // Add focus styles to wrapper
-        const handleWrapperFocus = () => {
-          wrapper.style.borderColor = '#3b82f6';
-          wrapper.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-          wrapper.style.backgroundColor = '#ffffff'; // Stay white on focus
-        };
-        
-        const handleWrapperBlur = () => {
-          wrapper.style.borderColor = 'rgba(59, 130, 246, 0.3)';
-          wrapper.style.boxShadow = 'none';
-          wrapper.style.backgroundColor = '#ffffff'; // White background
-        };
-        
-        // Listen for focus events on the autocomplete element
-        autocompleteElement.addEventListener('focusin', handleWrapperFocus);
-        autocompleteElement.addEventListener('focusout', handleWrapperBlur);
-        
-        // Inject styles into shadow DOM after element is connected
-        setTimeout(injectShadowStyles, 100);
-        
-        // Also retry after a delay to catch late initialization
-        const retryInterval = setInterval(() => {
-          if (autocompleteElement.shadowRoot) {
-            injectShadowStyles();
-            clearInterval(retryInterval);
-          }
-        }, 100);
-        
-        // Clear retry after 5 seconds
-        setTimeout(() => clearInterval(retryInterval), 5000);
-
-        // Handle place selection
-        autocompleteElement.addEventListener('gmp-placeselect', async (event) => {
-          try {
-            const place = event.place;
-            if (place) {
               // Get formatted address
-              const address = place.formattedAddress || place.displayName || '';
+            const address = place.formatted_address || place.name || '';
+            console.log('Address:', address);
               
               // Extract address components
               let city = '';
               let state = '';
               let zip = '';
-              let latitude = '';
-              let longitude = '';
-              
-              if (place.addressComponents) {
-                place.addressComponents.forEach(component => {
-                  const types = component.types;
+            
+            if (place.address_components) {
+              place.address_components.forEach(component => {
+                const types = component.types || [];
                   if (types.includes('locality')) {
-                    city = component.longText || component.shortText || '';
+                  city = component.long_name;
                   }
                   if (types.includes('administrative_area_level_1')) {
-                    state = component.shortText || component.longText || '';
+                  state = component.short_name;
                   }
                   if (types.includes('postal_code')) {
-                    zip = component.longText || component.shortText || '';
+                  zip = component.long_name;
                   }
                 });
               }
               
-              // Extract coordinates for mapping
-              // New API might have location as an object with lat/lng or as separate properties
-              if (place.location) {
-                if (typeof place.location.lat === 'function') {
-                  // Google Maps LatLng object
-                  latitude = place.location.lat().toString();
-                  longitude = place.location.lng().toString();
-                } else if (place.location.lat !== undefined) {
-                  // Plain object with lat/lng
-                  latitude = place.location.lat.toString();
-                  longitude = place.location.lng.toString();
-                }
-              } else if (place.geometry && place.geometry.location) {
-                // Fallback to geometry.location (old API structure)
-                const loc = place.geometry.location;
-                if (typeof loc.lat === 'function') {
-                  latitude = loc.lat().toString();
-                  longitude = loc.lng().toString();
+            // Extract coordinates
+            let latitude = '';
+            let longitude = '';
+            if (place.geometry && place.geometry.location) {
+              latitude = place.geometry.location.lat().toString();
+              longitude = place.geometry.location.lng().toString();
+            }
+            
+            // Fallback for city if not found
+            if (!city) {
+              const parts = address.split(',');
+              if (parts.length >= 2) {
+                city = parts[1].trim();
                 } else {
-                  latitude = loc.lat?.toString() || '';
-                  longitude = loc.lng?.toString() || '';
+                city = 'Unknown';
                 }
               }
               
-              // Update the hidden input value for form submission
-              addressInputRef.current.value = address;
+            console.log('Extracted data:', { address, city, state, zip, latitude, longitude });
               
+            // Update form state
               setIntakeFormData(prev => ({
                 ...prev,
                 propertyAddress: address,
-                city: city,
-                state: state,
-                zip: zip,
-                latitude: latitude,
-                longitude: longitude
-              }));
-              
-              // Log coordinates for debugging (remove in production if desired)
+              city: city || 'Unknown',
+              state: state || '',
+              zip: zip || '',
+              latitude: latitude || '',
+              longitude: longitude || ''
+            }));
+            
+            // Show user feedback
               if (latitude && longitude) {
-                console.log('Coordinates captured:', { latitude, longitude });
-              }
+              console.log('✓ Address with coordinates captured successfully');
+            } else {
+              console.warn('⚠ Address captured but no coordinates');
             }
           } catch (error) {
             console.error('Error processing place selection:', error);
           }
         });
 
-        // Sync autocomplete value to hidden input on input events
-        autocompleteElement.addEventListener('input', (event) => {
-          addressInputRef.current.value = event.target.value || '';
-          setIntakeFormData(prev => ({
-            ...prev,
-            propertyAddress: event.target.value || ''
-          }));
-        });
-
-        autocompleteRef.current = { element: autocompleteElement, wrapper: wrapper, retryInterval: retryInterval };
+        // Store reference for cleanup
+        autocompleteRef.current = autocompleteInstance;
       } catch (error) {
         console.error('Google Places initialization error:', error);
-        // Fallback: show the original input if autocomplete fails
-        if (addressInputRef.current) {
-          addressInputRef.current.style.display = 'block';
-        }
+        setAutocompleteStatus('error');
       }
     };
 
@@ -387,81 +326,154 @@ function Storm() {
     // Cleanup
     return () => {
       clearTimeout(timeoutId);
-      if (autocompleteRef.current) {
-        const element = autocompleteRef.current.element || autocompleteRef.current;
-        const wrapper = autocompleteRef.current.wrapper;
-        const retryInterval = autocompleteRef.current.retryInterval;
-        
-        if (retryInterval) {
-          clearInterval(retryInterval);
-        }
-        
-        // Remove wrapper (which contains the element)
-        if (wrapper && wrapper.parentNode) {
-          wrapper.remove();
-        } else if (element && element.parentNode) {
-          element.remove();
-        }
-        autocompleteRef.current = null;
-      }
-      // Show the original input again
-      if (addressInputRef.current) {
-        addressInputRef.current.style.display = 'block';
+      if (autocompleteRef.current && window.google && window.google.maps && window.google.maps.event) {
+        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
     };
-  }, [activeView, manageEventTab]);
+  }, [activeTab]);
 
-  const handleAddNewEvent = () => {
-    setActiveView('add-event');
-    // TODO: Implement Add New Event functionality
-    console.log('Add New Event clicked');
+
+  // Format phone number with dashes (XXX-XXX-XXXX)
+  const formatPhoneNumber = (value) => {
+    const phoneNumber = value.replace(/\D/g, '');
+    if (phoneNumber.length <= 3) {
+      return phoneNumber;
+    } else if (phoneNumber.length <= 6) {
+      return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3)}`;
+    } else {
+      return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+    }
   };
 
-  const handleManageEvent = () => {
-    setActiveView('manage-event');
-    setManageEventTab('intake');
+  // Strip formatting from phone number (remove dashes)
+  const stripPhoneFormatting = (value) => {
+    return value.replace(/\D/g, '');
   };
 
-  const handlePostEvent = () => {
-    setActiveView('post-event');
-    // TODO: Implement Post Event functionality
-    console.log('Post Event clicked');
+  // Format number with commas for thousands
+  const formatNumberWithCommas = (value) => {
+    const number = value.replace(/\D/g, '');
+    if (!number) return '';
+    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  // Strip formatting from number (remove commas)
+  const stripNumberFormatting = (value) => {
+    return value.replace(/,/g, '');
   };
 
   const handleIntakeInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+    
+    // Handle checkbox inputs
+    if (type === 'checkbox') {
     setIntakeFormData(prev => ({
       ...prev,
-      [name]: value
+        [name]: checked
+      }));
+      return;
+    }
+    
+    let processedValue = value;
+    
+    // Format phone numbers
+    if (name === 'customerPhone' || name === 'onsiteContactPhone') {
+      processedValue = formatPhoneNumber(value);
+    }
+    
+    // Format square footage with commas
+    if (name === 'sqftAffected') {
+      processedValue = formatNumberWithCommas(value);
+    }
+    
+    setIntakeFormData(prev => ({
+      ...prev,
+      [name]: processedValue
     }));
   };
 
-  const handlePriorityChange = (priorityValue) => {
+  const handlePropertyTypeChange = (type) => {
     setIntakeFormData(prev => ({
       ...prev,
-      priority: prev.priority === priorityValue ? '' : priorityValue
+      propertyType: type
     }));
   };
 
-  const handleEmergencyCheckboxChange = (field) => {
-    setIntakeFormData(prev => ({
+  const handleSameAsCustomerToggle = () => {
+    setIntakeFormData(prev => {
+      const newChecked = !prev.onsiteSameAsCustomer;
+      return {
       ...prev,
-      [field]: !prev[field]
-    }));
+        onsiteSameAsCustomer: newChecked,
+        onsiteContactName: newChecked ? prev.customerName : '',
+        onsiteContactPhone: newChecked ? prev.customerPhone : ''
+      };
+    });
   };
 
-  const handleAffectedAreaChange = (value) => {
-    setIntakeFormData(prev => ({
-      ...prev,
-      affectedAreaSize: prev.affectedAreaSize === value ? '' : value
-    }));
-  };
-
-  const handleIntakeSubmit = (e) => {
+  const handleIntakeSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement intake submission
-    console.log('Intake form submitted:', intakeFormData);
-    alert('Intake form submitted! (Functionality to be implemented)');
+    
+    try {
+      // Strip formatting from phone numbers and square footage before submission
+      const submissionData = {
+        ...intakeFormData,
+        customerPhone: stripPhoneFormatting(intakeFormData.customerPhone),
+        onsiteContactPhone: stripPhoneFormatting(intakeFormData.onsiteContactPhone),
+        sqftAffected: stripNumberFormatting(intakeFormData.sqftAffected),
+        storm_event_id: selectedEventId
+      };
+      
+      console.log('Submitting storm intake:', submissionData);
+      
+      // Import and use the storm intake service
+      const stormIntakeService = (await import('../services/stormIntakeService')).default;
+      const result = await stormIntakeService.createStormIntake(submissionData);
+      
+      if (result.success) {
+        alert('Storm intake submitted successfully!');
+        // Clear form
+        setIntakeFormData({
+          propertyType: 'residential',
+          customerName: '',
+          customerPhone: '',
+          customerEmail: '',
+          propertyAddress: '',
+          city: '',
+          state: '',
+          zip: '',
+          latitude: '',
+          longitude: '',
+          onsiteContactName: '',
+          onsiteContactPhone: '',
+          onsiteSameAsCustomer: false,
+          msaOnFile: false,
+          causeOfLoss: '',
+          causeFixed: false,
+          sqftAffected: '',
+          powerAtLocation: '',
+          tarpingNeeded: false,
+          boardupNeeded: false,
+          roomsAffected: '',
+          foundationType: '',
+          basementType: '',
+          unitsAffected: '',
+          floorsAffected: '',
+          parkingLocation: '',
+          paymentMethod: '',
+          insuranceProvider: '',
+          insuranceClaimNumber: '',
+          depositExplained: false,
+          notes: '',
+          intakeTakenBy: '',
+          intakeDate: '',
+          intakeTime: ''
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting intake:', error);
+      alert(`Failed to submit intake: ${error.message}`);
+    }
   };
 
   const handlePrintToPDF = () => {
@@ -480,7 +492,7 @@ function Storm() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Storm Surge - Quick Intake</title>
+          <title>Storm Intake Form</title>
           <style>
             body {
               font-family: Arial, sans-serif;
@@ -530,25 +542,6 @@ function Storm() {
               border-radius: 4px;
               font-size: 14px;
             }
-            .emergency-checkbox-item {
-              display: flex;
-              align-items: center;
-              margin-bottom: 10px;
-            }
-            .emergency-checkbox-item input[type="checkbox"] {
-              margin-right: 8px;
-            }
-            .priority-option {
-              display: flex;
-              align-items: center;
-              margin-bottom: 10px;
-            }
-            .priority-option input[type="checkbox"] {
-              margin-right: 8px;
-            }
-            .readonly-field {
-              background-color: #f1f5f9;
-            }
             @media print {
               body {
                 padding: 10px;
@@ -560,7 +553,7 @@ function Storm() {
           </style>
         </head>
         <body>
-          <h2>Storm Surge -- Quick Intake</h2>
+          <h2>Storm Intake Form</h2>
           ${formClone.innerHTML}
         </body>
       </html>
@@ -580,49 +573,257 @@ function Storm() {
       <div className="manage-event-container">
         <div className="manage-event-tabs">
           <button
-            className={`manage-event-tab ${manageEventTab === 'intake' ? 'active' : ''}`}
-            onClick={() => setManageEventTab('intake')}
+            className={`manage-event-tab ${activeTab === 'events' ? 'active' : ''}`}
+            onClick={() => setActiveTab('events')}
           >
-            Intake
+            Events
           </button>
           <button
-            className={`manage-event-tab ${manageEventTab === 'jobs' ? 'active' : ''}`}
-            onClick={() => setManageEventTab('jobs')}
+            className={`manage-event-tab ${activeTab === 'intake' ? 'active' : ''}`}
+            onClick={() => setActiveTab('intake')}
+          >
+            Intake
+            {selectedEvent && <span className="tab-badge">{selectedEvent.event_name?.split(' - ')[0]}</span>}
+          </button>
+          <button
+            className={`manage-event-tab ${activeTab === 'jobs' ? 'active' : ''}`}
+            onClick={() => setActiveTab('jobs')}
           >
             Jobs
           </button>
         </div>
 
-        {manageEventTab === 'intake' && (
+        {/* Events Tab */}
+        {activeTab === 'events' && (
+          <div className="events-tab-container">
+            {/* Add Event Form */}
+            <div className="add-event-section">
+              <div className="section-header">
+                <h3>Add Storm Event</h3>
+                <button 
+                  type="button"
+                  className={`toggle-form-btn ${showAddEventForm ? 'active' : ''}`}
+                  onClick={() => setShowAddEventForm(!showAddEventForm)}
+                >
+                  {showAddEventForm ? 'Hide Form' : 'New Event'}
+                </button>
+              </div>
+              
+              {showAddEventForm && (
+                <form onSubmit={handleEventSubmit} className="event-form">
+                  <div className="event-form-row">
+                    <div className="form-group">
+                      <label htmlFor="location">Location</label>
+                      <select
+                        id="location"
+                        name="location"
+                        value={eventFormData.location}
+                        onChange={handleEventInputChange}
+                        required
+                      >
+                        <option value="HB Nashville">HB Nashville</option>
+                        <option value="National">National</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    {eventFormData.location === 'Other' && (
+                      <div className="form-group">
+                        <label htmlFor="locationOther">Specify Location</label>
+                        <input
+                          type="text"
+                          id="locationOther"
+                          name="locationOther"
+                          value={eventFormData.locationOther}
+                          onChange={handleEventInputChange}
+                          placeholder="Enter location"
+                          required
+                        />
+                      </div>
+                    )}
+                    <div className="form-group">
+                      <label htmlFor="stormType">Storm Type</label>
+                      <select
+                        id="stormType"
+                        name="stormType"
+                        value={eventFormData.stormType}
+                        onChange={handleEventInputChange}
+                        required
+                      >
+                        <option value="">Select type...</option>
+                        <option value="Flood">Flood</option>
+                        <option value="Freeze">Freeze</option>
+                        <option value="Tornado">Tornado</option>
+                        <option value="Hurricane">Hurricane</option>
+                        <option value="Wildfire">Wildfire</option>
+                        <option value="Hail">Hail</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    {eventFormData.stormType === 'Other' && (
+                      <div className="form-group">
+                        <label htmlFor="stormTypeOther">Specify Type</label>
+                        <input
+                          type="text"
+                          id="stormTypeOther"
+                          name="stormTypeOther"
+                          value={eventFormData.stormTypeOther}
+                          onChange={handleEventInputChange}
+                          placeholder="Enter storm type"
+                          required
+                        />
+                      </div>
+                    )}
+                    <div className="form-group">
+                      <label htmlFor="eventDate">Date</label>
+                      <input
+                        type="date"
+                        id="eventDate"
+                        name="eventDate"
+                        value={eventFormData.eventDate}
+                        onChange={handleEventInputChange}
+                        required
+                      />
+                    </div>
+                    <div className="form-group form-actions-inline">
+                      <button type="submit" className="storm-btn storm-btn-primary">
+                        Create Event
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              )}
+            </div>
+
+            {/* Events Table */}
+            <div className="events-table-section">
+              <h3>Storm Events</h3>
+              {loadingEvents ? (
+                <p className="loading-text">Loading events...</p>
+              ) : stormEvents.length === 0 ? (
+                <p className="empty-text">No storm events yet. Create one above to get started.</p>
+              ) : (
+                <table className="events-table">
+                  <thead>
+                    <tr>
+                      <th>Event Name</th>
+                      <th>Location</th>
+                      <th>Type</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stormEvents.map(event => (
+                      <tr 
+                        key={event.id}
+                        className={`event-row ${selectedEventId === event.id ? 'selected' : ''}`}
+                        onClick={() => handleSelectEvent(event)}
+                      >
+                        <td className="event-name">{event.event_name}</td>
+                        <td>{event.location}</td>
+                        <td>{event.storm_type}</td>
+                        <td>{new Date(event.event_date).toLocaleDateString()}</td>
+                        <td>
+                          <span className={`status-badge ${event.is_active ? 'active' : 'inactive'}`}>
+                            {event.is_active ? 'Active' : 'Closed'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              
+              {selectedEvent && (
+                <div className="selected-event-banner">
+                  <span className="banner-label">Selected Event:</span>
+                  <span className="banner-event-name">{selectedEvent.event_name}</span>
+                  <button 
+                    className="storm-btn storm-btn-primary"
+                    onClick={() => setActiveTab('intake')}
+                  >
+                    Add Intake →
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Intake Tab */}
+        {activeTab === 'intake' && (
           <div className="intake-form-container">
-            <h2 className="intake-header">Storm Surge -- Quick Intake</h2>
+            {!selectedEvent ? (
+              <div className="no-event-selected">
+                <h3>No Storm Event Selected</h3>
+                <p>Please select a storm event from the Events tab before adding intake.</p>
+                <button 
+                  className="storm-btn storm-btn-primary"
+                  onClick={() => setActiveTab('events')}
+                >
+                  Go to Events
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="selected-event-header">
+                  <span className="event-badge">{selectedEvent.storm_type}</span>
+                  <span className="event-info">{selectedEvent.event_name}</span>
+                  <button 
+                    className="change-event-btn"
+                    onClick={() => setActiveTab('events')}
+                  >
+                    Change Event
+                  </button>
+                </div>
+                <h2 className="intake-header">Storm Intake Form</h2>
             <form onSubmit={handleIntakeSubmit} className="storm-intake-form">
+              {/* Property Type Toggle */}
+              <div className="form-section">
+                <h3 className="form-section-title">Property Type</h3>
+                <div className="property-type-toggle">
+                  <button
+                    type="button"
+                    className={`property-type-option ${intakeFormData.propertyType === 'residential' ? 'active' : ''}`}
+                    onClick={() => handlePropertyTypeChange('residential')}
+                  >
+                    Residential
+                  </button>
+                  <button
+                    type="button"
+                    className={`property-type-option ${intakeFormData.propertyType === 'commercial' ? 'active' : ''}`}
+                    onClick={() => handlePropertyTypeChange('commercial')}
+                  >
+                    Commercial
+                  </button>
+                </div>
+              </div>
+
               {/* Customer Info Section */}
               <div className="form-section">
                 <h3 className="form-section-title">Customer Info</h3>
                 <div className="form-grid">
                   <div className="form-group">
-                    <label htmlFor="customerName">Customer Name *</label>
+                    <label htmlFor="customerName">Customer Name</label>
                     <input
                       type="text"
                       id="customerName"
                       name="customerName"
                       value={intakeFormData.customerName}
                       onChange={handleIntakeInputChange}
-                      required
                       placeholder="Enter customer name"
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="customerPhone">Phone *</label>
+                    <label htmlFor="customerPhone">Phone</label>
                     <input
                       type="tel"
                       id="customerPhone"
                       name="customerPhone"
                       value={intakeFormData.customerPhone}
                       onChange={handleIntakeInputChange}
-                      required
-                      placeholder="(555) 555-5555"
+                      placeholder="555-555-5555"
+                      maxLength="12"
                     />
                   </div>
                   <div className="form-group">
@@ -637,7 +838,13 @@ function Storm() {
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="propertyAddress">Property Address *</label>
+                    <label htmlFor="propertyAddress">
+                      Property Address
+                      {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
+                      {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
+                      {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
+                      {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
+                    </label>
                     <input
                       type="text"
                       id="propertyAddress"
@@ -645,251 +852,323 @@ function Storm() {
                       ref={addressInputRef}
                       value={intakeFormData.propertyAddress}
                       onChange={handleIntakeInputChange}
-                      required
-                      placeholder="Start typing address (autocomplete if available)..."
+                      placeholder={autocompleteStatus === 'ready' ? "Start typing address..." : "Enter full address manually"}
                       autoComplete="off"
-                      onInvalid={(e) => {
-                        // Custom validation message
-                        if (e.target.validity.valueMissing) {
-                          e.target.setCustomValidity('Please enter a property address');
-                        }
-                      }}
-                      onInput={(e) => {
-                        // Clear custom validation message when user types
-                        e.target.setCustomValidity('');
-                      }}
                     />
+                    {autocompleteStatus === 'error' && (
+                      <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
+                        Google Maps API error. Please enter address manually or check browser console for details.
+                      </small>
+                    )}
                   </div>
-                </div>
-              </div>
-
-              {/* Emergency Details Section */}
-              <div className="form-section">
-                <h3 className="form-section-title">Emergency Details</h3>
-                <div className="emergency-details-container">
-                  <div className="emergency-checkboxes-grid">
-                    <div className="emergency-checkbox-item">
-                      <input
-                        type="checkbox"
-                        id="standingWaterNow"
-                        checked={intakeFormData.standingWaterNow}
-                        onChange={() => handleEmergencyCheckboxChange('standingWaterNow')}
-                      />
-                      <label htmlFor="standingWaterNow">Standing water NOW</label>
-                    </div>
-                    <div className="emergency-checkbox-item">
-                      <input
-                        type="checkbox"
-                        id="waterReceded"
-                        checked={intakeFormData.waterReceded}
-                        onChange={() => handleEmergencyCheckboxChange('waterReceded')}
-                      />
-                      <label htmlFor="waterReceded">Water has receded</label>
-                    </div>
-                    <div className="emergency-checkbox-item">
-                      <input
-                        type="checkbox"
-                        id="structuralDamageVisible"
-                        checked={intakeFormData.structuralDamageVisible}
-                        onChange={() => handleEmergencyCheckboxChange('structuralDamageVisible')}
-                      />
-                      <label htmlFor="structuralDamageVisible">Structural damage visible</label>
-                    </div>
-                    <div className="emergency-checkbox-item">
-                      <input
-                        type="checkbox"
-                        id="electricalHazard"
-                        checked={intakeFormData.electricalHazard}
-                        onChange={() => handleEmergencyCheckboxChange('electricalHazard')}
-                      />
-                      <label htmlFor="electricalHazard">Electrical hazard</label>
-                    </div>
-                    <div className="emergency-checkbox-item">
-                      <input
-                        type="checkbox"
-                        id="moldVisible"
-                        checked={intakeFormData.moldVisible}
-                        onChange={() => handleEmergencyCheckboxChange('moldVisible')}
-                      />
-                      <label htmlFor="moldVisible">Mold visible</label>
-                    </div>
-                    <div className="emergency-checkbox-item">
-                      <input
-                        type="checkbox"
-                        id="sewageContamination"
-                        checked={intakeFormData.sewageContamination}
-                        onChange={() => handleEmergencyCheckboxChange('sewageContamination')}
-                      />
-                      <label htmlFor="sewageContamination">Sewage/contamination</label>
-                    </div>
-                  </div>
-
-                  <div className="affected-area-section">
-                    <label className="section-label">Affected area size:</label>
-                    <div className="affected-area-checkboxes">
-                      <div className="affected-area-item">
-                        <input
-                          type="checkbox"
-                          id="area-small"
-                          checked={intakeFormData.affectedAreaSize === 'Small'}
-                          onChange={() => handleAffectedAreaChange('Small')}
-                        />
-                        <label htmlFor="area-small">Small (1 room)</label>
-                      </div>
-                      <div className="affected-area-item">
-                        <input
-                          type="checkbox"
-                          id="area-medium"
-                          checked={intakeFormData.affectedAreaSize === 'Medium'}
-                          onChange={() => handleAffectedAreaChange('Medium')}
-                        />
-                        <label htmlFor="area-medium">Medium (2-3 rooms)</label>
-                      </div>
-                      <div className="affected-area-item">
-                        <input
-                          type="checkbox"
-                          id="area-large"
-                          checked={intakeFormData.affectedAreaSize === 'Large'}
-                          onChange={() => handleAffectedAreaChange('Large')}
-                        />
-                        <label htmlFor="area-large">Large (whole floor)</label>
-                      </div>
-                      <div className="affected-area-item">
-                        <input
-                          type="checkbox"
-                          id="area-entire"
-                          checked={intakeFormData.affectedAreaSize === 'Entire'}
-                          onChange={() => handleAffectedAreaChange('Entire')}
-                        />
-                        <label htmlFor="area-entire">Entire building</label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="water-depth-section">
-                    <label htmlFor="waterDepth" className="section-label">Water depth (estimate):</label>
-                    <div className="water-depth-input-container">
-                      <input
-                        type="number"
-                        id="waterDepth"
-                        name="waterDepth"
-                        value={intakeFormData.waterDepth}
-                        onChange={handleIntakeInputChange}
-                        placeholder="0"
-                        min="0"
-                        step="0.1"
-                        className="water-depth-input"
-                      />
-                      <span className="water-depth-unit">inches</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Priority Section */}
-              <div className="form-section">
-                <h3 className="form-section-title">Priority</h3>
-                <div className="priority-checkboxes">
-                  <div className="priority-checkbox-item">
-                    <input
-                      type="checkbox"
-                      id="priority-emergency"
-                      checked={intakeFormData.priority === 'EMERGENCY'}
-                      onChange={() => handlePriorityChange('EMERGENCY')}
-                    />
-                    <label htmlFor="priority-emergency" className="priority-label">
-                      <span className="priority-title">EMERGENCY</span>
-                      <span className="priority-description">Immediate (Active Flooding, Safety Hazard)</span>
-                    </label>
-                  </div>
-                  <div className="priority-checkbox-item">
-                    <input
-                      type="checkbox"
-                      id="priority-urgent"
-                      checked={intakeFormData.priority === 'URGENT'}
-                      onChange={() => handlePriorityChange('URGENT')}
-                    />
-                    <label htmlFor="priority-urgent" className="priority-label">
-                      <span className="priority-title">URGENT</span>
-                      <span className="priority-description">Same day (water receded, high damage)</span>
-                    </label>
-                  </div>
-                  <div className="priority-checkbox-item">
-                    <input
-                      type="checkbox"
-                      id="priority-standard"
-                      checked={intakeFormData.priority === 'STANDARD'}
-                      onChange={() => handlePriorityChange('STANDARD')}
-                    />
-                    <label htmlFor="priority-standard" className="priority-label">
-                      <span className="priority-title">STANDARD</span>
-                      <span className="priority-description">Next 24-48 hours</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              {/* Insurance Section */}
-              <div className="form-section">
-                <h3 className="form-section-title">Insurance</h3>
-                <div className="form-grid">
-                  <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                    <div className="emergency-checkbox-item">
-                      <input
-                        type="checkbox"
-                        id="hasInsurance"
-                        checked={intakeFormData.hasInsurance}
-                        onChange={() => setIntakeFormData(prev => ({
-                          ...prev,
-                          hasInsurance: !prev.hasInsurance,
-                          // Clear insurance company if unchecking
-                          insuranceCompany: !prev.hasInsurance ? prev.insuranceCompany : ''
-                        }))}
-                      />
-                      <label htmlFor="hasInsurance">Has insurance</label>
-                    </div>
-                  </div>
-                  {intakeFormData.hasInsurance && (
-                    <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                      <label htmlFor="insuranceCompany">Insurance Co:</label>
+                  <div className="form-group">
+                    <label htmlFor="onsiteContactName">Onsite Point-of-Contact Name</label>
+                    <div className="same-as-customer-container">
                       <input
                         type="text"
-                        id="insuranceCompany"
-                        name="insuranceCompany"
-                        value={intakeFormData.insuranceCompany}
+                        id="onsiteContactName"
+                        name="onsiteContactName"
+                        value={intakeFormData.onsiteContactName}
                         onChange={handleIntakeInputChange}
-                        placeholder="Insurance company name"
+                        placeholder="Onsite contact name"
+                        disabled={intakeFormData.onsiteSameAsCustomer}
                       />
+                      <label className="same-as-customer-checkbox">
+                      <input
+                        type="checkbox"
+                          checked={intakeFormData.onsiteSameAsCustomer}
+                          onChange={handleSameAsCustomerToggle}
+                      />
+                        <span>Same as Customer</span>
+                      </label>
+                    </div>
+                    </div>
+                  <div className="form-group">
+                    <label htmlFor="onsiteContactPhone">Onsite Point-of-Contact Phone</label>
+                    <div className="same-as-customer-container">
+                      <input
+                        type="tel"
+                        id="onsiteContactPhone"
+                        name="onsiteContactPhone"
+                        value={intakeFormData.onsiteContactPhone}
+                        onChange={handleIntakeInputChange}
+                        placeholder="555-555-5555"
+                        maxLength="12"
+                        disabled={intakeFormData.onsiteSameAsCustomer}
+                      />
+                    </div>
+                    </div>
+                  {intakeFormData.propertyType === 'commercial' && (
+                    <div className="form-group">
+                      <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                          name="msaOnFile"
+                          checked={intakeFormData.msaOnFile}
+                          onChange={handleIntakeInputChange}
+                        />
+                        MSA on File
+                      </label>
                     </div>
                   )}
-                  <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                    <div className="emergency-checkbox-item">
-                      <input
-                        type="checkbox"
-                        id="cashPrivatePay"
-                        checked={intakeFormData.cashPrivatePay}
-                        onChange={() => setIntakeFormData(prev => ({
-                          ...prev,
-                          cashPrivatePay: !prev.cashPrivatePay
-                        }))}
-                      />
-                      <label htmlFor="cashPrivatePay">Cash/Private pay</label>
                     </div>
                   </div>
-                  <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                    <div className="emergency-checkbox-item">
+
+              {/* Property Information Section */}
+              <div className="form-section">
+                <h3 className="form-section-title">Property Information</h3>
+                
+                {/* Damage Details Row */}
+                <div className="property-info-row">
+                  <div className="form-group flex-2">
+                    <label htmlFor="causeOfLoss">Cause of Loss</label>
+                    <select
+                      id="causeOfLoss"
+                      name="causeOfLoss"
+                      value={intakeFormData.causeOfLoss}
+                      onChange={handleIntakeInputChange}
+                    >
+                      <option value="">Select cause of loss...</option>
+                      <option value="Water Damage">Water Damage</option>
+                      <option value="Fire">Fire</option>
+                      <option value="Storm/Wind">Storm/Wind</option>
+                      <option value="Flood">Flood</option>
+                      <option value="Freeze/Burst Pipe">Freeze/Burst Pipe</option>
+                      <option value="Sewage Backup">Sewage Backup</option>
+                      <option value="Mold">Mold</option>
+                      <option value="Other">Other</option>
+                    </select>
+                      </div>
+                  <div className="form-group flex-1">
+                    <label htmlFor="sqftAffected">Sq. Ft. Affected</label>
+                        <input
+                      type="text"
+                      id="sqftAffected"
+                      name="sqftAffected"
+                      value={intakeFormData.sqftAffected}
+                      onChange={handleIntakeInputChange}
+                      placeholder="e.g., 1,500"
+                    />
+                      </div>
+                  <div className="form-group flex-1">
+                    <label>Cause Fixed?</label>
+                    <div className="inline-toggle">
+                      <label className={`toggle-option ${intakeFormData.causeFixed ? 'active' : ''}`}>
+                        <input
+                          type="checkbox"
+                          name="causeFixed"
+                          checked={intakeFormData.causeFixed}
+                          onChange={handleIntakeInputChange}
+                        />
+                        {intakeFormData.causeFixed ? 'Yes' : 'No'}
+                      </label>
+                      </div>
+                  </div>
+                </div>
+
+                {/* Property-Type Specific Fields */}
+                {intakeFormData.propertyType === 'residential' && (
+                  <div className="property-info-row">
+                    <div className="form-group flex-1">
+                      <label htmlFor="roomsAffected"># Rooms Affected</label>
+                        <input
+                        type="number"
+                        id="roomsAffected"
+                        name="roomsAffected"
+                        value={intakeFormData.roomsAffected}
+                        onChange={handleIntakeInputChange}
+                        placeholder="0"
+                      />
+                      </div>
+                    <div className="form-group flex-1">
+                      <label htmlFor="foundationType">Foundation</label>
+                      <select
+                        id="foundationType"
+                        name="foundationType"
+                        value={intakeFormData.foundationType}
+                        onChange={handleIntakeInputChange}
+                      >
+                        <option value="">Select...</option>
+                        <option value="crawlspace">Crawlspace</option>
+                        <option value="slab">Slab</option>
+                      </select>
+                    </div>
+                    <div className="form-group flex-1">
+                      <label htmlFor="basementType">Basement</label>
+                      <select
+                        id="basementType"
+                        name="basementType"
+                        value={intakeFormData.basementType}
+                        onChange={handleIntakeInputChange}
+                      >
+                        <option value="">Select...</option>
+                        <option value="finished">Finished</option>
+                        <option value="unfinished">Unfinished</option>
+                        <option value="none">None</option>
+                      </select>
+                  </div>
+                  </div>
+                )}
+
+                {intakeFormData.propertyType === 'commercial' && (
+                  <div className="property-info-row">
+                    <div className="form-group flex-1">
+                      <label htmlFor="unitsAffected"># Units Affected</label>
+                      <input
+                        type="number"
+                        id="unitsAffected"
+                        name="unitsAffected"
+                        value={intakeFormData.unitsAffected}
+                        onChange={handleIntakeInputChange}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="form-group flex-1">
+                      <label htmlFor="floorsAffected"># Floors Affected</label>
+                      <input
+                        type="number"
+                        id="floorsAffected"
+                        name="floorsAffected"
+                        value={intakeFormData.floorsAffected}
+                        onChange={handleIntakeInputChange}
+                        placeholder="0"
+                      />
+                  </div>
+                    <div className="form-group flex-2">
+                      <label htmlFor="parkingLocation">Parking for Crew</label>
+                      <input
+                        type="text"
+                        id="parkingLocation"
+                        name="parkingLocation"
+                        value={intakeFormData.parkingLocation}
+                        onChange={handleIntakeInputChange}
+                        placeholder="Describe parking location"
+                      />
+                </div>
+              </div>
+                )}
+
+                {/* Site Conditions Row */}
+                <div className="site-conditions-row">
+                  <div className="condition-item">
+                    <label>Power</label>
+                    <div className="toggle-buttons">
+                      <button
+                        type="button"
+                        className={`toggle-btn ${intakeFormData.powerAtLocation === 'on' ? 'active' : ''}`}
+                        onClick={() => setIntakeFormData(prev => ({ ...prev, powerAtLocation: 'on' }))}
+                      >
+                        On
+                      </button>
+                      <button
+                        type="button"
+                        className={`toggle-btn ${intakeFormData.powerAtLocation === 'off' ? 'active' : ''}`}
+                        onClick={() => setIntakeFormData(prev => ({ ...prev, powerAtLocation: 'off' }))}
+                      >
+                        Off
+                      </button>
+                  </div>
+                  </div>
+                  <div className="condition-item">
+                    <label className="condition-checkbox">
+                    <input
+                      type="checkbox"
+                        name="tarpingNeeded"
+                        checked={intakeFormData.tarpingNeeded}
+                        onChange={handleIntakeInputChange}
+                      />
+                      <span>Tarping Needed</span>
+                    </label>
+                  </div>
+                  <div className="condition-item">
+                    <label className="condition-checkbox">
+                    <input
+                      type="checkbox"
+                        name="boardupNeeded"
+                        checked={intakeFormData.boardupNeeded}
+                        onChange={handleIntakeInputChange}
+                      />
+                      <span>Board-Up Needed</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Information Section */}
+              <div className="form-section">
+                <h3 className="form-section-title">Payment Information</h3>
+                <div className="payment-method-radio-group">
+                  <label className="payment-method-option">
+                      <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="insurance"
+                      checked={intakeFormData.paymentMethod === 'insurance'}
+                      onChange={handleIntakeInputChange}
+                    />
+                    <span>Has Insurance</span>
+                  </label>
+                  {intakeFormData.paymentMethod === 'insurance' && (
+                    <div className="payment-sub-fields">
+                      <div className="form-group">
+                        <label htmlFor="insuranceProvider">Insurance Provider Name</label>
+                        <input
+                          type="text"
+                          id="insuranceProvider"
+                          name="insuranceProvider"
+                          value={intakeFormData.insuranceProvider}
+                          onChange={handleIntakeInputChange}
+                          placeholder="Provider name"
+                        />
+                    </div>
+                      <div className="form-group">
+                        <label htmlFor="insuranceClaimNumber">Claim #</label>
+                      <input
+                        type="text"
+                          id="insuranceClaimNumber"
+                          name="insuranceClaimNumber"
+                          value={intakeFormData.insuranceClaimNumber}
+                        onChange={handleIntakeInputChange}
+                          placeholder="Claim number"
+                      />
+                      </div>
+                    </div>
+                  )}
+
+                  <label className="payment-method-option">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="self_pay"
+                      checked={intakeFormData.paymentMethod === 'self_pay'}
+                      onChange={handleIntakeInputChange}
+                    />
+                    <span>Self-Pay</span>
+                  </label>
+                  {intakeFormData.paymentMethod === 'self_pay' && (
+                    <div className="payment-sub-fields">
+                      <label className="checkbox-label">
                       <input
                         type="checkbox"
-                        id="unknownWillCallBack"
-                        checked={intakeFormData.unknownWillCallBack}
-                        onChange={() => setIntakeFormData(prev => ({
-                          ...prev,
-                          unknownWillCallBack: !prev.unknownWillCallBack
-                        }))}
-                      />
-                      <label htmlFor="unknownWillCallBack">Unknown/Will call back</label>
+                          name="depositExplained"
+                          checked={intakeFormData.depositExplained}
+                          onChange={handleIntakeInputChange}
+                        />
+                        50% deposit required - explained to customer
+                      </label>
                     </div>
-                  </div>
+                  )}
+
+                  <label className="payment-method-option">
+                      <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="quote_request"
+                      checked={intakeFormData.paymentMethod === 'quote_request'}
+                      onChange={handleIntakeInputChange}
+                    />
+                    <span>Requesting Quote</span>
+                  </label>
                 </div>
               </div>
 
@@ -916,14 +1195,13 @@ function Storm() {
                 <h3 className="form-section-title">Intake Taken By</h3>
                 <div className="form-grid">
                   <div className="form-group">
-                    <label htmlFor="intakeTakenBy">Taken By *</label>
+                    <label htmlFor="intakeTakenBy">Taken By</label>
                     <input
                       type="text"
                       id="intakeTakenBy"
                       name="intakeTakenBy"
                       value={intakeFormData.intakeTakenBy}
                       onChange={handleIntakeInputChange}
-                      required
                       placeholder="Your name"
                     />
                   </div>
@@ -968,7 +1246,10 @@ function Storm() {
                 <button 
                   type="button" 
                   className="storm-btn storm-btn-gray"
-                  onClick={() => setIntakeFormData({
+                  onClick={() => {
+                    const now = new Date();
+                    setIntakeFormData({
+                      propertyType: 'residential',
                     customerName: '',
                     customerPhone: '',
                     customerEmail: '',
@@ -978,34 +1259,44 @@ function Storm() {
                     zip: '',
                     latitude: '',
                     longitude: '',
-                    standingWaterNow: false,
-                    waterReceded: false,
-                    structuralDamageVisible: false,
-                    electricalHazard: false,
-                    moldVisible: false,
-                    sewageContamination: false,
-                    affectedAreaSize: '',
-                    waterDepth: '',
-                    priority: '',
-                    hasInsurance: false,
-                    hasInsurance: false,
-                    insuranceCompany: '',
-                    cashPrivatePay: false,
-                    unknownWillCallBack: false,
+                      onsiteContactName: '',
+                      onsiteContactPhone: '',
+                      onsiteSameAsCustomer: false,
+                      msaOnFile: false,
+                      causeOfLoss: '',
+                      causeFixed: false,
+                      sqftAffected: '',
+                      powerAtLocation: '',
+                      tarpingNeeded: false,
+                      boardupNeeded: false,
+                      roomsAffected: '',
+                      foundationType: '',
+                      basementType: '',
+                      unitsAffected: '',
+                      floorsAffected: '',
+                      parkingLocation: '',
+                      paymentMethod: '',
+                      insuranceProvider: '',
+                      insuranceClaimNumber: '',
+                      depositExplained: false,
                     notes: '',
                     intakeTakenBy: '',
-                    intakeDate: intakeFormData.intakeDate,
-                    intakeTime: intakeFormData.intakeTime
-                  })}
+                      intakeDate: now.toLocaleDateString('en-US'),
+                      intakeTime: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+                    });
+                  }}
                 >
                   Clear Form
                 </button>
               </div>
             </form>
+              </>
+            )}
           </div>
         )}
 
-        {manageEventTab === 'jobs' && (
+        {/* Jobs Tab */}
+        {activeTab === 'jobs' && (
           <div className="jobs-container">
             <h2>Jobs</h2>
             <p>Jobs section coming soon...</p>
@@ -1021,36 +1312,10 @@ function Storm() {
         <h1>Storm</h1>
       </div>
       <div className="page-content">
-        <div className="storm-buttons-container">
-          <button 
-            onClick={handleAddNewEvent}
-            className="storm-btn storm-btn-primary"
-          >
-            Add New Event
-          </button>
-          <button 
-            onClick={handleManageEvent}
-            className="storm-btn storm-btn-secondary"
-          >
-            Manage Event
-          </button>
-          <button 
-            onClick={handlePostEvent}
-            className="storm-btn storm-btn-tertiary"
-          >
-            Post Event
-          </button>
-        </div>
-        {activeView === 'manage-event' && renderManageEvent()}
-        {activeView && activeView !== 'manage-event' && (
-          <div className="storm-content-section">
-            <p>Content for {activeView} will be displayed here...</p>
-          </div>
-        )}
+        {renderManageEvent()}
       </div>
     </div>
   );
 }
 
 export default Storm;
-

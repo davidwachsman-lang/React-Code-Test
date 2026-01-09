@@ -118,12 +118,6 @@ function ROITable({ records = [], onRecordClick }) {
           // Capitalize first letter
           return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
         },
-        cell: (info) => {
-          const value = info.getValue();
-          if (!value) return 'Unassigned';
-          // Capitalize first letter
-          return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-        },
         enableSorting: true,
         size: 160,
       }),

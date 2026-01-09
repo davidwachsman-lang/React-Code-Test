@@ -5,6 +5,7 @@ import { useCreateCRMRecord, useUpdateCRMRecord, useDeleteCRMRecord } from '../h
 import crmService from '../services/crmService';
 import activityTrackingService from '../services/activityTrackingService';
 import topTargetsService from '../services/topTargetsService';
+import featureUpgradesService from '../services/featureUpgradesService';
 import SalesFunnel from '../components/SalesFunnel';
 import CRMTable from '../components/crm/CRMTable';
 import ROITable from '../components/crm/ROITable';
@@ -44,7 +45,7 @@ function CRM() {
   const [editingRecord, setEditingRecord] = useState(null);
   const [viewingRecord, setViewingRecord] = useState(null);
   const [parentRecord, setParentRecord] = useState(null);
-  const [activeTab, setActiveTab] = useState('all'); // 'all', 'hot', 'atRisk', 'inactive', 'lost', 'dashboard', 'funnel', 'playbook', 'roi', 'topTargets'
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'hot', 'atRisk', 'inactive', 'lost', 'dashboard', 'funnel', 'playbook', 'roi', 'topTargets', 'featureUpgrades'
   const [selectedSalesRep, setSelectedSalesRep] = useState('all');
   const [filters, setFilters] = useState({
     relationship_stage: 'all',
@@ -81,6 +82,34 @@ function CRM() {
     status: '',
     notes: ''
   });
+  const [featureUpgrades, setFeatureUpgrades] = useState([]);
+  const [loadingFeatureUpgrades, setLoadingFeatureUpgrades] = useState(false);
+  const [showFeatureUpgradeForm, setShowFeatureUpgradeForm] = useState(false);
+  const [featureUpgradeFormData, setFeatureUpgradeFormData] = useState({
+    salesRep: '',
+    suggestedUpgrade: ''
+  });
+  const [editingFeatureUpgrade, setEditingFeatureUpgrade] = useState(null);
+
+  // Load feature upgrades when tab is active
+  useEffect(() => {
+    if (activeTab !== 'featureUpgrades') return;
+    
+    const loadFeatureUpgrades = async () => {
+      setLoadingFeatureUpgrades(true);
+      try {
+        const upgrades = await featureUpgradesService.getAll();
+        setFeatureUpgrades(upgrades || []);
+      } catch (error) {
+        console.error('Error loading feature upgrades:', error);
+        setFeatureUpgrades([]);
+      } finally {
+        setLoadingFeatureUpgrades(false);
+      }
+    };
+    
+    loadFeatureUpgrades();
+  }, [activeTab]);
 
   // Load activity data when week changes or when activity tab is active
   useEffect(() => {
@@ -362,6 +391,76 @@ function CRM() {
     } finally {
       setLoadingTopTargets(false);
     }
+  };
+
+  // Handle feature upgrade form submission
+  const handleFeatureUpgradeSubmit = async (e) => {
+    e.preventDefault();
+    if (!featureUpgradeFormData.salesRep || !featureUpgradeFormData.suggestedUpgrade.trim()) {
+      alert('Please select a sales rep and enter a feature upgrade suggestion.');
+      return;
+    }
+    
+    setLoadingFeatureUpgrades(true);
+    try {
+      if (editingFeatureUpgrade) {
+        // Update existing
+        await featureUpgradesService.update(editingFeatureUpgrade.id, {
+          sales_rep: featureUpgradeFormData.salesRep,
+          suggested_upgrade: featureUpgradeFormData.suggestedUpgrade.trim()
+        });
+      } else {
+        // Create new
+        await featureUpgradesService.create({
+          sales_rep: featureUpgradeFormData.salesRep,
+          suggested_upgrade: featureUpgradeFormData.suggestedUpgrade.trim()
+        });
+      }
+      
+      // Reload feature upgrades
+      const upgrades = await featureUpgradesService.getAll();
+      setFeatureUpgrades(upgrades || []);
+      
+      // Reset form
+      setFeatureUpgradeFormData({ salesRep: '', suggestedUpgrade: '' });
+      setShowFeatureUpgradeForm(false);
+      setEditingFeatureUpgrade(null);
+    } catch (error) {
+      console.error('Error saving feature upgrade:', error);
+      alert('Failed to save feature upgrade: ' + (error.message || 'Unknown error'));
+    } finally {
+      setLoadingFeatureUpgrades(false);
+    }
+  };
+
+  // Handle delete feature upgrade
+  const handleDeleteFeatureUpgrade = async (id) => {
+    if (!confirm('Are you sure you want to delete this feature upgrade suggestion?')) {
+      return;
+    }
+    
+    setLoadingFeatureUpgrades(true);
+    try {
+      await featureUpgradesService.delete(id);
+      // Reload feature upgrades
+      const upgrades = await featureUpgradesService.getAll();
+      setFeatureUpgrades(upgrades || []);
+    } catch (error) {
+      console.error('Error deleting feature upgrade:', error);
+      alert('Failed to delete feature upgrade: ' + (error.message || 'Unknown error'));
+    } finally {
+      setLoadingFeatureUpgrades(false);
+    }
+  };
+
+  // Handle edit feature upgrade
+  const handleEditFeatureUpgrade = (upgrade) => {
+    setEditingFeatureUpgrade(upgrade);
+    setFeatureUpgradeFormData({
+      salesRep: upgrade.sales_rep,
+      suggestedUpgrade: upgrade.suggested_upgrade
+    });
+    setShowFeatureUpgradeForm(true);
   };
 
   // Handle activity form submission
@@ -949,6 +1048,13 @@ function CRM() {
         >
           <span className="btn-icon">🎯</span>
           Top 10 Targets
+        </button>
+        <button 
+          className={`action-btn ${activeTab === 'featureUpgrades' ? 'action-btn-teal' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('featureUpgrades')}
+        >
+          <span className="btn-icon">✨</span>
+          Feature Upgrades
         </button>
       </div>
 
@@ -2130,6 +2236,163 @@ function CRM() {
                 </button>
                 <button type="submit" className="btn-primary" disabled={loadingTopTargets}>
                   {loadingTopTargets ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Feature Upgrades Tab */}
+      {activeTab === 'featureUpgrades' && (
+        <div className="customers-container">
+          <div className="customers-header">
+            <h2>Feature Upgrades</h2>
+            <button
+              className="btn-primary"
+              onClick={() => {
+                setEditingFeatureUpgrade(null);
+                setFeatureUpgradeFormData({ salesRep: '', suggestedUpgrade: '' });
+                setShowFeatureUpgradeForm(true);
+              }}
+            >
+              + Add Feature Upgrade
+            </button>
+          </div>
+          
+          {loadingFeatureUpgrades ? (
+            <div className="crm-loading">
+              <p>Loading feature upgrades...</p>
+            </div>
+          ) : (
+            <div className="feature-upgrades-container">
+              {featureUpgrades.length === 0 ? (
+                <div className="empty-state">
+                  <p>No feature upgrades yet. Click "Add Feature Upgrade" to suggest a new feature.</p>
+                </div>
+              ) : (
+                <table className="feature-upgrades-table">
+                  <thead>
+                    <tr>
+                      <th>Sales Rep</th>
+                      <th>Suggested Upgrade</th>
+                      <th>Status</th>
+                      <th>Date Submitted</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {featureUpgrades.map((upgrade) => (
+                      <tr key={upgrade.id}>
+                        <td>{upgrade.sales_rep}</td>
+                        <td>{upgrade.suggested_upgrade}</td>
+                        <td>
+                          <span className={`status-badge status-${upgrade.status || 'pending'}`}>
+                            {(upgrade.status || 'pending').replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </span>
+                        </td>
+                        <td>{new Date(upgrade.created_at).toLocaleDateString()}</td>
+                        <td>
+                          <button
+                            className="btn-edit"
+                            onClick={() => handleEditFeatureUpgrade(upgrade)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="btn-delete"
+                            onClick={() => handleDeleteFeatureUpgrade(upgrade.id)}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Feature Upgrade Form Modal */}
+      {showFeatureUpgradeForm && (
+        <div className="modal-overlay" onClick={() => {
+          setShowFeatureUpgradeForm(false);
+          setEditingFeatureUpgrade(null);
+          setFeatureUpgradeFormData({ salesRep: '', suggestedUpgrade: '' });
+        }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <div className="modal-header">
+              <h2>{editingFeatureUpgrade ? 'Edit Feature Upgrade' : 'Add Feature Upgrade'}</h2>
+              <button className="close-btn" onClick={() => {
+                setShowFeatureUpgradeForm(false);
+                setEditingFeatureUpgrade(null);
+                setFeatureUpgradeFormData({ salesRep: '', suggestedUpgrade: '' });
+              }}>×</button>
+            </div>
+            <form onSubmit={handleFeatureUpgradeSubmit}>
+              <div className="form-group">
+                <label htmlFor="salesRep">Sales Rep *</label>
+                <select
+                  id="salesRep"
+                  value={featureUpgradeFormData.salesRep}
+                  onChange={(e) => setFeatureUpgradeFormData({...featureUpgradeFormData, salesRep: e.target.value})}
+                  required
+                >
+                  <option value="">Select sales rep...</option>
+                  <option value="Ainsley">Ainsley</option>
+                  <option value="Amy">Amy</option>
+                  <option value="Bri">Bri</option>
+                  <option value="David">David</option>
+                  <option value="Joe">Joe</option>
+                  <option value="Matt">Matt</option>
+                  <option value="Mike">Mike</option>
+                  <option value="Paige">Paige</option>
+                  <option value="Tony">Tony</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="suggestedUpgrade">Suggested Feature Upgrade *</label>
+                <textarea
+                  id="suggestedUpgrade"
+                  value={featureUpgradeFormData.suggestedUpgrade}
+                  onChange={(e) => setFeatureUpgradeFormData({...featureUpgradeFormData, suggestedUpgrade: e.target.value})}
+                  placeholder="Describe the feature upgrade you'd like to suggest..."
+                  rows="5"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    borderRadius: '4px',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                    color: '#f1f5f9',
+                    fontSize: '0.95rem',
+                    fontFamily: 'inherit',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => {
+                    setShowFeatureUpgradeForm(false);
+                    setEditingFeatureUpgrade(null);
+                    setFeatureUpgradeFormData({ salesRep: '', suggestedUpgrade: '' });
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={loadingFeatureUpgrades}
+                >
+                  {loadingFeatureUpgrades ? 'Saving...' : editingFeatureUpgrade ? 'Update' : 'Submit'}
                 </button>
               </div>
             </form>

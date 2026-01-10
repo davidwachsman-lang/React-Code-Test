@@ -15,12 +15,27 @@
       };
       window.gm_authFailure = function() {
         window.googleMapsError = 'Google Maps authentication failed. Check API key and billing.';
-        console.error(window.googleMapsError);
+        console.error('❌ Google Maps Auth Failure:', window.googleMapsError);
+        // Dispatch error event for React components to catch
+        window.dispatchEvent(new CustomEvent('googlemapserror', { 
+          detail: { message: window.googleMapsError, type: 'auth' } 
+        }));
       };
+      
+      // Additional error handler for script loading
+      window.addEventListener('error', function(e) {
+        if (e.target && e.target.src && e.target.src.includes('maps.googleapis.com')) {
+          window.googleMapsError = 'Failed to load Google Maps script. Check your network connection.';
+          console.error('❌ Google Maps Script Error:', window.googleMapsError);
+          window.dispatchEvent(new CustomEvent('googlemapserror', { 
+            detail: { message: window.googleMapsError, type: 'script' } 
+          }));
+        }
+      }, true);
     </script>
     <script 
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDr-fsgvYFv916-fICA781RT6VaCbeZh_Q&libraries=places&callback=initGoogleMaps"
-      async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDr-fsgvYFv916-fICA781RT6VaCbeZh_Q&libraries=places,visualization&callback=initGoogleMaps"
+      defer
       onerror="window.googleMapsError = 'Failed to load Google Maps API'; console.error(window.googleMapsError);">
     </script>
   </head>

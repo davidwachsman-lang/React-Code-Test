@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import stormEventService from '../services/stormEventService';
+import jobService from '../services/jobService';
+import customerService from '../services/customerService';
+import propertyService from '../services/propertyService';
+import StormMap from '../components/storm/StormMap';
 import './Page.css';
 import './Storm.css';
 
@@ -70,6 +74,16 @@ function Storm() {
     intakeTime: ''
   });
 
+  // Jobs State
+  const [jobs, setJobs] = useState([]);
+  const [loadingJobs, setLoadingJobs] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState(null);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [showJobEditModal, setShowJobEditModal] = useState(false);
+  const [jobEditFormData, setJobEditFormData] = useState(null);
+  const [savingJob, setSavingJob] = useState(false);
+  const [jobsView, setJobsView] = useState('table'); // 'table' or 'map'
+
   // Load storm events on mount
   const loadStormEvents = async () => {
     setLoadingEvents(true);
@@ -93,6 +107,332 @@ function Storm() {
       setLoadingEvents(false);
     }
   }, []);
+
+  // Load jobs when selectedEventId changes
+  const loadJobs = async () => {
+    if (!selectedEventId) {
+      setJobs([]);
+      return;
+    }
+
+    setLoadingJobs(true);
+    try {
+      const jobsData = await jobService.getByStormEventId(selectedEventId);
+      setJobs(jobsData || []);
+    } catch (error) {
+      console.error('Error loading jobs:', error);
+      setJobs([]);
+    } finally {
+      setLoadingJobs(false);
+    }
+  };
+
+  useEffect(() => {
+    loadJobs();
+  }, [selectedEventId]);
+
+  // Handle job row click - open edit modal
+  const handleJobRowClick = async (job) => {
+    setSelectedJobId(job.id);
+    setSelectedJob(job);
+    
+    // Load full job data to get all fields
+    try {
+      const fullJob = await jobService.getById(job.id);
+      if (!fullJob) {
+        console.error('Job not found');
+        return;
+      }
+      
+      // Extract city, state, zip from property if available
+      const property = fullJob.properties || {};
+      const city = property.city || '';
+      const state = property.state || '';
+      const zip = property.postal_code || '';
+      
+      // Load property and customer data for the form
+      const propertyType = fullJob.property_type || job.property_type;
+      const normalizedPropertyType = propertyType 
+        ? (String(propertyType).toLowerCase() === 'residential' ? 'residential' : 'commercial')
+        : 'residential';
+      
+      setJobEditFormData({
+        // Basic Info
+        propertyType: normalizedPropertyType,
+        customerName: fullJob.customers?.name || job.customer_name || '',
+        customerPhone: fullJob.customers?.phone || job.customer_phone || '',
+        customerEmail: fullJob.customers?.email || job.customer_email || '',
+        propertyAddress: property.address1 || job.property_address || job.address || '',
+        city: city,
+        state: state,
+        zip: zip,
+        
+        // Onsite Contact
+        onsiteContactName: fullJob.onsite_contact_name || job.onsite_contact_name || '',
+        onsiteContactPhone: fullJob.onsite_contact_phone || job.onsite_contact_phone || '',
+        onsiteSameAsCustomer: false,
+        
+        // Property Information
+        causeOfLoss: fullJob.cause_of_loss || job.cause_of_loss || '',
+        causeFixed: fullJob.cause_fixed || job.cause_fixed || false,
+        sqftAffected: fullJob.sqft_affected ? fullJob.sqft_affected.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '',
+        powerAtLocation: fullJob.power_at_location || job.power_at_location || '',
+        tarpingNeeded: fullJob.tarping_needed || job.tarping_needed || false,
+        boardupNeeded: fullJob.boardup_needed || job.boardup_needed || false,
+        
+        // Residential specific
+        roomsAffected: fullJob.rooms_affected || job.rooms_affected || '',
+        foundationType: fullJob.foundation_type || job.foundation_type || '',
+        basementType: fullJob.basement_type || job.basement_type || '',
+        
+        // Commercial specific
+        unitsAffected: fullJob.units_affected || job.units_affected || '',
+        floorsAffected: fullJob.floors_affected || job.floors_affected || '',
+        parkingLocation: fullJob.parking_location || job.parking_location || '',
+        msaOnFile: fullJob.msa_on_file || job.msa_on_file || false,
+        
+        // Payment Info
+        paymentMethod: fullJob.payment_method || job.payment_method || '',
+        insuranceProvider: fullJob.insurance_provider || job.insurance_provider || '',
+        insuranceClaimNumber: fullJob.insurance_claim_number || job.insurance_claim_number || '',
+        depositExplained: fullJob.deposit_explained || job.deposit_explained || false,
+        
+        // Notes
+        notes: fullJob.internal_notes || job.internal_notes || '',
+        
+        // Team/Status
+        pm: fullJob.pm || job.pm || '',
+        status: fullJob.status || job.status || 'pending',
+        priority: fullJob.priority || job.priority || '',
+        estimateValue: fullJob.estimate_value ? fullJob.estimate_value.toString() : '',
+        
+        // Dates - format for date input (YYYY-MM-DD)
+        dateOfLoss: fullJob.date_of_loss 
+          ? (fullJob.date_of_loss.split('T')[0] || '')
+          : (job.date_of_loss ? (job.date_of_loss.split('T')[0] || '') : ''),
+        dateOpened: fullJob.date_opened 
+          ? (fullJob.date_opened.split('T')[0] || '')
+          : (job.date_opened ? (job.date_opened.split('T')[0] || '') : (job.date_received ? (job.date_received.split('T')[0] || '') : ''))
+      });
+      
+      setShowJobEditModal(true);
+    } catch (error) {
+      console.error('Error loading job details:', error);
+      alert('Failed to load job details: ' + error.message);
+    }
+  };
+
+  // Handle job edit form input changes
+  const handleJobEditInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    
+    if (type === 'checkbox') {
+      setJobEditFormData(prev => ({
+        ...prev,
+        [name]: checked
+      }));
+      return;
+    }
+    
+    let processedValue = value;
+    
+    // Format phone numbers
+    if (name === 'customerPhone' || name === 'onsiteContactPhone') {
+      processedValue = formatPhoneNumber(value);
+    }
+    
+    // Format square footage with commas
+    if (name === 'sqftAffected') {
+      processedValue = formatNumberWithCommas(value);
+    }
+    
+    setJobEditFormData(prev => ({
+      ...prev,
+      [name]: processedValue
+    }));
+  };
+
+  // Handle job edit form submission
+  const handleJobEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedJob || !jobEditFormData) return;
+
+    setSavingJob(true);
+    try {
+      // Prepare update data - map form fields back to database columns
+      const updateData = {
+        // Basic Info
+        property_type: jobEditFormData.propertyType 
+          ? (jobEditFormData.propertyType.charAt(0).toUpperCase() + jobEditFormData.propertyType.slice(1).toLowerCase())
+          : 'Residential',
+        
+        // Property Information
+        cause_of_loss: jobEditFormData.causeOfLoss || null,
+        cause_fixed: jobEditFormData.causeFixed || false,
+        sqft_affected: jobEditFormData.sqftAffected ? parseInt(jobEditFormData.sqftAffected.toString().replace(/,/g, '')) : null,
+        power_at_location: jobEditFormData.powerAtLocation || null,
+        tarping_needed: jobEditFormData.tarpingNeeded || false,
+        boardup_needed: jobEditFormData.boardupNeeded || false,
+        
+        // Onsite Contact
+        onsite_contact_name: jobEditFormData.onsiteContactName || null,
+        onsite_contact_phone: stripPhoneFormatting(jobEditFormData.onsiteContactPhone) || null,
+        
+        // Payment Info
+        payment_method: jobEditFormData.paymentMethod || null,
+        deposit_explained: jobEditFormData.depositExplained || false,
+        insurance_provider: jobEditFormData.insuranceProvider || null,
+        insurance_claim_number: jobEditFormData.insuranceClaimNumber || null,
+        
+        // Notes
+        internal_notes: jobEditFormData.notes || null,
+        
+        // Team/Status
+        pm: jobEditFormData.pm || null,
+        status: jobEditFormData.status || 'pending',
+        priority: jobEditFormData.priority || null,
+        estimate_value: jobEditFormData.estimateValue ? parseFloat(jobEditFormData.estimateValue.toString().replace(/[^0-9.-]+/g, '')) : null,
+        
+        // Dates
+        date_of_loss: jobEditFormData.dateOfLoss || null
+      };
+
+      // Add property-type specific fields
+      if (jobEditFormData.propertyType === 'residential') {
+        if (jobEditFormData.roomsAffected) {
+          updateData.rooms_affected = parseInt(jobEditFormData.roomsAffected);
+        }
+        updateData.foundation_type = jobEditFormData.foundationType || null;
+        updateData.basement_type = jobEditFormData.basementType || null;
+        // Clear commercial fields
+        updateData.units_affected = null;
+        updateData.floors_affected = null;
+        updateData.parking_location = null;
+        updateData.msa_on_file = false;
+      } else if (jobEditFormData.propertyType === 'commercial') {
+        if (jobEditFormData.unitsAffected) {
+          updateData.units_affected = parseInt(jobEditFormData.unitsAffected);
+        }
+        if (jobEditFormData.floorsAffected) {
+          updateData.floors_affected = parseInt(jobEditFormData.floorsAffected);
+        }
+        updateData.parking_location = jobEditFormData.parkingLocation || null;
+        updateData.msa_on_file = jobEditFormData.msaOnFile || false;
+        // Clear residential fields
+        updateData.rooms_affected = null;
+        updateData.foundation_type = null;
+        updateData.basement_type = null;
+      }
+
+      // Update customer if needed
+      if (selectedJob.customer_id) {
+        await customerService.update(selectedJob.customer_id, {
+          name: jobEditFormData.customerName || null,
+          phone: stripPhoneFormatting(jobEditFormData.customerPhone) || null,
+          email: jobEditFormData.customerEmail || null
+        });
+      }
+
+      // Update property if needed
+      if (selectedJob.property_id) {
+        await propertyService.update(selectedJob.property_id, {
+          address1: jobEditFormData.propertyAddress || '',
+          city: jobEditFormData.city || 'Unknown',
+          state: jobEditFormData.state || '',
+          postal_code: jobEditFormData.zip || ''
+        });
+      }
+
+      // Update job
+      await jobService.update(selectedJob.id, updateData);
+
+      // Refresh jobs list
+      await loadJobs();
+
+      // Close modal
+      setShowJobEditModal(false);
+      setSelectedJob(null);
+      setJobEditFormData(null);
+
+      alert('Job updated successfully!');
+    } catch (error) {
+      console.error('Error updating job:', error);
+      alert(`Failed to update job: ${error.message}`);
+    } finally {
+      setSavingJob(false);
+    }
+  };
+
+  // Helper functions for transforming job data
+  const getStatusDisplay = (status) => {
+    const s = status?.toLowerCase();
+    if (s === 'pending') return 'Intake';
+    if (s === 'in_progress' || s === 'wip') return 'Drying';
+    if (s?.includes('demo')) return 'Demo';
+    if (s === 'complete' || s === 'completed') return 'Complete';
+    return status || 'N/A';
+  };
+
+  const getJobTypeDisplay = (causeOfLoss) => {
+    if (!causeOfLoss) return 'N/A';
+    const cause = causeOfLoss.toLowerCase();
+    if (cause.includes('water')) return 'Water';
+    if (cause.includes('wind') || cause.includes('storm')) return 'Wind';
+    if (cause.includes('mold')) return 'Mold';
+    if (cause.includes('fire')) return 'Fire';
+    return causeOfLoss;
+  };
+
+  const calculateDaysSinceLoss = (dateOfLoss) => {
+    if (!dateOfLoss) return 'N/A';
+    try {
+      const lossDate = new Date(dateOfLoss);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      lossDate.setHours(0, 0, 0, 0);
+      const diffTime = today - lossDate;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays >= 0 ? diffDays.toString() : '0';
+    } catch (error) {
+      return 'N/A';
+    }
+  };
+
+  const formatCurrency = (value) => {
+    if (!value && value !== 0) return '-';
+    return `$${parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const getPropertyTypeDisplay = (propertyType, job = null) => {
+    if (!propertyType) {
+      // Try to infer from other fields if property_type is missing
+      if (job) {
+        // Check if it's a storm job - storm jobs default to residential unless specified
+        if (job.storm_event_id) {
+          return 'Residential'; // Default for storm jobs
+        }
+        // Check division - Large Loss/Referral are typically Commercial
+        if (job.division && (job.division.includes('Large Loss') || job.division.includes('Referral'))) {
+          return 'Commercial';
+        }
+      }
+      return '-';
+    }
+    const type = String(propertyType).toLowerCase();
+    if (type === 'residential' || type === 'res') return 'Residential';
+    if (type === 'commercial' || type === 'comm') return 'Commercial';
+    // Handle capitalized versions
+    if (type === 'residential' || propertyType === 'Residential') return 'Residential';
+    if (type === 'commercial' || propertyType === 'Commercial') return 'Commercial';
+    return propertyType;
+  };
+
+  const getPayTypeDisplay = (paymentMethod) => {
+    if (!paymentMethod) return '-';
+    if (paymentMethod === 'insurance') return 'Insurance';
+    if (paymentMethod === 'self_pay') return 'Self Pay';
+    return paymentMethod;
+  };
 
   // Handle event form input changes
   const handleEventInputChange = (e) => {
@@ -733,19 +1073,6 @@ function Storm() {
                   </tbody>
                 </table>
               )}
-              
-              {selectedEvent && (
-                <div className="selected-event-banner">
-                  <span className="banner-label">Selected Event:</span>
-                  <span className="banner-event-name">{selectedEvent.event_name}</span>
-                  <button 
-                    className="storm-btn storm-btn-primary"
-                    onClick={() => setActiveTab('intake')}
-                  >
-                    Add Intake →
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -1291,15 +1618,143 @@ function Storm() {
               </div>
             </form>
               </>
-            )}
+        )}
           </div>
         )}
 
         {/* Jobs Tab */}
         {activeTab === 'jobs' && (
-          <div className="jobs-container">
-            <h2>Jobs</h2>
-            <p>Jobs section coming soon...</p>
+          <div className="jobs-dashboard-container">
+            {!selectedEvent ? (
+              <div className="no-event-selected">
+                <h3>No Storm Event Selected</h3>
+                <p>Please select a storm event from the Events tab to view jobs.</p>
+          <button 
+            className="storm-btn storm-btn-primary"
+                  onClick={() => setActiveTab('events')}
+          >
+                  Go to Events
+          </button>
+              </div>
+            ) : (
+              <>
+                <div className="selected-event-header">
+                  <span className="event-badge">{selectedEvent.storm_type}</span>
+                  <span className="event-info">{selectedEvent.event_name}</span>
+          <button 
+                    className="change-event-btn"
+                    onClick={() => setActiveTab('events')}
+          >
+                    Change Event
+          </button>
+                </div>
+                
+                {loadingJobs ? (
+                  <div className="jobs-loading">
+                    <p>Loading jobs...</p>
+                  </div>
+                ) : (
+                  <div className="jobs-dashboard-layout">
+                    {/* View Toggle */}
+                    <div className="jobs-view-toggle">
+          <button 
+                        className={`view-toggle-btn ${jobsView === 'table' ? 'active' : ''}`}
+                        onClick={() => setJobsView('table')}
+                      >
+                        Table View
+                      </button>
+                      <button
+                        className={`view-toggle-btn ${jobsView === 'map' ? 'active' : ''}`}
+                        onClick={() => setJobsView('map')}
+                      >
+                        Map View
+          </button>
+        </div>
+
+                    {/* Table View */}
+                    {jobsView === 'table' && (
+                      <div className="jobs-table-container">
+                        <h3>Jobs</h3>
+                        {jobs.length === 0 ? (
+                          <div className="empty-state">
+                            <p>No jobs found for this storm event.</p>
+                            <p style={{ fontSize: '0.9rem', color: '#94a3b8', marginTop: '0.5rem' }}>
+                              Add intake entries from the Intake tab to create jobs.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="jobs-table-wrapper">
+                            <table className="jobs-table">
+                              <thead>
+                                <tr>
+                                  <th>Priority Score</th>
+                                  <th>Property Type</th>
+                                  <th>Job Type</th>
+                                  <th>Customer Name</th>
+                                  <th>PM</th>
+                                  <th>Days Since Loss</th>
+                                  <th>Category</th>
+                                  <th>Pay Type</th>
+                                  <th>Est. Revenue</th>
+                                  <th>Status</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {jobs.map(job => {
+                                  return (
+                                  <tr
+                                    key={job.id}
+                                    className={`job-row ${selectedJobId === job.id ? 'selected' : ''}`}
+                                    onClick={() => handleJobRowClick(job)}
+                                  >
+                                    <td>
+                                      <span className="priority-display">{job.priority || '-'}</span>
+                                    </td>
+                                    <td>
+                                      <span className="property-type-display">
+                                        {getPropertyTypeDisplay(job.property_type || job.propertyType, job)}
+                                      </span>
+                                    </td>
+                                    <td>
+                                      <span className="job-type-display">{getJobTypeDisplay(job.cause_of_loss)}</span>
+                                    </td>
+                                    <td className="customer-name-cell">{job.customer_name || 'N/A'}</td>
+                                    <td>{job.pm || '-'}</td>
+                                    <td>
+                                      <span className="days-since-loss">{calculateDaysSinceLoss(job.date_of_loss)}</span>
+                                    </td>
+                                    <td>{job.division || '-'}</td>
+                                    <td>{getPayTypeDisplay(job.payment_method)}</td>
+                                    <td className="revenue-cell">{formatCurrency(job.estimate_value)}</td>
+                                    <td>
+                                      <span className={`status-badge status-${job.status}`}>
+                                        {getStatusDisplay(job.status)}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+          </div>
+        )}
+                      </div>
+                    )}
+
+                    {/* Map View */}
+                    {jobsView === 'map' && (
+                      <div className="jobs-map-container">
+                        <StormMap 
+                          jobs={jobs}
+                          selectedStormEventId={selectedEventId}
+                          onJobClick={(job) => setSelectedJobId(job.id)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>
@@ -1314,6 +1769,539 @@ function Storm() {
       <div className="page-content">
         {renderManageEvent()}
       </div>
+
+      {/* Job Edit Modal */}
+      {showJobEditModal && jobEditFormData && selectedJob && (
+        <div className="modal-overlay" onClick={() => {
+          setShowJobEditModal(false);
+          setSelectedJob(null);
+          setJobEditFormData(null);
+        }}>
+          <div className="modal-content job-edit-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Edit Job: {selectedJob.customer_name || 'Unknown'}</h2>
+              <button 
+                onClick={() => {
+                  setShowJobEditModal(false);
+                  setSelectedJob(null);
+                  setJobEditFormData(null);
+                }} 
+                className="modal-close"
+              >
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleJobEditSubmit} className="storm-intake-form">
+              {/* Property Type Toggle */}
+              <div className="form-section">
+                <h3 className="form-section-title">Property Type</h3>
+                <div className="property-type-toggle">
+                  <button
+                    type="button"
+                    className={`property-type-option ${jobEditFormData.propertyType === 'residential' ? 'active' : ''}`}
+                    onClick={() => setJobEditFormData(prev => ({ ...prev, propertyType: 'residential' }))}
+                  >
+                    Residential
+                  </button>
+                  <button
+                    type="button"
+                    className={`property-type-option ${jobEditFormData.propertyType === 'commercial' ? 'active' : ''}`}
+                    onClick={() => setJobEditFormData(prev => ({ ...prev, propertyType: 'commercial' }))}
+                  >
+                    Commercial
+                  </button>
+                </div>
+              </div>
+
+              {/* Customer Info Section */}
+              <div className="form-section">
+                <h3 className="form-section-title">Customer Info</h3>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label htmlFor="edit-customerName">Customer Name</label>
+                    <input
+                      type="text"
+                      id="edit-customerName"
+                      name="customerName"
+                      value={jobEditFormData.customerName}
+                      onChange={handleJobEditInputChange}
+                      placeholder="Enter customer name"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-customerPhone">Phone</label>
+                    <input
+                      type="tel"
+                      id="edit-customerPhone"
+                      name="customerPhone"
+                      value={jobEditFormData.customerPhone}
+                      onChange={handleJobEditInputChange}
+                      placeholder="555-555-5555"
+                      maxLength="12"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-customerEmail">Email</label>
+                    <input
+                      type="email"
+                      id="edit-customerEmail"
+                      name="customerEmail"
+                      value={jobEditFormData.customerEmail}
+                      onChange={handleJobEditInputChange}
+                      placeholder="customer@email.com"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-propertyAddress">Property Address</label>
+                    <input
+                      type="text"
+                      id="edit-propertyAddress"
+                      name="propertyAddress"
+                      value={jobEditFormData.propertyAddress}
+                      onChange={handleJobEditInputChange}
+                      placeholder="Enter property address"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-city">City</label>
+                    <input
+                      type="text"
+                      id="edit-city"
+                      name="city"
+                      value={jobEditFormData.city}
+                      onChange={handleJobEditInputChange}
+                      placeholder="City"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-state">State</label>
+                    <input
+                      type="text"
+                      id="edit-state"
+                      name="state"
+                      value={jobEditFormData.state}
+                      onChange={handleJobEditInputChange}
+                      placeholder="State"
+                      maxLength="2"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-zip">Zip Code</label>
+                    <input
+                      type="text"
+                      id="edit-zip"
+                      name="zip"
+                      value={jobEditFormData.zip}
+                      onChange={handleJobEditInputChange}
+                      placeholder="Zip code"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-onsiteContactName">Onsite Point-of-Contact Name</label>
+                    <input
+                      type="text"
+                      id="edit-onsiteContactName"
+                      name="onsiteContactName"
+                      value={jobEditFormData.onsiteContactName}
+                      onChange={handleJobEditInputChange}
+                      placeholder="Onsite contact name"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-onsiteContactPhone">Onsite Point-of-Contact Phone</label>
+                    <input
+                      type="tel"
+                      id="edit-onsiteContactPhone"
+                      name="onsiteContactPhone"
+                      value={jobEditFormData.onsiteContactPhone}
+                      onChange={handleJobEditInputChange}
+                      placeholder="555-555-5555"
+                      maxLength="12"
+                    />
+                  </div>
+                  {jobEditFormData.propertyType === 'commercial' && (
+                    <div className="form-group">
+                      <label className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          name="msaOnFile"
+                          checked={jobEditFormData.msaOnFile}
+                          onChange={handleJobEditInputChange}
+                        />
+                        MSA on File
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Property Information Section */}
+              <div className="form-section">
+                <h3 className="form-section-title">Property Information</h3>
+                
+                <div className="property-info-row">
+                  <div className="form-group flex-2">
+                    <label htmlFor="edit-causeOfLoss">Cause of Loss</label>
+                    <select
+                      id="edit-causeOfLoss"
+                      name="causeOfLoss"
+                      value={jobEditFormData.causeOfLoss}
+                      onChange={handleJobEditInputChange}
+                    >
+                      <option value="">Select cause of loss...</option>
+                      <option value="Water Damage">Water Damage</option>
+                      <option value="Fire">Fire</option>
+                      <option value="Storm/Wind">Storm/Wind</option>
+                      <option value="Flood">Flood</option>
+                      <option value="Freeze/Burst Pipe">Freeze/Burst Pipe</option>
+                      <option value="Sewage Backup">Sewage Backup</option>
+                      <option value="Mold">Mold</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div className="form-group flex-1">
+                    <label htmlFor="edit-sqftAffected">Sq. Ft. Affected</label>
+                    <input
+                      type="text"
+                      id="edit-sqftAffected"
+                      name="sqftAffected"
+                      value={jobEditFormData.sqftAffected}
+                      onChange={handleJobEditInputChange}
+                      placeholder="e.g., 1,500"
+                    />
+                  </div>
+                  <div className="form-group flex-1">
+                    <label>Cause Fixed?</label>
+                    <div className="inline-toggle">
+                      <label className={`toggle-option ${jobEditFormData.causeFixed ? 'active' : ''}`}>
+                        <input
+                          type="checkbox"
+                          name="causeFixed"
+                          checked={jobEditFormData.causeFixed}
+                          onChange={handleJobEditInputChange}
+                        />
+                        {jobEditFormData.causeFixed ? 'Yes' : 'No'}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Property-Type Specific Fields */}
+                {jobEditFormData.propertyType === 'residential' && (
+                  <div className="property-info-row">
+                    <div className="form-group flex-1">
+                      <label htmlFor="edit-roomsAffected"># Rooms Affected</label>
+                      <input
+                        type="number"
+                        id="edit-roomsAffected"
+                        name="roomsAffected"
+                        value={jobEditFormData.roomsAffected}
+                        onChange={handleJobEditInputChange}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="form-group flex-1">
+                      <label htmlFor="edit-foundationType">Foundation</label>
+                      <select
+                        id="edit-foundationType"
+                        name="foundationType"
+                        value={jobEditFormData.foundationType}
+                        onChange={handleJobEditInputChange}
+                      >
+                        <option value="">Select...</option>
+                        <option value="crawlspace">Crawlspace</option>
+                        <option value="slab">Slab</option>
+                      </select>
+                    </div>
+                    <div className="form-group flex-1">
+                      <label htmlFor="edit-basementType">Basement</label>
+                      <select
+                        id="edit-basementType"
+                        name="basementType"
+                        value={jobEditFormData.basementType}
+                        onChange={handleJobEditInputChange}
+                      >
+                        <option value="">Select...</option>
+                        <option value="finished">Finished</option>
+                        <option value="unfinished">Unfinished</option>
+                        <option value="none">None</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {jobEditFormData.propertyType === 'commercial' && (
+                  <div className="property-info-row">
+                    <div className="form-group flex-1">
+                      <label htmlFor="edit-unitsAffected"># Units Affected</label>
+                      <input
+                        type="number"
+                        id="edit-unitsAffected"
+                        name="unitsAffected"
+                        value={jobEditFormData.unitsAffected}
+                        onChange={handleJobEditInputChange}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="form-group flex-1">
+                      <label htmlFor="edit-floorsAffected"># Floors Affected</label>
+                      <input
+                        type="number"
+                        id="edit-floorsAffected"
+                        name="floorsAffected"
+                        value={jobEditFormData.floorsAffected}
+                        onChange={handleJobEditInputChange}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="form-group flex-2">
+                      <label htmlFor="edit-parkingLocation">Parking for Crew</label>
+                      <input
+                        type="text"
+                        id="edit-parkingLocation"
+                        name="parkingLocation"
+                        value={jobEditFormData.parkingLocation}
+                        onChange={handleJobEditInputChange}
+                        placeholder="Describe parking location"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Site Conditions Row */}
+                <div className="site-conditions-row">
+                  <div className="condition-item">
+                    <label>Power</label>
+                    <div className="toggle-buttons">
+                      <button
+                        type="button"
+                        className={`toggle-btn ${jobEditFormData.powerAtLocation === 'on' ? 'active' : ''}`}
+                        onClick={() => setJobEditFormData(prev => ({ ...prev, powerAtLocation: 'on' }))}
+                      >
+                        On
+                      </button>
+                      <button
+                        type="button"
+                        className={`toggle-btn ${jobEditFormData.powerAtLocation === 'off' ? 'active' : ''}`}
+                        onClick={() => setJobEditFormData(prev => ({ ...prev, powerAtLocation: 'off' }))}
+                      >
+                        Off
+                      </button>
+                    </div>
+                  </div>
+                  <div className="condition-item">
+                    <label className="condition-checkbox">
+                      <input
+                        type="checkbox"
+                        name="tarpingNeeded"
+                        checked={jobEditFormData.tarpingNeeded}
+                        onChange={handleJobEditInputChange}
+                      />
+                      <span>Tarping Needed</span>
+                    </label>
+                  </div>
+                  <div className="condition-item">
+                    <label className="condition-checkbox">
+                      <input
+                        type="checkbox"
+                        name="boardupNeeded"
+                        checked={jobEditFormData.boardupNeeded}
+                        onChange={handleJobEditInputChange}
+                      />
+                      <span>Board-Up Needed</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Information Section */}
+              <div className="form-section">
+                <h3 className="form-section-title">Payment Information</h3>
+                <div className="payment-method-radio-group">
+                  <label className="payment-method-option">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="insurance"
+                      checked={jobEditFormData.paymentMethod === 'insurance'}
+                      onChange={handleJobEditInputChange}
+                    />
+                    <span>Has Insurance</span>
+                  </label>
+                  {jobEditFormData.paymentMethod === 'insurance' && (
+                    <div className="payment-sub-fields">
+                      <div className="form-group">
+                        <label htmlFor="edit-insuranceProvider">Insurance Provider Name</label>
+                        <input
+                          type="text"
+                          id="edit-insuranceProvider"
+                          name="insuranceProvider"
+                          value={jobEditFormData.insuranceProvider}
+                          onChange={handleJobEditInputChange}
+                          placeholder="Provider name"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="edit-insuranceClaimNumber">Claim #</label>
+                        <input
+                          type="text"
+                          id="edit-insuranceClaimNumber"
+                          name="insuranceClaimNumber"
+                          value={jobEditFormData.insuranceClaimNumber}
+                          onChange={handleJobEditInputChange}
+                          placeholder="Claim number"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <label className="payment-method-option">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="self_pay"
+                      checked={jobEditFormData.paymentMethod === 'self_pay'}
+                      onChange={handleJobEditInputChange}
+                    />
+                    <span>Self-Pay</span>
+                  </label>
+                  {jobEditFormData.paymentMethod === 'self_pay' && (
+                    <div className="payment-sub-fields">
+                      <label className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          name="depositExplained"
+                          checked={jobEditFormData.depositExplained}
+                          onChange={handleJobEditInputChange}
+                        />
+                        50% deposit required - explained to customer
+                      </label>
+                    </div>
+                  )}
+
+                  <label className="payment-method-option">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="quote_request"
+                      checked={jobEditFormData.paymentMethod === 'quote_request'}
+                      onChange={handleJobEditInputChange}
+                    />
+                    <span>Requesting Quote</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Team & Status Section */}
+              <div className="form-section">
+                <h3 className="form-section-title">Team & Status</h3>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label htmlFor="edit-pm">PM</label>
+                    <input
+                      type="text"
+                      id="edit-pm"
+                      name="pm"
+                      value={jobEditFormData.pm}
+                      onChange={handleJobEditInputChange}
+                      placeholder="Project Manager"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-status">Status</label>
+                    <select
+                      id="edit-status"
+                      name="status"
+                      value={jobEditFormData.status}
+                      onChange={handleJobEditInputChange}
+                    >
+                      <option value="pending">Pending (Intake)</option>
+                      <option value="in_progress">In Progress (Drying)</option>
+                      <option value="wip">Work In Progress</option>
+                      <option value="complete">Complete</option>
+                      <option value="closed">Closed</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-priority">Priority</label>
+                    <select
+                      id="edit-priority"
+                      name="priority"
+                      value={jobEditFormData.priority}
+                      onChange={handleJobEditInputChange}
+                    >
+                      <option value="">Select priority...</option>
+                      <option value="emergency">Emergency</option>
+                      <option value="high">High</option>
+                      <option value="medium">Medium</option>
+                      <option value="normal">Normal</option>
+                      <option value="low">Low</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-estimateValue">Est. Revenue ($)</label>
+                    <input
+                      type="text"
+                      id="edit-estimateValue"
+                      name="estimateValue"
+                      value={jobEditFormData.estimateValue}
+                      onChange={handleJobEditInputChange}
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-dateOfLoss">Date of Loss</label>
+                    <input
+                      type="date"
+                      id="edit-dateOfLoss"
+                      name="dateOfLoss"
+                      value={jobEditFormData.dateOfLoss}
+                      onChange={handleJobEditInputChange}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes Section */}
+              <div className="form-section">
+                <h3 className="form-section-title">Notes</h3>
+                <div className="form-grid">
+                  <div className="form-group full-width">
+                    <label htmlFor="edit-notes">Additional Notes</label>
+                    <textarea
+                      id="edit-notes"
+                      name="notes"
+                      value={jobEditFormData.notes}
+                      onChange={handleJobEditInputChange}
+                      rows="5"
+                      placeholder="Any additional notes or information..."
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button type="submit" className="storm-btn storm-btn-primary" disabled={savingJob}>
+                  {savingJob ? 'Saving...' : 'Save Changes'}
+                </button>
+                <button 
+                  type="button" 
+                  className="storm-btn storm-btn-gray"
+                  onClick={() => {
+                    setShowJobEditModal(false);
+                    setSelectedJob(null);
+                    setJobEditFormData(null);
+                  }}
+                  disabled={savingJob}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

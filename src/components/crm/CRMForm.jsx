@@ -7,6 +7,11 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
   const parentInputRef = useRef(null);
   const parentDropdownRef = useRef(null);
   
+  // Google Places Autocomplete refs
+  const addressInputRef = useRef(null);
+  const autocompleteRef = useRef(null);
+  const [autocompleteStatus, setAutocompleteStatus] = useState('loading');
+  
   const [formData, setFormData] = useState({
     prospect_type: 'commercial',
     parent_id: '',
@@ -21,6 +26,8 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
     city: '',
     state: '',
     zip: '',
+    latitude: '',
+    longitude: '',
     industry: '',
     association_membership: '',
     primary_sales_rep: '',
@@ -60,6 +67,8 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
         city: crmRecord.city || '',
         state: crmRecord.state || '',
         zip: crmRecord.zip || '',
+        latitude: crmRecord.latitude || '',
+        longitude: crmRecord.longitude || '',
         industry: crmRecord.industry || '',
         association_membership: crmRecord.association_membership || '',
         primary_sales_rep: crmRecord.primary_sales_rep || '',
@@ -135,6 +144,154 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Initialize Google Places Autocomplete for property address
+  useEffect(() => {
+    let retryCount = 0;
+    const maxRetries = 30; // 3 seconds max wait time
+
+    const initAutocomplete = () => {
+      // Check for Google Maps errors first
+      if (window.googleMapsError) {
+        console.error('Google Maps Error:', window.googleMapsError);
+        setAutocompleteStatus('error');
+        return;
+      }
+
+      // Check if input element exists and is in the DOM
+      if (!addressInputRef.current || !document.contains(addressInputRef.current)) {
+        retryCount++;
+        if (retryCount < maxRetries) {
+          setTimeout(initAutocomplete, 100);
+        }
+        return;
+      }
+
+      // Check if Google Maps API is loaded with standard Places library
+      if (!window.google || !window.google.maps || !window.google.maps.places || !window.google.maps.places.Autocomplete) {
+        retryCount++;
+        if (retryCount < maxRetries) {
+          setTimeout(initAutocomplete, 100);
+        } else {
+          console.warn('Google Maps API not loaded after 3 seconds. Autocomplete disabled.');
+          setAutocompleteStatus('unavailable');
+        }
+        return;
+      }
+
+      // Initialize standard Google Places Autocomplete
+      try {
+        console.log('Initializing Google Places Autocomplete for CRM form...');
+        
+        // Create autocomplete instance directly on the input element
+        const autocompleteInstance = new window.google.maps.places.Autocomplete(
+          addressInputRef.current,
+          {
+            types: ['address'],
+            componentRestrictions: { country: 'us' },
+            fields: ['formatted_address', 'address_components', 'geometry', 'name']
+          }
+        );
+        
+        console.log('✓ Autocomplete initialized successfully');
+        setAutocompleteStatus('ready');
+        
+        // Listen for place selection
+        autocompleteInstance.addListener('place_changed', () => {
+          try {
+            const place = autocompleteInstance.getPlace();
+            console.log('Place selected:', place);
+            
+            if (!place || !place.geometry) {
+              console.warn('No geometry found for selected place');
+              return;
+            }
+            
+            // Get formatted address
+            const address = place.formatted_address || place.name || '';
+            console.log('Address:', address);
+              
+            // Extract address components
+            let city = '';
+            let state = '';
+            let zip = '';
+          
+            if (place.address_components) {
+              place.address_components.forEach(component => {
+                const types = component.types || [];
+                if (types.includes('locality')) {
+                  city = component.long_name;
+                }
+                if (types.includes('administrative_area_level_1')) {
+                  state = component.short_name;
+                }
+                if (types.includes('postal_code')) {
+                  zip = component.long_name;
+                }
+              });
+            }
+              
+            // Extract coordinates
+            let latitude = '';
+            let longitude = '';
+            if (place.geometry && place.geometry.location) {
+              latitude = place.geometry.location.lat().toString();
+              longitude = place.geometry.location.lng().toString();
+            }
+            
+            // Fallback for city if not found
+            if (!city) {
+              const parts = address.split(',');
+              if (parts.length >= 2) {
+                city = parts[1].trim();
+              } else {
+                city = 'Unknown';
+              }
+            }
+              
+            console.log('Extracted data:', { address, city, state, zip, latitude, longitude });
+              
+            // Update form state
+            setFormData(prev => ({
+              ...prev,
+              address: address,
+              city: city || 'Unknown',
+              state: state || '',
+              zip: zip || '',
+              latitude: latitude || '',
+              longitude: longitude || ''
+            }));
+            
+            // Show user feedback
+            if (latitude && longitude) {
+              console.log('✓ Address with coordinates captured successfully');
+            } else {
+              console.warn('⚠ Address captured but no coordinates');
+            }
+          } catch (error) {
+            console.error('Error processing place selection:', error);
+          }
+        });
+
+        // Store reference for cleanup
+        autocompleteRef.current = autocompleteInstance;
+      } catch (error) {
+        console.error('Google Places initialization error:', error);
+        setAutocompleteStatus('error');
+      }
+    };
+
+    // Small delay to ensure DOM is ready
+    const timeoutId = setTimeout(initAutocomplete, 200);
+
+    // Cleanup
+    return () => {
+      clearTimeout(timeoutId);
+      if (autocompleteRef.current && window.google && window.google.maps && window.google.maps.event) {
+        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+      }
     };
   }, []);
 
@@ -420,13 +577,27 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
       <div className="form-section-header">Address</div>
 
       <div className="form-group">
-        <label>Address</label>
+        <label>
+          Address
+          {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
+          {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
+          {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
+          {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
+        </label>
         <input
           type="text"
           name="address"
+          ref={addressInputRef}
           value={formData.address}
           onChange={handleInputChange}
+          placeholder={autocompleteStatus === 'ready' ? "Start typing address..." : "Enter full address manually"}
+          autoComplete="off"
         />
+        {autocompleteStatus === 'error' && (
+          <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
+            Google Maps API error. Please enter address manually or check browser console for details.
+          </small>
+        )}
       </div>
 
       <div className="form-row">

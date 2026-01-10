@@ -91,7 +91,9 @@ const stormIntakeService = {
         property_id: property.id,
         storm_event_id: intakeData.storm_event_id || null,
         property_reference: propertyReference,
-        property_type: intakeData.propertyType || 'residential',
+        property_type: intakeData.propertyType 
+          ? (intakeData.propertyType.charAt(0).toUpperCase() + intakeData.propertyType.slice(1).toLowerCase())
+          : 'Residential',
         status: 'pending',
         date_opened: new Date().toISOString().split('T')[0],
         // Property information fields

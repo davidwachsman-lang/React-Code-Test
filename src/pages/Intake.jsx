@@ -6,6 +6,7 @@ import './Intake.css';
 function Intake() {
   const addressInputRef = useRef(null);
   const autocompleteRef = useRef(null);
+  const [autocompleteStatus, setAutocompleteStatus] = useState('loading');
   
   const [formData, setFormData] = useState({
     division: 'HB - Nashville',
@@ -139,12 +140,20 @@ function Intake() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Initialize Google Places Autocomplete using new PlaceAutocompleteElement API
+  // Initialize Google Places Autocomplete for property address
   useEffect(() => {
     let retryCount = 0;
-    const maxRetries = 50;
+    const maxRetries = 30; // 3 seconds max wait time
 
     const initAutocomplete = () => {
+      // Check for Google Maps errors first
+      if (window.googleMapsError) {
+        console.error('Google Maps Error:', window.googleMapsError);
+        setAutocompleteStatus('error');
+        return;
+      }
+
+      // Check if input element exists and is in the DOM
       if (!addressInputRef.current || !document.contains(addressInputRef.current)) {
         retryCount++;
         if (retryCount < maxRetries) {
@@ -153,186 +162,128 @@ function Intake() {
         return;
       }
 
-      if (!window.google || !window.google.maps || !window.google.maps.places || !window.google.maps.places.PlaceAutocompleteElement) {
+      // Check if Google Maps API is loaded with standard Places library
+      if (!window.google || !window.google.maps || !window.google.maps.places || !window.google.maps.places.Autocomplete) {
         retryCount++;
         if (retryCount < maxRetries) {
           setTimeout(initAutocomplete, 100);
         } else {
-          console.warn('Google Maps API not loaded. Autocomplete will not work. You can still type addresses manually.');
-          console.warn('Make sure you have enabled "Places API (New)" in Google Cloud Console.');
+          console.warn('Google Maps API not loaded after 3 seconds. Autocomplete disabled.');
+          setAutocompleteStatus('unavailable');
         }
         return;
       }
 
+      // Initialize standard Google Places Autocomplete
       try {
-        // Create the web component if it doesn't exist
-        if (!customElements.get('gmp-place-autocomplete')) {
-          customElements.define(
-            'gmp-place-autocomplete',
-            window.google.maps.places.PlaceAutocompleteElement
-          );
-        }
-
-        // Create autocomplete element
-        const autocompleteElement = document.createElement('gmp-place-autocomplete');
-        autocompleteElement.setAttribute('id', 'intake-address-autocomplete');
-        autocompleteElement.setAttribute('placeholder', 'Start typing address...');
-        autocompleteElement.setAttribute('requested-result-type', 'address');
-        autocompleteElement.setAttribute('country-restrictions', 'us');
+        console.log('Initializing Google Places Autocomplete for Intake form...');
         
-        // Create a wrapper div with white background for better contrast
-        const wrapper = document.createElement('div');
-        wrapper.className = 'autocomplete-wrapper';
-        wrapper.style.width = '100%';
-        wrapper.style.padding = '0.75rem';
-        wrapper.style.border = '1px solid rgba(59, 130, 246, 0.3)';
-        wrapper.style.borderRadius = '8px';
-        wrapper.style.backgroundColor = '#ffffff'; // White background for better contrast
-        wrapper.style.transition = 'all 0.3s ease';
-        wrapper.style.boxSizing = 'border-box';
+        // Create autocomplete instance directly on the input element
+        const autocompleteInstance = new window.google.maps.places.Autocomplete(
+          addressInputRef.current,
+          {
+            types: ['address'],
+            componentRestrictions: { country: 'us' },
+            fields: ['formatted_address', 'address_components', 'geometry', 'name']
+          }
+        );
         
-        // Style the element
-        autocompleteElement.style.width = '100%';
-        autocompleteElement.style.setProperty('--gmpx-color-surface', 'transparent', 'important');
-        autocompleteElement.style.setProperty('--gmpx-color-on-surface', '#1e293b', 'important');
-        autocompleteElement.style.setProperty('--gmpx-color-outline', 'transparent', 'important');
-        autocompleteElement.style.padding = '0';
-        autocompleteElement.style.border = 'none';
-        autocompleteElement.style.background = 'transparent';
-        autocompleteElement.style.margin = '0';
-        autocompleteElement.style.boxShadow = 'none';
-        autocompleteElement.style.outline = 'none';
-
-        // Replace the input with the wrapper containing autocomplete element
-        const inputParent = addressInputRef.current.parentNode;
+        console.log('✓ Autocomplete initialized successfully');
+        setAutocompleteStatus('ready');
         
-        // Hide the original input but keep it for form submission
-        addressInputRef.current.style.display = 'none';
-        addressInputRef.current.style.visibility = 'hidden';
-        addressInputRef.current.style.position = 'absolute';
-        addressInputRef.current.style.width = '1px';
-        addressInputRef.current.style.height = '1px';
-        addressInputRef.current.style.opacity = '0';
-        addressInputRef.current.style.pointerEvents = 'none';
-        
-        // Put autocomplete element inside wrapper
-        wrapper.appendChild(autocompleteElement);
-        
-        // Insert wrapper in place of the original input
-        inputParent.insertBefore(wrapper, addressInputRef.current);
-        
-        // Add focus styles to wrapper
-        const handleWrapperFocus = () => {
-          wrapper.style.borderColor = '#3b82f6';
-          wrapper.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-          wrapper.style.backgroundColor = '#ffffff'; // Stay white on focus
-        };
-        
-        const handleWrapperBlur = () => {
-          wrapper.style.borderColor = 'rgba(59, 130, 246, 0.3)';
-          wrapper.style.boxShadow = 'none';
-          wrapper.style.backgroundColor = '#ffffff'; // White background
-        };
-        
-        // Listen for focus events on the autocomplete element
-        autocompleteElement.addEventListener('focusin', handleWrapperFocus);
-        autocompleteElement.addEventListener('focusout', handleWrapperBlur);
-
-        // Handle place selection
-        autocompleteElement.addEventListener('gmp-placeselect', async (event) => {
+        // Listen for place selection
+        autocompleteInstance.addListener('place_changed', () => {
           try {
-            const place = event.place;
-            if (place) {
-              const address = place.formattedAddress || place.displayName || '';
+            const place = autocompleteInstance.getPlace();
+            console.log('Place selected:', place);
+            
+            if (!place || !place.geometry) {
+              console.warn('No geometry found for selected place');
+              return;
+            }
+            
+            // Get formatted address
+            const address = place.formatted_address || place.name || '';
+            console.log('Address:', address);
               
-              let city = '';
-              let state = '';
-              let zip = '';
-              let latitude = '';
-              let longitude = '';
-              
-              if (place.addressComponents) {
-                place.addressComponents.forEach(component => {
-                  const types = component.types;
-                  if (types.includes('locality')) {
-                    city = component.longText || component.shortText || '';
-                  }
-                  if (types.includes('administrative_area_level_1')) {
-                    state = component.shortText || component.longText || '';
-                  }
-                  if (types.includes('postal_code')) {
-                    zip = component.longText || component.shortText || '';
-                  }
-                });
-              }
-              
-              if (place.location) {
-                if (typeof place.location.lat === 'function') {
-                  latitude = place.location.lat().toString();
-                  longitude = place.location.lng().toString();
-                } else {
-                  latitude = place.location.lat?.toString() || '';
-                  longitude = place.location.lng?.toString() || '';
+            // Extract address components
+            let city = '';
+            let state = '';
+            let zip = '';
+          
+            if (place.address_components) {
+              place.address_components.forEach(component => {
+                const types = component.types || [];
+                if (types.includes('locality')) {
+                  city = component.long_name;
                 }
+                if (types.includes('administrative_area_level_1')) {
+                  state = component.short_name;
+                }
+                if (types.includes('postal_code')) {
+                  zip = component.long_name;
+                }
+              });
+            }
+              
+            // Extract coordinates
+            let latitude = '';
+            let longitude = '';
+            if (place.geometry && place.geometry.location) {
+              latitude = place.geometry.location.lat().toString();
+              longitude = place.geometry.location.lng().toString();
+            }
+            
+            // Fallback for city if not found
+            if (!city) {
+              const parts = address.split(',');
+              if (parts.length >= 2) {
+                city = parts[1].trim();
+              } else {
+                city = 'Unknown';
               }
+            }
               
-              addressInputRef.current.value = address;
+            console.log('Extracted data:', { address, city, state, zip, latitude, longitude });
               
-              setFormData(prev => ({
-                ...prev,
-                address: address,
-                city: city,
-                state: state,
-                zip: zip,
-                latitude: latitude,
-                longitude: longitude
-              }));
-              
-              if (latitude && longitude) {
-                console.log('Intake - Coordinates captured:', { latitude, longitude });
-              }
+            // Update form state
+            setFormData(prev => ({
+              ...prev,
+              address: address,
+              city: city || 'Unknown',
+              state: state || '',
+              zip: zip || '',
+              latitude: latitude || '',
+              longitude: longitude || ''
+            }));
+            
+            // Show user feedback
+            if (latitude && longitude) {
+              console.log('✓ Address with coordinates captured successfully');
+            } else {
+              console.warn('⚠ Address captured but no coordinates');
             }
           } catch (error) {
             console.error('Error processing place selection:', error);
           }
         });
 
-        // Sync autocomplete value to hidden input
-        autocompleteElement.addEventListener('input', (event) => {
-          addressInputRef.current.value = event.target.value || '';
-          setFormData(prev => ({
-            ...prev,
-            address: event.target.value || ''
-          }));
-        });
-
-        autocompleteRef.current = { element: autocompleteElement, wrapper: wrapper };
+        // Store reference for cleanup
+        autocompleteRef.current = autocompleteInstance;
       } catch (error) {
         console.error('Google Places initialization error:', error);
-        if (addressInputRef.current) {
-          addressInputRef.current.style.display = 'block';
-        }
+        setAutocompleteStatus('error');
       }
     };
 
+    // Small delay to ensure DOM is ready
     const timeoutId = setTimeout(initAutocomplete, 200);
 
+    // Cleanup
     return () => {
       clearTimeout(timeoutId);
-      if (autocompleteRef.current) {
-        const element = autocompleteRef.current.element || autocompleteRef.current;
-        const wrapper = autocompleteRef.current.wrapper;
-        
-        // Remove wrapper (which contains the element)
-        if (wrapper && wrapper.parentNode) {
-          wrapper.remove();
-        } else if (element && element.parentNode) {
-          element.remove();
-        }
-        autocompleteRef.current = null;
-      }
-      if (addressInputRef.current) {
-        addressInputRef.current.style.display = 'block';
+      if (autocompleteRef.current && window.google && window.google.maps && window.google.maps.event) {
+        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
     };
   }, []);
@@ -399,15 +350,27 @@ function Intake() {
             <p className="section-title">PROPERTY & ACCESS</p>
             <div className="intake-grid">
               <div className="col-12">
-                <label htmlFor="address">Address</label>
+                <label htmlFor="address">
+                  Address
+                  {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
+                  {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
+                  {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
+                  {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
+                </label>
                 <input 
                   id="address" 
                   ref={addressInputRef}
                   value={formData.address} 
                   onChange={handleInputChange} 
-                  placeholder="Start typing address..." 
+                  placeholder={autocompleteStatus === 'ready' ? "Start typing address..." : "Enter full address manually"}
+                  autoComplete="off"
                   required 
                 />
+                {autocompleteStatus === 'error' && (
+                  <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
+                    Google Maps API error. Please enter address manually or check browser console for details.
+                  </small>
+                )}
               </div>
               <div className="col-4">
                 <label htmlFor="access">Access Instructions</label>
@@ -535,15 +498,27 @@ function Intake() {
         <p className="section-title">PROPERTY & ACCESS</p>
         <div className="intake-grid">
           <div className="col-12">
-            <label htmlFor="address">Loss Address</label>
+            <label htmlFor="address">
+              Loss Address
+              {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
+              {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
+              {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
+              {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
+            </label>
             <input 
               id="address" 
               ref={addressInputRef}
               value={formData.address} 
               onChange={handleInputChange} 
-              placeholder="Start typing address..." 
+              placeholder={autocompleteStatus === 'ready' ? "Start typing address..." : "Enter full address manually"}
+              autoComplete="off"
               required 
             />
+            {autocompleteStatus === 'error' && (
+              <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
+                Google Maps API error. Please enter address manually or check browser console for details.
+              </small>
+            )}
           </div>
           <div className="col-6">
             <label htmlFor="access">Access Instructions</label>

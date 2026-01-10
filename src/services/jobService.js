@@ -39,7 +39,11 @@ const jobService = {
   async getById(id) {
     const response = await supabase
       .from(TABLE)
-      .select('*')
+      .select(`
+        *,
+        customers(name, phone, email),
+        properties(address1, address2, city, state, postal_code, latitude, longitude)
+      `)
       .eq('id', id)
       .maybeSingle();
     return handleSupabaseResult(response);

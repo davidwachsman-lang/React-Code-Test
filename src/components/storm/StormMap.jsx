@@ -13,6 +13,7 @@ function StormMap({
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
   const infoWindowRef = useRef(null);
+  const initRetryCountRef = useRef(0); // Added missing ref
   const [mapLoaded, setMapLoaded] = useState(false);
   const [loadError, setLoadError] = useState(null);
   const [showHeatmap, setShowHeatmap] = useState(false);
@@ -26,72 +27,124 @@ function StormMap({
     );
   }, [jobs]);
 
-  // Load Google Maps API
+  // Load Google Maps API and initialize map
   useEffect(() => {
+    // Function to try initializing the map
+    const tryInitialize = () => {
+      if (window.google && window.google.maps && mapRef.current) {
+        console.log('Conditions met, initializing map...');
+        initializeMap();
+        return true;
+      }
+      return false;
+    };
+
     // Check if already loaded
-    if (window.google && window.google.maps) {
-      initializeMap();
-      return;
+    if (window.google && window.google.maps && window.googleMapsLoaded) {
+      console.log('Google Maps already loaded, waiting for DOM...');
+      // Wait a bit for the DOM to be ready, then initialize
+      const timer = setTimeout(() => {
+        if (!tryInitialize()) {
+          // If still not ready, wait a bit more
+          setTimeout(() => tryInitialize(), 300);
+        }
+      }, 200);
+      return () => clearTimeout(timer);
     }
 
-    // Check if script is already being loaded
-    if (document.querySelector('script[src*="maps.googleapis.com"]')) {
-      // Wait for it to load
-      const checkInterval = setInterval(() => {
-        if (window.google && window.google.maps) {
-          clearInterval(checkInterval);
-          initializeMap();
+    // Wait for the callback from index.html
+    if (window.googleMapsLoaded) {
+      // API says it's loaded, try initializing
+      setTimeout(() => {
+        if (!tryInitialize()) {
+          setTimeout(() => tryInitialize(), 300);
+        }
+      }, 200);
+    } else {
+      // Wait for the callback from index.html
+      const checkLoaded = setInterval(() => {
+        if (window.googleMapsLoaded && window.google && window.google.maps) {
+          clearInterval(checkLoaded);
+          console.log('Google Maps API loaded via callback');
+          setTimeout(() => {
+            if (!tryInitialize()) {
+              setTimeout(() => tryInitialize(), 300);
+            }
+          }, 200);
         }
       }, 100);
 
       // Timeout after 10 seconds
       setTimeout(() => {
-        clearInterval(checkInterval);
+        clearInterval(checkLoaded);
         if (!window.google || !window.google.maps) {
           setLoadError(new Error('Google Maps API failed to load. Please check your API key and network connection.'));
+        } else if (!mapRef.current) {
+          setLoadError(new Error('Map container not found. Please refresh the page.'));
         }
       }, 10000);
 
-      return () => clearInterval(checkInterval);
+      return () => clearInterval(checkLoaded);
     }
-
-    // Load the script
-    const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDr-fsgvYFv916-fICA781RT6VaCbeZh_Q&libraries=places,visualization&callback=initStormMap`;
-    script.async = true;
-    script.defer = true;
-    
-    // Set up global callback
-    window.initStormMap = () => {
-      if (window.google && window.google.maps) {
-        initializeMap();
-      }
-    };
-
-    script.onerror = () => {
-      setLoadError(new Error('Failed to load Google Maps API. Please check your API key.'));
-    };
-
-    document.head.appendChild(script);
-
-    return () => {
-      // Cleanup
-      if (window.initStormMap) {
-        delete window.initStormMap;
-      }
-    };
   }, []);
 
   // Update markers when jobs or map instance changes
   useEffect(() => {
-    if (mapLoaded && mapInstanceRef.current && jobsWithCoords.length > 0) {
+    if (mapLoaded && mapInstanceRef.current) {
       updateMarkers();
     }
   }, [mapLoaded, jobsWithCoords, showHeatmap]);
 
   const initializeMap = () => {
-    console.log('Initializing map...', { mapRef: !!mapRef.current, mapInstance: !!mapInstanceRef.current, google: !!window.google });
-    if (!mapRef.current || mapInstanceRef.current) return;
+    console.log('Initializing map...', { 
+      mapRef: !!mapRef.current, 
+      mapInstance: !!mapInstanceRef.current, 
+      google: !!window.google,
+      mapRefCurrent: mapRef.current
+    });
+    
+    // Check if map ref is available and Google Maps is loaded
+    if (!mapRef.current) {
+      initRetryCountRef.current += 1;
+      if (initRetryCountRef.current > 20) {
+        // Give up after 4 seconds (20 * 200ms)
+        console.error('Map ref not available after multiple retries');
+        setLoadError(new Error('Failed to initialize map container. Please refresh the page.'));
+        return;
+      }
+      console.warn('Map ref not available yet, retrying...', initRetryCountRef.current);
+      // Retry after a short delay
+      setTimeout(() => {
+        initializeMap();
+      }, 200);
+      return;
+    }
+    
+    // Reset retry count on success
+    initRetryCountRef.current = 0;
+    
+    if (mapInstanceRef.current) {
+      console.log('Map already initialized');
+      return;
+    }
+    
+    if (!window.google || !window.google.maps) {
+      console.error('Google Maps API not loaded', {
+        google: !!window.google,
+        maps: window.google?.maps,
+        googleMapsLoaded: window.googleMapsLoaded,
+        googleMapsError: window.googleMapsError
+      });
+      setLoadError(new Error('Google Maps API not available. Check that Maps JavaScript API is enabled in Google Cloud Console.'));
+      return;
+    }
+    
+    // Log successful API detection
+    console.log('Google Maps API detected:', {
+      maps: !!window.google.maps,
+      places: !!window.google.maps.places,
+      visualization: !!window.google.maps.visualization
+    });
 
     try {
       const mapOptions = {
@@ -231,35 +284,56 @@ function StormMap({
     }
   };
 
-  if (loadError) {
-    return (
-      <div className="storm-map-container">
-        <div className="storm-map-loading" style={{ padding: '2rem', textAlign: 'center' }}>
-          <p>Error loading Google Maps. Please check your API key and try again.</p>
-          <p style={{ fontSize: '0.875rem', color: '#94a3b8', marginTop: '0.5rem' }}>
-            {loadError.message}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!mapLoaded) {
-    return (
-      <div className="storm-map-container">
-        <div className="storm-map-loading">
-          Loading Google Maps...
-        </div>
-      </div>
-    );
-  }
-
   console.log('StormMap render:', { 
     jobs: jobs?.length, 
     jobsWithCoords: jobsWithCoords.length, 
     mapLoaded, 
-    loadError: loadError?.message 
+    loadError: loadError?.message,
+    mapRef: !!mapRef.current,
+    google: !!window.google,
+    googleMapsLoaded: window.googleMapsLoaded,
+    googleMapsError: window.googleMapsError
   });
+  
+  // Check for authentication errors and API errors
+  useEffect(() => {
+    // Check for existing errors
+    if (window.googleMapsError) {
+      console.error('Google Maps Error detected:', window.googleMapsError);
+      setLoadError(new Error(window.googleMapsError));
+    }
+
+    // Listen for Google Maps errors
+    const handleError = (event) => {
+      console.error('Google Maps Error Event:', event.detail);
+      setLoadError(new Error(event.detail?.message || 'Google Maps API error'));
+    };
+
+    window.addEventListener('googlemapserror', handleError);
+
+    // Check if Google Maps loaded successfully after 2 seconds
+    const checkLoaded = setTimeout(() => {
+      if (!window.google || !window.google.maps) {
+        if (!window.googleMapsLoaded && !window.googleMapsError) {
+          console.warn('Google Maps API not loaded after 2 seconds');
+          console.log('window.google:', window.google);
+          console.log('window.googleMapsLoaded:', window.googleMapsLoaded);
+          console.log('window.googleMapsError:', window.googleMapsError);
+        }
+      } else {
+        console.log('Google Maps API loaded:', {
+          maps: !!window.google.maps,
+          places: !!window.google.maps.places,
+          visualization: !!window.google.maps.visualization
+        });
+      }
+    }, 2000);
+
+    return () => {
+      window.removeEventListener('googlemapserror', handleError);
+      clearTimeout(checkLoaded);
+    };
+  }, []);
 
   return (
     <div className="storm-map-container">
@@ -285,8 +359,10 @@ function StormMap({
         </div>
       </div>
       
-      <div ref={mapRef} className="storm-map" />
+      {/* Always render the map div so the ref can be attached */}
+      <div ref={mapRef} className="storm-map" style={{ flex: 1, minHeight: 0 }} />
       
+      {/* Show loading overlay */}
       {!mapLoaded && !loadError && (
         <div className="storm-map-loading">
           <p>Loading map...</p>
@@ -296,6 +372,7 @@ function StormMap({
         </div>
       )}
       
+      {/* Show error overlay */}
       {loadError && (
         <div className="storm-map-error">
           <p>Error loading map: {loadError.message}</p>
@@ -305,6 +382,7 @@ function StormMap({
         </div>
       )}
       
+      {/* Show info when map is loaded but no jobs have coordinates */}
       {mapLoaded && jobsWithCoords.length === 0 && jobs.length > 0 && (
         <div className="storm-map-info">
           <p>Map loaded - no jobs have location data</p>

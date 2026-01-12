@@ -305,8 +305,11 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Exclude latitude and longitude - they're not columns in crm_records table
+    // (used only for autocomplete UX, not stored on CRM record)
+    const { latitude, longitude, ...formDataWithoutCoords } = formData;
     const data = {
-      ...formData,
+      ...formDataWithoutCoords,
       parent_id: formData.parent_id || null,
       estimated_job_value: formData.estimated_job_value ? parseFloat(formData.estimated_job_value) : null,
       probability_to_close: formData.probability_to_close ? parseInt(formData.probability_to_close) : null,

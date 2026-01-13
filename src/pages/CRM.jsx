@@ -729,7 +729,7 @@ function CRM() {
 
   const handleQuickActivitySave = async (activityData) => {
     try {
-      const { crmActivityService } = await import('../services/crmActivityService');
+      const { default: crmActivityService } = await import('../services/crmActivityService');
       await crmActivityService.create({ ...activityData, crm_id: quickActivityRecord.id });
       setShowQuickActivityForm(false);
       setQuickActivityRecord(null);

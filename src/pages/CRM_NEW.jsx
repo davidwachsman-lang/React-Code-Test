@@ -160,7 +160,7 @@ function CRM() {
 
   const handleQuickActivitySave = async (activityData) => {
     try {
-      const { prospectActivityService } = await import('../services/prospectActivityService');
+      const { default: prospectActivityService } = await import('../services/prospectActivityService');
       await prospectActivityService.create(activityData);
       setShowQuickActivityForm(false);
       setQuickActivityProspect(null);

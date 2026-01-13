@@ -1,11 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './CRMForm.css';
+import ActivityTimeline from '../ActivityTimeline';
+import ActivityForm from '../ActivityForm';
+import { useActivities } from '../../hooks/useActivities';
+import crmActivityService from '../../services/crmActivityService';
 
 function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCreateParent }) {
+  const [activeTab, setActiveTab] = useState('details');
+  const [showActivityForm, setShowActivityForm] = useState(false);
   const [parentSearchTerm, setParentSearchTerm] = useState('');
   const [showParentDropdown, setShowParentDropdown] = useState(false);
   const parentInputRef = useRef(null);
   const parentDropdownRef = useRef(null);
+  
+  // Load activities for this CRM record
+  const { data: activities, loading: activitiesLoading, refetch: refetchActivities } = useActivities(crmRecord?.id);
+  
+  // Handle activity save
+  const handleActivitySave = async (activityData) => {
+    try {
+      await crmActivityService.create({ ...activityData, crm_id: crmRecord.id });
+      setShowActivityForm(false);
+      refetchActivities();
+    } catch (error) {
+      console.error('Error saving activity:', error);
+      alert('Failed to save activity: ' + error.message);
+    }
+  };
   
   // Google Places Autocomplete refs
   const addressInputRef = useRef(null);
@@ -331,9 +352,71 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
   };
 
   const showIndustryField = formData.prospect_type === 'commercial';
+  const isEditing = !!crmRecord;
 
   return (
-    <form className="crm-form" onSubmit={handleSubmit}>
+    <div className="crm-form-container">
+      {/* Tabs - only show when editing */}
+      {isEditing && (
+        <div className="crm-form-tabs">
+          <button
+            type="button"
+            className={activeTab === 'details' ? 'active' : ''}
+            onClick={() => setActiveTab('details')}
+          >
+            Details
+          </button>
+          <button
+            type="button"
+            className={activeTab === 'activities' ? 'active' : ''}
+            onClick={() => setActiveTab('activities')}
+          >
+            Activities
+          </button>
+        </div>
+      )}
+
+      {/* Activities Tab */}
+      {isEditing && activeTab === 'activities' && (
+        <div className="crm-form-activities">
+          <div className="activities-header">
+            <h3>Activity Log</h3>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => setShowActivityForm(true)}
+            >
+              Log Activity
+            </button>
+          </div>
+          
+          {showActivityForm && (
+            <div className="activity-form-wrapper">
+              <ActivityForm
+                crmId={crmRecord.id}
+                onSave={handleActivitySave}
+                onCancel={() => setShowActivityForm(false)}
+              />
+            </div>
+          )}
+          
+          {activitiesLoading ? (
+            <div className="loading-message">Loading activities...</div>
+          ) : (
+            <ActivityTimeline activities={activities || []} />
+          )}
+          
+          <div className="form-actions">
+            <button type="button" className="btn-secondary" onClick={onCancel}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Details Tab (Form) */}
+      {(!isEditing || activeTab === 'details') && (
+      <form className="crm-form" onSubmit={handleSubmit}>
       <div className="form-section-header">Basic Information</div>
 
       <div className="form-row">
@@ -908,6 +991,8 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
         </button>
       </div>
     </form>
+      )}
+    </div>
   );
 }
 

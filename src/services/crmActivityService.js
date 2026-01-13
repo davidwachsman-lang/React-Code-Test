@@ -9,7 +9,6 @@ const crmActivityService = {
     const response = await supabase
       .from(TABLE)
       .select('*')
-      .order('activity_date', { ascending: false })
       .order('created_at', { ascending: false });
     return handleSupabaseResult(response);
   },
@@ -56,12 +55,13 @@ const crmActivityService = {
 
   // Get activities by CRM record ID
   async getByCRMId(crmId) {
+    console.log('Fetching activities for crm_id:', crmId);
     const response = await supabase
       .from(TABLE)
       .select('*')
       .eq('crm_id', crmId)
-      .order('activity_date', { ascending: false })
       .order('created_at', { ascending: false });
+    console.log('Activities response:', response);
     return handleSupabaseResult(response);
   },
 
@@ -70,7 +70,6 @@ const crmActivityService = {
     const response = await supabase
       .from(TABLE)
       .select('*')
-      .order('activity_date', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(limit);
     return handleSupabaseResult(response);

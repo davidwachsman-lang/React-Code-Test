@@ -73,8 +73,10 @@ function ActivityForm({ prospectId, crmId, activity = null, onSave, onCancel }) 
     e.preventDefault();
     const data = {
       ...formData,
-      crm_id: crmId || prospectId, // Support both for backward compatibility
-      prospect_id: prospectId // Keep for backward compatibility
+      crm_id: crmId || prospectId,
+      // Convert empty strings to null for date fields (PostgreSQL requires null, not "")
+      next_action_date: formData.next_action_date || null,
+      activity_date: formData.activity_date || null
     };
     onSave(data);
   };

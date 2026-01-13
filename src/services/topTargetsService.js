@@ -28,7 +28,7 @@ const topTargetsService = {
 
   // Upsert (insert or update) a target
   async upsert(targetData) {
-    const { sales_rep, target_position, company_name, status } = targetData;
+    const { sales_rep, target_position, company_name, status, notes } = targetData;
     
     // First, try to find existing record
     const existingResponse = await supabase
@@ -42,7 +42,8 @@ const topTargetsService = {
       sales_rep,
       target_position,
       company_name: company_name || null,
-      status: status || null
+      status: status || null,
+      notes: notes || null
     };
 
     if (existingResponse.data) {

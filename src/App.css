@@ -28,8 +28,8 @@
 
 .app-content {
   flex: 1;
-  margin-left: 260px;
-  transition: margin-left 0.3s ease;
+  margin-left: 0;
+  padding-top: 20px;
   position: relative;
   z-index: 1;
   min-height: 100vh;
@@ -43,7 +43,7 @@ body {
 
 @media (max-width: 768px) {
   .app-content {
-    margin-left: 80px;
+    margin-left: 0;
   }
 }
 

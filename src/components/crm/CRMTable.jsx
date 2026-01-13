@@ -8,7 +8,6 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
-import * as XLSX from 'xlsx';
 import crmService from '../../services/crmService';
 import './CRMTable.css';
 
@@ -87,64 +86,6 @@ function CRMTable({
       console.error('Error toggling top target:', error);
       alert('Failed to toggle top target: ' + error.message);
     }
-  };
-
-  const handleExportExcel = () => {
-    const headers = [
-      'Star',
-      'Company Name',
-      'Contact Name',
-      'Email',
-      'Phone',
-      'Stage',
-      'Next Follow-up',
-      'Value',
-      'Sales Rep'
-    ];
-    
-    const rows = records.map(record => [
-      record.is_top_target ? '★' : '',
-      record.company_name || '',
-      `${record.first_name || ''} ${record.last_name || ''}`.trim(),
-      record.email || '',
-      record.phone_primary || '',
-      record.relationship_stage || '',
-      record.next_followup_date ? formatDate(record.next_followup_date) : 'N/A',
-      record.relationship_stage === 'active_customer' && record.lifetime_revenue
-        ? formatCurrency(record.lifetime_revenue)
-        : record.estimated_job_value
-        ? formatCurrency(record.estimated_job_value)
-        : 'N/A',
-      record.primary_sales_rep 
-        ? record.primary_sales_rep.charAt(0).toUpperCase() + record.primary_sales_rep.slice(1).toLowerCase()
-        : 'Unassigned'
-    ]);
-
-    // Create worksheet with headers and data
-    const worksheetData = [headers, ...rows];
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-    // Set column widths for better readability
-    const columnWidths = [
-      { wch: 5 },   // Star
-      { wch: 25 },  // Company Name
-      { wch: 20 },  // Contact Name
-      { wch: 30 },  // Email
-      { wch: 15 },  // Phone
-      { wch: 15 },  // Stage
-      { wch: 15 },  // Next Follow-up
-      { wch: 15 },  // Value
-      { wch: 15 }   // Sales Rep
-    ];
-    worksheet['!cols'] = columnWidths;
-
-    // Create workbook and add worksheet
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'CRM Records');
-
-    // Generate Excel file and download
-    const fileName = `crm_records_${new Date().toISOString().split('T')[0]}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
   };
 
   const columns = useMemo(
@@ -362,14 +303,6 @@ function CRMTable({
 
   return (
     <div className="crm-table-container">
-      <div className="crm-table-controls">
-        <div className="crm-table-actions-bar">
-          <button onClick={handleExportExcel} className="btn-export">
-            Export Excel
-          </button>
-        </div>
-      </div>
-
       <div className="crm-table-wrapper">
         <table className="crm-table">
           <thead>

@@ -132,19 +132,24 @@ const SandboxIcon = () => (
   </svg>
 );
 
-const ChevronIcon = ({ direction }) => (
+const HamburgerIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    {direction === 'left' ? (
-      <polyline points="15 18 9 12 15 6"/>
-    ) : (
-      <polyline points="9 18 15 12 9 6"/>
-    )}
+    <line x1="3" y1="6" x2="21" y2="6"/>
+    <line x1="3" y1="12" x2="21" y2="12"/>
+    <line x1="3" y1="18" x2="21" y2="18"/>
+  </svg>
+);
+
+const CloseIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
   </svg>
 );
 
 function Navigation() {
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
     { path: '/', label: 'Intake', icon: <IntakeIcon /> },
@@ -169,33 +174,57 @@ function Navigation() {
     return location.pathname === path;
   };
 
+  const handleNavClick = () => {
+    setIsOpen(false);
+  };
+
   return (
-    <nav className={`navigation ${isCollapsed ? 'collapsed' : ''}`}>
-      <div className="nav-header">
-        <h1 className="nav-title">{!isCollapsed && 'BETA TEST'}</h1>
-        <button 
-          className="nav-toggle"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          aria-label={isCollapsed ? 'Expand navigation' : 'Collapse navigation'}
-        >
-          <ChevronIcon direction={isCollapsed ? 'right' : 'left'} />
-        </button>
-      </div>
-      <ul className="nav-list">
-        {navItems.map((item) => (
-          <li key={item.path}>
-            <Link 
-              to={item.path} 
-              className={`nav-link ${isActive(item.path) ? 'active' : ''}`}
-              title={isCollapsed ? item.label : ''}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              {!isCollapsed && <span className="nav-label">{item.label}</span>}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <>
+      {/* Hamburger button - always visible when nav is closed */}
+      <button 
+        className={`nav-hamburger ${isOpen ? 'hidden' : ''}`}
+        onClick={() => setIsOpen(true)}
+        aria-label="Open navigation"
+      >
+        <HamburgerIcon />
+      </button>
+
+      {/* Overlay backdrop */}
+      {isOpen && (
+        <div 
+          className="nav-overlay" 
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Navigation drawer */}
+      <nav className={`navigation ${isOpen ? 'open' : ''}`}>
+        <div className="nav-header">
+          <h1 className="nav-title">BETA TEST</h1>
+          <button 
+            className="nav-close"
+            onClick={() => setIsOpen(false)}
+            aria-label="Close navigation"
+          >
+            <CloseIcon />
+          </button>
+        </div>
+        <ul className="nav-list">
+          {navItems.map((item) => (
+            <li key={item.path}>
+              <Link 
+                to={item.path} 
+                className={`nav-link ${isActive(item.path) ? 'active' : ''}`}
+                onClick={handleNavClick}
+              >
+                <span className="nav-icon">{item.icon}</span>
+                <span className="nav-label">{item.label}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </>
   );
 }
 

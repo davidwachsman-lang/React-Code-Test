@@ -18,15 +18,14 @@
     "@react-google-maps/api": "^2.19.4",
     "@supabase/supabase-js": "^2.83.0",
     "@tanstack/react-table": "^8.21.3",
-    "jspdf": "^3.0.4",
+    "jspdf": "^4.0.0",
     "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-google-autocomplete": "^2.7.5",
     "react-router-dom": "^6.26.2",
     "reactflow": "^11.11.0",
-    "recharts": "^3.4.1",
-    "xlsx": "^0.18.5"
+    "recharts": "^3.4.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
@@ -35,6 +34,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.22",
+    "baseline-browser-mapping": "latest",
     "concurrently": "^9.1.0",
     "eslint": "^9.9.0",
     "eslint-plugin-react": "^7.35.0",

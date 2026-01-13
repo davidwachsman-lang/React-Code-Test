@@ -59,8 +59,12 @@ function CRM() {
   const [showQuickActivityForm, setShowQuickActivityForm] = useState(false);
   const [quickActivityRecord, setQuickActivityRecord] = useState(null);
   const [selectedWeekStart, setSelectedWeekStart] = useState(() => {
-    // Default to week starting 1/5/2026
-    return new Date('2026-01-05');
+    // Default to the current week (Monday of current week)
+    const today = new Date();
+    const day = today.getDay();
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+    const mondayOfWeek = new Date(today.setDate(diff));
+    return mondayOfWeek;
   });
   const [activityData, setActivityData] = useState({});
   const [loadingActivity, setLoadingActivity] = useState(false);
@@ -307,7 +311,7 @@ function CRM() {
             allTopTargetsReps.forEach(rep => {
               updatedTargetsObj[rep] = {};
               for (let i = 1; i <= 10; i++) {
-                updatedTargetsObj[rep][i] = { companyName: '', status: '', id: null };
+                updatedTargetsObj[rep][i] = { companyName: '', status: '', notes: '', id: null };
               }
             });
             reloadedTargets.forEach(target => {
@@ -316,6 +320,7 @@ function CRM() {
                 updatedTargetsObj[repName][target.target_position] = {
                   companyName: target.company_name || '',
                   status: target.status || '',
+                  notes: target.notes || '',
                   id: target.id
                 };
               }

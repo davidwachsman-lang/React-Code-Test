@@ -2207,9 +2207,9 @@ function CRM() {
                   onChange={(e) => setTargetFormData({...targetFormData, status: e.target.value})}
                 >
                   <option value="">Select status...</option>
-                  <option value="green">Green (On Track)</option>
-                  <option value="yellow">Yellow (In Progress)</option>
-                  <option value="red">Red (Stalled/Need Help)</option>
+                  <option value="red">🔴 Stalled / Needs Help</option>
+                  <option value="yellow">🟡 Active but Unvalidated - Risk Remains</option>
+                  <option value="green">🟢 Validated & Advancing</option>
                 </select>
               </div>
               <div className="form-group">

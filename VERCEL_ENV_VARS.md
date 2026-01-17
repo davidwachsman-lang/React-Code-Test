@@ -18,6 +18,18 @@ Add these environment variables in your Vercel project settings:
    - Value: Your backend API URL (e.g., `https://your-api.vercel.app/api` or your backend URL)
    - Default: `http://127.0.0.1:3001/api` (for local development)
 
+4. **VITE_CRM_ONLY** (for CRM-only deployments)
+   - Value: `true` to show only CRM section
+   - Default: not set (full app)
+
+5. **VITE_ESTIMATE_ONLY** (for Estimate Tool-only deployments)
+   - Value: `true` to show only Estimate Tool
+   - Default: not set (full app)
+
+6. **VITE_STORM_ONLY** (for Storm-only deployments)
+   - Value: `true` to show only Storm section
+   - Default: not set (full app)
+
 ## How to Add in Vercel
 
 1. Go to your Vercel project dashboard

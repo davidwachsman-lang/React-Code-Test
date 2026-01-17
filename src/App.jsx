@@ -53,6 +53,12 @@ function AppContent() {
   const storedEstimateOnly = localStorage.getItem('estimate-only-mode') === 'true';
   const estimateOnlyMode = envEstimateOnly || urlEstimateOnly || storedEstimateOnly;
   
+  // Check if we should only show Storm pages (for Vercel deployment)
+  const envStormOnly = import.meta.env.VITE_STORM_ONLY === 'true';
+  const urlStormOnly = urlParams.has('storm-only') || urlParams.get('storm-only') === 'true';
+  const storedStormOnly = localStorage.getItem('storm-only-mode') === 'true';
+  const stormOnlyMode = envStormOnly || urlStormOnly || storedStormOnly;
+  
   // Debug logging
   console.log('Deployment Mode Check:', {
     envCrmOnly,
@@ -63,6 +69,10 @@ function AppContent() {
     urlEstimateOnly,
     storedEstimateOnly,
     estimateOnlyMode,
+    envStormOnly,
+    urlStormOnly,
+    storedStormOnly,
+    stormOnlyMode,
     search: window.location.search
   });
   
@@ -73,6 +83,9 @@ function AppContent() {
   if (urlEstimateOnly && !storedEstimateOnly) {
     localStorage.setItem('estimate-only-mode', 'true');
   }
+  if (urlStormOnly && !storedStormOnly) {
+    localStorage.setItem('storm-only-mode', 'true');
+  }
   
   // Allow disabling via URL params
   if (urlParams.get('crm-only') === 'false') {
@@ -80,6 +93,9 @@ function AppContent() {
   }
   if (urlParams.get('estimate-only') === 'false') {
     localStorage.removeItem('estimate-only-mode');
+  }
+  if (urlParams.get('storm-only') === 'false') {
+    localStorage.removeItem('storm-only-mode');
   }
 
   // If Estimate-only mode, show only Estimating without navigation
@@ -110,6 +126,23 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<CRM />} />
             <Route path="/crm" element={<CRM />} />
+            <Route path="/*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </div>
+    );
+  }
+  
+  // If Storm-only mode, show only Storm without navigation
+  if (stormOnlyMode) {
+    console.log('Storm-only mode active, rendering Storm component');
+    return (
+      <div className="App">
+        <ScrollToTop />
+        <div className="app-content" style={{ marginLeft: 0 }}>
+          <Routes>
+            <Route path="/" element={<Storm />} />
+            <Route path="/storm" element={<Storm />} />
             <Route path="/*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

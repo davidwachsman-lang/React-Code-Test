@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import PerformanceScorecard from '../components/crm/PerformanceScorecard';
 import './Page.css';
 import './CRM.css';
@@ -17,6 +18,22 @@ function Sandbox() {
       </div>
 
       <div className="sandbox-actions">
+        <Link 
+          to="/war-room"
+          className="action-btn action-btn-blue"
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          <span className="btn-icon">⚡</span>
+          Daily War Room
+        </Link>
+        <Link 
+          to="/tm-estimate"
+          className="action-btn action-btn-blue"
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          <span className="btn-icon">📋</span>
+          T&M Estimate
+        </Link>
         <button 
           className={`action-btn ${activeTab === 'scorecard' ? 'action-btn-green' : 'action-btn-gray'}`}
           onClick={() => setActiveTab('scorecard')}

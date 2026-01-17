@@ -162,9 +162,7 @@ function Navigation() {
     { path: '/field-services', label: 'Field Services', icon: <FieldServicesIcon /> },
     { path: '/goals', label: 'Goals', icon: <GoalsIcon /> },
     { path: '/reporting', label: 'Reporting & Analytics', icon: <ReportingIcon /> },
-    { path: '/war-room', label: 'Daily War Room', icon: <WarRoomIcon /> },
     { path: '/financials', label: 'Financials & Billing', icon: <FinancialsIcon /> },
-    { path: '/tm-estimate', label: 'T&M Estimate', icon: <TMEstimateIcon /> },
     { path: '/storm', label: 'Storm', icon: <StormIcon /> },
     { path: '/expectations-2026', label: '2026 Expectations', icon: <Expectations2026Icon /> },
     { path: '/sandbox', label: 'Sandbox', icon: <SandboxIcon /> }

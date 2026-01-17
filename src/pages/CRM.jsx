@@ -6,9 +6,9 @@ import crmService from '../services/crmService';
 import activityTrackingService from '../services/activityTrackingService';
 import topTargetsService from '../services/topTargetsService';
 import featureUpgradesService from '../services/featureUpgradesService';
+import playbookService from '../services/playbookService';
 import SalesFunnel from '../components/SalesFunnel';
 import CRMTable from '../components/crm/CRMTable';
-import ROITable from '../components/crm/ROITable';
 import CRMFilters from '../components/crm/CRMFilters';
 import CRMForm from '../components/crm/CRMForm';
 import CRMDetail from '../components/crm/CRMDetail';
@@ -26,8 +26,6 @@ import './CRM.css';
 function CRM() {
   const { data: crmRecordsData, loading, error, refetch } = useCRM();
   const [crmRecords, setCrmRecords] = useState(null);
-  const [roiData, setRoiData] = useState(null);
-  const [roiLoading, setRoiLoading] = useState(false);
   
   // Sync external data with local state
   useEffect(() => {
@@ -40,6 +38,14 @@ function CRM() {
   const { mutate: deleteCRMRecord, loading: deleting } = useDeleteCRMRecord();
 
   const saving = creating || updating;
+
+  // Helper to format date as YYYY-MM-DD without timezone issues
+  const formatDateString = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   const [showForm, setShowForm] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
@@ -62,8 +68,13 @@ function CRM() {
     // Default to the current week (Monday of current week)
     const today = new Date();
     const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
-    const mondayOfWeek = new Date(today.setDate(diff));
+    // Calculate days to subtract to get Monday (1 = Monday, 0 = Sunday)
+    // If Sunday (day === 0), subtract 6 days; otherwise subtract (day - 1)
+    const daysToMonday = day === 0 ? 6 : day - 1;
+    const mondayOfWeek = new Date(today);
+    mondayOfWeek.setDate(today.getDate() - daysToMonday);
+    // Reset time to start of day for consistency
+    mondayOfWeek.setHours(0, 0, 0, 0);
     return mondayOfWeek;
   });
   const [activityData, setActivityData] = useState({});
@@ -122,7 +133,7 @@ function CRM() {
     const loadActivityData = async () => {
       setLoadingActivity(true);
       try {
-        const weekStartStr = selectedWeekStart.toISOString().split('T')[0];
+        const weekStartStr = formatDateString(selectedWeekStart);
         
         // Load current week data
         const weekData = await activityTrackingService.getByWeek(weekStartStr);
@@ -473,7 +484,7 @@ function CRM() {
     e.preventDefault();
     if (!selectedActivityRep || !selectedWeekStart) return;
     
-    const weekStartStr = selectedWeekStart.toISOString().split('T')[0];
+    const weekStartStr = formatDateString(selectedWeekStart);
     setSavingActivity(true);
     
     try {
@@ -531,6 +542,10 @@ function CRM() {
     contactEmail: '',
     contactPhone: '',
     contactCompany: '',
+    insuranceProvider: '',
+    agentName: '',
+    agentEmail: '',
+    agentPhone: '',
     
     // Property Section
     propertyAddress: '',
@@ -538,6 +553,7 @@ function CRM() {
     propertySize: '',
     propertyAge: '',
     numberOfBuildings: '',
+    numberOfUnits: '',
     currentChallenges: '',
     
     // Process Section
@@ -831,6 +847,10 @@ function CRM() {
     yPosition += addText(`Email: ${playbookFormData.contactEmail}`, margin, yPosition, 170);
     yPosition += addText(`Phone: ${playbookFormData.contactPhone}`, margin, yPosition, 170);
     yPosition += addText(`Company: ${playbookFormData.contactCompany}`, margin, yPosition, 170);
+    yPosition += addText(`Insurance Provider: ${playbookFormData.insuranceProvider}`, margin, yPosition, 170);
+    yPosition += addText(`Agent Name: ${playbookFormData.agentName}`, margin, yPosition, 170);
+    yPosition += addText(`Agent Email: ${playbookFormData.agentEmail}`, margin, yPosition, 170);
+    yPosition += addText(`Agent Phone: ${playbookFormData.agentPhone}`, margin, yPosition, 170);
     yPosition += sectionSpacing;
 
     // Section 2: Property
@@ -847,6 +867,7 @@ function CRM() {
     yPosition += addText(`Property Size: ${playbookFormData.propertySize}`, margin, yPosition, 170);
     yPosition += addText(`Property Age: ${playbookFormData.propertyAge}`, margin, yPosition, 170);
     yPosition += addText(`Number of Buildings: ${playbookFormData.numberOfBuildings}`, margin, yPosition, 170);
+    yPosition += addText(`Number of Units: ${playbookFormData.numberOfUnits}`, margin, yPosition, 170);
     yPosition += addText(`Current Challenges: ${playbookFormData.currentChallenges}`, margin, yPosition, 170);
     yPosition += sectionSpacing;
 
@@ -1006,27 +1027,6 @@ function CRM() {
           CRM
         </button>
         <button 
-          className={`action-btn ${activeTab === 'roi' ? 'action-btn-blue' : 'action-btn-gray'}`}
-          onClick={async () => {
-            setActiveTab('roi');
-            setRoiLoading(true);
-            try {
-              const data = await crmService.getROIData();
-              console.log('ROI data loaded:', data);
-              setRoiData(data || []);
-            } catch (err) {
-              console.error('Error loading ROI data:', err);
-              alert('Failed to load ROI data: ' + err.message);
-              setRoiData([]);
-            } finally {
-              setRoiLoading(false);
-            }
-          }}
-        >
-          <span className="btn-icon">📈</span>
-          ROI View
-        </button>
-        <button 
           className={`action-btn ${activeTab === 'funnel' ? 'action-btn-purple' : 'action-btn-gray'}`}
           onClick={() => setActiveTab('funnel')}
         >
@@ -1139,9 +1139,7 @@ function CRM() {
             <CRMTable
               records={filteredRecords}
               onRecordClick={handleEdit}
-              onQuickLogActivity={handleQuickLogActivity}
               onToggleTopTarget={handleToggleTopTarget}
-              onDelete={handleDeleteCRMRecord}
             />
           )}
                 </div>
@@ -1176,30 +1174,6 @@ function CRM() {
         </div>
       )}
 
-      {/* ROI View */}
-      {activeTab === 'roi' && (
-        <div className="customers-container">
-          <div className="customers-header">
-            <h2>ROI View</h2>
-          </div>
-          {roiLoading ? (
-            <div className="crm-loading">
-              <p>Loading ROI data...</p>
-            </div>
-          ) : roiData && roiData.length > 0 ? (
-            <ROITable
-              records={roiData}
-              onRecordClick={handleEdit}
-            />
-          ) : (
-            <div className="crm-table-empty">
-              <p>No ROI data available. {roiData === null ? 'Click "ROI View" to load data.' : 'No records found.'}</p>
-            </div>
-          )}
-        </div>
-      )}
-
-
       {/* Sales Funnel View */}
       {activeTab === 'funnel' && (
         <div className="customers-container">
@@ -1231,11 +1205,19 @@ function CRM() {
             <h2>Insight Meeting Playbook</h2>
               </div>
           <div className="playbook-form-container">
-            <form className="playbook-form" onSubmit={(e) => {
+            <form className="playbook-form" onSubmit={async (e) => {
               e.preventDefault();
-              // TODO: Save to Supabase or email output
-              console.log('Playbook form data:', playbookFormData);
-              alert('Form data ready for Supabase/email integration');
+              try {
+                // Save to Supabase
+                const savedPlaybook = await playbookService.create(playbookFormData);
+                console.log('Playbook saved:', savedPlaybook);
+                alert('Playbook saved successfully!');
+                // Optionally reset form after save
+                // setPlaybookFormData({ ...initial playbook state });
+              } catch (error) {
+                console.error('Error saving playbook:', error);
+                alert(`Error saving playbook: ${error.message}`);
+              }
             }}>
               {/* Section 1: Contact */}
               <div className="form-section-header">1. Contact</div>
@@ -1292,6 +1274,48 @@ function CRM() {
                   onChange={(e) => setPlaybookFormData({...playbookFormData, contactCompany: e.target.value})}
                   placeholder="Company name"
                 />
+              </div>
+              <div className="form-group">
+                <label>Insurance Provider</label>
+                <input
+                  type="text"
+                  name="insuranceProvider"
+                  value={playbookFormData.insuranceProvider}
+                  onChange={(e) => setPlaybookFormData({...playbookFormData, insuranceProvider: e.target.value})}
+                  placeholder="Insurance company name"
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Agent Name</label>
+                  <input
+                    type="text"
+                    name="agentName"
+                    value={playbookFormData.agentName}
+                    onChange={(e) => setPlaybookFormData({...playbookFormData, agentName: e.target.value})}
+                    placeholder="Insurance agent name"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Agent Email</label>
+                  <input
+                    type="email"
+                    name="agentEmail"
+                    value={playbookFormData.agentEmail}
+                    onChange={(e) => setPlaybookFormData({...playbookFormData, agentEmail: e.target.value})}
+                    placeholder="agent@email.com"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Agent Phone</label>
+                  <input
+                    type="tel"
+                    name="agentPhone"
+                    value={playbookFormData.agentPhone}
+                    onChange={(e) => setPlaybookFormData({...playbookFormData, agentPhone: formatPhoneNumber(e.target.value)})}
+                    placeholder="(555) 555-5555"
+                  />
+                </div>
               </div>
 
               <div className="form-section-divider"></div>
@@ -1357,6 +1381,16 @@ function CRM() {
                     value={playbookFormData.numberOfBuildings}
                     onChange={(e) => setPlaybookFormData({...playbookFormData, numberOfBuildings: e.target.value})}
                     placeholder="Total buildings"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Number of Units</label>
+                  <input
+                    type="text"
+                    name="numberOfUnits"
+                    value={playbookFormData.numberOfUnits}
+                    onChange={(e) => setPlaybookFormData({...playbookFormData, numberOfUnits: e.target.value})}
+                    placeholder="Total units"
                   />
                 </div>
               </div>
@@ -1715,6 +1749,27 @@ function CRM() {
         };
 
         const weekOptions = generateWeekOptions();
+        
+        // Find the current week option that matches today
+        const today = new Date();
+        const todayDay = today.getDay();
+        const daysToMonday = todayDay === 0 ? 6 : todayDay - 1;
+        const currentMonday = new Date(today);
+        currentMonday.setDate(today.getDate() - daysToMonday);
+        currentMonday.setHours(0, 0, 0, 0);
+        const currentMondayStr = formatDateString(currentMonday);
+        
+        // Find matching week in options or use first option
+        const currentWeekOption = weekOptions.find(opt => formatDateString(opt) === currentMondayStr);
+        const selectedWeekStr = formatDateString(selectedWeekStart);
+        const matchingOption = weekOptions.find(opt => formatDateString(opt) === selectedWeekStr);
+        
+        // If selectedWeekStart doesn't match any option, update it to current week
+        if (!matchingOption && currentWeekOption) {
+          // Use setTimeout to avoid state update during render
+          setTimeout(() => setSelectedWeekStart(currentWeekOption), 0);
+        }
+        
         const formatWeekLabel = (date) => {
           const weekEnd = new Date(date);
           weekEnd.setDate(date.getDate() + 6); // Sunday (6 days after Monday)
@@ -1732,7 +1787,7 @@ function CRM() {
 
         // Handle row click to open activity form
         const handleActivityRowClick = (salesRep) => {
-          const weekStartStr = selectedWeekStart.toISOString().split('T')[0];
+          const weekStartStr = formatDateString(selectedWeekStart);
           const currentWeekData = activityData[weekStartStr] || {};
           const repData = currentWeekData[salesRep] || { coldCalls: 0, insightMeetings: 0, initialCommitments: 0, referralJobs: 0 };
           
@@ -1925,7 +1980,7 @@ function CRM() {
         };
 
         // Get current week data from state
-        const weekStartStr = selectedWeekStart.toISOString().split('T')[0];
+        const weekStartStr = formatDateString(selectedWeekStart);
         const weekData = activityData[weekStartStr] || {
           Paige: { coldCalls: 0, insightMeetings: 0, initialCommitments: 0, referralJobs: 0 },
           Ainsley: { coldCalls: 0, insightMeetings: 0, initialCommitments: 0, referralJobs: 0 },
@@ -2011,8 +2066,12 @@ function CRM() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <label style={{ color: '#f1f5f9' }}>Week Starting:</label>
                 <select
-                  value={selectedWeekStart.toISOString().split('T')[0]}
-                  onChange={(e) => setSelectedWeekStart(new Date(e.target.value))}
+                  value={formatDateString(selectedWeekStart)}
+                  onChange={(e) => {
+                    const [year, month, day] = e.target.value.split('-').map(Number);
+                    const newDate = new Date(year, month - 1, day);
+                    setSelectedWeekStart(newDate);
+                  }}
                   style={{
                     padding: '0.5rem 1rem',
                     background: 'rgba(30, 41, 59, 0.8)',
@@ -2024,7 +2083,7 @@ function CRM() {
                   }}
                 >
                   {weekOptions.map((date, index) => (
-                    <option key={index} value={date.toISOString().split('T')[0]}>
+                    <option key={index} value={formatDateString(date)}>
                       {formatWeekLabel(date)}
                     </option>
                   ))}

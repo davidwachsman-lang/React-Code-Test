@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -16,12 +16,53 @@ const columnHelper = createColumnHelper();
 function CRMTable({ 
   records = [], 
   onRecordClick, 
-  onQuickLogActivity,
-  onToggleTopTarget,
-  onDelete
+  onToggleTopTarget
 }) {
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
+  
+  // Refs for syncing top and bottom scrollbars
+  const topScrollRef = useRef(null);
+  const tableWrapperRef = useRef(null);
+  const [tableWidth, setTableWidth] = useState(0);
+
+  // Sync scroll positions and measure table width
+  useEffect(() => {
+    const topScroll = topScrollRef.current;
+    const tableWrapper = tableWrapperRef.current;
+    
+    if (!topScroll || !tableWrapper) return;
+
+    // Get the actual table width
+    const table = tableWrapper.querySelector('.crm-table');
+    if (table) {
+      setTableWidth(table.scrollWidth);
+    }
+
+    let isSyncing = false;
+
+    const syncTopToBottom = () => {
+      if (isSyncing) return;
+      isSyncing = true;
+      tableWrapper.scrollLeft = topScroll.scrollLeft;
+      isSyncing = false;
+    };
+
+    const syncBottomToTop = () => {
+      if (isSyncing) return;
+      isSyncing = true;
+      topScroll.scrollLeft = tableWrapper.scrollLeft;
+      isSyncing = false;
+    };
+
+    topScroll.addEventListener('scroll', syncTopToBottom);
+    tableWrapper.addEventListener('scroll', syncBottomToTop);
+
+    return () => {
+      topScroll.removeEventListener('scroll', syncTopToBottom);
+      tableWrapper.removeEventListener('scroll', syncBottomToTop);
+    };
+  }, [records]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -242,35 +283,8 @@ function CRMTable({
         enableSorting: true,
         size: 160,
       }),
-      columnHelper.display({
-        id: 'actions',
-        header: 'Actions',
-        cell: (info) => (
-          <div className="crm-table-actions" onClick={(e) => e.stopPropagation()}>
-            {onQuickLogActivity && (
-              <button
-                className="btn-action btn-log"
-                onClick={() => onQuickLogActivity(info.row.original)}
-                title="Add notes / log activity"
-              >
-                📝
-              </button>
-            )}
-            {onDelete && (
-              <button
-                className="btn-action btn-delete"
-                onClick={() => onDelete(info.row.original.id)}
-                title="Delete record"
-              >
-                🗑️
-              </button>
-            )}
-          </div>
-        ),
-        size: 120,
-      }),
     ],
-    [onRecordClick, onQuickLogActivity, onToggleTopTarget, onDelete]
+    [onRecordClick, onToggleTopTarget]
   );
 
   const table = useReactTable({
@@ -303,7 +317,12 @@ function CRMTable({
 
   return (
     <div className="crm-table-container">
-      <div className="crm-table-wrapper">
+      {/* Top scrollbar */}
+      <div className="crm-table-top-scroll" ref={topScrollRef}>
+        <div style={{ width: tableWidth, height: 1 }} />
+      </div>
+      
+      <div className="crm-table-wrapper" ref={tableWrapperRef}>
         <table className="crm-table">
           <thead>
             {table.getHeaderGroups().map(headerGroup => (

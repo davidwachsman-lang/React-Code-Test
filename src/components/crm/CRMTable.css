@@ -73,6 +73,31 @@
   overflow-x: auto;
 }
 
+.crm-table-top-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 12px;
+  margin-bottom: 0.5rem;
+}
+
+.crm-table-top-scroll::-webkit-scrollbar {
+  height: 12px;
+}
+
+.crm-table-top-scroll::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: 6px;
+}
+
+.crm-table-top-scroll::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.5);
+  border-radius: 6px;
+}
+
+.crm-table-top-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.7);
+}
+
 .crm-table {
   width: 100%;
   min-width: 1200px;

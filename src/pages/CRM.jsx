@@ -47,6 +47,20 @@ function CRM() {
     return `${year}-${month}-${day}`;
   };
 
+  // Helper to ensure a date is normalized to Monday (required by database constraint)
+  const getMondayOfWeek = (date) => {
+    const d = new Date(date);
+    // Reset time to start of day
+    d.setHours(0, 0, 0, 0);
+    const day = d.getDay();
+    // Calculate days to subtract to get Monday (1 = Monday, 0 = Sunday)
+    // If Sunday (day === 0), subtract 6 days; otherwise subtract (day - 1)
+    const daysToMonday = day === 0 ? 6 : day - 1;
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - daysToMonday);
+    return monday;
+  };
+
   const [showForm, setShowForm] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [viewingRecord, setViewingRecord] = useState(null);
@@ -484,7 +498,9 @@ function CRM() {
     e.preventDefault();
     if (!selectedActivityRep || !selectedWeekStart) return;
     
-    const weekStartStr = formatDateString(selectedWeekStart);
+    // Ensure the date is normalized to Monday before saving
+    const mondayDate = getMondayOfWeek(selectedWeekStart);
+    const weekStartStr = formatDateString(mondayDate);
     setSavingActivity(true);
     
     try {
@@ -2070,7 +2086,9 @@ function CRM() {
                   onChange={(e) => {
                     const [year, month, day] = e.target.value.split('-').map(Number);
                     const newDate = new Date(year, month - 1, day);
-                    setSelectedWeekStart(newDate);
+                    // Ensure the date is normalized to Monday
+                    const mondayDate = getMondayOfWeek(newDate);
+                    setSelectedWeekStart(mondayDate);
                   }}
                   style={{
                     padding: '0.5rem 1rem',

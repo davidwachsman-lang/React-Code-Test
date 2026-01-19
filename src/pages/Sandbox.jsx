@@ -34,6 +34,30 @@ function Sandbox() {
           <span className="btn-icon">📋</span>
           T&M Estimate
         </Link>
+        <Link 
+          to="/forms"
+          className="action-btn action-btn-blue"
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          <span className="btn-icon">📄</span>
+          Forms
+        </Link>
+        <Link 
+          to="/insurance-job-sops"
+          className="action-btn action-btn-blue"
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          <span className="btn-icon">📑</span>
+          Insurance Job SOPs
+        </Link>
+        <Link 
+          to="/conversion"
+          className="action-btn action-btn-blue"
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          <span className="btn-icon">🔄</span>
+          Conversion
+        </Link>
         <button 
           className={`action-btn ${activeTab === 'scorecard' ? 'action-btn-green' : 'action-btn-gray'}`}
           onClick={() => setActiveTab('scorecard')}

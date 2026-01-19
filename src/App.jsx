@@ -17,6 +17,8 @@ import DailyWarRoom from './pages/DailyWarRoom';
 import Expectations2026 from './pages/Expectations2026';
 import Storm from './pages/Storm';
 import Sandbox from './pages/Sandbox';
+import InsuranceJobSOPs from './pages/InsuranceJobSOPs';
+import Conversion from './pages/Conversion';
 import './App.css';
 
 function ScrollToTop() {
@@ -171,6 +173,8 @@ function AppContent() {
           <Route path="/storm" element={<Storm />} />
           <Route path="/expectations-2026" element={<Expectations2026 />} />
           <Route path="/sandbox" element={<Sandbox />} />
+          <Route path="/insurance-job-sops" element={<InsuranceJobSOPs />} />
+          <Route path="/conversion" element={<Conversion />} />
           <Route path="/sales-test" element={<CRM />} />
           <Route path="/" element={<Intake />} />
         </Routes>

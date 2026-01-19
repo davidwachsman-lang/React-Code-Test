@@ -157,7 +157,6 @@ function Navigation() {
     { path: '/wip-board', label: 'WIP Board', icon: <WIPBoardIcon /> },
     { path: '/estimating', label: 'Estimating', icon: <EstimatingIcon /> },
     { path: '/job-files', label: 'Job Files', icon: <JobFilesIcon /> },
-    { path: '/forms', label: 'Forms', icon: <FormsIcon /> },
     { path: '/crm', label: 'CRM', icon: <CRMIcon /> },
     { path: '/field-services', label: 'Field Services', icon: <FieldServicesIcon /> },
     { path: '/goals', label: 'Goals', icon: <GoalsIcon /> },

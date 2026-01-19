@@ -1,0 +1,616 @@
+/* Estimate Conversion Dashboard Styles */
+
+/* Ribbon Rows Layout */
+.conversion-ribbon-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.ribbon-row {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.ribbon-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+/* Division-specific row colors */
+.ribbon-row-mit {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.ribbon-row-mit:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+}
+
+.ribbon-row-recon {
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.ribbon-row-recon:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+}
+
+.ribbon-row-ll {
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.ribbon-row-ll:hover {
+  border-color: rgba(168, 85, 247, 0.5);
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);
+}
+
+.ribbon-row-total {
+  border-color: rgba(139, 92, 246, 0.4);
+  border-width: 2px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(30, 41, 59, 0.8) 100%);
+}
+
+.ribbon-row-total:hover {
+  border-color: rgba(139, 92, 246, 0.6);
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+}
+
+.ribbon-row-header {
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+}
+
+.division-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.ribbon-row-mit .division-label {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.ribbon-row-recon .division-label {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.ribbon-row-ll .division-label {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.ribbon-row-total .division-label {
+  background: rgba(139, 92, 246, 0.3);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  font-size: 1.2rem;
+}
+
+.ribbon-row-metrics {
+  display: flex;
+  gap: 2rem;
+  flex: 1;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.ribbon-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+  text-align: center;
+}
+
+.ribbon-metric-label {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.ribbon-metric-value {
+  color: #f1f5f9;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+.ribbon-metric-dollar {
+  color: #60a5fa;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Legacy card styles (kept for backward compatibility if needed) */
+.conversion-ribbon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+/* Card-specific border colors */
+.metric-card-sent {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.metric-card-sent:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.3);
+}
+
+.metric-card-converted {
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.metric-card-converted:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 12px 40px rgba(16, 185, 129, 0.3);
+}
+
+.metric-card-percentage {
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.metric-card-percentage:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.3);
+}
+
+.metric-card-pending {
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.metric-card-pending:hover {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.3);
+}
+
+.metric-card-lost {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.metric-card-lost:hover {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.3);
+}
+
+.metric-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.metric-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.metric-content h3 {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  margin: 0;
+  color: #f1f5f9;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.metric-label {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: lowercase;
+}
+
+.metric-dollar {
+  color: #60a5fa;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+/* Percentage card specific styles */
+.metric-percentage-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.metric-percentage-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.metric-card-percentage .metric-value {
+  color: #a78bfa;
+  font-size: 1.75rem;
+}
+
+.metric-card-percentage .metric-label {
+  font-size: 0.7rem;
+}
+
+/* Content section below ribbon */
+.conversion-content {
+  margin-top: 2rem;
+}
+
+.conversion-content .content-section {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.conversion-content .content-section h2 {
+  color: #f1f5f9;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem 0;
+}
+
+/* Table Container */
+.conversion-table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+  border-radius: 8px;
+}
+
+.conversion-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(15, 23, 42, 0.4);
+  font-size: 0.85rem;
+  table-layout: fixed;
+}
+
+.conversion-table thead {
+  background: rgba(59, 130, 246, 0.1);
+  border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.conversion-table th {
+  padding: 0.6rem 0.5rem;
+  text-align: left;
+  color: #60a5fa;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+}
+
+.conversion-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  padding-right: 1.5rem;
+}
+
+.conversion-table th.sortable:hover {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+}
+
+.sort-indicator {
+  position: absolute;
+  right: 0.5rem;
+  color: #60a5fa;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* Column widths */
+.conversion-table th:nth-child(1) { width: 7%; } /* Job # */
+.conversion-table th:nth-child(2) { width: 6%; } /* Division */
+.conversion-table th:nth-child(3) { width: 12%; } /* Customer */
+.conversion-table th:nth-child(4) { width: 12%; } /* Owner */
+.conversion-table th:nth-child(5) { width: 7%; } /* Est $ */
+.conversion-table th:nth-child(6) { width: 10%; } /* Days Since Sent */
+.conversion-table th:nth-child(7) { width: 8%; } /* PM */
+.conversion-table th:nth-child(8) { width: 9%; } /* Estimator */
+.conversion-table th:nth-child(9) { width: 9%; } /* Sales Person */
+.conversion-table th:nth-child(10) { width: 12%; } /* Next Action */
+.conversion-table th:nth-child(11) { width: 10%; } /* Due Date */
+
+.conversion-table tbody tr {
+  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.conversion-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.conversion-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.conversion-table td {
+  padding: 0.6rem 0.5rem;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.job-number {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.estimate-amount {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+/* Owner column emphasis */
+.owner-header {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border: 2px solid rgba(59, 130, 246, 0.5) !important;
+  font-weight: 800;
+  color: #93c5fd !important;
+}
+
+.owner-header:hover {
+  background: rgba(59, 130, 246, 0.25) !important;
+  border-color: rgba(59, 130, 246, 0.7) !important;
+}
+
+.owner-cell {
+  font-weight: 700;
+  color: #f1f5f9;
+  background: rgba(59, 130, 246, 0.1);
+  border: 2px solid rgba(59, 130, 246, 0.4);
+  padding-left: 0.75rem !important;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.conversion-table tbody tr:hover .owner-cell {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+/* Division Badges */
+.division-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: inline-block;
+}
+
+.division-mit {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.division-recon {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.division-ll {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: inline-block;
+}
+
+.status-pending {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.status-converted {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.status-lost {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+/* Days Since Sent - Color Coding */
+.days-red {
+  color: #f87171;
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.15);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.days-yellow {
+  color: #fbbf24;
+  font-weight: 700;
+  background: rgba(245, 158, 11, 0.15);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.days-green {
+  color: #34d399;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.15);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .ribbon-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .ribbon-row-header {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .ribbon-row-metrics {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 1rem;
+  }
+
+  .ribbon-metric {
+    min-width: 80px;
+  }
+
+  .ribbon-metric-value {
+    font-size: 1.25rem;
+  }
+
+  .ribbon-metric-dollar {
+    font-size: 0.85rem;
+  }
+
+  .conversion-ribbon {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .metric-card {
+    padding: 1.25rem;
+  }
+
+  .metric-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+
+  .metric-value {
+    font-size: 1.75rem;
+  }
+
+  .metric-percentage-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .conversion-table-container {
+    margin: 0 -1rem;
+    padding: 0 1rem;
+  }
+
+  .conversion-table {
+    font-size: 0.75rem;
+    table-layout: auto;
+  }
+
+  .conversion-table th,
+  .conversion-table td {
+    padding: 0.5rem 0.4rem;
+  }
+
+  .conversion-table th {
+    font-size: 0.7rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+  .conversion-ribbon {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1201px) {
+  .conversion-ribbon {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}

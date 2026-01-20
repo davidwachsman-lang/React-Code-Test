@@ -6,6 +6,40 @@ function Conversion() {
   // Sorting state
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
+  // Mock conversion funnel metrics
+  const mockConversionMetrics = [
+    {
+      metric: 'Leads to Emergency Service Conversion',
+      actual: 68.5,
+      goal: 65.0,
+      delta: 3.5
+    },
+    {
+      metric: 'Leads to Inspection',
+      actual: 45.2,
+      goal: 50.0,
+      delta: -4.8
+    },
+    {
+      metric: 'Inspection to Estimate',
+      actual: 72.8,
+      goal: 70.0,
+      delta: 2.8
+    },
+    {
+      metric: 'Estimates to Jobs',
+      actual: 35.4,
+      goal: 40.0,
+      delta: -4.6
+    },
+    {
+      metric: 'Mit to Recon',
+      actual: 28.3,
+      goal: 30.0,
+      delta: -1.7
+    }
+  ];
+
   // Mock metrics data by division
   const mockMetricsByDivision = {
     mit: {
@@ -216,29 +250,23 @@ function Conversion() {
     }
   };
 
-  // Sort estimates based on current sort column and direction
-  const sortedEstimates = useMemo(() => {
-    if (!sortColumn) return mockEstimates;
+  // Filter and sort estimates by division
+  const mitEstimates = useMemo(() => {
+    const filtered = mockEstimates.filter(e => e.division.toLowerCase() === 'mit');
+    if (!sortColumn) return filtered;
 
-    return [...mockEstimates].sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       let aValue = a[sortColumn];
       let bValue = b[sortColumn];
 
       // Handle different data types
       if (sortColumn === 'estimateAmount' || sortColumn === 'daysSinceSent') {
-        // Numeric sorting
         aValue = Number(aValue) || 0;
         bValue = Number(bValue) || 0;
       } else if (sortColumn === 'dueDate') {
-        // Date sorting
         aValue = aValue ? new Date(aValue).getTime() : 0;
         bValue = bValue ? new Date(bValue).getTime() : 0;
-      } else if (sortColumn === 'division') {
-        // For division, sort by the division value itself
-        aValue = String(aValue || '').toLowerCase();
-        bValue = String(bValue || '').toLowerCase();
       } else {
-        // String sorting (case insensitive)
         aValue = String(aValue || '').toLowerCase();
         bValue = String(bValue || '').toLowerCase();
       }
@@ -249,6 +277,210 @@ function Conversion() {
     });
   }, [sortColumn, sortDirection, mockEstimates]);
 
+  const reconEstimates = useMemo(() => {
+    const filtered = mockEstimates.filter(e => e.division.toLowerCase() === 'recon');
+    if (!sortColumn) return filtered;
+
+    return [...filtered].sort((a, b) => {
+      let aValue = a[sortColumn];
+      let bValue = b[sortColumn];
+
+      if (sortColumn === 'estimateAmount' || sortColumn === 'daysSinceSent') {
+        aValue = Number(aValue) || 0;
+        bValue = Number(bValue) || 0;
+      } else if (sortColumn === 'dueDate') {
+        aValue = aValue ? new Date(aValue).getTime() : 0;
+        bValue = bValue ? new Date(bValue).getTime() : 0;
+      } else {
+        aValue = String(aValue || '').toLowerCase();
+        bValue = String(bValue || '').toLowerCase();
+      }
+
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [sortColumn, sortDirection, mockEstimates]);
+
+  const llEstimates = useMemo(() => {
+    const filtered = mockEstimates.filter(e => e.division.toLowerCase() === 'll');
+    if (!sortColumn) return filtered;
+
+    return [...filtered].sort((a, b) => {
+      let aValue = a[sortColumn];
+      let bValue = b[sortColumn];
+
+      if (sortColumn === 'estimateAmount' || sortColumn === 'daysSinceSent') {
+        aValue = Number(aValue) || 0;
+        bValue = Number(bValue) || 0;
+      } else if (sortColumn === 'dueDate') {
+        aValue = aValue ? new Date(aValue).getTime() : 0;
+        bValue = bValue ? new Date(bValue).getTime() : 0;
+      } else {
+        aValue = String(aValue || '').toLowerCase();
+        bValue = String(bValue || '').toLowerCase();
+      }
+
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [sortColumn, sortDirection, mockEstimates]);
+
+  // Helper function to render a table for a division
+  const renderDivisionTable = (estimates, divisionName) => {
+    if (estimates.length === 0) return null;
+
+    return (
+      <div className="conversion-table-container">
+        <table className="conversion-table">
+          <thead>
+            <tr>
+              <th 
+                className="sortable" 
+                onClick={() => handleSort('jobNumber')}
+              >
+                Job #
+                {sortColumn === 'jobNumber' && (
+                  <span className="sort-indicator">
+                    {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable" 
+                onClick={() => handleSort('customer')}
+              >
+                Customer
+                {sortColumn === 'customer' && (
+                  <span className="sort-indicator">
+                    {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable owner-header" 
+                onClick={() => handleSort('owner')}
+              >
+                Owner
+                {sortColumn === 'owner' && (
+                  <span className="sort-indicator">
+                    {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable" 
+                onClick={() => handleSort('estimateAmount')}
+              >
+                Est $
+                {sortColumn === 'estimateAmount' && (
+                  <span className="sort-indicator">
+                    {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable" 
+                onClick={() => handleSort('daysSinceSent')}
+              >
+                Days Since Sent
+                {sortColumn === 'daysSinceSent' && (
+                  <span className="sort-indicator">
+                    {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable" 
+                onClick={() => handleSort('pm')}
+              >
+                PM
+                {sortColumn === 'pm' && (
+                  <span className="sort-indicator">
+                    {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable" 
+                onClick={() => handleSort('estimator')}
+              >
+                Estimator
+                {sortColumn === 'estimator' && (
+                  <span className="sort-indicator">
+                    {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable" 
+                onClick={() => handleSort('salesPerson')}
+              >
+                Sales Person
+                {sortColumn === 'salesPerson' && (
+                  <span className="sort-indicator">
+                    {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable" 
+                onClick={() => handleSort('nextAction')}
+              >
+                Next Action
+                {sortColumn === 'nextAction' && (
+                  <span className="sort-indicator">
+                    {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable" 
+                onClick={() => handleSort('dueDate')}
+              >
+                Due Date
+                {sortColumn === 'dueDate' && (
+                  <span className="sort-indicator">
+                    {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {estimates.map((estimate, index) => (
+              <tr key={index}>
+                <td className="job-number">{estimate.jobNumber}</td>
+                <td>{estimate.customer}</td>
+                <td className="owner-cell">{estimate.owner}</td>
+                <td className="estimate-amount">{formatCurrency(estimate.estimateAmount)}</td>
+                <td>
+                  <span className={
+                    estimate.daysSinceSent >= 7 
+                      ? 'days-red' 
+                      : estimate.daysSinceSent >= 4 
+                      ? 'days-yellow' 
+                      : estimate.daysSinceSent >= 1 
+                      ? 'days-green' 
+                      : ''
+                  }>
+                    {estimate.daysSinceSent}
+                  </span>
+                </td>
+                <td>{estimate.pm}</td>
+                <td>{estimate.estimator}</td>
+                <td>{estimate.salesPerson}</td>
+                <td>{estimate.nextAction}</td>
+                <td>{formatDate(estimate.dueDate)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
   return (
     <div className="page-container">
       <div className="page-header">
@@ -256,8 +488,44 @@ function Conversion() {
         <p className="page-subtitle">Track estimate performance and conversion metrics</p>
       </div>
 
+      {/* Conversion Funnel Metrics Table */}
+      <div className="conversion-content">
+        <div className="content-section">
+          <h2>Conversion Funnel Metrics</h2>
+          <div className="conversion-funnel-table-container">
+            <table className="conversion-funnel-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>% Actual</th>
+                  <th>% Goal</th>
+                  <th>Delta</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mockConversionMetrics.map((row, index) => (
+                  <tr key={index}>
+                    <td className="funnel-metric-name">{row.metric}</td>
+                    <td className="funnel-actual">{row.actual.toFixed(1)}%</td>
+                    <td className="funnel-goal">{row.goal.toFixed(1)}%</td>
+                    <td className="funnel-delta">
+                      <span className={row.delta >= 0 ? 'delta-positive' : 'delta-negative'}>
+                        {row.delta >= 0 ? '+' : ''}{row.delta.toFixed(1)}%
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       {/* Top Ribbon Section - 4 Rows */}
-      <div className="conversion-ribbon-rows">
+      <div className="conversion-content">
+        <div className="content-section">
+          <h2>Conversion Ribbon</h2>
+          <div className="conversion-ribbon-rows">
         {/* MIT Row */}
         <div className="ribbon-row ribbon-row-mit">
           <div className="ribbon-row-header">
@@ -393,174 +661,38 @@ function Conversion() {
             </div>
           </div>
         </div>
+          </div>
+        </div>
       </div>
 
-      {/* Estimates Table */}
+      {/* Estimates Tables */}
       <div className="conversion-content">
         <div className="content-section">
           <h2>Estimate Details</h2>
-          <div className="conversion-table-container">
-            <table className="conversion-table">
-              <thead>
-                <tr>
-                  <th 
-                    className="sortable" 
-                    onClick={() => handleSort('jobNumber')}
-                  >
-                    Job #
-                    {sortColumn === 'jobNumber' && (
-                      <span className="sort-indicator">
-                        {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th 
-                    className="sortable" 
-                    onClick={() => handleSort('division')}
-                  >
-                    Division
-                    {sortColumn === 'division' && (
-                      <span className="sort-indicator">
-                        {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th 
-                    className="sortable" 
-                    onClick={() => handleSort('customer')}
-                  >
-                    Customer
-                    {sortColumn === 'customer' && (
-                      <span className="sort-indicator">
-                        {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th 
-                    className="sortable owner-header" 
-                    onClick={() => handleSort('owner')}
-                  >
-                    Owner
-                    {sortColumn === 'owner' && (
-                      <span className="sort-indicator">
-                        {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th 
-                    className="sortable" 
-                    onClick={() => handleSort('estimateAmount')}
-                  >
-                    Est $
-                    {sortColumn === 'estimateAmount' && (
-                      <span className="sort-indicator">
-                        {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th 
-                    className="sortable" 
-                    onClick={() => handleSort('daysSinceSent')}
-                  >
-                    Days Since Sent
-                    {sortColumn === 'daysSinceSent' && (
-                      <span className="sort-indicator">
-                        {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th 
-                    className="sortable" 
-                    onClick={() => handleSort('pm')}
-                  >
-                    PM
-                    {sortColumn === 'pm' && (
-                      <span className="sort-indicator">
-                        {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th 
-                    className="sortable" 
-                    onClick={() => handleSort('estimator')}
-                  >
-                    Estimator
-                    {sortColumn === 'estimator' && (
-                      <span className="sort-indicator">
-                        {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th 
-                    className="sortable" 
-                    onClick={() => handleSort('salesPerson')}
-                  >
-                    Sales Person
-                    {sortColumn === 'salesPerson' && (
-                      <span className="sort-indicator">
-                        {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th 
-                    className="sortable" 
-                    onClick={() => handleSort('nextAction')}
-                  >
-                    Next Action
-                    {sortColumn === 'nextAction' && (
-                      <span className="sort-indicator">
-                        {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                  <th 
-                    className="sortable" 
-                    onClick={() => handleSort('dueDate')}
-                  >
-                    Due Date
-                    {sortColumn === 'dueDate' && (
-                      <span className="sort-indicator">
-                        {sortDirection === 'asc' ? ' ↑' : ' ↓'}
-                      </span>
-                    )}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedEstimates.map((estimate, index) => (
-                  <tr key={index}>
-                    <td className="job-number">{estimate.jobNumber}</td>
-                    <td>
-                      <span className={`division-badge division-${estimate.division.toLowerCase()}`}>
-                        {estimate.division}
-                      </span>
-                    </td>
-                    <td>{estimate.customer}</td>
-                    <td className="owner-cell">{estimate.owner}</td>
-                    <td className="estimate-amount">{formatCurrency(estimate.estimateAmount)}</td>
-                    <td>
-                      <span className={
-                        estimate.daysSinceSent >= 7 
-                          ? 'days-red' 
-                          : estimate.daysSinceSent >= 4 
-                          ? 'days-yellow' 
-                          : estimate.daysSinceSent >= 1 
-                          ? 'days-green' 
-                          : ''
-                      }>
-                        {estimate.daysSinceSent}
-                      </span>
-                    </td>
-                    <td>{estimate.pm}</td>
-                    <td>{estimate.estimator}</td>
-                    <td>{estimate.salesPerson}</td>
-                    <td>{estimate.nextAction}</td>
-                    <td>{formatDate(estimate.dueDate)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          
+          {/* MIT Table */}
+          {mitEstimates.length > 0 && (
+            <div className="division-table-section">
+              <h3 className="division-table-title">MIT</h3>
+              {renderDivisionTable(mitEstimates, 'MIT')}
+            </div>
+          )}
+
+          {/* RECON Table */}
+          {reconEstimates.length > 0 && (
+            <div className="division-table-section">
+              <h3 className="division-table-title">RECON</h3>
+              {renderDivisionTable(reconEstimates, 'RECON')}
+            </div>
+          )}
+
+          {/* LL Table */}
+          {llEstimates.length > 0 && (
+            <div className="division-table-section">
+              <h3 className="division-table-title">LL</h3>
+              {renderDivisionTable(llEstimates, 'LL')}
+            </div>
+          )}
         </div>
       </div>
     </div>

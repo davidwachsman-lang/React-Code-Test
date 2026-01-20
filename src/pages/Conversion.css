@@ -295,6 +295,15 @@
   margin-top: 2rem;
 }
 
+.conversion-content + .conversion-content {
+  margin-top: 1.5rem;
+}
+
+/* Add spacing between first table and ribbon */
+.conversion-content:first-of-type {
+  margin-bottom: 2.5rem;
+}
+
 .conversion-content .content-section {
   background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
   padding: 1.5rem;
@@ -309,6 +318,103 @@
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0 0 1.5rem 0;
+}
+
+/* Conversion Funnel Table */
+.conversion-funnel-table-container {
+  overflow-x: auto;
+  margin-top: 1rem;
+  border-radius: 8px;
+}
+
+.conversion-funnel-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(15, 23, 42, 0.4);
+  font-size: 0.9rem;
+}
+
+.conversion-funnel-table thead {
+  background: rgba(59, 130, 246, 0.1);
+  border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.conversion-funnel-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  color: #60a5fa;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.conversion-funnel-table th:nth-child(2),
+.conversion-funnel-table th:nth-child(3),
+.conversion-funnel-table th:nth-child(4) {
+  text-align: center;
+}
+
+.conversion-funnel-table tbody tr {
+  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  transition: all 0.3s ease;
+}
+
+.conversion-funnel-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.conversion-funnel-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.conversion-funnel-table td {
+  padding: 0.75rem 1rem;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.funnel-metric-name {
+  color: #f1f5f9;
+  font-weight: 600;
+  width: 50%;
+}
+
+.funnel-actual {
+  color: #60a5fa;
+  font-weight: 700;
+  text-align: center;
+  width: 15%;
+}
+
+.funnel-goal {
+  color: #94a3b8;
+  font-weight: 600;
+  text-align: center;
+  width: 15%;
+}
+
+.funnel-delta {
+  font-weight: 700;
+  text-align: center;
+  width: 20%;
+}
+
+.delta-positive {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.delta-negative {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  display: inline-block;
 }
 
 /* Table Container */
@@ -365,18 +471,35 @@
   font-size: 0.9rem;
 }
 
+/* Division Table Sections */
+.division-table-section {
+  margin-bottom: 2.5rem;
+}
+
+.division-table-section:last-child {
+  margin-bottom: 0;
+}
+
+.division-table-title {
+  color: #f1f5f9;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* Column widths */
-.conversion-table th:nth-child(1) { width: 7%; } /* Job # */
-.conversion-table th:nth-child(2) { width: 6%; } /* Division */
-.conversion-table th:nth-child(3) { width: 12%; } /* Customer */
-.conversion-table th:nth-child(4) { width: 12%; } /* Owner */
-.conversion-table th:nth-child(5) { width: 7%; } /* Est $ */
-.conversion-table th:nth-child(6) { width: 10%; } /* Days Since Sent */
-.conversion-table th:nth-child(7) { width: 8%; } /* PM */
-.conversion-table th:nth-child(8) { width: 9%; } /* Estimator */
-.conversion-table th:nth-child(9) { width: 9%; } /* Sales Person */
-.conversion-table th:nth-child(10) { width: 12%; } /* Next Action */
-.conversion-table th:nth-child(11) { width: 10%; } /* Due Date */
+.conversion-table th:nth-child(1) { width: 8%; } /* Job # */
+.conversion-table th:nth-child(2) { width: 13%; } /* Customer */
+.conversion-table th:nth-child(3) { width: 12%; } /* Owner */
+.conversion-table th:nth-child(4) { width: 8%; } /* Est $ */
+.conversion-table th:nth-child(5) { width: 11%; } /* Days Since Sent */
+.conversion-table th:nth-child(6) { width: 9%; } /* PM */
+.conversion-table th:nth-child(7) { width: 10%; } /* Estimator */
+.conversion-table th:nth-child(8) { width: 10%; } /* Sales Person */
+.conversion-table th:nth-child(9) { width: 13%; } /* Next Action */
+.conversion-table th:nth-child(10) { width: 11%; } /* Due Date */
 
 .conversion-table tbody tr {
   border-bottom: 1px solid rgba(59, 130, 246, 0.1);

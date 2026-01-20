@@ -490,16 +490,17 @@
 }
 
 /* Column widths */
-.conversion-table th:nth-child(1) { width: 8%; } /* Job # */
-.conversion-table th:nth-child(2) { width: 13%; } /* Customer */
-.conversion-table th:nth-child(3) { width: 12%; } /* Owner */
-.conversion-table th:nth-child(4) { width: 8%; } /* Est $ */
-.conversion-table th:nth-child(5) { width: 11%; } /* Days Since Sent */
-.conversion-table th:nth-child(6) { width: 9%; } /* PM */
-.conversion-table th:nth-child(7) { width: 10%; } /* Estimator */
-.conversion-table th:nth-child(8) { width: 10%; } /* Sales Person */
-.conversion-table th:nth-child(9) { width: 13%; } /* Next Action */
-.conversion-table th:nth-child(10) { width: 11%; } /* Due Date */
+.conversion-table th:nth-child(1) { width: 7%; } /* Job # */
+.conversion-table th:nth-child(2) { width: 11%; } /* Customer */
+.conversion-table th:nth-child(3) { width: 10%; } /* Owner */
+.conversion-table th:nth-child(4) { width: 7%; } /* Est $ */
+.conversion-table th:nth-child(5) { width: 9%; } /* Days Since Sent */
+.conversion-table th:nth-child(6) { width: 8%; } /* PM */
+.conversion-table th:nth-child(7) { width: 9%; } /* Estimator */
+.conversion-table th:nth-child(8) { width: 9%; } /* Sales Person */
+.conversion-table th:nth-child(9) { width: 15%; } /* Status */
+.conversion-table th:nth-child(10) { width: 11%; } /* Next Action */
+.conversion-table th:nth-child(11) { width: 10%; } /* Due Date */
 
 .conversion-table tbody tr {
   border-bottom: 1px solid rgba(59, 130, 246, 0.1);
@@ -523,6 +524,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.conversion-table td:nth-child(9) {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .job-number {
@@ -595,31 +605,58 @@
 
 /* Status Badges */
 .status-badge {
-  padding: 0.2rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
   display: inline-block;
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 100%;
+  line-height: 1.4;
 }
 
-.status-pending {
+.status-awaiting-customer {
   background: rgba(245, 158, 11, 0.2);
   color: #fbbf24;
   border: 1px solid rgba(245, 158, 11, 0.4);
 }
 
-.status-converted {
+.status-awaiting-adjuster {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.status-missing-info {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.status-price-concern {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.status-scheduling {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fcd34d;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.status-ready {
   background: rgba(16, 185, 129, 0.2);
   color: #34d399;
   border: 1px solid rgba(16, 185, 129, 0.4);
 }
 
-.status-lost {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.4);
+.status-default {
+  background: rgba(148, 163, 184, 0.2);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
 /* Days Since Sent - Color Coding */

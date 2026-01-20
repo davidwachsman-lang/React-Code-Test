@@ -18,17 +18,33 @@ const stormIntakeService = {
       // 1. Create or find customer
       let customer;
       try {
-        // Try to find existing customer by phone
+        // Try to find existing customer by phone AND name (more precise match)
         const existingCustomers = await customerService.search(intakeData.customerPhone);
         if (existingCustomers && existingCustomers.length > 0) {
-          customer = existingCustomers[0];
-          // Update customer info if provided
-          await customerService.update(customer.id, {
-            name: intakeData.customerName,
-            email: intakeData.customerEmail || null,
-            phone: intakeData.customerPhone
-          });
+          // Look for exact match on both phone and name
+          const exactMatch = existingCustomers.find(c => 
+            c.phone === intakeData.customerPhone && 
+            c.name?.toLowerCase() === intakeData.customerName?.toLowerCase()
+          );
+          
+          if (exactMatch) {
+            customer = exactMatch;
+            // Only update email if it's different and provided
+            if (intakeData.customerEmail && intakeData.customerEmail !== customer.email) {
+              await customerService.update(customer.id, {
+                email: intakeData.customerEmail
+              });
+            }
+          } else {
+            // Phone matches but name doesn't - create new customer to avoid overwriting
+            customer = await customerService.create({
+              name: intakeData.customerName,
+              email: intakeData.customerEmail || null,
+              phone: intakeData.customerPhone
+            });
+          }
         } else {
+          // No existing customer found - create new one
           customer = await customerService.create({
             name: intakeData.customerName,
             email: intakeData.customerEmail || null,

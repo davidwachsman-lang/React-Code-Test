@@ -94,6 +94,19 @@ function Conversion() {
     return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
   };
 
+  // Get status badge class name
+  const getStatusClass = (status) => {
+    const statusMap = {
+      'Awaiting Customer Decision': 'status-awaiting-customer',
+      'Awaiting Adjuster / Carrier': 'status-awaiting-adjuster',
+      'Missing Information': 'status-missing-info',
+      'Price Concern': 'status-price-concern',
+      'Scheduling / Timing Issue': 'status-scheduling',
+      'Ready to Start': 'status-ready'
+    };
+    return statusMap[status] || 'status-default';
+  };
+
   // Mock estimates data (memoized to prevent unnecessary re-sorts)
   const mockEstimates = useMemo(() => [
     {
@@ -106,7 +119,7 @@ function Conversion() {
       pm: 'Leo Champion',
       estimator: 'Kevin Shell',
       salesPerson: 'Tony',
-      status: 'Pending',
+      status: 'Awaiting Customer Decision',
       nextAction: 'Follow up call',
       dueDate: '2024-01-20'
     },
@@ -120,7 +133,7 @@ function Conversion() {
       pm: 'Aaron Kacel',
       estimator: 'Bryan Turpin',
       salesPerson: 'Paige',
-      status: 'Pending',
+      status: 'Awaiting Adjuster / Carrier',
       nextAction: 'Send revised estimate',
       dueDate: '2024-01-25'
     },
@@ -134,7 +147,7 @@ function Conversion() {
       pm: 'Scottie Smith',
       estimator: 'Eric Brown',
       salesPerson: 'Ainsley',
-      status: 'Converted',
+      status: 'Ready to Start',
       nextAction: 'Schedule kickoff meeting',
       dueDate: '2024-01-18'
     },
@@ -148,7 +161,7 @@ function Conversion() {
       pm: 'Travis Payne',
       estimator: 'Kenny Taylor',
       salesPerson: 'Joe',
-      status: 'Lost',
+      status: 'Price Concern',
       nextAction: 'Archive',
       dueDate: '2024-01-15'
     },
@@ -162,7 +175,7 @@ function Conversion() {
       pm: 'Josh Field',
       estimator: 'Kevin Shell',
       salesPerson: 'Tony',
-      status: 'Pending',
+      status: 'Awaiting Customer Decision',
       nextAction: 'Check in on decision',
       dueDate: '2024-01-22'
     },
@@ -176,7 +189,7 @@ function Conversion() {
       pm: 'Leo Champion',
       estimator: 'Bryan Turpin',
       salesPerson: 'Paige',
-      status: 'Pending',
+      status: 'Missing Information',
       nextAction: 'Awaiting response',
       dueDate: '2024-01-19'
     },
@@ -190,7 +203,7 @@ function Conversion() {
       pm: 'Scottie Smith',
       estimator: 'Eric Brown',
       salesPerson: 'Ainsley',
-      status: 'Converted',
+      status: 'Ready to Start',
       nextAction: 'Begin project planning',
       dueDate: '2024-01-17'
     },
@@ -204,7 +217,7 @@ function Conversion() {
       pm: 'Aaron Kacel',
       estimator: 'Kenny Taylor',
       salesPerson: 'Joe',
-      status: 'Pending',
+      status: 'Scheduling / Timing Issue',
       nextAction: 'Follow up email',
       dueDate: '2024-01-23'
     },
@@ -218,7 +231,7 @@ function Conversion() {
       pm: 'Travis Payne',
       estimator: 'Josh Field',
       salesPerson: 'Tony',
-      status: 'Lost',
+      status: 'Price Concern',
       nextAction: 'Archive',
       dueDate: '2024-01-16'
     },
@@ -232,7 +245,7 @@ function Conversion() {
       pm: 'Scottie Smith',
       estimator: 'Eric Brown',
       salesPerson: 'Paige',
-      status: 'Pending',
+      status: 'Awaiting Customer Decision',
       nextAction: 'Schedule site visit',
       dueDate: '2024-01-21'
     }
@@ -426,6 +439,17 @@ function Conversion() {
               </th>
               <th 
                 className="sortable" 
+                onClick={() => handleSort('status')}
+              >
+                Status
+                {sortColumn === 'status' && (
+                  <span className="sort-indicator">
+                    {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                  </span>
+                )}
+              </th>
+              <th 
+                className="sortable" 
                 onClick={() => handleSort('nextAction')}
               >
                 Next Action
@@ -471,6 +495,11 @@ function Conversion() {
                 <td>{estimate.pm}</td>
                 <td>{estimate.estimator}</td>
                 <td>{estimate.salesPerson}</td>
+                <td>
+                  <span className={`status-badge ${getStatusClass(estimate.status)}`}>
+                    {estimate.status}
+                  </span>
+                </td>
                 <td>{estimate.nextAction}</td>
                 <td>{formatDate(estimate.dueDate)}</td>
               </tr>

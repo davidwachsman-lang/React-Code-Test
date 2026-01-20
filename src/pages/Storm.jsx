@@ -325,12 +325,31 @@ function Storm() {
       }
 
       // Update customer if needed
+      // Check if customer name/phone/email changed - if so, create a new customer to avoid affecting other jobs
       if (selectedJob.customer_id) {
-        await customerService.update(selectedJob.customer_id, {
-          name: jobEditFormData.customerName || null,
-          phone: stripPhoneFormatting(jobEditFormData.customerPhone) || null,
-          email: jobEditFormData.customerEmail || null
-        });
+        const currentCustomer = await customerService.getById(selectedJob.customer_id);
+        const nameChanged = currentCustomer?.name !== jobEditFormData.customerName;
+        const phoneChanged = currentCustomer?.phone !== stripPhoneFormatting(jobEditFormData.customerPhone);
+        const emailChanged = currentCustomer?.email !== jobEditFormData.customerEmail;
+        
+        if (nameChanged || phoneChanged || emailChanged) {
+          // Create a new customer record for this job to avoid affecting other jobs
+          const newCustomer = await customerService.create({
+            name: jobEditFormData.customerName || null,
+            phone: stripPhoneFormatting(jobEditFormData.customerPhone) || null,
+            email: jobEditFormData.customerEmail || null
+          });
+          
+          // Update the job to reference the new customer
+          updateData.customer_id = newCustomer.id;
+        } else {
+          // Only update email if it's different and provided (safe to update)
+          if (jobEditFormData.customerEmail && jobEditFormData.customerEmail !== currentCustomer?.email) {
+            await customerService.update(selectedJob.customer_id, {
+              email: jobEditFormData.customerEmail
+            });
+          }
+        }
       }
 
       // Update property if needed
@@ -772,6 +791,8 @@ function Storm() {
       
       if (result.success) {
         alert('Storm intake submitted successfully!');
+        // Refresh jobs list to show the new job
+        await loadJobs();
         // Clear form
         setIntakeFormData({
           propertyType: 'residential',

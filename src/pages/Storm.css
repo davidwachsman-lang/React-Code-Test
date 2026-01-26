@@ -551,6 +551,39 @@
   color: #f1f5f9;
 }
 
+.event-row.editing {
+  background: rgba(59, 130, 246, 0.15);
+  border-left: 3px solid #60a5fa;
+}
+
+.event-row.editing td {
+  padding: 0.75rem 1rem;
+}
+
+.event-edit-input,
+.event-edit-select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #f1f5f9;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.event-edit-input:focus,
+.event-edit-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.event-edit-select {
+  cursor: pointer;
+}
+
 .event-name {
   font-weight: 500;
   color: #f1f5f9;
@@ -1647,8 +1680,9 @@ input[type="checkbox"] {
 .jobs-table th:nth-child(6) { min-width: 120px; } /* Days Since Loss */
 .jobs-table th:nth-child(7) { min-width: 100px; } /* Category */
 .jobs-table th:nth-child(8) { min-width: 100px; } /* Pay Type */
-.jobs-table th:nth-child(9) { min-width: 130px; } /* Est. Revenue */
-.jobs-table th:nth-child(10) { min-width: 110px; } /* Status */
+.jobs-table th:nth-child(9) { min-width: 80px; }  /* Power */
+.jobs-table th:nth-child(10) { min-width: 130px; } /* Est. Revenue */
+.jobs-table th:nth-child(11) { min-width: 110px; } /* Status */
 
 .jobs-table tbody tr {
   background: rgba(15, 23, 42, 0.3);
@@ -1701,10 +1735,39 @@ input[type="checkbox"] {
   text-overflow: ellipsis;
 }
 
-.jobs-table td:nth-child(9) { /* Est. Revenue */
+.jobs-table td:nth-child(10) { /* Est. Revenue */
   font-weight: 600;
   color: #60a5fa;
   font-family: 'Courier New', monospace;
+}
+
+/* Power Display Styles */
+.power-display {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.power-display.power-on {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.power-display.power-off {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.power-display.power-unknown {
+  background: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .jobs-map-container {

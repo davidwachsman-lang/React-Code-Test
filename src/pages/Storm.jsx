@@ -19,6 +19,9 @@ function Storm() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [loadingEvents, setLoadingEvents] = useState(false);
   const [showAddEventForm, setShowAddEventForm] = useState(false);
+  const [editingEventId, setEditingEventId] = useState(null);
+  const [editingEventData, setEditingEventData] = useState(null);
+  const [savingEvent, setSavingEvent] = useState(false);
   const [eventFormData, setEventFormData] = useState({
     location: 'HB Nashville',
     locationOther: '',
@@ -453,6 +456,13 @@ function Storm() {
     return paymentMethod;
   };
 
+  const getPowerDisplay = (powerAtLocation) => {
+    if (!powerAtLocation) return '-';
+    if (powerAtLocation === 'on') return 'On';
+    if (powerAtLocation === 'off') return 'Off';
+    return powerAtLocation;
+  };
+
   // Handle event form input changes
   const handleEventInputChange = (e) => {
     const { name, value } = e.target;
@@ -510,6 +520,84 @@ function Storm() {
   const handleSelectEvent = (event) => {
     setSelectedEventId(event.id);
     setSelectedEvent(event);
+  };
+
+  // Handle double-clicking on event row to edit
+  const handleEventRowDoubleClick = (event) => {
+    // If already editing this event, don't do anything
+    if (editingEventId === event.id) return;
+    
+    // Enter edit mode
+    setEditingEventId(event.id);
+    setEditingEventData({
+      storm_type: event.storm_type || '',
+      storm_type_other: event.storm_type_other || '',
+      location: event.location || '',
+      event_date: event.event_date ? event.event_date.split('T')[0] : '',
+      is_active: event.is_active !== undefined ? event.is_active : true
+    });
+  };
+
+  // Handle event edit input changes
+  const handleEventEditChange = (field, value) => {
+    setEditingEventData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle saving event edits
+  const handleSaveEventEdit = async (eventId) => {
+    if (!editingEventData) return;
+    
+    setSavingEvent(true);
+    try {
+      // Reconstruct event_name if needed
+      const location = editingEventData.location;
+      const stormType = editingEventData.storm_type === 'Other' 
+        ? editingEventData.storm_type_other 
+        : editingEventData.storm_type;
+      const eventName = `${stormType} - ${location} (${editingEventData.event_date})`;
+      
+      // Update event
+      await stormEventService.update(eventId, {
+        storm_type: editingEventData.storm_type,
+        storm_type_other: editingEventData.storm_type === 'Other' ? editingEventData.storm_type_other : null,
+        location: editingEventData.location,
+        event_date: editingEventData.event_date,
+        event_name: eventName,
+        is_active: editingEventData.is_active
+      });
+      
+      // Refresh events list
+      await loadStormEvents();
+      
+      // Exit edit mode
+      setEditingEventId(null);
+      setEditingEventData(null);
+      
+      // Update selected event if it was the one being edited
+      if (selectedEventId === eventId) {
+        const updatedEvents = await stormEventService.getAll();
+        const updatedEvent = updatedEvents.find(e => e.id === eventId);
+        if (updatedEvent) {
+          setSelectedEvent(updatedEvent);
+        }
+      }
+      
+      alert('Event updated successfully!');
+    } catch (error) {
+      console.error('Error updating event:', error);
+      alert(`Failed to update event: ${error.message}`);
+    } finally {
+      setSavingEvent(false);
+    }
+  };
+
+  // Handle canceling event edit
+  const handleCancelEventEdit = () => {
+    setEditingEventId(null);
+    setEditingEventData(null);
   };
 
   // Set date and time when component mounts or when intake tab is selected
@@ -1074,23 +1162,120 @@ function Storm() {
                     </tr>
                   </thead>
                   <tbody>
-                    {stormEvents.map(event => (
-                      <tr 
-                        key={event.id}
-                        className={`event-row ${selectedEventId === event.id ? 'selected' : ''}`}
-                        onClick={() => handleSelectEvent(event)}
-                      >
-                        <td className="event-name">{event.event_name}</td>
-                        <td>{event.location}</td>
-                        <td>{event.storm_type}</td>
-                        <td>{new Date(event.event_date).toLocaleDateString()}</td>
-                        <td>
-                          <span className={`status-badge ${event.is_active ? 'active' : 'inactive'}`}>
-                            {event.is_active ? 'Active' : 'Closed'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {stormEvents.map(event => {
+                      const isEditing = editingEventId === event.id;
+                      return (
+                        <tr 
+                          key={event.id}
+                          className={`event-row ${selectedEventId === event.id ? 'selected' : ''} ${isEditing ? 'editing' : ''}`}
+                          onClick={() => !isEditing && handleSelectEvent(event)}
+                          onDoubleClick={() => !isEditing && handleEventRowDoubleClick(event)}
+                        >
+                          <td className="event-name">
+                            {event.event_name}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editingEventData?.location || ''}
+                                onChange={(e) => handleEventEditChange('location', e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                className="event-edit-input"
+                              />
+                            ) : (
+                              event.location
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <select
+                                value={editingEventData?.storm_type || ''}
+                                onChange={(e) => handleEventEditChange('storm_type', e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                className="event-edit-select"
+                              >
+                                <option value="">Select type...</option>
+                                <option value="Flood">Flood</option>
+                                <option value="Freeze">Freeze</option>
+                                <option value="Tornado">Tornado</option>
+                                <option value="Hurricane">Hurricane</option>
+                                <option value="Wildfire">Wildfire</option>
+                                <option value="Hail">Hail</option>
+                                <option value="Other">Other</option>
+                              </select>
+                            ) : (
+                              event.storm_type
+                            )}
+                            {isEditing && editingEventData?.storm_type === 'Other' && (
+                              <input
+                                type="text"
+                                value={editingEventData?.storm_type_other || ''}
+                                onChange={(e) => handleEventEditChange('storm_type_other', e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                placeholder="Specify type"
+                                className="event-edit-input"
+                                style={{ marginTop: '4px', width: '100%' }}
+                              />
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <input
+                                type="date"
+                                value={editingEventData?.event_date || ''}
+                                onChange={(e) => handleEventEditChange('event_date', e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                className="event-edit-input"
+                              />
+                            ) : (
+                              new Date(event.event_date).toLocaleDateString()
+                            )}
+                          </td>
+                          <td>
+                            {isEditing ? (
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={editingEventData?.is_active || false}
+                                    onChange={(e) => handleEventEditChange('is_active', e.target.checked)}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                  <span>Active</span>
+                                </label>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSaveEventEdit(event.id);
+                                  }}
+                                  disabled={savingEvent}
+                                  className="storm-btn storm-btn-primary"
+                                  style={{ padding: '4px 8px', fontSize: '0.85rem' }}
+                                >
+                                  {savingEvent ? 'Saving...' : 'Save'}
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCancelEventEdit();
+                                  }}
+                                  disabled={savingEvent}
+                                  className="storm-btn storm-btn-gray"
+                                  style={{ padding: '4px 8px', fontSize: '0.85rem' }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <span className={`status-badge ${event.is_active ? 'active' : 'inactive'}`}>
+                                {event.is_active ? 'Active' : 'Closed'}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               )}
@@ -1716,6 +1901,7 @@ function Storm() {
                                   <th>Days Since Loss</th>
                                   <th>Category</th>
                                   <th>Pay Type</th>
+                                  <th>Power</th>
                                   <th>Est. Revenue</th>
                                   <th>Status</th>
                                 </tr>
@@ -1746,6 +1932,11 @@ function Storm() {
                                     </td>
                                     <td>{job.division || '-'}</td>
                                     <td>{getPayTypeDisplay(job.payment_method)}</td>
+                                    <td>
+                                      <span className={`power-display power-${job.power_at_location || 'unknown'}`}>
+                                        {getPowerDisplay(job.power_at_location)}
+                                      </span>
+                                    </td>
                                     <td className="revenue-cell">{formatCurrency(job.estimate_value)}</td>
                                     <td>
                                       <span className={`status-badge status-${job.status}`}>

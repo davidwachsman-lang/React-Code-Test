@@ -163,6 +163,13 @@ function StormMap({
       mapInstanceRef.current = new window.google.maps.Map(mapRef.current, mapOptions);
       infoWindowRef.current = new window.google.maps.InfoWindow();
 
+      // Close info window when clicking on the map (not on a marker)
+      mapInstanceRef.current.addListener('click', () => {
+        if (infoWindowRef.current) {
+          infoWindowRef.current.close();
+        }
+      });
+
       // Adjust map to fit all jobs
       if (jobsWithCoords.length > 0) {
         const bounds = new window.google.maps.LatLngBounds();
@@ -242,15 +249,15 @@ function StormMap({
         const color = getMarkerColor(job);
         
         // Build hover tooltip text (shows on mouse hover)
-        const jobId = job.job_number || job.id || '';
+        const jobNumber = job.job_number || '';
         const customerName = job.customer_name || 'Unknown';
         const address = job.property_address || job.address || '';
         
-        // Multi-line tooltip for hover
+        // Multi-line tooltip for hover - clear format with labels
         const hoverTitle = [
-          jobId ? `Job: ${jobId}` : '',
-          customerName,
-          address
+          jobNumber ? `Job #: ${jobNumber}` : null,
+          `Customer: ${customerName}`,
+          address ? `Address: ${address}` : null
         ].filter(Boolean).join('\n');
 
         const marker = new window.google.maps.Marker({
@@ -278,7 +285,7 @@ function StormMap({
         
         const infoContent = `
           <div class="storm-map-info-window">
-            ${jobId ? `<div class="info-job-id">Job #${jobId}</div>` : ''}
+            ${jobNumber ? `<div class="info-job-id">Job #${jobNumber}</div>` : ''}
             <h4>${customerName}</h4>
             <p><strong>Address:</strong> ${address || '-'}</p>
             ${isExcelJob ? `

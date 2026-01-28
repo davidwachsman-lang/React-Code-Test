@@ -1,0 +1,476 @@
+/* Excel Upload Component Styles */
+
+.excel-upload-container {
+  padding: 1.5rem;
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.excel-upload-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.excel-upload-container::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 4px;
+}
+
+.excel-upload-container::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.4);
+  border-radius: 4px;
+}
+
+.excel-upload-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.6);
+}
+
+/* Upload Step */
+.upload-step {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.upload-step h3 {
+  color: #f1f5f9;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.upload-description {
+  color: #94a3b8;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.file-input-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.file-input-wrapper input[type="file"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.file-input-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.file-input-label:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.file-icon {
+  font-size: 1.25rem;
+}
+
+.cancel-btn {
+  display: block;
+  margin: 1rem auto 0;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid #475569;
+  color: #94a3b8;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+  border-color: #64748b;
+  color: #e2e8f0;
+}
+
+/* Mapping Step */
+.mapping-step {
+  padding: 1rem 0;
+}
+
+.mapping-step h3 {
+  color: #f1f5f9;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.mapping-description {
+  color: #94a3b8;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.file-info {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.mapping-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.mapping-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.mapping-field label {
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.mapping-field select {
+  padding: 0.5rem 0.75rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.mapping-field select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.field-hint {
+  color: #64748b;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Preview Table */
+.mapping-preview {
+  margin-bottom: 1.5rem;
+}
+
+.mapping-preview h4 {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.preview-table th,
+.preview-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+.preview-table th {
+  color: #94a3b8;
+  font-weight: 500;
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.preview-table td {
+  color: #e2e8f0;
+}
+
+/* Mapping Actions */
+.mapping-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.primary-btn,
+.secondary-btn {
+  padding: 0.6rem 1.25rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+}
+
+.primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.secondary-btn {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #475569;
+}
+
+.secondary-btn:hover {
+  border-color: #64748b;
+  color: #e2e8f0;
+}
+
+/* Processing Step */
+.processing-step {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.processing-step h3 {
+  color: #f1f5f9;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}
+
+.progress-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #22c55e 100%);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.processing-note {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* Complete Step */
+.complete-step {
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+
+.complete-step h3 {
+  color: #22c55e;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}
+
+.results-summary {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.result-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.result-stat .stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.result-stat .stat-label {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.result-stat.success .stat-value {
+  color: #22c55e;
+}
+
+.result-stat.warning .stat-value {
+  color: #f97316;
+}
+
+.warning-note {
+  color: #f97316;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background: rgba(249, 115, 22, 0.1);
+  border-radius: 6px;
+}
+
+.complete-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* Error Message */
+.upload-error {
+  color: #ef4444;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 6px;
+}
+
+/* Color Preview Section */
+.color-preview-section {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.color-preview-section h4 {
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  margin: 0 0 0.75rem 0;
+  font-weight: 500;
+}
+
+.color-preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.color-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 20px;
+  border: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+.color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.color-dot-inline {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}
+
+.color-label {
+  color: #cbd5e1;
+  font-size: 0.8rem;
+}
+
+.color-column-field {
+  grid-column: span 2;
+}
+
+/* Sheet Selection Step */
+.sheet-select-step {
+  padding: 1.5rem 1rem;
+}
+
+.sheet-select-step h3 {
+  color: #f1f5f9;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.sheet-description {
+  color: #94a3b8;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.sheet-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.sheet-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  border: 2px solid rgba(71, 85, 105, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sheet-option:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.sheet-option.selected {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+.sheet-option input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #3b82f6;
+  cursor: pointer;
+}
+
+.sheet-icon {
+  font-size: 1.25rem;
+}
+
+.sheet-name {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.sheet-index {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.sheet-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

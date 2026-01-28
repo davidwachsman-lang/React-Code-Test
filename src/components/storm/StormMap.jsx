@@ -185,9 +185,15 @@ function StormMap({
   };
 
   const getMarkerColor = (job) => {
+    // If job has a direct color property (from Excel upload), use it
+    if (job.color) {
+      return job.color;
+    }
+
     const status = job.status?.toLowerCase();
     const priority = job.priority?.toLowerCase();
-
+    
+    // Database job status colors
     if (priority === 'emergency' || status === 'lead' || !job.inspection_completed) {
       return '#ef4444'; // Red
     } else if (status === 'inspection_scheduled') {
@@ -234,13 +240,26 @@ function StormMap({
       // Create individual markers
       jobsWithCoords.forEach(job => {
         const color = getMarkerColor(job);
+        
+        // Build hover tooltip text (shows on mouse hover)
+        const jobId = job.job_number || job.id || '';
+        const customerName = job.customer_name || 'Unknown';
+        const address = job.property_address || job.address || '';
+        
+        // Multi-line tooltip for hover
+        const hoverTitle = [
+          jobId ? `Job: ${jobId}` : '',
+          customerName,
+          address
+        ].filter(Boolean).join('\n');
+
         const marker = new window.google.maps.Marker({
           position: {
             lat: parseFloat(job.latitude),
             lng: parseFloat(job.longitude)
           },
           map: mapInstanceRef.current,
-          title: job.customer_name || 'Unknown',
+          title: hoverTitle,
           icon: {
             path: window.google.maps.SymbolPath.CIRCLE,
             scale: 8,
@@ -252,17 +271,27 @@ function StormMap({
           animation: job.priority === 'emergency' ? window.google.maps.Animation.BOUNCE : null
         });
 
-        // Create info window content
+        // Create info window content (shows on click)
+        // Handle both Excel jobs and database jobs
+        const isExcelJob = job.source === 'excel';
+        const statusOrColorValue = job.colorValue || job.status || '-';
+        
         const infoContent = `
           <div class="storm-map-info-window">
-            <h4>${job.customer_name || 'Unknown'}</h4>
-            <p><strong>Address:</strong> ${job.property_address || job.address || '-'}</p>
-            <p><strong>Property ID:</strong> ${job.property_reference || '-'}</p>
-            <p><strong>Status:</strong> ${job.status || '-'}</p>
-            <p><strong>Priority:</strong> ${job.priority || '-'}</p>
-            ${job.storm_event_name ? `<p><strong>Storm Event:</strong> ${job.storm_event_name}</p>` : ''}
-            ${job.damage_types && job.damage_types.length > 0 ? 
-              `<p><strong>Damage Types:</strong> ${job.damage_types.join(', ')}</p>` : ''}
+            ${jobId ? `<div class="info-job-id">Job #${jobId}</div>` : ''}
+            <h4>${customerName}</h4>
+            <p><strong>Address:</strong> ${address || '-'}</p>
+            ${isExcelJob ? `
+              <p><strong>Status:</strong> <span style="color: ${color}; font-weight: 600;">${statusOrColorValue}</span></p>
+              ${job.notes ? `<p><strong>Notes:</strong> ${job.notes}</p>` : ''}
+            ` : `
+              <p><strong>Property ID:</strong> ${job.property_reference || '-'}</p>
+              <p><strong>Status:</strong> ${job.status || '-'}</p>
+              <p><strong>Priority:</strong> ${job.priority || '-'}</p>
+              ${job.storm_event_name ? `<p><strong>Storm Event:</strong> ${job.storm_event_name}</p>` : ''}
+              ${job.damage_types && job.damage_types.length > 0 ? 
+                `<p><strong>Damage Types:</strong> ${job.damage_types.join(', ')}</p>` : ''}
+            `}
             <div class="storm-map-actions">
               <button onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${job.latitude},${job.longitude}', '_blank')">
                 Get Directions

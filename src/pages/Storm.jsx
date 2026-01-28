@@ -4,6 +4,9 @@ import jobService from '../services/jobService';
 import customerService from '../services/customerService';
 import propertyService from '../services/propertyService';
 import StormMap from '../components/storm/StormMap';
+import ExcelJobUpload from '../components/storm/ExcelJobUpload';
+import MapLegend from '../components/storm/MapLegend';
+import MapFilters from '../components/storm/MapFilters';
 import './Page.css';
 import './Storm.css';
 
@@ -86,6 +89,16 @@ function Storm() {
   const [jobEditFormData, setJobEditFormData] = useState(null);
   const [savingJob, setSavingJob] = useState(false);
   const [jobsView, setJobsView] = useState('table'); // 'table' or 'map'
+  const [showActiveStormMap, setShowActiveStormMap] = useState(false);
+  const [allActiveJobs, setAllActiveJobs] = useState([]);
+  const [loadingActiveJobs, setLoadingActiveJobs] = useState(false);
+  const [excelUploadedJobs, setExcelUploadedJobs] = useState([]);
+  const [excelColorMapping, setExcelColorMapping] = useState({});
+  const [excelColorColumn, setExcelColorColumn] = useState('');
+  const [excelColumns, setExcelColumns] = useState([]); // All columns from Excel
+  const [showExcelUpload, setShowExcelUpload] = useState(false);
+  const [showFNOLTest, setShowFNOLTest] = useState(false);
+  const [activeJobFilters, setActiveJobFilters] = useState({}); // { columnName: [selectedValues] }
 
   // Load storm events on mount
   const loadStormEvents = async () => {
@@ -133,6 +146,36 @@ function Storm() {
   useEffect(() => {
     loadJobs();
   }, [selectedEventId]);
+
+  // Load all jobs from active storm events for the map view
+  const loadAllActiveJobs = async () => {
+    setLoadingActiveJobs(true);
+    try {
+      // Get all active storm events
+      const activeEvents = await stormEventService.getActive();
+      if (!activeEvents || activeEvents.length === 0) {
+        setAllActiveJobs([]);
+        return;
+      }
+
+      // Load jobs for all active events
+      const allJobsPromises = activeEvents.map(event => 
+        jobService.getByStormEventId(event.id)
+      );
+      const allJobsArrays = await Promise.all(allJobsPromises);
+      
+      // Flatten and combine all jobs
+      const combinedJobs = allJobsArrays.flat();
+      setAllActiveJobs(combinedJobs || []);
+    } catch (error) {
+      console.error('Error loading active storm jobs:', error);
+      setAllActiveJobs([]);
+    } finally {
+      setLoadingActiveJobs(false);
+    }
+  };
+
+  // Note: Active Storm Map now uses Excel uploads only, not database jobs
 
   // Handle job row click - open edit modal
   const handleJobRowClick = async (job) => {
@@ -1978,9 +2021,174 @@ function Storm() {
       <div className="page-header">
         <h1>Storm</h1>
       </div>
-      <div className="page-content">
-        {renderManageEvent()}
-      </div>
+      
+      {/* Main Storm Buttons */}
+      {!showFNOLTest && (
+        <div className="storm-main-buttons">
+          <button
+            className="storm-big-btn storm-big-btn-primary"
+            onClick={() => setShowActiveStormMap(true)}
+          >
+            <span className="big-btn-icon">🗺️</span>
+            <span className="big-btn-text">ACTIVE STORM MAP</span>
+          </button>
+          <button
+            className="storm-big-btn storm-big-btn-secondary"
+            onClick={() => setShowFNOLTest(true)}
+          >
+            <span className="big-btn-icon">📋</span>
+            <span className="big-btn-text">FNOL TEST</span>
+          </button>
+        </div>
+      )}
+
+      {/* FNOL Test View (Legacy Content) */}
+      {showFNOLTest && (
+        <div className="fnol-test-container">
+          <div className="fnol-test-header">
+            <button
+              className="storm-btn storm-btn-outline back-btn"
+              onClick={() => setShowFNOLTest(false)}
+            >
+              ← Back to Storm
+            </button>
+            <h2>FNOL Test</h2>
+          </div>
+          <div className="page-content">
+            {renderManageEvent()}
+          </div>
+        </div>
+      )}
+
+      {/* Active Storm Map Modal */}
+      {showActiveStormMap && (
+        <div className="modal-overlay" onClick={() => setShowActiveStormMap(false)}>
+          <div className="modal-content active-storm-map-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Active Storm Map</h2>
+              {/* Only show header buttons when jobs are already loaded */}
+              {excelUploadedJobs.length > 0 && (
+                <div className="modal-header-actions">
+                  <button 
+                    className={`storm-btn ${showExcelUpload ? 'storm-btn-secondary' : 'storm-btn-outline'}`}
+                    onClick={() => setShowExcelUpload(!showExcelUpload)}
+                  >
+                    {showExcelUpload ? 'Back to Map' : 'Upload New File'}
+                  </button>
+                  <button 
+                    className="storm-btn storm-btn-danger"
+                    onClick={() => {
+                      setExcelUploadedJobs([]);
+                      setExcelColorMapping({});
+                      setExcelColorColumn('');
+                      setExcelColumns([]);
+                      setActiveJobFilters({});
+                      setShowExcelUpload(false);
+                    }}
+                  >
+                    Clear Data
+                  </button>
+                </div>
+              )}
+              <button 
+                onClick={() => {
+                  setShowActiveStormMap(false);
+                  setShowExcelUpload(false);
+                }} 
+                className="modal-close"
+              >
+                &times;
+              </button>
+            </div>
+            
+            <div className="active-storm-map-content">
+              {/* Show upload interface when no jobs loaded or when upload button clicked */}
+              {(excelUploadedJobs.length === 0 || showExcelUpload) && (
+                <div className="excel-upload-section">
+                  <ExcelJobUpload 
+                    onJobsLoaded={(jobs, colorMapping, colorColumn, columns) => {
+                      setExcelUploadedJobs(jobs);
+                      setExcelColorMapping(colorMapping || {});
+                      setExcelColorColumn(colorColumn || '');
+                      setExcelColumns(columns || []);
+                      setActiveJobFilters({}); // Reset filters when new data loaded
+                      setShowExcelUpload(false);
+                    }}
+                    onCancel={excelUploadedJobs.length > 0 ? () => setShowExcelUpload(false) : null}
+                  />
+                </div>
+              )}
+
+              {/* Only show map AFTER jobs are loaded and upload is not active */}
+              {excelUploadedJobs.length > 0 && !showExcelUpload && (() => {
+                // Apply all active filters
+                const filteredJobs = excelUploadedJobs.filter(job => {
+                  // Check each active filter
+                  for (const [column, allowedValues] of Object.entries(activeJobFilters)) {
+                    if (allowedValues.length === 0) return false; // Empty array = show none
+                    const jobValue = job.rawData?.[column] || '';
+                    if (!allowedValues.includes(jobValue)) return false;
+                  }
+                  return true;
+                });
+
+                const jobsWithCoords = filteredJobs.filter(j => j.latitude && j.longitude);
+                const totalWithCoords = excelUploadedJobs.filter(j => j.latitude && j.longitude).length;
+                const hasActiveFilters = Object.keys(activeJobFilters).length > 0;
+
+                return (
+                  <>
+                    <div className="map-with-filters">
+                      {/* Filter Panel */}
+                      {excelColumns.length > 0 && (
+                        <div className="map-filters-panel">
+                          <MapFilters
+                            jobs={excelUploadedJobs}
+                            colorMapping={excelColorMapping}
+                            colorColumn={excelColorColumn}
+                            columns={excelColumns}
+                            activeFilters={activeJobFilters}
+                            onFilterChange={(filters) => setActiveJobFilters(filters)}
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Map */}
+                      <div className="map-with-legend">
+                        <StormMap 
+                          jobs={filteredJobs}
+                          selectedStormEventId={null}
+                          onJobClick={(job) => {
+                            console.log('Job clicked:', job);
+                          }}
+                        />
+                        {Object.keys(excelColorMapping).length > 0 && (
+                          <MapLegend 
+                            className="position-bottom-right" 
+                            compact 
+                            colorMapping={excelColorMapping}
+                            title={excelColorColumn}
+                          />
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="excel-jobs-info">
+                      <span className="info-badge">
+                        {hasActiveFilters ? (
+                          <>Showing {jobsWithCoords.length} of {totalWithCoords} jobs (filtered)</>
+                        ) : (
+                          <>Showing all {totalWithCoords} jobs</>
+                        )}
+                      </span>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Job Edit Modal */}
       {showJobEditModal && jobEditFormData && selectedJob && (

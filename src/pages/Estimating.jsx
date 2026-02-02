@@ -180,7 +180,7 @@ function Estimating() {
       // Initialize standard Google Places Autocomplete
       try {
         console.log('Initializing Google Places Autocomplete for Estimating form...');
-        
+
         // Create autocomplete instance directly on the input element
         const autocompleteInstance = new window.google.maps.places.Autocomplete(
           addressInputRef.current,
@@ -190,30 +190,30 @@ function Estimating() {
             fields: ['formatted_address', 'address_components', 'geometry', 'name']
           }
         );
-        
+
         console.log('✓ Autocomplete initialized successfully');
         setAutocompleteStatus('ready');
-        
+
         // Listen for place selection
         autocompleteInstance.addListener('place_changed', () => {
           try {
             const place = autocompleteInstance.getPlace();
             console.log('Place selected:', place);
-            
+
             if (!place || !place.geometry) {
               console.warn('No geometry found for selected place');
               return;
             }
-            
+
             // Get formatted address
             const address = place.formatted_address || place.name || '';
             console.log('Address:', address);
-              
+
             // Extract address components
             let city = '';
             let state = '';
             let zip = '';
-          
+
             if (place.address_components) {
               place.address_components.forEach(component => {
                 const types = component.types || [];
@@ -228,7 +228,7 @@ function Estimating() {
                 }
               });
             }
-              
+
             // Extract coordinates
             let latitude = '';
             let longitude = '';
@@ -236,7 +236,7 @@ function Estimating() {
               latitude = place.geometry.location.lat().toString();
               longitude = place.geometry.location.lng().toString();
             }
-            
+
             // Fallback for city if not found
             if (!city) {
               const parts = address.split(',');
@@ -244,9 +244,9 @@ function Estimating() {
                 city = parts[1].trim();
               }
             }
-              
+
             console.log('Extracted data:', { address, city, state, zip, latitude, longitude });
-              
+
             // Update job details state
             setJobDetails(prev => ({
               ...prev,
@@ -257,7 +257,7 @@ function Estimating() {
               latitude: latitude || '',
               longitude: longitude || ''
             }));
-            
+
           } catch (error) {
             console.error('Error processing place selection:', error);
           }
@@ -328,23 +328,23 @@ function Estimating() {
         result = await estimateService.create(estimateData);
         setCurrentEstimateId(result.EstimateID);
       }
-      
+
       if (!isAutoSave) {
-      setSaveStatus(`✓ Estimate saved to database: ${name}`);
-      setTimeout(() => setSaveStatus(''), 3000);
+        setSaveStatus(`✓ Estimate saved to database: ${name}`);
+        setTimeout(() => setSaveStatus(''), 3000);
       }
       loadSavedEstimates();
     } catch (error) {
       if (!isAutoSave) {
-      setSaveStatus('Error saving estimate to database');
-      console.error('Error saving:', error);
-      
-      // Fallback to localStorage
-      const estimates = JSON.parse(localStorage.getItem('spwc_estimates') || '{}');
+        setSaveStatus('Error saving estimate to database');
+        console.error('Error saving:', error);
+
+        // Fallback to localStorage
+        const estimates = JSON.parse(localStorage.getItem('spwc_estimates') || '{}');
         estimates[name] = { name, jobDetails, rooms, roomLineItems, savedAt: new Date().toISOString() };
-      localStorage.setItem('spwc_estimates', JSON.stringify(estimates));
-      setSaveStatus(`✓ Estimate saved locally: ${name}`);
-      setTimeout(() => setSaveStatus(''), 3000);
+        localStorage.setItem('spwc_estimates', JSON.stringify(estimates));
+        setSaveStatus(`✓ Estimate saved locally: ${name}`);
+        setTimeout(() => setSaveStatus(''), 3000);
       }
     }
   };
@@ -356,12 +356,12 @@ function Estimating() {
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
       }
-      
+
       // Set new timeout for auto-save (3 seconds after last change)
       autoSaveTimeoutRef.current = setTimeout(() => {
         saveEstimate(true); // Pass true to indicate auto-save
       }, 3000);
-      
+
       return () => {
         if (autoSaveTimeoutRef.current) {
           clearTimeout(autoSaveTimeoutRef.current);
@@ -377,11 +377,11 @@ function Estimating() {
     try {
       // Try loading from API first (if it's a number, it's an ID)
       const isId = !isNaN(idOrName);
-      
+
       if (isId) {
         const estimate = await estimateService.getById(idOrName);
         const parsedData = JSON.parse(estimate.EstimateData);
-        
+
         setEstimateName(estimate.EstimateName);
         setCurrentEstimateId(estimate.EstimateID);
         setJobDetails(parsedData.jobDetails || {});
@@ -431,7 +431,7 @@ function Estimating() {
     const estimateToDelete = selectElement.value;
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     const estimateName = selectedOption?.text || estimateToDelete;
-    
+
     if (!estimateToDelete) {
       alert('Please select an estimate to delete');
       return;
@@ -440,7 +440,7 @@ function Estimating() {
     if (confirm(`Are you sure you want to delete "${estimateName}"?`)) {
       try {
         const isId = !isNaN(estimateToDelete);
-        
+
         if (isId) {
           // Delete from API
           await estimateService.delete(estimateToDelete);
@@ -452,7 +452,7 @@ function Estimating() {
           localStorage.setItem('spwc_estimates', JSON.stringify(estimates));
           setSaveStatus('✓ Estimate deleted');
         }
-        
+
         loadSavedEstimates();
         setTimeout(() => setSaveStatus(''), 3000);
       } catch (error) {
@@ -518,13 +518,13 @@ function Estimating() {
       const logoY = 10;
       let logoHeight = 0;
       const logoWidth = 60;
-      
+
       // Try to load logo from public folder (with timeout to prevent hanging)
       try {
         // Try both Logo.png and logo.png (case sensitivity)
         const logoPaths = ['/Logo.png', '/logo.png'];
         let logoDataUrl = null;
-        
+
         for (const logoPath of logoPaths) {
           try {
             const logoPromise = fetch(logoPath).then(async (response) => {
@@ -539,17 +539,17 @@ function Estimating() {
               }
               return null;
             });
-            
+
             // Add timeout to prevent hanging
             const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 1000));
             logoDataUrl = await Promise.race([logoPromise, timeoutPromise]);
-            
+
             if (logoDataUrl) break;
           } catch (e) {
             continue;
           }
         }
-        
+
         if (logoDataUrl) {
           // Determine image format from data URL
           const format = logoDataUrl.includes('data:image/png') ? 'PNG' : 'JPEG';
@@ -561,7 +561,7 @@ function Estimating() {
         console.log('Logo not found or error loading:', error);
         // Continue without logo
       }
-      
+
       // Set yPos after logo (or start position if no logo)
       // Ensure we always have content on the first page
       if (logoHeight > 0) {
@@ -569,7 +569,7 @@ function Estimating() {
       } else {
         yPos = 20; // Start at normal position if no logo
       }
-      
+
       // Title - moved down and smaller font
       doc.setFontSize(18);
       doc.setFont(undefined, 'bold');
@@ -632,7 +632,7 @@ function Estimating() {
         doc.setFont(undefined, 'bold');
         doc.text('Scope', margin, yPos);
         yPos += 10;
-        
+
         doc.setFontSize(10);
         doc.setFont(undefined, 'normal');
         const scopeLines = doc.splitTextToSize(jobDetails.scopeDescription, pageWidth - (margin * 2));
@@ -661,20 +661,20 @@ function Estimating() {
         total: 30
       };
       const tableStartX = margin;
-      
+
       doc.text('Room', tableStartX, yPos);
       doc.text('Item Description', tableStartX + colWidths.room, yPos);
       doc.text('Qty', tableStartX + colWidths.room + colWidths.item, yPos);
       doc.text('Total $', pageWidth - margin, yPos, { align: 'right' });
       yPos += 8;
-      
+
       // Table line
       doc.setDrawColor(0, 0, 0);
       doc.line(tableStartX, yPos, pageWidth - margin, yPos);
       yPos += 6;
 
       doc.setFont(undefined, 'normal');
-      
+
       rooms.forEach(room => {
         const roomItems = roomLineItems[room.id] || [];
         if (roomItems.length > 0) {
@@ -693,11 +693,11 @@ function Estimating() {
               yPos += 6;
               doc.setFont(undefined, 'normal');
             }
-            
+
             const lineTotal = calculateLineTotal(item);
             const roomName = room.name || `Room ${room.id}`;
             const qtyText = `${item.qty || 0} ${item.uom || ''}`;
-            
+
             doc.text(roomName, tableStartX, yPos);
             doc.text(item.item || 'Item', tableStartX + colWidths.room, yPos);
             doc.text(qtyText, tableStartX + colWidths.room + colWidths.item, yPos);
@@ -731,14 +731,14 @@ function Estimating() {
       doc.setFont(undefined, 'bold');
       doc.text('Pay Online', pageWidth / 2, yPos, { align: 'center' });
       yPos += 10;
-      
+
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
       const paymentText = "Scan QR code or visit payment link to pay this estimate online";
       const paymentLines = doc.splitTextToSize(paymentText, pageWidth - (margin * 2));
       doc.text(paymentLines, pageWidth / 2, yPos, { align: 'center' });
       yPos += 10;
-      
+
       // Generate and add QR code
       const paymentUrl = 'https://connect.intuit.com/pay/ServproOfWilsonCounty/scs-v1-a686d70ef3e4437585c7ff97faab9864341e074cc01d43268d76a7b47b1405c0106cafa2d92949d4a7b3a06ce1777f33?locale=EN_US';
       try {
@@ -746,7 +746,7 @@ function Estimating() {
           width: 60,
           margin: 1
         });
-        
+
         // Add QR code image (centered)
         const qrSize = 60;
         const qrX = pageWidth / 2 - qrSize / 2;
@@ -756,7 +756,7 @@ function Estimating() {
         console.error('Error generating QR code:', error);
         // Continue without QR code if generation fails
       }
-      
+
       // Payment link (as clickable text)
       doc.setTextColor(0, 0, 255);
       const linkText = 'Click here to pay online';
@@ -775,7 +775,7 @@ function Estimating() {
 
       doc.setFontSize(9);
       doc.setFont(undefined, 'normal');
-      
+
       const legalText1 = "I, the undersigned Customer, hereby acknowledge and agree that this Estimate is a preliminary projection of anticipated costs prepared by SPWC, LLC (\"SPWC\") based on conditions and information reasonably known to SPWC at the time of issuance, and that it is not a guarantee. I understand that the Estimate was generated using a computerized estimating system, which assigns pre-determined standard costs and prices to items and services and multiplies those figures by units or hours. I understand and agree to this method of pricing.";
       const legalLines1 = doc.splitTextToSize(legalText1, pageWidth - (margin * 2));
       doc.text(legalLines1, margin, yPos);
@@ -826,10 +826,10 @@ function Estimating() {
       // Generate PDF blob
       const pdfBlob = doc.output('blob');
       const fileName = `${(estimateName || 'estimate').replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-      
+
       // Always download PDF locally first
       doc.save(fileName);
-      
+
       // Try to upload to Supabase Storage if estimate is saved
       if (estimateId) {
         try {
@@ -851,7 +851,7 @@ function Estimating() {
             await estimateService.update(estimateId, {
               PDFUrl: urlData.publicUrl
             });
-            
+
             setSaveStatus(`✓ PDF generated and saved to Supabase: ${fileName}`);
             setTimeout(() => setSaveStatus(''), 5000);
           } else {
@@ -868,11 +868,11 @@ function Estimating() {
         setSaveStatus(`✓ PDF generated and downloaded: ${fileName}`);
         setTimeout(() => setSaveStatus(''), 3000);
       }
-      } catch (error) {
+    } catch (error) {
       console.error('Error generating PDF:', error);
       setSaveStatus('Error generating PDF');
       setTimeout(() => setSaveStatus(''), 3000);
-      }
+    }
   };
 
   // Room Functions
@@ -893,7 +893,7 @@ function Estimating() {
   };
 
   const updateRoom = (id, field, value) => {
-    setRooms(rooms.map(room => 
+    setRooms(rooms.map(room =>
       room.id === id ? { ...room, [field]: value } : room
     ));
   };
@@ -901,12 +901,12 @@ function Estimating() {
   const removeRoom = (id) => {
     const room = rooms.find(r => r.id === id);
     const roomName = room?.name || `Room ${id}`;
-    
+
     if (rooms.length === 1) {
       alert('You must have at least one room. Please add another room before deleting this one.');
       return;
     }
-    
+
     if (window.confirm(`Are you sure you want to delete "${roomName}"? This will also remove all line items associated with this room.`)) {
       setRooms(rooms.filter(room => room.id !== id));
       // Remove line items for this room
@@ -922,7 +922,7 @@ function Estimating() {
     const l = parseFloat(room.length) || 0;
     const w = parseFloat(room.width) || 0;
     const h = parseFloat(room.height) || 0;
-    
+
     return {
       sf: l * w,
       cf: l * w * h,
@@ -959,17 +959,17 @@ function Estimating() {
         ...prev,
         [roomId]: roomItems.map(item => {
           if (item.id === itemId) {
-        const updated = { ...item, [field]: value };
-        
-        // If item name changed, update UOM and price
-        if (field === 'item' && value && PRICE_LIST[value]) {
-          updated.uom = PRICE_LIST[value].uom;
-          updated.price = PRICE_LIST[value].price;
-        }
-        
-        return updated;
-      }
-      return item;
+            const updated = { ...item, [field]: value };
+
+            // If item name changed, update UOM and price
+            if (field === 'item' && value && PRICE_LIST[value]) {
+              updated.uom = PRICE_LIST[value].uom;
+              updated.price = PRICE_LIST[value].price;
+            }
+
+            return updated;
+          }
+          return item;
         })
       };
     });
@@ -996,15 +996,15 @@ function Estimating() {
   const calculateTotals = () => {
     const allLineItems = getAllLineItems();
     const subTotal = allLineItems.reduce((sum, item) => sum + calculateLineTotal(item), 0);
-    
+
     // Surcharge calculation
     let surchargeCount = 0;
     if (jobDetails.afterHours === 'Yes') surchargeCount += 1;
     if (jobDetails.waterCategory === 'Cat 3') surchargeCount += 1;
-    
+
     const surchargeAmount = subTotal * 0.30 * surchargeCount;
     const subTotalWithSurcharge = subTotal + surchargeAmount;
-    
+
     // Tax calculation - only on materials, not labor
     const materialsTotal = allLineItems.reduce((sum, item) => {
       if (MATERIAL_ITEMS.includes(item.item)) {
@@ -1012,10 +1012,10 @@ function Estimating() {
       }
       return sum;
     }, 0);
-    
+
     const taxAmount = materialsTotal * 0.0975; // 9.75% tax on materials only
     const grandTotal = subTotalWithSurcharge + taxAmount;
-    
+
     return {
       subTotal: subTotalWithSurcharge,
       surchargeAmount,
@@ -1037,9 +1037,9 @@ function Estimating() {
     const scopeType = jobDetails.scopeType;
     const clientName = jobDetails.clientName || "[Client Name]";
     const address = jobDetails.propertyAddress || "[Property Address]";
-    
+
     let scopeText = `Provide ${scopeType || "[Scope Type]"} mitigation services for ${clientName} at the property located at ${address}.\n\n`;
-    
+
     if (scopeType === 'Water') {
       scopeText += `This scope includes water extraction, structural drying, and restoration of water-damaged areas.`;
     } else if (scopeType === 'Fire') {
@@ -1051,7 +1051,7 @@ function Estimating() {
     } else if (scopeType === 'Contents') {
       scopeText += `This scope includes the pack-out, cleaning, and restoration of salvageable personal property.`;
     }
-    
+
     // Add room summary with square footage
     const validRooms = rooms.filter(r => r.name && r.length && r.width);
     if (validRooms.length > 0) {
@@ -1059,536 +1059,555 @@ function Estimating() {
         const metrics = calculateRoomMetrics(room);
         return sum + metrics.sf;
       }, 0);
-      
+
       const roomCount = validRooms.length;
       scopeText += ` Mitigation needed for approximately ${Math.round(totalSF).toLocaleString()} square feet in ${roomCount} ${roomCount === 1 ? 'room' : 'rooms'}.`;
     }
-    
+
     scopeText += `\n\nAdditional work may be required based on findings during the mitigation process.`;
-    
+
     setJobDetails({ ...jobDetails, scopeDescription: scopeText });
   };
 
   const totals = calculateTotals();
 
   return (
-    <div className="page-container estimating-page">
-      <div className="estimate-container">
-        <h1>SPWC Estimate Tool v2</h1>
-
-        {/* Estimate Management */}
-        <div className="estimate-management">
-          <div className="management-grid">
-            <div className="field-group">
-              <label htmlFor="estimate-name">Estimate Name</label>
-              <input
-                type="text"
-                id="estimate-name"
-                value={estimateName}
-                onChange={(e) => setEstimateName(e.target.value)}
-                placeholder="e.g., Smith Job - Water Damage"
-              />
-            </div>
-            <div className="field-group">
-              <label htmlFor="saved-estimates">Load Saved Estimate</label>
-              <select
-                id="saved-estimates"
-                onChange={(e) => loadEstimate(e.target.value)}
-                defaultValue=""
-              >
-                <option value="">-- Select to Load --</option>
-                {savedEstimates.map(est => (
-                  <option key={est.id || est.name} value={est.id || est.name}>
-                    {est.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="field-group">
-              <label style={{ opacity: 0 }}>Actions</label>
-              <button type="button" onClick={newEstimate} style={{ width: '100%', padding: '10px' }}>
-                New Estimate
-              </button>
-            </div>
-          </div>
-          
-          <div className="management-actions">
-            <button onClick={() => saveEstimate(false)}>💾 Save Estimate</button>
-            <button onClick={generateAndSavePDF}>📄 Generate PDF</button>
-            <button onClick={deleteEstimate} className="delete-btn">🗑️ Delete Selected</button>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
-            <input
-                type="checkbox"
-                checked={autoSaveEnabled}
-                onChange={(e) => {
-                  setAutoSaveEnabled(e.target.checked);
-                  if (e.target.checked && !currentEstimateId) {
-                    alert('Please save the estimate first to enable auto-save');
-                    setAutoSaveEnabled(false);
-                  }
-                }}
-              />
-              <span style={{ fontSize: '0.9rem' }}>Auto-save</span>
-            </label>
-          </div>
-          
-          {saveStatus && <div className="save-status">{saveStatus}</div>}
+    <div className="precision-layout">
+      <main className="precision-main estimating-page">
+        <div className="precision-header">
+          <h1>Estimating Tool v2</h1>
         </div>
 
-        {/* Job Details */}
-        <h2>Job Details</h2>
-        <div className="job-details-grid">
-          <div className="field-group">
-            <label htmlFor="date">Date</label>
-            <input
-              type="date"
-              id="date"
-              value={jobDetails.date}
-              onChange={(e) => setJobDetails({ ...jobDetails, date: e.target.value })}
-            />
-          </div>
-          
-          <div className="field-group">
-            <label htmlFor="job-number">DASH Job ID</label>
-            <input
-              type="text"
-              id="job-number"
-              value={jobDetails.jobNumber}
-              onChange={(e) => setJobDetails({ ...jobDetails, jobNumber: e.target.value })}
-            />
-          </div>
-          
-          <div className="field-group">
-            <label htmlFor="client-name">Customer Name</label>
-            <input
-              type="text"
-              id="client-name"
-              value={jobDetails.clientName}
-              onChange={(e) => setJobDetails({ ...jobDetails, clientName: e.target.value })}
-            />
-          </div>
-          
-          <div className="field-group">
-            <label htmlFor="client-phone">Customer Phone</label>
-            <input
-              type="tel"
-              id="client-phone"
-              value={jobDetails.clientPhone}
-              onChange={(e) => setJobDetails({ ...jobDetails, clientPhone: e.target.value })}
-            />
-          </div>
-          
-          <div className="field-group">
-            <label htmlFor="client-email">Customer Email</label>
-            <input
-              type="email"
-              id="client-email"
-              value={jobDetails.clientEmail}
-              onChange={(e) => setJobDetails({ ...jobDetails, clientEmail: e.target.value })}
-            />
-          </div>
-          
-          <div className="field-group">
-            <label htmlFor="property-address">
-              Property Address
-              {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
-              {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
-              {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
-              {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
-            </label>
-            <input
-              type="text"
-              id="property-address"
-              ref={addressInputRef}
-              value={jobDetails.propertyAddress}
-              onChange={(e) => setJobDetails({ ...jobDetails, propertyAddress: e.target.value })}
-              placeholder={autocompleteStatus === 'ready' ? "Start typing address..." : "Enter full address manually"}
-              autoComplete="off"
-            />
-            {autocompleteStatus === 'error' && (
-              <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
-                Google Maps API error. Please enter address manually or check browser console for details.
-              </small>
-            )}
-          </div>
-          
-          <div className="field-group">
-            <label htmlFor="project-manager">Project Manager (PM)</label>
-            <select
-              id="project-manager"
-              value={jobDetails.projectManager}
-              onChange={(e) => setJobDetails({ ...jobDetails, projectManager: e.target.value })}
-            >
-              <option value="">-- Select PM --</option>
-              {PROJECT_MANAGERS.map(pm => (
-                <option key={pm} value={pm}>{pm}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="field-group">
-            <label htmlFor="pm-email">PM Email</label>
-            <input
-              type="email"
-              id="pm-email"
-              value={jobDetails.pmEmail}
-              onChange={(e) => setJobDetails({ ...jobDetails, pmEmail: e.target.value })}
-            />
-          </div>
-          
-          <div className="field-group">
-            <label htmlFor="scope-type">Scope Type</label>
-            <select
-              id="scope-type"
-              value={jobDetails.scopeType}
-              onChange={(e) => setJobDetails({ ...jobDetails, scopeType: e.target.value })}
-            >
-              <option value="">Select Scope...</option>
-              <option value="Water">Water</option>
-              <option value="Fire">Fire</option>
-              <option value="Mold">Mold</option>
-              <option value="Contents">Contents</option>
-              <option value="Storm">Storm</option>
-            </select>
-          </div>
-          
-          <div className="field-group">
-            <label htmlFor="water-category">Water Category</label>
-            <select
-              id="water-category"
-              value={jobDetails.waterCategory}
-              onChange={(e) => setJobDetails({ ...jobDetails, waterCategory: e.target.value })}
-            >
-              <option value="N/A">N/A</option>
-              <option value="Cat 1">Cat 1</option>
-              <option value="Cat 2">Cat 2</option>
-              <option value="Cat 3">Cat 3</option>
-            </select>
-          </div>
-          
-          <div className="field-group">
-            <label htmlFor="after-hours">After-Hours Response</label>
-            <select
-              id="after-hours"
-              value={jobDetails.afterHours}
-              onChange={(e) => setJobDetails({ ...jobDetails, afterHours: e.target.value })}
-            >
-              <option value="No">No</option>
-              <option value="Yes">Yes</option>
-            </select>
-          </div>
-          
-          <div className="field-group">
-            <label htmlFor="payment-terms">Payment Terms</label>
-            <select
-              id="payment-terms"
-              value={jobDetails.paymentTerms}
-              onChange={(e) => setJobDetails({ ...jobDetails, paymentTerms: e.target.value })}
-            >
-              <option value="">Select Payment Terms...</option>
-              <option value="full">Payment in Full upon Authorization</option>
-              <option value="phased">Phased Project Payments (50/50)</option>
-              <option value="milestone">Milestone Schedule</option>
-              <option value="net15">Net 15</option>
-              <option value="net30">Net 30</option>
-              <option value="net45">Net 45</option>
-              <option value="net60">Net 60</option>
-              <option value="dueOnCompletion">Due on Completion</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Scope of Work */}
-        <div className="h2-with-button">
-          <h2>Scope of Work</h2>
-          <button onClick={generateScope} className="inline-btn">Generate Scope</button>
-        </div>
-        <div className="field-group">
-          <textarea
-            id="scope-description"
-            rows="5"
-            value={jobDetails.scopeDescription}
-            onChange={(e) => setJobDetails({ ...jobDetails, scopeDescription: e.target.value })}
-            placeholder="Provide a brief description of the work to be performed..."
-          />
-        </div>
-
-        {/* Rooms Table */}
-        <h2>Affected Areas & Dimensions</h2>
-        <table className="estimate-table">
-          <thead>
-            <tr>
-              <th style={{ width: '18%' }}>Room Name</th>
-              <th style={{ width: '9%' }}>Length (ft)</th>
-              <th style={{ width: '9%' }}>Width (ft)</th>
-              <th style={{ width: '9%' }}>Height (ft)</th>
-              <th style={{ width: '11%' }}>SF</th>
-              <th style={{ width: '11%' }}>CF</th>
-              <th style={{ width: '11%' }}>Perimeter</th>
-              <th style={{ width: '11%' }}>Wall Area</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rooms.map(room => {
-              const metrics = calculateRoomMetrics(room);
-              return (
-                <tr key={room.id}>
-                  <td>
-                    <input
-                      type="text"
-                      value={room.name}
-                      onChange={(e) => updateRoom(room.id, 'name', e.target.value)}
-                      placeholder="Room name"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="number"
-                      value={room.length}
-                      onChange={(e) => updateRoom(room.id, 'length', e.target.value)}
-                      step="0.1"
-                      min="0"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="number"
-                      value={room.width}
-                      onChange={(e) => updateRoom(room.id, 'width', e.target.value)}
-                      step="0.1"
-                      min="0"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="number"
-                      value={room.height}
-                      onChange={(e) => updateRoom(room.id, 'height', e.target.value)}
-                      step="0.1"
-                      min="0"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={formatCurrency(metrics.sf)}
-                      readOnly
-                      className="readonly"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={formatCurrency(metrics.cf)}
-                      readOnly
-                      className="readonly"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={formatCurrency(metrics.perimeter)}
-                      readOnly
-                      className="readonly"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={formatCurrency(metrics.wallArea)}
-                      readOnly
-                      className="readonly"
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        <div className="button-row">
-          <button onClick={addRoom} className="add-btn">+ Add Room</button>
-        </div>
-
-        {/* Line Items by Room */}
-        <h2>Mitigation Action Line Items by Room</h2>
-        {rooms.map(room => {
-          const roomItems = roomLineItems[room.id] || [];
-          return (
-            <div key={room.id} style={{ marginBottom: '30px', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '15px' }}>
-              <h3 style={{ marginTop: '0', marginBottom: '15px', color: '#1e293b' }}>
-                {room.name || `Room ${room.id}`}
-              </h3>
-        <table className="estimate-table">
-          <thead>
-            <tr>
-                    <th style={{ width: '15%' }}>Room</th>
-                    <th style={{ width: '30%' }}>Item Description</th>
-              <th style={{ width: '10%' }}>UOM</th>
-                    <th style={{ width: '12%' }}>Unit Price</th>
-              <th style={{ width: '10%' }}>Quantity</th>
-                    <th style={{ width: '13%' }}>Line Total</th>
-              <th style={{ width: '10%' }}></th>
-            </tr>
-          </thead>
-          <tbody>
-                  {roomItems.length === 0 ? (
-                    <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>
-                        No line items for this room yet. Click "Add Line Item" below to add items.
-                      </td>
-                    </tr>
-                  ) : (
-                    roomItems.map(item => {
-              const lineTotal = calculateLineTotal(item);
-              return (
-                <tr key={item.id}>
-                          <td>
-                            <input
-                              type="text"
-                              value={room.name || `Room ${room.id}`}
-                              readOnly
-                              className="readonly"
-                              style={{ 
-                                fontWeight: '600', 
-                                backgroundColor: '#f1f5f9',
-                                border: '1px solid #cbd5e1',
-                                padding: '8px',
-                                borderRadius: '4px'
-                              }}
-                            />
-                          </td>
-                  <td>
-                    <select
-                      value={item.item}
-                              onChange={(e) => updateLineItem(room.id, item.id, 'item', e.target.value)}
-                    >
-                      <option value="">--- Select an Item ---</option>
-                      {Object.keys(PRICE_LIST).map(itemName => (
-                        <option key={itemName} value={itemName}>{itemName}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={item.uom}
-                      readOnly
-                      className="readonly"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={formatCurrency(item.price)}
-                      readOnly
-                      className="readonly"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="number"
-                      value={item.qty}
-                              onChange={(e) => updateLineItem(room.id, item.id, 'qty', e.target.value)}
-                      min="0"
-                      step="any"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={formatCurrency(lineTotal)}
-                      readOnly
-                      className="readonly"
-                    />
-                  </td>
-                  <td>
-                    <button
-                              onClick={() => removeLineItem(room.id, item.id)}
-                      className="remove-btn"
-                    >
-                      X
-                    </button>
-                  </td>
-                </tr>
-              );
-                    })
-                  )}
-          </tbody>
-        </table>
-              <div className="button-row" style={{ marginTop: '10px' }}>
-                <button onClick={() => addLineItem(room.id)} className="add-btn">+ Add Line Item to {room.name || `Room ${room.id}`}</button>
+        <div className="estimate-content">
+          {/* Estimate Management */}
+          <div className="p-card estimate-management">
+            <div className="management-grid">
+              <div className="field-group">
+                <label htmlFor="estimate-name">Estimate Name</label>
+                <input
+                  type="text"
+                  id="estimate-name"
+                  value={estimateName}
+                  onChange={(e) => setEstimateName(e.target.value)}
+                  placeholder="e.g., Smith Job - Water Damage"
+                />
+              </div>
+              <div className="field-group">
+                <label htmlFor="saved-estimates">Load Saved Estimate</label>
+                <select
+                  id="saved-estimates"
+                  onChange={(e) => loadEstimate(e.target.value)}
+                  defaultValue=""
+                >
+                  <option value="">-- Select to Load --</option>
+                  {savedEstimates.map(est => (
+                    <option key={est.id || est.name} value={est.id || est.name}>
+                      {est.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="field-group">
+                <label style={{ opacity: 0 }}>Actions</label>
+                <button type="button" onClick={newEstimate} style={{ width: '100%', padding: '10px' }}>
+                  New Estimate
+                </button>
               </div>
             </div>
-          );
-        })}
-        
-        <div className="button-row" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
-          <button onClick={generateAndSavePDF} className="print-btn">📄 Create Customer Estimate</button>
-        </div>
 
-        {/* Totals */}
-        <div className="total-container">
-          <div className="total-line">
-            <span className="total-label">Sub-Total:</span>
-            <span className="total-value">$ {formatCurrency(totals.subTotal)}</span>
-          </div>
-          {totals.hasSurcharge && (
-            <div className="surcharge-note">
-              Includes surcharge: ${formatCurrency(totals.surchargeAmount)}
-              {jobDetails.afterHours === 'Yes' && ' (After-hours)'}
-              {jobDetails.waterCategory === 'Cat 3' && ' (Cat 3)'}
+            <div className="management-actions">
+              <button onClick={() => saveEstimate(false)}>💾 Save Estimate</button>
+              <button onClick={generateAndSavePDF}>📄 Generate PDF</button>
+              <button onClick={deleteEstimate} className="delete-btn">🗑️ Delete Selected</button>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
+                <input
+                  type="checkbox"
+                  checked={autoSaveEnabled}
+                  onChange={(e) => {
+                    setAutoSaveEnabled(e.target.checked);
+                    if (e.target.checked && !currentEstimateId) {
+                      alert('Please save the estimate first to enable auto-save');
+                      setAutoSaveEnabled(false);
+                    }
+                  }}
+                />
+                <span style={{ fontSize: '0.9rem' }}>Auto-save</span>
+              </label>
             </div>
-          )}
-          <div className="total-line">
-            <span className="total-label">Tax (9.75% on materials):</span>
-            <span className="total-value">$ {formatCurrency(totals.taxAmount)}</span>
-          </div>
-          <div className="total-line grand-total">
-            <span className="total-label">Grand Total:</span>
-            <span className="total-value">$ {formatCurrency(totals.grandTotal)}</span>
-          </div>
-        </div>
 
-        {/* QR Code Payment Section */}
-        <div className="qr-container">
-          <div className="qr-title">Pay Online</div>
-          <div className="qr-instructions">
-            Scan QR code or visit payment link to pay this estimate online
-            <br />
-            <a
-              href="https://connect.intuit.com/pay/ServproOfWilsonCounty/scs-v1-a686d70ef3e4437585c7ff97faab9864341e074cc01d43268d76a7b47b1405c0106cafa2d92949d4a7b3a06ce1777f33?locale=EN_US"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Click here to pay online
-            </a>
-          </div>
-        </div>
-
-        {/* Footer Section */}
-        <div className="footer-section">
-          <h2>Acknowledgement and Authorization</h2>
-          <div className="legal-blurb">
-            <p>I, the undersigned Customer, hereby acknowledge and agree that this Estimate is a preliminary projection of anticipated costs prepared by SPWC, LLC ("SPWC") based on conditions and information reasonably known to SPWC at the time of issuance, and that it is not a guarantee. I understand that the Estimate was generated using a computerized estimating system, which assigns pre-determined standard costs and prices to items and services and multiplies those figures by units or hours. I understand and agree to this method of pricing.</p>
-            <p>I further understand that site conditions, scope, or other relevant information may change or be discovered as work progresses, and that SPWC reserves the right to revise this Estimate accordingly. Any such revisions will be documented in a written change order and must be approved by me in writing before any additional work is performed. I also understand that I am fully and solely responsible for the cost of SPWC's work, and if my insurer fails or refuses to pay any amount due to SPWC, I will remain fully and solely responsible for payment of all amounts due to SPWC. My payment obligations are absolute, independent of any insurance proceeds, and not contingent upon receipt of payment from any insurer.</p>
-            <p>Finally, I understand that this Estimate is expressly incorporated into and made part of the Authorization to Perform Services and Direction of Payment signed by me and SPWC, and that the work described herein is governed by the terms of that Authorization.</p>
+            {saveStatus && <div className="save-status">{saveStatus}</div>}
           </div>
 
-          <div className="signature-container">
-            <div className="signature-group">
-              <div className="signature-line"></div>
-              <div className="signature-name">{jobDetails.clientName || 'Customer Name'}</div>
-              <div className="signature-title">Customer Signature & Date</div>
+          {/* Job Details */}
+          <div className="p-card">
+            <h2>Job Details</h2>
+            <div className="job-details-grid">
+              <div className="field-group">
+                <label htmlFor="date">Date</label>
+                <input
+                  type="date"
+                  id="date"
+                  value={jobDetails.date}
+                  onChange={(e) => setJobDetails({ ...jobDetails, date: e.target.value })}
+                />
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="job-number">DASH Job ID</label>
+                <input
+                  type="text"
+                  id="job-number"
+                  value={jobDetails.jobNumber}
+                  onChange={(e) => setJobDetails({ ...jobDetails, jobNumber: e.target.value })}
+                />
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="client-name">Customer Name</label>
+                <input
+                  type="text"
+                  id="client-name"
+                  value={jobDetails.clientName}
+                  onChange={(e) => setJobDetails({ ...jobDetails, clientName: e.target.value })}
+                />
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="client-phone">Customer Phone</label>
+                <input
+                  type="tel"
+                  id="client-phone"
+                  value={jobDetails.clientPhone}
+                  onChange={(e) => setJobDetails({ ...jobDetails, clientPhone: e.target.value })}
+                />
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="client-email">Customer Email</label>
+                <input
+                  type="email"
+                  id="client-email"
+                  value={jobDetails.clientEmail}
+                  onChange={(e) => setJobDetails({ ...jobDetails, clientEmail: e.target.value })}
+                />
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="property-address">
+                  Property Address
+                  {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
+                  {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
+                  {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
+                  {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
+                </label>
+                <input
+                  type="text"
+                  id="property-address"
+                  ref={addressInputRef}
+                  value={jobDetails.propertyAddress}
+                  onChange={(e) => setJobDetails({ ...jobDetails, propertyAddress: e.target.value })}
+                  placeholder={autocompleteStatus === 'ready' ? "Start typing address..." : "Enter full address manually"}
+                  autoComplete="off"
+                />
+                {autocompleteStatus === 'error' && (
+                  <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
+                    Google Maps API error. Please enter address manually or check browser console for details.
+                  </small>
+                )}
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="project-manager">Project Manager (PM)</label>
+                <select
+                  id="project-manager"
+                  value={jobDetails.projectManager}
+                  onChange={(e) => setJobDetails({ ...jobDetails, projectManager: e.target.value })}
+                >
+                  <option value="">-- Select PM --</option>
+                  {PROJECT_MANAGERS.map(pm => (
+                    <option key={pm} value={pm}>{pm}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="pm-email">PM Email</label>
+                <input
+                  type="email"
+                  id="pm-email"
+                  value={jobDetails.pmEmail}
+                  onChange={(e) => setJobDetails({ ...jobDetails, pmEmail: e.target.value })}
+                />
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="scope-type">Scope Type</label>
+                <select
+                  id="scope-type"
+                  value={jobDetails.scopeType}
+                  onChange={(e) => setJobDetails({ ...jobDetails, scopeType: e.target.value })}
+                >
+                  <option value="">Select Scope...</option>
+                  <option value="Water">Water</option>
+                  <option value="Fire">Fire</option>
+                  <option value="Mold">Mold</option>
+                  <option value="Contents">Contents</option>
+                  <option value="Storm">Storm</option>
+                </select>
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="water-category">Water Category</label>
+                <select
+                  id="water-category"
+                  value={jobDetails.waterCategory}
+                  onChange={(e) => setJobDetails({ ...jobDetails, waterCategory: e.target.value })}
+                >
+                  <option value="N/A">N/A</option>
+                  <option value="Cat 1">Cat 1</option>
+                  <option value="Cat 2">Cat 2</option>
+                  <option value="Cat 3">Cat 3</option>
+                </select>
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="after-hours">After-Hours Response</label>
+                <select
+                  id="after-hours"
+                  value={jobDetails.afterHours}
+                  onChange={(e) => setJobDetails({ ...jobDetails, afterHours: e.target.value })}
+                >
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+              </div>
+
+              <div className="field-group">
+                <label htmlFor="payment-terms">Payment Terms</label>
+                <select
+                  id="payment-terms"
+                  value={jobDetails.paymentTerms}
+                  onChange={(e) => setJobDetails({ ...jobDetails, paymentTerms: e.target.value })}
+                >
+                  <option value="">Select Payment Terms...</option>
+                  <option value="full">Payment in Full upon Authorization</option>
+                  <option value="phased">Phased Project Payments (50/50)</option>
+                  <option value="milestone">Milestone Schedule</option>
+                  <option value="net15">Net 15</option>
+                  <option value="net30">Net 30</option>
+                  <option value="net45">Net 45</option>
+                  <option value="net60">Net 60</option>
+                  <option value="dueOnCompletion">Due on Completion</option>
+                </select>
+              </div>
             </div>
-            <div className="signature-group">
-              <div className="signature-line"></div>
-              <div className="signature-name">{jobDetails.projectManager || 'Project Manager'}</div>
-              <div className="signature-title">SPWC LLC Representative & Date</div>
+
+            {/* Scope of Work */}
+            <div className="p-card">
+              <div className="h2-with-button">
+                <h2>Scope of Work</h2>
+                <button onClick={generateScope} className="inline-btn">Generate Scope</button>
+              </div>
+              <div className="field-group">
+                <textarea
+                  id="scope-description"
+                  rows="5"
+                  value={jobDetails.scopeDescription}
+                  onChange={(e) => setJobDetails({ ...jobDetails, scopeDescription: e.target.value })}
+                  placeholder="Provide a brief description of the work to be performed..."
+                />
+              </div>
+            </div>
+
+            {/* Rooms Table */}
+            <div className="p-card">
+              <h2>Affected Areas & Dimensions</h2>
+              <table className="estimate-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '18%' }}>Room Name</th>
+                    <th style={{ width: '9%' }}>Length (ft)</th>
+                    <th style={{ width: '9%' }}>Width (ft)</th>
+                    <th style={{ width: '9%' }}>Height (ft)</th>
+                    <th style={{ width: '11%' }}>SF</th>
+                    <th style={{ width: '11%' }}>CF</th>
+                    <th style={{ width: '11%' }}>Perimeter</th>
+                    <th style={{ width: '11%' }}>Wall Area</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rooms.map(room => {
+                    const metrics = calculateRoomMetrics(room);
+                    return (
+                      <tr key={room.id}>
+                        <td>
+                          <input
+                            type="text"
+                            value={room.name}
+                            onChange={(e) => updateRoom(room.id, 'name', e.target.value)}
+                            placeholder="Room name"
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            value={room.length}
+                            onChange={(e) => updateRoom(room.id, 'length', e.target.value)}
+                            step="0.1"
+                            min="0"
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            value={room.width}
+                            onChange={(e) => updateRoom(room.id, 'width', e.target.value)}
+                            step="0.1"
+                            min="0"
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            value={room.height}
+                            onChange={(e) => updateRoom(room.id, 'height', e.target.value)}
+                            step="0.1"
+                            min="0"
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            value={formatCurrency(metrics.sf)}
+                            readOnly
+                            className="readonly"
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            value={formatCurrency(metrics.cf)}
+                            readOnly
+                            className="readonly"
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            value={formatCurrency(metrics.perimeter)}
+                            readOnly
+                            className="readonly"
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            value={formatCurrency(metrics.wallArea)}
+                            readOnly
+                            className="readonly"
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <div className="button-row">
+                <button onClick={addRoom} className="add-btn">+ Add Room</button>
+              </div>
+            </div>
+
+            {/* Line Items by Room */}
+            <div className="p-card">
+              <h2>Mitigation Action Line Items by Room</h2>
+              {rooms.map(room => {
+                const roomItems = roomLineItems[room.id] || [];
+                return (
+                  <div key={room.id} style={{ marginBottom: '30px', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '15px' }}>
+                    <h3 style={{ marginTop: '0', marginBottom: '15px', color: '#1e293b' }}>
+                      {room.name || `Room ${room.id}`}
+                    </h3>
+                    <table className="estimate-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: '15%' }}>Room</th>
+                          <th style={{ width: '30%' }}>Item Description</th>
+                          <th style={{ width: '10%' }}>UOM</th>
+                          <th style={{ width: '12%' }}>Unit Price</th>
+                          <th style={{ width: '10%' }}>Quantity</th>
+                          <th style={{ width: '13%' }}>Line Total</th>
+                          <th style={{ width: '10%' }}></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {roomItems.length === 0 ? (
+                          <tr>
+                            <td colSpan="7" style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>
+                              No line items for this room yet. Click "Add Line Item" below to add items.
+                            </td>
+                          </tr>
+                        ) : (
+                          roomItems.map(item => {
+                            const lineTotal = calculateLineTotal(item);
+                            return (
+                              <tr key={item.id}>
+                                <td>
+                                  <input
+                                    type="text"
+                                    value={room.name || `Room ${room.id}`}
+                                    readOnly
+                                    className="readonly"
+                                    style={{
+                                      fontWeight: '600',
+                                      backgroundColor: '#f1f5f9',
+                                      border: '1px solid #cbd5e1',
+                                      padding: '8px',
+                                      borderRadius: '4px'
+                                    }}
+                                  />
+                                </td>
+                                <td>
+                                  <select
+                                    value={item.item}
+                                    onChange={(e) => updateLineItem(room.id, item.id, 'item', e.target.value)}
+                                  >
+                                    <option value="">--- Select an Item ---</option>
+                                    {Object.keys(PRICE_LIST).map(itemName => (
+                                      <option key={itemName} value={itemName}>{itemName}</option>
+                                    ))}
+                                  </select>
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    value={item.uom}
+                                    readOnly
+                                    className="readonly"
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    value={formatCurrency(item.price)}
+                                    readOnly
+                                    className="readonly"
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    type="number"
+                                    value={item.qty}
+                                    onChange={(e) => updateLineItem(room.id, item.id, 'qty', e.target.value)}
+                                    min="0"
+                                    step="any"
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    value={formatCurrency(lineTotal)}
+                                    readOnly
+                                    className="readonly"
+                                  />
+                                </td>
+                                <td>
+                                  <button
+                                    onClick={() => removeLineItem(room.id, item.id)}
+                                    className="remove-btn"
+                                  >
+                                    X
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                    <div className="button-row" style={{ marginTop: '10px' }}>
+                      <button onClick={() => addLineItem(room.id)} className="add-btn">+ Add Line Item to {room.name || `Room ${room.id}`}</button>
+                    </div>
+                  </div>
+                );
+              })}
+
+              <div className="button-row" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                <button onClick={generateAndSavePDF} className="print-btn">📄 Create Customer Estimate</button>
+              </div>
+            </div>
+
+            {/* Totals */}
+            <div className="p-card">
+              <div className="total-container">
+                <div className="total-line">
+                  <span className="total-label">Sub-Total:</span>
+                  <span className="total-value">$ {formatCurrency(totals.subTotal)}</span>
+                </div>
+                {totals.hasSurcharge && (
+                  <div className="surcharge-note">
+                    Includes surcharge: ${formatCurrency(totals.surchargeAmount)}
+                    {jobDetails.afterHours === 'Yes' && ' (After-hours)'}
+                    {jobDetails.waterCategory === 'Cat 3' && ' (Cat 3)'}
+                  </div>
+                )}
+                <div className="total-line">
+                  <span className="total-label">Tax (9.75% on materials):</span>
+                  <span className="total-value">$ {formatCurrency(totals.taxAmount)}</span>
+                </div>
+                <div className="total-line grand-total">
+                  <span className="total-label">Grand Total:</span>
+                  <span className="total-value">$ {formatCurrency(totals.grandTotal)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* QR Code Payment Section */}
+            <div className="p-card">
+              <div className="qr-container">
+                <div className="qr-title">Pay Online</div>
+                <div className="qr-instructions">
+                  Scan QR code or visit payment link to pay this estimate online
+                  <br />
+                  <a
+                    href="https://connect.intuit.com/pay/ServproOfWilsonCounty/scs-v1-a686d70ef3e4437585c7ff97faab9864341e074cc01d43268d76a7b47b1405c0106cafa2d92949d4a7b3a06ce1777f33?locale=EN_US"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Click here to pay online
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Section */}
+            <div className="p-card">
+              <div className="footer-section">
+                <h2>Acknowledgement and Authorization</h2>
+                <div className="legal-blurb">
+                  <p>I, the undersigned Customer, hereby acknowledge and agree that this Estimate is a preliminary projection of anticipated costs prepared by SPWC, LLC ("SPWC") based on conditions and information reasonably known to SPWC at the time of issuance, and that it is not a guarantee. I understand that the Estimate was generated using a computerized estimating system, which assigns pre-determined standard costs and prices to items and services and multiplies those figures by units or hours. I understand and agree to this method of pricing.</p>
+                  <p>I further understand that site conditions, scope, or other relevant information may change or be discovered as work progresses, and that SPWC reserves the right to revise this Estimate accordingly. Any such revisions will be documented in a written change order and must be approved by me in writing before any additional work is performed. I also understand that I am fully and solely responsible for the cost of SPWC's work, and if my insurer fails or refuses to pay any amount due to SPWC, I will remain fully and solely responsible for payment of all amounts due to SPWC. My payment obligations are absolute, independent of any insurance proceeds, and not contingent upon receipt of payment from any insurer.</p>
+                  <p>Finally, I understand that this Estimate is expressly incorporated into and made part of the Authorization to Perform Services and Direction of Payment signed by me and SPWC, and that the work described herein is governed by the terms of that Authorization.</p>
+                </div>
+
+                <div className="signature-container">
+                  <div className="signature-group">
+                    <div className="signature-line"></div>
+                    <div className="signature-name">{jobDetails.clientName || 'Customer Name'}</div>
+                    <div className="signature-title">Customer Signature & Date</div>
+                  </div>
+                  <div className="signature-group">
+                    <div className="signature-line"></div>
+                    <div className="signature-name">{jobDetails.projectManager || 'Project Manager'}</div>
+                    <div className="signature-title">SPWC LLC Representative & Date</div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
-        </div>
 
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

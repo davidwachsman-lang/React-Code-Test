@@ -1,0 +1,92 @@
+:root {
+    /* =========================================
+     PRECISION INTERFACE THEME (Clinical/Technical)
+     Usage: High-density, low-fatigue, data-centric.
+     ========================================= */
+
+    /* Base Palette - Cool Slates */
+    --precision-bg: #F8FAFC;
+    /* Slate 50 */
+    --precision-surface: #FFFFFF;
+    /* Pure White Sheets */
+    --precision-sidebar-bg: #F1F5F9;
+    /* Sidebar subtle contrast */
+
+    /* Text Colors - High Contrast Ink */
+    --precision-text-primary: #0F172A;
+    /* Slate 900 */
+    --precision-text-secondary: #475569;
+    /* Slate 600 */
+    --precision-text-muted: #94A3B8;
+    /* Slate 400 */
+
+    /* Input Variables - The "Inset" Look */
+    --precision-input-bg: #F1F5F9;
+    /* Slate 100 */
+    --precision-input-bg-hover: #E2E8F0;
+    /* Slate 200 */
+    --precision-input-text: #0F172A;
+    --precision-border-focus: #F68B1F;
+    /* ServPro Orange focus line */
+
+    /* Active States (New) */
+    --precision-active-bg: #E2E8F0;
+    /* Light Gray for Active Items */
+    --precision-tab-track: #E2E8F0;
+    /* Track background */
+
+    /* Branding / Status */
+    --precision-primary: #F68B1F;
+    /* ServPro Orange (Action) */
+    --precision-primary-hover: #E87C0F;
+    --precision-success: #10B981;
+    /* Emerald 500 */
+    --precision-error: #EF4444;
+    /* Red 500 */
+    --precision-warning: #F59E0B;
+    /* Amber 500 */
+    --precision-blue: #0EA5E9;
+    /* Sky 500 (Info/Links) */
+
+    /* Shapes & Metrics */
+    --precision-radius: 6px;
+    /* Tight, modern radius */
+    --precision-radius-sm: 4px;
+    --precision-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --precision-shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+    /* Typography */
+    --precision-font: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --precision-mono: 'JetBrains Mono', monospace;
+}
+
+/* Dark Mode Overrides - "Warm Charcoal" Legibility Fix */
+html.dark-mode {
+    /* Backgrounds: Neutral Charcoal */
+    --precision-bg: #111111;
+    --precision-surface: #1A1A1A;
+    --precision-sidebar-bg: #0A0A0A;
+
+    /* Text: Softened White */
+    --precision-text-primary: #E5E5E5;
+    --precision-text-secondary: #A3A3A3;
+    --precision-text-muted: #737373;
+
+    /* Inputs: Distinct "well" look */
+    --precision-input-bg: #262626;
+    --precision-input-bg-hover: #333333;
+    --precision-input-text: #E5E5E5;
+
+    /* Active States (Dark Fix) */
+    --precision-active-bg: #262626;
+    /* Matches Input BG ("Neat" look) */
+    --precision-tab-track: #262626;
+    /* Dark Track */
+
+    /* Shadows */
+    --precision-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --precision-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+
+    /* Accents */
+    --precision-border-focus: #F97316;
+}

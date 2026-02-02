@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
 import Navigation from './components/Navigation';
 import Intake from './pages/Intake';
 import DispatchAndScheduling from './pages/DispatchAndScheduling';
@@ -34,33 +35,33 @@ function ScrollToTop() {
 function AppContent() {
   const location = useLocation();
   const isTestRoute = location.pathname === '/sales-test';
-  
+
   // Check if we should only show CRM (for Vercel deployment)
   // Option 1: Build-time env var (requires rebuild after setting in Vercel)
   const envCrmOnly = import.meta.env.VITE_CRM_ONLY === 'true';
-  
+
   // Option 2: Runtime check - look for 'crm-only' in URL or localStorage
   // This allows switching without rebuilding
   const urlParams = new URLSearchParams(window.location.search);
   // Accept both ?crm-only=true and ?crm-only (just the presence of the param)
   const urlCrmOnly = urlParams.has('crm-only') || urlParams.get('crm-only') === 'true';
   const storedCrmOnly = localStorage.getItem('crm-only-mode') === 'true';
-  
+
   // Use env var first, then fall back to runtime checks
   const crmOnlyMode = envCrmOnly || urlCrmOnly || storedCrmOnly;
-  
+
   // Check if we should only show Estimate Tool (for Vercel deployment)
   const envEstimateOnly = import.meta.env.VITE_ESTIMATE_ONLY === 'true';
   const urlEstimateOnly = urlParams.has('estimate-only') || urlParams.get('estimate-only') === 'true';
   const storedEstimateOnly = localStorage.getItem('estimate-only-mode') === 'true';
   const estimateOnlyMode = envEstimateOnly || urlEstimateOnly || storedEstimateOnly;
-  
+
   // Check if we should only show Storm pages (for Vercel deployment)
   const envStormOnly = import.meta.env.VITE_STORM_ONLY === 'true';
   const urlStormOnly = urlParams.has('storm-only') || urlParams.get('storm-only') === 'true';
   const storedStormOnly = localStorage.getItem('storm-only-mode') === 'true';
   const stormOnlyMode = envStormOnly || urlStormOnly || storedStormOnly;
-  
+
   // Debug logging
   console.log('Deployment Mode Check:', {
     envCrmOnly,
@@ -77,7 +78,7 @@ function AppContent() {
     stormOnlyMode,
     search: window.location.search
   });
-  
+
   // If URL param is set, store it in localStorage for future visits
   if (urlCrmOnly && !storedCrmOnly) {
     localStorage.setItem('crm-only-mode', 'true');
@@ -88,7 +89,7 @@ function AppContent() {
   if (urlStormOnly && !storedStormOnly) {
     localStorage.setItem('storm-only-mode', 'true');
   }
-  
+
   // Allow disabling via URL params
   if (urlParams.get('crm-only') === 'false') {
     localStorage.removeItem('crm-only-mode');
@@ -116,7 +117,7 @@ function AppContent() {
       </div>
     );
   }
-  
+
   console.log('Full app mode active, estimateOnlyMode:', estimateOnlyMode);
 
   // If CRM-only mode, show only CRM without navigation
@@ -134,7 +135,7 @@ function AppContent() {
       </div>
     );
   }
-  
+
   // If Storm-only mode, show only Storm without navigation
   if (stormOnlyMode) {
     console.log('Storm-only mode active, rendering Storm component');
@@ -186,7 +187,9 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AppContent />
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
     </Router>
   );
 }

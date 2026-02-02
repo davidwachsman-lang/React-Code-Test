@@ -1,16 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTheme } from '../context/ThemeContext';
 import intakeService from '../services/intakeService';
 import './Intake.css';
-
 
 function Intake() {
   const addressInputRef = useRef(null);
   const autocompleteRef = useRef(null);
   const [autocompleteStatus, setAutocompleteStatus] = useState('loading');
-  
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  const { isDarkMode, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Removed local theme effect - handled globally now
+
   const [formData, setFormData] = useState({
     division: 'HB - Nashville',
-    propertyType: '',
+    propertyType: 'Residential',
     callerType: '', callerName: '', callerPhone: '', callerEmail: '', relationship: '',
     address: '', city: '', state: '', zip: '', latitude: '', longitude: '', access: '', onsiteName: '', onsitePhone: '',
     lossType: '', source: '', lossDate: '', activeLeak: '', category: '', wclass: '', sqft: '',
@@ -50,8 +60,13 @@ function Intake() {
     }
   };
 
+  // Specialized handler for Tile Selectors
+  const handleTileSelect = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   const handleCheckboxChange = (value, setState, state) => {
-    setState(prev => 
+    setState(prev =>
       prev.includes(value) ? prev.filter(item => item !== value) : [...prev, value]
     );
   };
@@ -110,7 +125,7 @@ function Intake() {
         affectedAreas
       });
 
-      setSubmitSuccess(`Job created successfully! Job #: ${result.jobNumber}`);
+      setSubmitSuccess(`JOB ID: ${result.jobNumber}`);
 
       // Clear form after successful submission
       setTimeout(() => {
@@ -119,7 +134,7 @@ function Intake() {
       }, 3000);
 
     } catch (error) {
-      setSubmitError(error.message || 'Failed to submit intake form');
+      setSubmitError(error.message || 'Submission Failed');
     } finally {
       setSubmitting(false);
     }
@@ -177,7 +192,7 @@ function Intake() {
       // Initialize standard Google Places Autocomplete
       try {
         console.log('Initializing Google Places Autocomplete for Intake form...');
-        
+
         // Create autocomplete instance directly on the input element
         const autocompleteInstance = new window.google.maps.places.Autocomplete(
           addressInputRef.current,
@@ -187,30 +202,30 @@ function Intake() {
             fields: ['formatted_address', 'address_components', 'geometry', 'name']
           }
         );
-        
+
         console.log('✓ Autocomplete initialized successfully');
         setAutocompleteStatus('ready');
-        
+
         // Listen for place selection
         autocompleteInstance.addListener('place_changed', () => {
           try {
             const place = autocompleteInstance.getPlace();
             console.log('Place selected:', place);
-            
+
             if (!place || !place.geometry) {
               console.warn('No geometry found for selected place');
               return;
             }
-            
+
             // Get formatted address
             const address = place.formatted_address || place.name || '';
             console.log('Address:', address);
-              
+
             // Extract address components
             let city = '';
             let state = '';
             let zip = '';
-          
+
             if (place.address_components) {
               place.address_components.forEach(component => {
                 const types = component.types || [];
@@ -225,7 +240,7 @@ function Intake() {
                 }
               });
             }
-              
+
             // Extract coordinates
             let latitude = '';
             let longitude = '';
@@ -233,7 +248,7 @@ function Intake() {
               latitude = place.geometry.location.lat().toString();
               longitude = place.geometry.location.lng().toString();
             }
-            
+
             // Fallback for city if not found
             if (!city) {
               const parts = address.split(',');
@@ -243,9 +258,9 @@ function Intake() {
                 city = 'Unknown';
               }
             }
-              
+
             console.log('Extracted data:', { address, city, state, zip, latitude, longitude });
-              
+
             // Update form state
             setFormData(prev => ({
               ...prev,
@@ -256,7 +271,7 @@ function Intake() {
               latitude: latitude || '',
               longitude: longitude || ''
             }));
-            
+
             // Show user feedback
             if (latitude && longitude) {
               console.log('✓ Address with coordinates captured successfully');
@@ -289,486 +304,339 @@ function Intake() {
   }, []);
 
   return (
-    <div className="intake-wrap">
-      {/* Division Selection */}
-      <div className="division-buttons">
-        <button
-          className={`division-btn ${formData.division === 'HB - Nashville' || formData.division === 'MIT' || formData.division === 'RECON' ? 'active' : ''}`}
-          onClick={() => setFormData(prev => ({ ...prev, division: 'HB - Nashville' }))}
-        >
-          HB - Nashville
-        </button>
-        <button
-          className={`division-btn ${formData.division === 'Large Loss' ? 'active' : ''}`}
-          onClick={() => setFormData(prev => ({ ...prev, division: 'Large Loss' }))}
-        >
-          Large Loss
-        </button>
-        <button
-          className={`division-btn ${formData.division === 'Referral' ? 'active' : ''}`}
-          onClick={() => setFormData(prev => ({ ...prev, division: 'Referral' }))}
-        >
-          Referral
-        </button>
-      </div>
+    <div className="precision-layout">
+      {/* Utility Sidebar Removed - Handled by Navigation */}
 
-      {/* REFERRAL OR LARGE LOSS FORM */}
-      {formData.division === 'Referral' || formData.division === 'Large Loss' ? (
-        <>
-          {/* Job Name & Client Information */}
-          <section className="intake-panel">
-            <p className="section-title">JOB NAME & CLIENT INFORMATION</p>
-            <div className="intake-grid">
-              <div className="col-6">
-                <label htmlFor="jobName">Job Name</label>
-                <input id="jobName" value={formData.jobName} onChange={handleInputChange} placeholder="Enter job name" required />
-              </div>
-              <div className="col-6">
-                <label htmlFor="propertyType">Property Type</label>
-                <select id="propertyType" value={formData.propertyType || 'Commercial'} onChange={handleInputChange}>
-                  <option value="Residential">Residential</option>
-                  <option value="Commercial">Commercial</option>
-                </select>
-              </div>
-              <div className="col-6">
-                <label htmlFor="customerName">Client Name</label>
-                <input id="customerName" value={formData.customerName} onChange={handleInputChange} placeholder="John Doe" required />
-              </div>
-              <div className="col-4">
-                <label htmlFor="customerPhone">Client Phone</label>
-                <input id="customerPhone" type="tel" value={formData.customerPhone} onChange={handleInputChange} placeholder="(555) 555-5555" required />
-              </div>
-              <div className="col-4">
-                <label htmlFor="customerEmail">Client Email</label>
-                <input id="customerEmail" type="email" value={formData.customerEmail} onChange={handleInputChange} placeholder="customer@email.com" />
-              </div>
-            </div>
-          </section>
+      {/* Main Sheet */}
+      <main className="precision-main">
+        <header className="precision-header">
+          <h1>New Loss Intake</h1>
+          <div className="p-meta">
+            <span style={{ fontFamily: 'var(--precision-mono)' }}>
+              {currentTime.toLocaleTimeString()}
+            </span>
+            <span className="p-separator">|</span>
+            <span>{currentTime.toLocaleDateString()}</span>
+          </div>
+        </header>
 
-          {/* Property & Access */}
-          <section className="intake-panel">
-            <p className="section-title">PROPERTY & ACCESS</p>
-            <div className="intake-grid">
-              <div className="col-12">
-                <label htmlFor="address">
-                  Address
-                  {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
-                  {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
-                  {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
-                  {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
-                </label>
-                <input 
-                  id="address" 
-                  ref={addressInputRef}
-                  value={formData.address} 
-                  onChange={handleInputChange} 
-                  placeholder={autocompleteStatus === 'ready' ? "Start typing address..." : "Enter full address manually"}
-                  autoComplete="off"
-                  required 
-                />
-                {autocompleteStatus === 'error' && (
-                  <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
-                    Google Maps API error. Please enter address manually or check browser console for details.
-                  </small>
-                )}
-              </div>
-              <div className="col-4">
-                <label htmlFor="access">Access Instructions</label>
-                <input id="access" value={formData.access} onChange={handleInputChange} placeholder="Gate code, lockbox, etc." />
-              </div>
-              <div className="col-4">
-                <label htmlFor="onsiteName">Onsite Contact Name</label>
-                <input id="onsiteName" value={formData.onsiteName} onChange={handleInputChange} placeholder="Contact name" />
-              </div>
-              <div className="col-4">
-                <label htmlFor="onsitePhone">Onsite Contact Phone</label>
-                <input id="onsitePhone" type="tel" value={formData.onsitePhone} onChange={handleInputChange} placeholder="(555) 555-5555" />
-              </div>
-            </div>
-          </section>
-
-          {/* Insurance Company Information */}
-          <section className="intake-panel">
-            <p className="section-title">INSURANCE COMPANY INFORMATION</p>
-            <div className="intake-grid">
-              <div className="col-6">
-                <label htmlFor="insuranceCompany">Insurance Company</label>
-                <input id="insuranceCompany" value={formData.insuranceCompany} onChange={handleInputChange} placeholder="ABC Insurance" />
-              </div>
-              <div className="col-6">
-                <label htmlFor="insurancePolicyNumber">Policy Number</label>
-                <input id="insurancePolicyNumber" value={formData.insurancePolicyNumber} onChange={handleInputChange} placeholder="POL-123456" />
-              </div>
-              <div className="col-4">
-                <label htmlFor="insuranceAdjusterName">Adjuster Name</label>
-                <input id="insuranceAdjusterName" value={formData.insuranceAdjusterName} onChange={handleInputChange} placeholder="Jane Smith" />
-              </div>
-              <div className="col-4">
-                <label htmlFor="insuranceAdjusterPhone">Adjuster Phone</label>
-                <input id="insuranceAdjusterPhone" type="tel" value={formData.insuranceAdjusterPhone} onChange={handleInputChange} placeholder="(555) 555-5555" />
-              </div>
-              <div className="col-4">
-                <label htmlFor="insuranceAdjusterEmail">Adjuster Email</label>
-                <input id="insuranceAdjusterEmail" type="email" value={formData.insuranceAdjusterEmail} onChange={handleInputChange} placeholder="adjuster@insurance.com" />
-              </div>
-            </div>
-          </section>
-
-          {/* Restoration Company Executing Referral - Only show for Referral division */}
-          {formData.division === 'Referral' && (
-            <section className="intake-panel">
-              <p className="section-title">RESTORATION COMPANY EXECUTING REFERRAL</p>
-              <div className="intake-grid">
-                <div className="col-6">
-                  <label htmlFor="restorationCompany">Company Name</label>
-                  <input id="restorationCompany" value={formData.restorationCompany} onChange={handleInputChange} placeholder="XYZ Restoration" required />
-                </div>
-                <div className="col-6">
-                  <label htmlFor="restorationContact">Contact Person</label>
-                  <input id="restorationContact" value={formData.restorationContact} onChange={handleInputChange} placeholder="Contact Name" />
-                </div>
-                <div className="col-6">
-                  <label htmlFor="restorationPhone">Phone</label>
-                  <input id="restorationPhone" type="tel" value={formData.restorationPhone} onChange={handleInputChange} placeholder="(555) 555-5555" required />
-                </div>
-                <div className="col-6">
-                  <label htmlFor="restorationEmail">Email</label>
-                  <input id="restorationEmail" type="email" value={formData.restorationEmail} onChange={handleInputChange} placeholder="contact@restoration.com" />
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* Additional Notes */}
-          <section className="intake-panel">
-            <p className="section-title">ADDITIONAL NOTES</p>
-            <div className="intake-grid">
-              <div className="col-12">
-                <label htmlFor="notes">Notes</label>
-                <textarea id="notes" value={formData.notes} onChange={handleInputChange} rows="4" placeholder="Any additional information..."></textarea>
-              </div>
-            </div>
-          </section>
-        </>
-      ) : (
-        <>
-      {/* STANDARD FORM - Full intake form */}
-      {/* Caller & Loss Identification */}
-      <section className="intake-panel">
-        <p className="section-title">CALLER & LOSS IDENTIFICATION</p>
-        <div className="intake-grid">
-          <div className="col-4">
-            <label htmlFor="callerType">Caller Type</label>
-            <select id="callerType" value={formData.callerType} onChange={handleInputChange} required>
-              <option value="">Select…</option>
-              <option>Homeowner</option>
-              <option>Adjuster</option>
-              <option>Property Manager / HOA</option>
-              <option>GC</option>
-              <option>Tenant</option>
-            </select>
-          </div>
-          <div className="col-4">
-            <label htmlFor="callerName">Caller Name</label>
-            <input id="callerName" value={formData.callerName} onChange={handleInputChange} placeholder="Jane Smith" required />
-          </div>
-          <div className="col-4">
-            <label htmlFor="callerPhone">Caller Phone</label>
-            <input id="callerPhone" type="tel" value={formData.callerPhone} onChange={handleInputChange} placeholder="(555) 555-5555" required />
-          </div>
-          <div className="col-6">
-            <label htmlFor="callerEmail">Caller Email</label>
-            <input id="callerEmail" type="email" value={formData.callerEmail} onChange={handleInputChange} placeholder="name@email.com" />
-          </div>
-          <div className="col-6">
-            <label htmlFor="relationship">Relationship to Property</label>
-            <select id="relationship" value={formData.relationship} onChange={handleInputChange}>
-              <option value="">Select…</option>
-              <option>Owner</option>
-              <option>Insured</option>
-              <option>Tenant</option>
-              <option>Other</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      {/* Property & Access */}
-      <section className="intake-panel">
-        <p className="section-title">PROPERTY & ACCESS</p>
-        <div className="intake-grid">
-          <div className="col-12">
-            <label htmlFor="address">
-              Loss Address
-              {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
-              {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
-              {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
-              {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
-            </label>
-            <input 
-              id="address" 
-              ref={addressInputRef}
-              value={formData.address} 
-              onChange={handleInputChange} 
-              placeholder={autocompleteStatus === 'ready' ? "Start typing address..." : "Enter full address manually"}
-              autoComplete="off"
-              required 
-            />
-            {autocompleteStatus === 'error' && (
-              <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
-                Google Maps API error. Please enter address manually or check browser console for details.
-              </small>
-            )}
-          </div>
-          <div className="col-6">
-            <label htmlFor="access">Access Instructions</label>
-            <input id="access" value={formData.access} onChange={handleInputChange} placeholder="Gate code, lockbox, pets…" />
-          </div>
-          <div className="col-3">
-            <label htmlFor="onsiteName">On-site Contact Name</label>
-            <input id="onsiteName" value={formData.onsiteName} onChange={handleInputChange} />
-          </div>
-          <div className="col-3">
-            <label htmlFor="onsitePhone">On-site Contact Phone</label>
-            <input id="onsitePhone" value={formData.onsitePhone} onChange={handleInputChange} />
-          </div>
-        </div>
-      </section>
-
-      {/* Loss Details */}
-      <section className="intake-panel">
-        <p className="section-title">LOSS DETAILS</p>
-        <div className="intake-grid">
-          <div className="col-3">
-            <label htmlFor="propertyType">Property Type</label>
-            <select id="propertyType" value={formData.propertyType} onChange={handleInputChange} required>
-              <option value="">Select…</option>
-              <option value="Residential">Residential</option>
-              <option value="Commercial">Commercial</option>
-            </select>
-          </div>
-          <div className="col-3">
-            <label htmlFor="lossType">Loss Type</label>
-            <select id="lossType" value={formData.lossType} onChange={handleInputChange} required>
-              <option value="">Select…</option>
-              <option>Water</option>
-              <option>Fire</option>
-              <option>Mold</option>
-              <option>Bio</option>
-              <option>Trauma</option>
-              <option>Board-up</option>
-              <option>Reconstruction</option>
-              <option>Contents</option>
-            </select>
-          </div>
-          <div className="col-3">
-            <label htmlFor="source">Source of Loss</label>
-            <input id="source" value={formData.source} onChange={handleInputChange} placeholder="e.g., burst supply line" />
-          </div>
-          <div className="col-3">
-            <label htmlFor="lossDate">Loss Date/Time</label>
-            <input id="lossDate" type="datetime-local" value={formData.lossDate} onChange={handleInputChange} />
-          </div>
-          <div className="col-3">
-            <label htmlFor="activeLeak">Active Leak?</label>
-            <select id="activeLeak" value={formData.activeLeak} onChange={handleInputChange}>
-              <option value="">Select…</option>
-              <option>Yes</option>
-              <option>No</option>
-            </select>
-          </div>
-          <div className="col-3">
-            <label htmlFor="category">Water Category</label>
-            <select id="category" value={formData.category} onChange={handleInputChange}>
-              <option value="">N/A / Unknown</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-            </select>
-          </div>
-          <div className="col-3">
-            <label htmlFor="wclass">Water Class</label>
-            <select id="wclass" value={formData.wclass} onChange={handleInputChange}>
-              <option value="">N/A / Unknown</option>
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-            </select>
-          </div>
-          <div className="col-12">
-            <label>Affected Areas</label>
-            <div className="pill-container">
-              {['Kitchen', 'Bath', 'Living Room', 'Bedroom', 'Basement', 'Attic', 'Exterior'].map(area => (
-                <label key={area} className="pill">
-                  <input 
-                    type="checkbox" 
-                    checked={affectedAreas.includes(area)}
-                    onChange={() => handleCheckboxChange(area, setAffectedAreas, affectedAreas)}
-                  />
-                  {area}
-                </label>
-              ))}
-            </div>
-          </div>
-          <div className="col-3">
-            <label htmlFor="sqft">Estimated Affected SF</label>
-            <input id="sqft" type="number" min="0" step="1" value={formData.sqft} onChange={handleInputChange} />
-          </div>
-        </div>
-      </section>
-
-      {/* Insurance */}
-      <section className="intake-panel">
-        <p className="section-title">INSURANCE</p>
-        <div className="intake-grid">
-          <div className="col-3">
-            <label htmlFor="carrier">Carrier</label>
-            <input id="carrier" value={formData.carrier} onChange={handleInputChange} />
-          </div>
-          <div className="col-3">
-            <label htmlFor="claim">Claim #</label>
-            <input id="claim" value={formData.claim} onChange={handleInputChange} />
-          </div>
-          <div className="col-3">
-            <label htmlFor="adjName">Adjuster Name</label>
-            <input id="adjName" value={formData.adjName} onChange={handleInputChange} />
-          </div>
-          <div className="col-3">
-            <label htmlFor="adjEmail">Adjuster Email</label>
-            <input id="adjEmail" type="email" value={formData.adjEmail} onChange={handleInputChange} />
-          </div>
-          <div className="col-3">
-            <label htmlFor="adjPhone">Adjuster Phone</label>
-            <input id="adjPhone" value={formData.adjPhone} onChange={handleInputChange} />
-          </div>
-          <div className="col-3">
-            <label htmlFor="deductible">Deductible ($)</label>
-            <input id="deductible" type="number" min="0" step="0.01" value={formData.deductible} onChange={handleInputChange} />
-          </div>
-          <div className="col-3">
-            <label htmlFor="coverage">Coverage Confirmed</label>
-            <select id="coverage" value={formData.coverage} onChange={handleInputChange}>
-              <option value="">Unknown</option>
-              <option>Yes</option>
-              <option>No</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      {/* Dispatch */}
-      <section className="intake-panel">
-        <p className="section-title">DISPATCH</p>
-        <div className="intake-grid">
-          <div className="col-3">
-            <label htmlFor="urgency">Urgency</label>
-            <select id="urgency" value={formData.urgency} onChange={handleInputChange}>
-              <option value="">Select…</option>
-              <option>Emergency (1–3 hrs)</option>
-              <option>Same Day</option>
-              <option>Next Day</option>
-              <option>Scheduled</option>
-            </select>
-          </div>
-          <div className="col-3">
-            <label htmlFor="arrival">Preferred Arrival Window</label>
-            <input id="arrival" value={formData.arrival} onChange={handleInputChange} placeholder="e.g., 2–4pm" />
-          </div>
-          <div className="col-3">
-            <label htmlFor="branch">Branch Assignment</label>
-            <input id="branch" value={formData.branch} onChange={handleInputChange} placeholder="e.g., Nashville" />
-          </div>
-          <div className="col-3">
-            <label htmlFor="assigned">PM/Tech Assigned</label>
-            <input id="assigned" value={formData.assigned} onChange={handleInputChange} placeholder="Optional" />
-          </div>
-          <div className="col-12">
-            <label htmlFor="notes">Notes</label>
-            <textarea id="notes" value={formData.notes} onChange={handleInputChange} placeholder="Special instructions, hazards, pets, etc."></textarea>
-          </div>
-        </div>
-      </section>
-
-      {/* Authorization & Payment */}
-      <section className="intake-panel">
-        <p className="section-title">AUTHORIZATION & PAYMENT</p>
-        <div className="intake-grid">
-          <div className="col-3">
-            <label htmlFor="authReq">Authorization Required</label>
-            <select id="authReq" value={formData.authReq} onChange={handleInputChange}>
-              <option value="">Select…</option>
-              <option>Yes</option>
-              <option>No</option>
-            </select>
-          </div>
-          <div className="col-3">
-            <label htmlFor="payMethod">Payment Method</label>
-            <select id="payMethod" value={formData.payMethod} onChange={handleInputChange}>
-              <option value="">Select…</option>
-              <option>QBO Payment Link</option>
-              <option>Apple Pay</option>
-              <option>Card on File</option>
-              <option>Check on Site</option>
-            </select>
-          </div>
-          <div className="col-3">
-            <label htmlFor="authSigner">Authorized Signer</label>
-            <input id="authSigner" value={formData.authSigner} onChange={handleInputChange} />
-          </div>
-          <div className="col-3">
-            <label htmlFor="authPhone">Authorized Signer Phone/Email</label>
-            <input id="authPhone" value={formData.authPhone} onChange={handleInputChange} placeholder="(555) 555-5555 or email" />
-          </div>
-        </div>
-      </section>
-
-      {/* Customer Forms */}
-      <section className="intake-panel">
-        <p className="section-title">CUSTOMER FORMS</p>
-        <div className="pill-container">
-          {['ATP', 'Equipment', 'Contents'].map(form => (
-            <label key={form} className="pill">
-              <input 
-                type="checkbox" 
-                checked={customerForms.includes(form)}
-                onChange={() => handleCheckboxChange(form, setCustomerForms, customerForms)}
-              />
-              {form}
-            </label>
-          ))}
-        </div>
-      </section>
-        </>
-      )}
-
-      {/* Success/Error Messages */}
-      {submitSuccess && (
-        <div className="intake-panel" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', borderColor: 'rgba(34, 197, 94, 0.3)' }}>
-          <p style={{ color: '#22c55e', margin: 0, fontWeight: 600 }}>✓ {submitSuccess}</p>
-        </div>
-      )}
-      {submitError && (
-        <div className="intake-panel" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
-          <p style={{ color: '#ef4444', margin: 0, fontWeight: 600 }}>✗ {submitError}</p>
-        </div>
-      )}
-
-      {/* Controls */}
-      <section className="intake-panel intake-controls">
-        <div className="btn-group">
+        {/* Division Tabs - Pill Style */}
+        <div className="precision-tabs">
           <button
-            className="btn btn-primary"
-            onClick={submitIntake}
-            disabled={submitting}
+            className={`p-tab ${formData.division === 'HB - Nashville' || formData.division === 'MIT' || formData.division === 'RECON' ? 'active' : ''}`}
+            onClick={() => setFormData(prev => ({ ...prev, division: 'HB - Nashville' }))}
           >
-            {submitting ? 'Submitting...' : 'Submit Intake'}
+            Nashville
+          </button>
+          <button
+            className={`p-tab ${formData.division === 'Large Loss' ? 'active' : ''}`}
+            onClick={() => setFormData(prev => ({ ...prev, division: 'Large Loss' }))}
+          >
+            Large Loss
+          </button>
+          <button
+            className={`p-tab ${formData.division === 'Referral' ? 'active' : ''}`}
+            onClick={() => setFormData(prev => ({ ...prev, division: 'Referral' }))}
+          >
+            Referral
           </button>
         </div>
-        <div className="btn-group">
-          <button className="btn btn-danger" onClick={clearForm} disabled={submitting}>Clear Form</button>
+
+        <div className="precision-content">
+
+          {/* Notifications */}
+          {submitSuccess && (
+            <div className="p-alert success">
+              <span className="icon">✓</span> {submitSuccess}
+            </div>
+          )}
+          {submitError && (
+            <div className="p-alert error">
+              <span className="icon">⚠</span> {submitError}
+            </div>
+          )}
+
+          {/* REFERRAL / LARGE LOSS MODE */}
+          {formData.division === 'Referral' || formData.division === 'Large Loss' ? (
+            <div className="p-grid">
+
+              <section className="p-card">
+                <div className="p-card-header">Client Information</div>
+                <div className="p-card-body grid-2">
+                  <div className="p-input-group full-width">
+                    <label>Job Name</label>
+                    <input id="jobName" value={formData.jobName} onChange={handleInputChange} className="p-input" placeholder="e.g. Smith Residence" required />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Property Type</label>
+                    <select id="propertyType" value={formData.propertyType || 'Commercial'} onChange={handleInputChange} className="p-input">
+                      <option value="Residential">Residential</option>
+                      <option value="Commercial">Commercial</option>
+                    </select>
+                  </div>
+                  <div className="p-input-group">
+                    <label>Client Name</label>
+                    <input id="customerName" value={formData.customerName} onChange={handleInputChange} className="p-input" required />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Phone</label>
+                    <input id="customerPhone" type="tel" value={formData.customerPhone} onChange={handleInputChange} className="p-input" required />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Email</label>
+                    <input id="customerEmail" type="email" value={formData.customerEmail} onChange={handleInputChange} className="p-input" />
+                  </div>
+                </div>
+              </section>
+
+              <section className="p-card">
+                <div className="p-card-header">Location & Access</div>
+                <div className="p-card-body grid-2">
+                  <div className="p-input-group full-width">
+                    <label>
+                      Service Address
+                      {autocompleteStatus === 'loading' && <span className="p-status loading">Loading...</span>}
+                    </label>
+                    <input
+                      id="address"
+                      ref={addressInputRef}
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      className="p-input"
+                      placeholder="Start typing..."
+                      required
+                    />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Access Instructions</label>
+                    <input id="access" value={formData.access} onChange={handleInputChange} className="p-input" placeholder="Codes, keys..." />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Onsite Contact</label>
+                    <input id="onsiteName" value={formData.onsiteName} onChange={handleInputChange} className="p-input" />
+                  </div>
+                </div>
+              </section>
+
+              {/* Insurance Info */}
+              <section className="p-card">
+                <div className="p-card-header">Insurance</div>
+                <div className="p-card-body grid-2">
+                  <div className="p-input-group">
+                    <label>Carrier</label>
+                    <input id="insuranceCompany" value={formData.insuranceCompany} onChange={handleInputChange} className="p-input" />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Policy #</label>
+                    <input id="insurancePolicyNumber" value={formData.insurancePolicyNumber} onChange={handleInputChange} className="p-input" />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Adjuster Name</label>
+                    <input id="insuranceAdjusterName" value={formData.insuranceAdjusterName} onChange={handleInputChange} className="p-input" />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Adjuster Phone</label>
+                    <input id="insuranceAdjusterPhone" type="tel" value={formData.insuranceAdjusterPhone} onChange={handleInputChange} className="p-input" />
+                  </div>
+                </div>
+              </section>
+            </div>
+          ) : (
+            <div className="p-grid">
+
+              {/* PRIMARY CONTACT */}
+              <section className="p-card">
+                <div className="p-card-header">Contact Information</div>
+                <div className="p-card-body grid-2">
+                  <div className="p-input-group">
+                    <label>Caller Type</label>
+                    <select id="callerType" value={formData.callerType} onChange={handleInputChange} className="p-input" required>
+                      <option value="">Select...</option>
+                      <option>Homeowner</option>
+                      <option>Adjuster</option>
+                      <option>Property Manager</option>
+                      <option>Tenant</option>
+                    </select>
+                  </div>
+                  <div className="p-input-group">
+                    <label>Caller Name</label>
+                    <input id="callerName" value={formData.callerName} onChange={handleInputChange} className="p-input" required />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Phone Number</label>
+                    <input id="callerPhone" type="tel" value={formData.callerPhone} onChange={handleInputChange} className="p-input highlight" required />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Email</label>
+                    <input id="callerEmail" type="email" value={formData.callerEmail} onChange={handleInputChange} className="p-input" />
+                  </div>
+                </div>
+              </section>
+
+              {/* LOCATION */}
+              <section className="p-card">
+                <div className="p-card-header">Location Details</div>
+                <div className="p-card-body grid-2">
+                  <div className="p-input-group full-width">
+                    <label>
+                      Service Address
+                      {autocompleteStatus === 'loading' && <span className="p-status loading">...</span>}
+                    </label>
+                    <input
+                      id="address"
+                      ref={addressInputRef}
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      className="p-input"
+                      placeholder="Start typing address..."
+                      required
+                    />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Property Type</label>
+                    <div className="p-radio-group">
+                      <button
+                        className={`p-radio-btn ${formData.propertyType === 'Residential' ? 'selected' : ''}`}
+                        onClick={() => handleTileSelect('propertyType', 'Residential')}
+                      >Residential</button>
+                      <button
+                        className={`p-radio-btn ${formData.propertyType === 'Commercial' ? 'selected' : ''}`}
+                        onClick={() => handleTileSelect('propertyType', 'Commercial')}
+                      >Commercial</button>
+                    </div>
+                  </div>
+                  <div className="p-input-group">
+                    <label>Access Info</label>
+                    <input id="access" value={formData.access} onChange={handleInputChange} className="p-input" placeholder="Gate codes..." />
+                  </div>
+                </div>
+              </section>
+
+              {/* LOSS TILES - CLEAN */}
+              <section className="p-card">
+                <div className="p-card-header">Loss Classification</div>
+                <div className="p-card-body">
+                  <div className="p-tile-grid">
+                    {['Water', 'Fire', 'Mold', 'Bio', 'Contents'].map(type => (
+                      <div
+                        key={type}
+                        className={`p-tile ${formData.lossType === type ? 'selected' : ''}`}
+                        onClick={() => {
+                          handleTileSelect('lossType', type);
+                          const div = getLossTypeDivision(type);
+                          setFormData(prev => ({ ...prev, lossType: type, division: div }));
+                        }}
+                      >
+                        <div className="icon">
+                          {type === 'Water' && '💧'}
+                          {type === 'Fire' && '🔥'}
+                          {type === 'Mold' && '🦠'}
+                          {type === 'Bio' && '☣️'}
+                          {type === 'Contents' && '📦'}
+                        </div>
+                        <span className="label">{type}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid-2 mt-4">
+                    <div className="p-input-group">
+                      <label>Date of Loss</label>
+                      <input id="lossDate" type="datetime-local" value={formData.lossDate} onChange={handleInputChange} className="p-input" />
+                    </div>
+                    <div className="p-input-group">
+                      <label>Source</label>
+                      <input id="source" value={formData.source} onChange={handleInputChange} className="p-input" placeholder="e.g. Pipe burst" />
+                    </div>
+
+                    {formData.lossType === 'Water' && (
+                      <>
+                        <div className="p-input-group">
+                          <label>Category</label>
+                          <select id="category" value={formData.category} onChange={handleInputChange} className="p-input">
+                            <option value="">Select...</option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                          </select>
+                        </div>
+                        <div className="p-input-group">
+                          <label>Class</label>
+                          <select id="wclass" value={formData.wclass} onChange={handleInputChange} className="p-input">
+                            <option value="">Select...</option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                          </select>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </section>
+
+              {/* Billing */}
+              <section className="p-card">
+                <div className="p-card-header">Billing & Insurance</div>
+                <div className="p-card-body grid-2">
+                  <div className="p-input-group">
+                    <label>Carrier</label>
+                    <input id="carrier" value={formData.carrier} onChange={handleInputChange} className="p-input" />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Claim #</label>
+                    <input id="claim" value={formData.claim} onChange={handleInputChange} className="p-input" />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Deductible</label>
+                    <input id="deductible" type="number" value={formData.deductible} onChange={handleInputChange} className="p-input" placeholder="0.00" />
+                  </div>
+                  <div className="p-input-group">
+                    <label>Pay Method</label>
+                    <select id="payMethod" value={formData.payMethod} onChange={handleInputChange} className="p-input">
+                      <option value="">Select...</option>
+                      <option>Insurance</option>
+                      <option>Self Pay</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              {/* Dispatch */}
+              <section className="p-card">
+                <div className="p-card-header">Dispatch Priority</div>
+                <div className="p-card-body grid-2">
+                  <div className="p-input-group">
+                    <label>Urgency</label>
+                    <select id="urgency" value={formData.urgency} onChange={handleInputChange} className="p-input">
+                      <option value="">Select...</option>
+                      <option>Emergency (Immediate)</option>
+                      <option>Same Day</option>
+                      <option>Next Day</option>
+                      <option>Scheduled</option>
+                    </select>
+                  </div>
+                  <div className="p-input-group">
+                    <label>Notes</label>
+                    <textarea id="notes" value={formData.notes} onChange={handleInputChange} className="p-input" placeholder="Special instructions..." rows="1"></textarea>
+                  </div>
+                </div>
+              </section>
+
+            </div>
+          )}
+
+          {/* Precision Footer */}
+          <div className="precision-footer">
+            <button className="p-btn-secondary" onClick={clearForm} disabled={submitting}>Reset</button>
+            <button className="p-btn-primary" onClick={submitIntake} disabled={submitting}>
+              {submitting ? 'Creating...' : 'Create Job'}
+            </button>
+          </div>
+
         </div>
-      </section>
+      </main>
     </div>
   );
 }

@@ -1,8 +1,60 @@
 import React, { useState } from 'react';
 import TimeTracking from '../components/TimeTracking';
 import ScheduleView from '../components/ScheduleView';
+import { pmDashboardHeaders, pmDashboardRows } from '../data/pmDashboardData';
 import './Page.css';
 import './FieldServices.css';
+
+const DATE_RECEIVED_INDEX = 6;
+const COMPLETION_DATE_INDEX = 15;
+
+function formatExcelCell(value) {
+  if (value === '' || value == null) return '';
+  if (typeof value === 'number' && value > 40000 && value < 50000) {
+    const d = new Date((value - 25569) * 86400 * 1000);
+    return isNaN(d.getTime()) ? String(value) : d.toLocaleDateString();
+  }
+  return String(value).trim();
+}
+
+const FILE_CHECK_START_INDEX = 6;
+const DATE_CHECK_START_INDEX = 14;
+const PM_COLUMN_INDEX = 3;
+const DISPLAY_FILE_CHECK_START = 5;
+const DISPLAY_DATE_CHECK_START = 13;
+
+function getPmDashboardDisplayData() {
+  let headers = pmDashboardHeaders.filter((_, i) => i !== DATE_RECEIVED_INDEX);
+  let rows = pmDashboardRows.map((row) => row.filter((_, i) => i !== DATE_RECEIVED_INDEX));
+  headers = headers.filter((_, i) => i !== COMPLETION_DATE_INDEX);
+  rows = rows.map((row) => row.filter((_, i) => i !== COMPLETION_DATE_INDEX));
+  const mainHeaders = headers.slice(0, DATE_RECEIVED_INDEX);
+  const fileCheckHeaders = headers.slice(FILE_CHECK_START_INDEX, DATE_CHECK_START_INDEX);
+  const dateCheckHeaders = headers.slice(DATE_CHECK_START_INDEX);
+  return { mainHeaders, fileCheckHeaders, dateCheckHeaders, headers, rows };
+}
+
+// Dummy "done" indicators for File Checks: rowIndex -> set of file-check column indices (0-based) to show ✓
+const FILE_CHECK_DUMMY_DONE = {
+  0: [0, 1],
+  1: [0, 1, 2],
+  2: [0, 3],
+  3: [0, 1, 4],
+  4: [0, 2, 5]
+};
+
+function getFileCheckCellDisplay(rowIndex, colIndex, cellValue) {
+  const formatted = formatExcelCell(cellValue);
+  if (formatted) return { text: formatted, isMissing: false, isDummy: false };
+  const fileCheckColIndex = colIndex - FILE_CHECK_START_INDEX;
+  const dummyDone = FILE_CHECK_DUMMY_DONE[rowIndex];
+  const showDummy = dummyDone && dummyDone.includes(fileCheckColIndex);
+  return {
+    text: showDummy ? '✓' : '×',
+    isMissing: !showDummy,
+    isDummy: showDummy
+  };
+}
 
 // SVG Icon Components
 const CalendarIcon = () => (
@@ -11,14 +63,6 @@ const CalendarIcon = () => (
     <line x1="16" y1="2" x2="16" y2="6"/>
     <line x1="8" y1="2" x2="8" y2="6"/>
     <line x1="3" y1="10" x2="21" y2="10"/>
-  </svg>
-);
-
-const ClipboardCheckIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-    <path d="M9 14l2 2 4-4"/>
   </svg>
 );
 
@@ -48,8 +92,18 @@ const ClockIcon = () => (
   </svg>
 );
 
+const GridIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7"/>
+    <rect x="14" y="3" width="7" height="7"/>
+    <rect x="3" y="14" width="7" height="7"/>
+    <rect x="14" y="14" width="7" height="7"/>
+  </svg>
+);
+
 function FieldServices() {
   const [activeSection, setActiveSection] = useState(null);
+  const [selectedPm, setSelectedPm] = useState('');
 
   const sections = [
     {
@@ -57,12 +111,6 @@ function FieldServices() {
       title: 'Schedule & Dispatch',
       description: 'Assign technicians, schedule jobs, and manage routes',
       icon: <CalendarIcon />
-    },
-    {
-      id: 'execution',
-      title: 'Job Execution',
-      description: 'Track active jobs, time tracking, and task completion',
-      icon: <ClipboardCheckIcon />
     },
     {
       id: 'time-tracking',
@@ -78,9 +126,15 @@ function FieldServices() {
     },
     {
       id: 'documentation',
-      title: 'Field Documentation & Compliance',
-      description: 'Safety reports, photos, signatures, and compliance forms',
+      title: 'PM Job Checklist',
+      description: 'Job packet and field documentation checklist',
       icon: <FileTextIcon />
+    },
+    {
+      id: 'pm-dashboard',
+      title: 'PM File Compliance',
+      description: 'Project manager file check and compliance status',
+      icon: <GridIcon />
     }
   ];
 
@@ -118,6 +172,108 @@ function FieldServices() {
               <ScheduleView />
             ) : activeSection === 'time-tracking' ? (
               <TimeTracking />
+            ) : activeSection === 'pm-dashboard' ? (
+              (() => {
+                const { rows, headers } = getPmDashboardDisplayData();
+                const pmNames = [...new Set(rows.map((r) => String(r[PM_COLUMN_INDEX] || '').trim()).filter(Boolean))].sort();
+                const filteredRows = selectedPm
+                  ? rows.filter((row) => String(row[PM_COLUMN_INDEX] || '').trim() === selectedPm)
+                  : rows;
+                const displayHeaders = headers.filter((_, i) => i !== PM_COLUMN_INDEX);
+                const displayRows = filteredRows.map((row) => row.filter((_, i) => i !== PM_COLUMN_INDEX));
+                const displayMainHeaders = displayHeaders.slice(0, DISPLAY_FILE_CHECK_START);
+                const displayFileCheckHeaders = displayHeaders.slice(DISPLAY_FILE_CHECK_START, DISPLAY_DATE_CHECK_START);
+                const displayDateCheckHeaders = displayHeaders.slice(DISPLAY_DATE_CHECK_START);
+                return (
+                  <div className="pm-dashboard-panel">
+                    <div className="pm-dashboard-header">
+                      <div className="pm-dashboard-header-top">
+                        <h2>PM File Compliance</h2>
+                        <span className="pm-dashboard-count">
+                          {filteredRows.length} job{filteredRows.length !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                      <div className="pm-dashboard-header-bottom">
+                        <label className="pm-dashboard-pm-label" htmlFor="pm-file-compliance-pm-select">
+                          PM
+                        </label>
+                        <select
+                          id="pm-file-compliance-pm-select"
+                          className="pm-dashboard-pm-select"
+                          value={selectedPm}
+                          onChange={(e) => setSelectedPm(e.target.value)}
+                        >
+                          <option value="">All</option>
+                          {pmNames.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="pm-dashboard-table-wrap">
+                      <table className="pm-dashboard-table">
+                        <thead>
+                          <tr className="pm-dashboard-thead-group">
+                            {displayMainHeaders.map((h, i) => (
+                              <th key={i} className="pm-dashboard-th" rowSpan={2}>
+                                {formatExcelCell(h)}
+                              </th>
+                            ))}
+                            <th colSpan={displayFileCheckHeaders.length} className="pm-dashboard-th pm-dashboard-th-group">
+                              File Checks
+                            </th>
+                            <th colSpan={displayDateCheckHeaders.length} className="pm-dashboard-th pm-dashboard-th-group">
+                              Date Checks
+                            </th>
+                          </tr>
+                          <tr className="pm-dashboard-thead-sub">
+                            {displayFileCheckHeaders.map((h, i) => (
+                              <th key={i} className="pm-dashboard-th">
+                                {formatExcelCell(h)}
+                              </th>
+                            ))}
+                            {displayDateCheckHeaders.map((h, i) => (
+                              <th key={i} className="pm-dashboard-th">
+                                {formatExcelCell(h)}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {displayRows.map((row, ri) => (
+                            <tr key={ri} className="pm-dashboard-tr">
+                              {row.map((cell, ci) => {
+                                const isFileCheck = ci >= DISPLAY_FILE_CHECK_START && ci < DISPLAY_DATE_CHECK_START;
+                                const display = isFileCheck
+                                  ? getFileCheckCellDisplay(ri, ci, cell)
+                                  : { text: formatExcelCell(cell) || '—', isMissing: false, isDummy: false };
+                                const tdClass = [
+                                  'pm-dashboard-td',
+                                  display.isMissing && 'pm-dashboard-td-missing',
+                                  display.isDummy && 'pm-dashboard-td-done'
+                                ].filter(Boolean).join(' ');
+                                return (
+                                  <td key={ci} className={tdClass}>
+                                    {display.text}
+                                  </td>
+                                );
+                              })}
+                              {displayHeaders.length > row.length &&
+                                Array.from({ length: displayHeaders.length - row.length }).map((_, i) => (
+                                  <td key={`empty-${i}`} className="pm-dashboard-td pm-dashboard-td-missing">
+                                    ×
+                                  </td>
+                                ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()
             ) : activeSection === 'documentation' ? (
               <div className="documentation-panel">
                 <div className="documentation-header">

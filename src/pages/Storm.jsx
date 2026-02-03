@@ -98,7 +98,60 @@ function Storm() {
   const [excelColumns, setExcelColumns] = useState([]); // All columns from Excel
   const [showExcelUpload, setShowExcelUpload] = useState(false);
   const [showFNOLTest, setShowFNOLTest] = useState(false);
+  const [showJobPrioritization, setShowJobPrioritization] = useState(false);
+  const [showDailyRhythms, setShowDailyRhythms] = useState(false);
+  const [showTeamAssignments, setShowTeamAssignments] = useState(false);
   const [activeJobFilters, setActiveJobFilters] = useState({}); // { columnName: [selectedValues] }
+
+  // Storm job prioritization reference (P1–P4)
+  const PRIORIZATION_ROWS = [
+    { priority: 'P1', category: 'Commercial', weighting: '1.0', notes: 'Commercial properties only' },
+    { priority: 'P2', category: 'Agency Promise / MSA', weighting: '0.50', notes: 'MSA or agency-committed dates' },
+    { priority: 'P3', category: 'High Value Residential ($1MM+)', weighting: '0.75', notes: 'Residential with est. value $1M+' },
+    { priority: 'P4', category: 'Other Residential', weighting: '0.25', notes: 'All other residential' },
+  ];
+
+  // Color palette for dynamic color coding
+  const COLOR_PALETTE = [
+    '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', 
+    '#8b5cf6', '#ec4899', '#14b8a6', '#f59e0b', '#06b6d4',
+    '#84cc16', '#6366f1'
+  ];
+
+  // Function to change color column and regenerate colors
+  const handleColorColumnChange = (newColorColumn) => {
+    if (!newColorColumn || newColorColumn === excelColorColumn) return;
+    
+    // Get unique values from the new column
+    const uniqueValues = new Set();
+    excelUploadedJobs.forEach(job => {
+      const val = job.rawData?.[newColorColumn];
+      if (val && val.trim() !== '') {
+        uniqueValues.add(val.trim());
+      }
+    });
+    
+    // Generate new color mapping
+    const sortedValues = Array.from(uniqueValues).sort();
+    const newColorMapping = {};
+    sortedValues.forEach((value, index) => {
+      newColorMapping[value] = COLOR_PALETTE[index % COLOR_PALETTE.length];
+    });
+    
+    // Update jobs with new colors
+    const updatedJobs = excelUploadedJobs.map(job => {
+      const colorValue = job.rawData?.[newColorColumn]?.trim() || '';
+      return {
+        ...job,
+        colorValue: colorValue,
+        color: newColorMapping[colorValue] || '#6b7280'
+      };
+    });
+    
+    setExcelUploadedJobs(updatedJobs);
+    setExcelColorMapping(newColorMapping);
+    setExcelColorColumn(newColorColumn);
+  };
 
   // Load storm events on mount
   const loadStormEvents = async () => {
@@ -2026,11 +2079,40 @@ function Storm() {
       {!showFNOLTest && (
         <div className="storm-main-buttons">
           <button
-            className="storm-big-btn storm-big-btn-primary"
-            onClick={() => setShowActiveStormMap(true)}
+            className={`storm-big-btn storm-big-btn-quinary ${showTeamAssignments ? 'storm-big-btn-active' : ''}`}
+            onClick={() => {
+              setShowTeamAssignments((v) => !v);
+              if (!showTeamAssignments) setShowActiveStormMap(false);
+              if (!showTeamAssignments) setShowJobPrioritization(false);
+              if (!showTeamAssignments) setShowDailyRhythms(false);
+            }}
           >
-            <span className="big-btn-icon">🗺️</span>
-            <span className="big-btn-text">ACTIVE STORM MAP</span>
+            <span className="big-btn-icon">👥</span>
+            <span className="big-btn-text">TEAM ASSIGNMENTS</span>
+          </button>
+          <button
+            className={`storm-big-btn storm-big-btn-tertiary ${showJobPrioritization ? 'storm-big-btn-active' : ''}`}
+            onClick={() => {
+              setShowJobPrioritization((v) => !v);
+              if (!showJobPrioritization) setShowActiveStormMap(false);
+              if (!showJobPrioritization) setShowDailyRhythms(false);
+              if (!showJobPrioritization) setShowTeamAssignments(false);
+            }}
+          >
+            <span className="big-btn-icon">📌</span>
+            <span className="big-btn-text">STORM JOB PRIORITIZATION</span>
+          </button>
+          <button
+            className={`storm-big-btn storm-big-btn-quaternary ${showDailyRhythms ? 'storm-big-btn-active' : ''}`}
+            onClick={() => {
+              setShowDailyRhythms((v) => !v);
+              if (!showDailyRhythms) setShowActiveStormMap(false);
+              if (!showDailyRhythms) setShowJobPrioritization(false);
+              if (!showDailyRhythms) setShowTeamAssignments(false);
+            }}
+          >
+            <span className="big-btn-icon">⏱️</span>
+            <span className="big-btn-text">DAILY RHYTHMS</span>
           </button>
           <button
             className="storm-big-btn storm-big-btn-secondary"
@@ -2039,8 +2121,22 @@ function Storm() {
             <span className="big-btn-icon">📋</span>
             <span className="big-btn-text">FNOL TEST</span>
           </button>
+          <button
+            className={`storm-big-btn storm-big-btn-primary ${showActiveStormMap ? 'storm-big-btn-active' : ''}`}
+            onClick={() => {
+              setShowActiveStormMap((v) => !v);
+              if (!showActiveStormMap) setShowJobPrioritization(false);
+              if (!showActiveStormMap) setShowDailyRhythms(false);
+              if (!showActiveStormMap) setShowTeamAssignments(false);
+            }}
+          >
+            <span className="big-btn-icon">🗺️</span>
+            <span className="big-btn-text">ACTIVE STORM MAP</span>
+          </button>
         </div>
       )}
+
+      {/* Storm panels (inline below buttons) */}
 
       {/* FNOL Test View (Legacy Content) */}
       {showFNOLTest && (
@@ -2060,15 +2156,268 @@ function Storm() {
         </div>
       )}
 
-      {/* Active Storm Map Modal */}
+      {/* Storm Job Prioritization (inline below buttons) */}
+      {showJobPrioritization && (
+        <div className="storm-content-section storm-panel">
+          <div className="storm-panel-header">
+            <h2>Storm Job Prioritization</h2>
+            <button
+              onClick={() => setShowJobPrioritization(false)}
+              className="storm-panel-close"
+              type="button"
+            >
+              Close
+            </button>
+          </div>
+          <div className="job-prioritization-content">
+            <p className="job-prioritization-guidance">
+              Use this order when triaging storm jobs. Higher weight = schedule first when capacity is limited.
+            </p>
+            <table className="prioritization-table">
+              <thead>
+                <tr>
+                  <th>Priority</th>
+                  <th>Category</th>
+                  <th>Weighting</th>
+                  <th>When to use</th>
+                </tr>
+              </thead>
+              <tbody>
+                {PRIORIZATION_ROWS.map((row) => (
+                  <tr key={row.priority}>
+                    <td>{row.priority}</td>
+                    <td>{row.category}</td>
+                    <td>{row.weighting}</td>
+                    <td>{row.notes}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="job-prioritization-footer">
+              Team reference — use for scheduling and triage decisions.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Daily Rhythms (inline below buttons) */}
+      {showDailyRhythms && (
+        <div className="storm-content-section storm-panel">
+          <div className="storm-panel-header">
+            <h2>Daily Rhythms</h2>
+            <button
+              onClick={() => setShowDailyRhythms(false)}
+              className="storm-panel-close"
+              type="button"
+            >
+              Close
+            </button>
+          </div>
+          <div className="daily-rhythms-content">
+            <div className="daily-rhythms-columns">
+              <div className="daily-rhythms-column">
+                <h3 className="daily-rhythms-meeting-title">7:45am: WIP</h3>
+                <div className="daily-rhythms-agenda-section">
+                  <p className="daily-rhythms-section-label">Agenda</p>
+                  <ul className="daily-rhythms-list">
+                    <li>Recap From Yesterday</li>
+                    <li>Today&apos;s Schedule</li>
+                    <li>File Gaps</li>
+                  </ul>
+                </div>
+                <div className="daily-rhythms-attendees-section">
+                  <p className="daily-rhythms-section-label">ATTENDEES</p>
+                  <ul className="daily-rhythms-list">
+                    <li>All</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="daily-rhythms-column">
+                <h3 className="daily-rhythms-meeting-title">12pm: Check-in</h3>
+                <div className="daily-rhythms-agenda-section">
+                  <p className="daily-rhythms-section-label">Agenda</p>
+                  <ul className="daily-rhythms-list">
+                    <li>On Track / Off Track</li>
+                    <li>Audibles</li>
+                    <li>Pending Prioritization</li>
+                    <li>File Gaps</li>
+                  </ul>
+                </div>
+                <div className="daily-rhythms-attendees-section">
+                  <p className="daily-rhythms-section-label">ATTENDEES</p>
+                  <ul className="daily-rhythms-list">
+                    <li>Josh</li>
+                    <li>Kelsey</li>
+                    <li>Kenny</li>
+                    <li>Austin</li>
+                    <li>Brianna</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="daily-rhythms-column">
+                <h3 className="daily-rhythms-meeting-title">4pm: EOD and Schedule</h3>
+                <div className="daily-rhythms-agenda-section">
+                  <p className="daily-rhythms-section-label">Agenda</p>
+                  <ul className="daily-rhythms-list">
+                    <li>Schedule For Tomorrow</li>
+                    <li>File Gaps</li>
+                  </ul>
+                </div>
+                <div className="daily-rhythms-attendees-section">
+                  <p className="daily-rhythms-section-label">ATTENDEES</p>
+                  <ul className="daily-rhythms-list">
+                    <li>Josh</li>
+                    <li>Kelsey</li>
+                    <li>Kenny</li>
+                    <li>Austin</li>
+                    <li>Brianna</li>
+                    <li>PMs</li>
+                    <li>JFCs</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Team Assignments (inline below buttons) */}
+      {showTeamAssignments && (
+        <div className="storm-content-section storm-panel">
+          <div className="storm-panel-header">
+            <h2>Team Assignments</h2>
+            <button
+              onClick={() => setShowTeamAssignments(false)}
+              className="storm-panel-close"
+              type="button"
+            >
+              Close
+            </button>
+          </div>
+          <div className="org-chart">
+            <div className="org-chart-top">
+              <div className="org-chart-card org-chart-card-top">
+                <span className="org-chart-name">Kenny</span>
+                <span className="org-chart-title">Operations Manager</span>
+              </div>
+            </div>
+            <div className="org-chart-branches">
+              <div className="org-chart-branch org-chart-branch-blue">
+                <div className="org-chart-card org-chart-card-pm">
+                  <span className="org-chart-name">Kevin</span>
+                  <span className="org-chart-title">Senior Production Manager</span>
+                </div>
+                <div className="org-chart-team">
+                  <div className="org-chart-card org-chart-card-member">
+                    <span className="org-chart-name">Brandie</span>
+                    <span className="org-chart-title">Job File Coordinator</span>
+                  </div>
+                  <div className="org-chart-card org-chart-card-member">
+                    <span className="org-chart-name">Gabriel</span>
+                    <span className="org-chart-title">Crew Chief</span>
+                    <div className="org-chart-nested">
+                      <div className="org-chart-card org-chart-card-nested">
+                        <span className="org-chart-name">Genesis</span>
+                        <span className="org-chart-title">Tech</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="org-chart-card org-chart-card-member">
+                    <span className="org-chart-name">David</span>
+                    <span className="org-chart-title">Crew Chief in Training</span>
+                    <div className="org-chart-nested">
+                      <div className="org-chart-card org-chart-card-nested">
+                        <span className="org-chart-name">Tyler</span>
+                        <span className="org-chart-title">Tech</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="org-chart-card org-chart-card-member">
+                    <span className="org-chart-name">Michael</span>
+                    <span className="org-chart-title">Crew Chief in Training</span>
+                    <div className="org-chart-nested">
+                      <div className="org-chart-card org-chart-card-nested">
+                        <span className="org-chart-name">Josue</span>
+                        <span className="org-chart-title">Tech</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <span className="org-chart-branch-label">Blue</span>
+              </div>
+              <div className="org-chart-branch org-chart-branch-purple">
+                <div className="org-chart-card org-chart-card-pm">
+                  <span className="org-chart-name">Leo</span>
+                  <span className="org-chart-title">Production Manager</span>
+                </div>
+                <div className="org-chart-team">
+                  <div className="org-chart-card org-chart-card-member">
+                    <span className="org-chart-name">Brandie</span>
+                    <span className="org-chart-title">Job File Coordinator</span>
+                  </div>
+                  <div className="org-chart-card org-chart-card-member">
+                    <span className="org-chart-name">Ramon</span>
+                    <span className="org-chart-title">Crew Chief</span>
+                    <div className="org-chart-nested">
+                      <div className="org-chart-card org-chart-card-nested">
+                        <span className="org-chart-name">Frank</span>
+                        <span className="org-chart-title">Technician</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="org-chart-card org-chart-card-member">
+                    <span className="org-chart-name">Roger</span>
+                    <span className="org-chart-title">Demo Lead Tech</span>
+                  </div>
+                </div>
+                <span className="org-chart-branch-label">Purple</span>
+              </div>
+              <div className="org-chart-branch org-chart-branch-green">
+                <div className="org-chart-card org-chart-card-pm">
+                  <span className="org-chart-name">Aaron</span>
+                  <span className="org-chart-title">Production Manager</span>
+                </div>
+                <div className="org-chart-team">
+                  <div className="org-chart-card org-chart-card-member">
+                    <span className="org-chart-name">Brandie</span>
+                    <span className="org-chart-title">Job File Coordinator</span>
+                  </div>
+                  <div className="org-chart-card org-chart-card-member">
+                    <span className="org-chart-name">Pedro</span>
+                    <span className="org-chart-title">Crew Chief</span>
+                    <div className="org-chart-nested">
+                      <div className="org-chart-card org-chart-card-nested">
+                        <span className="org-chart-name">Juan</span>
+                        <span className="org-chart-title">Technician</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="org-chart-card org-chart-card-member">
+                    <span className="org-chart-name">Monica</span>
+                    <span className="org-chart-title">Cleaning Crew Chief</span>
+                    <div className="org-chart-nested">
+                      <div className="org-chart-card org-chart-card-nested">
+                        <span className="org-chart-name">Leslie</span>
+                        <span className="org-chart-title">Cleaning Technician</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <span className="org-chart-branch-label">Green</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Active Storm Map (inline below buttons) */}
       {showActiveStormMap && (
-        <div className="modal-overlay" onClick={() => setShowActiveStormMap(false)}>
-          <div className="modal-content active-storm-map-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Active Storm Map</h2>
-              {/* Only show header buttons when jobs are already loaded */}
+        <div className="storm-content-section storm-panel storm-panel-map">
+          <div className="storm-panel-header">
+            <h2>Active Storm Map</h2>
+            <div className="storm-panel-header-actions">
               {excelUploadedJobs.length > 0 && (
-                <div className="modal-header-actions">
+                <>
                   <button 
                     className={`storm-btn ${showExcelUpload ? 'storm-btn-secondary' : 'storm-btn-outline'}`}
                     onClick={() => setShowExcelUpload(!showExcelUpload)}
@@ -2088,20 +2437,22 @@ function Storm() {
                   >
                     Clear Data
                   </button>
-                </div>
+                </>
               )}
               <button 
                 onClick={() => {
                   setShowActiveStormMap(false);
                   setShowExcelUpload(false);
                 }} 
-                className="modal-close"
+                className="storm-panel-close"
+                type="button"
               >
-                &times;
+                Close
               </button>
             </div>
-            
-            <div className="active-storm-map-content">
+          </div>
+
+          <div className="active-storm-map-content">
               {/* Show upload interface when no jobs loaded or when upload button clicked */}
               {(excelUploadedJobs.length === 0 || showExcelUpload) && (
                 <div className="excel-upload-section">
@@ -2138,6 +2489,29 @@ function Storm() {
 
                 return (
                   <>
+                    {/* Color Column Selector Toolbar */}
+                    <div className="map-toolbar">
+                      <div className="color-column-selector">
+                        <label>Color by:</label>
+                        <select 
+                          value={excelColorColumn} 
+                          onChange={(e) => handleColorColumnChange(e.target.value)}
+                        >
+                          <option value="">-- No Color Coding --</option>
+                          {excelColumns.map(col => (
+                            <option key={col} value={col}>{col}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="map-stats">
+                        {hasActiveFilters ? (
+                          <span>{jobsWithCoords.length} of {totalWithCoords} jobs shown</span>
+                        ) : (
+                          <span>{totalWithCoords} jobs on map</span>
+                        )}
+                      </div>
+                    </div>
+                    
                     <div className="map-with-filters">
                       {/* Filter Panel */}
                       {excelColumns.length > 0 && (
@@ -2162,7 +2536,7 @@ function Storm() {
                             console.log('Job clicked:', job);
                           }}
                         />
-                        {Object.keys(excelColorMapping).length > 0 && (
+                        {excelColorColumn && Object.keys(excelColorMapping).length > 0 && (
                           <MapLegend 
                             className="position-bottom-right" 
                             compact 
@@ -2185,7 +2559,6 @@ function Storm() {
                   </>
                 );
               })()}
-            </div>
           </div>
         </div>
       )}

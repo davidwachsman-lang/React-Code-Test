@@ -16,6 +16,7 @@ import ReportingAndAnalytics from './pages/ReportingAndAnalytics';
 import DailyWarRoom from './pages/DailyWarRoom';
 import Expectations2026 from './pages/Expectations2026';
 import Storm from './pages/Storm';
+import ResourceCenter from './pages/ResourceCenter';
 import Sandbox from './pages/Sandbox';
 import InsuranceJobSOPs from './pages/InsuranceJobSOPs';
 import Conversion from './pages/Conversion';
@@ -171,6 +172,7 @@ function AppContent() {
           <Route path="/reporting" element={<ReportingAndAnalytics />} />
           <Route path="/war-room" element={<DailyWarRoom />} />
           <Route path="/storm" element={<Storm />} />
+          <Route path="/resources" element={<ResourceCenter />} />
           <Route path="/expectations-2026" element={<Expectations2026 />} />
           <Route path="/sandbox" element={<Sandbox />} />
           <Route path="/insurance-job-sops" element={<InsuranceJobSOPs />} />

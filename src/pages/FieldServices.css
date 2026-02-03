@@ -212,6 +212,166 @@
   line-height: 1.6;
 }
 
+/* PM File Compliance */
+.pm-dashboard-panel {
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pm-dashboard-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pm-dashboard-header-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pm-dashboard-header h2,
+.pm-dashboard-header-top h2 {
+  color: #e5e7eb;
+  font-size: 1.4rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.pm-dashboard-header-bottom {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pm-dashboard-pm-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-right: 0.5rem;
+}
+
+.pm-dashboard-pm-select {
+  font-size: 0.8125rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(71, 85, 105, 0.8);
+  background: rgba(30, 41, 59, 0.8);
+  color: #e2e8f0;
+  min-width: 140px;
+}
+
+.pm-dashboard-pm-select:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+.pm-dashboard-count {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #64748b;
+  background: rgba(51, 65, 85, 0.5);
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+}
+
+.pm-dashboard-table-wrap {
+  border-radius: 10px;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+}
+
+.pm-dashboard-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.7rem;
+}
+
+.pm-dashboard-th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #94a3b8;
+  padding: 0.35rem 0.4rem;
+  white-space: normal;
+  line-height: 1.2;
+  background: rgba(30, 41, 59, 0.8);
+  border-bottom: 1px solid rgba(71, 85, 105, 0.6);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.pm-dashboard-th-group {
+  text-align: center;
+  color: #cbd5e1;
+  font-size: 0.65rem;
+}
+
+.pm-dashboard-thead-sub .pm-dashboard-th {
+  border-top: none;
+}
+
+/* Vertical divider between File Checks and Date Checks (first Date Check column; 15-column table) */
+.pm-dashboard-thead-sub .pm-dashboard-th:nth-child(14) {
+  border-left: 2px solid rgba(71, 85, 105, 0.9);
+}
+
+.pm-dashboard-table tbody .pm-dashboard-td:nth-child(14) {
+  border-left: 2px solid rgba(71, 85, 105, 0.9);
+}
+
+/* Stronger line under column headers */
+.pm-dashboard-thead-sub .pm-dashboard-th {
+  border-bottom: 2px solid rgba(71, 85, 105, 0.7);
+}
+
+.pm-dashboard-td {
+  padding: 0.35rem 0.4rem;
+  color: #e2e8f0;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.35);
+  vertical-align: middle;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+.pm-dashboard-td:first-child {
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.pm-dashboard-td-missing {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.pm-dashboard-td-done {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.pm-dashboard-tr:hover .pm-dashboard-td {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.pm-dashboard-table tbody tr:nth-child(even) .pm-dashboard-td {
+  background: rgba(30, 41, 59, 0.2);
+}
+
+.pm-dashboard-table tbody tr:nth-child(even):hover .pm-dashboard-td {
+  background: rgba(59, 130, 246, 0.08);
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .field-services-content {
@@ -256,6 +416,23 @@
 
   .documentation-layout {
     grid-template-columns: 1fr;
+  }
+
+  .pm-dashboard-panel {
+    padding: 1.25rem;
+  }
+
+  .pm-dashboard-header-top {
+    flex-wrap: wrap;
+  }
+
+  .pm-dashboard-table {
+    font-size: 0.65rem;
+  }
+
+  .pm-dashboard-th,
+  .pm-dashboard-td {
+    padding: 0.25rem 0.3rem;
   }
 }
 

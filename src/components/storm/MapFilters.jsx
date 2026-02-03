@@ -109,7 +109,6 @@ function MapFilters({
     <div className="map-filters-container">
       <div className="map-filters-header" onClick={() => setShowFilters(!showFilters)}>
         <h4>
-          <span className="filter-icon">🔍</span>
           Filters
           {activeFilterCount > 0 && (
             <span className="active-filter-badge">{activeFilterCount} active</span>

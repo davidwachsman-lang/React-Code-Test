@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { VENDOR_CATEGORIES, CATEGORY_COLORS } from '../data/vendorData';
+import { INTERNAL_DIRECTORY } from '../data/internalDirectoryData';
 import { vendorService } from '../services';
 import './ResourceCenter.css';
 
@@ -11,7 +12,10 @@ const emptyForm = () => ({
   notes: ''
 });
 
+const RESOURCE_TAB = { EXTERNAL: 'external', INTERNAL: 'internal' };
+
 const ResourceCenter = () => {
+  const [resourceTab, setResourceTab] = useState(RESOURCE_TAB.EXTERNAL);
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -169,13 +173,41 @@ const ResourceCenter = () => {
       <div className="resource-header resource-header-with-action">
         <div>
           <h1>Resource Center</h1>
-          <p className="resource-subtitle">Quick access to vendors and sub-trades</p>
+          <p className="resource-subtitle">
+            {resourceTab === RESOURCE_TAB.EXTERNAL
+              ? 'Quick access to vendors and sub-trades'
+              : 'Company directory (internal)'}
+          </p>
         </div>
-        <button type="button" className="resource-add-btn" onClick={openAdd}>
-          Add vendor
+        {resourceTab === RESOURCE_TAB.EXTERNAL && (
+          <button type="button" className="resource-add-btn" onClick={openAdd}>
+            Add vendor
+          </button>
+        )}
+      </div>
+
+      {/* External / Internal tabs */}
+      <div className="resource-tabs">
+        <button
+          type="button"
+          className={`resource-tab ${resourceTab === RESOURCE_TAB.EXTERNAL ? 'resource-tab-active' : ''}`}
+          onClick={() => setResourceTab(RESOURCE_TAB.EXTERNAL)}
+        >
+          External
+        </button>
+        <button
+          type="button"
+          className={`resource-tab ${resourceTab === RESOURCE_TAB.INTERNAL ? 'resource-tab-active' : ''}`}
+          onClick={() => setResourceTab(RESOURCE_TAB.INTERNAL)}
+        >
+          Internal
         </button>
       </div>
 
+      {resourceTab === RESOURCE_TAB.INTERNAL ? (
+        <InternalCompanyDirectory />
+      ) : (
+        <>
       {/* Search and Filter Bar */}
       <div className="resource-controls">
         <div className="search-box">
@@ -280,9 +312,128 @@ const ResourceCenter = () => {
           onSubmit={handleFormSubmit}
         />
       )}
+        </>
+      )}
     </div>
   );
 };
+
+const DIRECTORY_COLUMNS = [
+  { key: 'name', label: 'Name' },
+  { key: 'role', label: 'Role' },
+  { key: 'department', label: 'Department' },
+  { key: 'email', label: 'Email' },
+  { key: 'phone', label: 'Phone' },
+];
+
+function formatPhoneWithExt(person) {
+  const phone = person.phone || '';
+  const ext = person.extension || '';
+  if (!phone) return '';
+  return ext ? `${phone} x${ext}` : phone;
+}
+
+function InternalCompanyDirectory() {
+  const directoryData = INTERNAL_DIRECTORY;
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortField, setSortField] = useState('name');
+  const [sortDirection, setSortDirection] = useState('asc');
+
+  const filteredAndSorted = useMemo(() => {
+    const searchLower = (searchTerm || '').toLowerCase().trim();
+    let list = searchLower
+      ? directoryData.filter((person) => {
+          const name = (person.name || '').toLowerCase();
+          const role = (person.role || '').toLowerCase();
+          const department = (person.department || '').toLowerCase();
+          const email = (person.email || '').toLowerCase();
+          const phone = (person.phone || '').toLowerCase();
+          const ext = (person.extension || '').toLowerCase();
+          return (
+            name.includes(searchLower) ||
+            role.includes(searchLower) ||
+            department.includes(searchLower) ||
+            email.includes(searchLower) ||
+            phone.includes(searchLower) ||
+            ext.includes(searchLower)
+          );
+        })
+      : [...directoryData];
+    list.sort((a, b) => {
+      const aVal = (a[sortField] || '').toString().toLowerCase();
+      const bVal = (b[sortField] || '').toString().toLowerCase();
+      const cmp = aVal.localeCompare(bVal, undefined, { sensitivity: 'base' });
+      return sortDirection === 'asc' ? cmp : -cmp;
+    });
+    return list;
+  }, [directoryData, searchTerm, sortField, sortDirection]);
+
+  const handleSort = (key) => {
+    if (sortField === key) {
+      setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(key);
+      setSortDirection('asc');
+    }
+  };
+
+  return (
+    <div className="resource-internal-directory">
+      <div className="resource-internal-search-box">
+        <input
+          type="text"
+          placeholder="Search by name, title, department, or phone"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+        {searchTerm && (
+          <button type="button" className="clear-search" onClick={() => setSearchTerm('')} aria-label="Clear search">
+            &times;
+          </button>
+        )}
+      </div>
+      <div className="resource-internal-results">
+        {filteredAndSorted.length} {filteredAndSorted.length === 1 ? 'person' : 'people'} found
+      </div>
+      <div className="resource-internal-table-wrap">
+        <table className="resource-internal-table">
+          <thead>
+            <tr>
+              {DIRECTORY_COLUMNS.map(({ key, label }) => (
+                <th
+                  key={key}
+                  className="resource-internal-th sortable"
+                  onClick={() => handleSort(key)}
+                >
+                  <span className="header-content">
+                    {label}
+                    {sortField === key && (
+                      <span className="sort-indicator" aria-hidden>
+                        {sortDirection === 'asc' ? ' ↑' : ' ↓'}
+                      </span>
+                    )}
+                  </span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filteredAndSorted.map((person, index) => (
+              <tr key={index}>
+                <td>{person.name}</td>
+                <td>{person.role}</td>
+                <td>{person.department}</td>
+                <td>{person.email || '—'}</td>
+                <td>{formatPhoneWithExt(person)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 // Vendor Form Modal
 const VendorFormModal = ({

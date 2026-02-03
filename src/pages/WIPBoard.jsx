@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import './Page.css';
 import './WIPBoard.css';
 
 function WIPBoard() {
   const [draggedCard, setDraggedCard] = useState(null);
   const [selectedDivision, setSelectedDivision] = useState('mit');
-
+  
   const [mitColumns, setMitColumns] = useState({
     'pending': {
       id: 'pending',
@@ -117,7 +116,7 @@ function WIPBoard() {
 
   // Get current columns based on selected division
   const getCurrentColumns = () => {
-    switch (selectedDivision) {
+    switch(selectedDivision) {
       case 'mit': return mitColumns;
       case 'recon': return reconColumns;
       case 'largeLoss': return largeLossColumns;
@@ -126,7 +125,7 @@ function WIPBoard() {
   };
 
   const setCurrentColumns = (newColumns) => {
-    switch (selectedDivision) {
+    switch(selectedDivision) {
       case 'mit': setMitColumns(newColumns); break;
       case 'recon': setReconColumns(newColumns); break;
       case 'largeLoss': setLargeLossColumns(newColumns); break;
@@ -148,41 +147,32 @@ function WIPBoard() {
 
   const handleDrop = (e, targetColumnId) => {
     e.preventDefault();
-
+    
     if (!draggedCard) return;
-
+    
     const { card, sourceColumnId } = draggedCard;
-
+    
     if (sourceColumnId === targetColumnId) {
       setDraggedCard(null);
       return;
     }
 
     const newColumns = { ...columns };
-
+    
     // Remove card from source column
     newColumns[sourceColumnId] = {
       ...newColumns[sourceColumnId],
       cards: newColumns[sourceColumnId].cards.filter(c => c.id !== card.id)
     };
-
+    
     // Add card to target column
     newColumns[targetColumnId] = {
       ...newColumns[targetColumnId],
       cards: [...newColumns[targetColumnId].cards, card]
     };
-
+    
     setCurrentColumns(newColumns);
     setDraggedCard(null);
-  };
-
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'high': return '#ef4444';
-      case 'medium': return '#f59e0b';
-      case 'low': return '#10b981';
-      default: return '#64748b';
-    }
   };
 
   const getTotalEstimate = () => {
@@ -202,101 +192,101 @@ function WIPBoard() {
 
   return (
     <div className="precision-layout">
-      {/* Precision Main Content */}
       <main className="precision-main">
-        <header className="precision-header">
-          <h1>WIP Board</h1>
-          <div className="board-stats">
-            <div className="stat-item">
-              <span className="stat-label">Job Count:</span>
-              <span className="stat-value">{Object.values(columns).reduce((acc, col) => acc + col.cards.length, 0)}</span>
-            </div>
-            <div className="stat-divider"></div>
-            <div className="stat-item">
-              <span className="stat-label">Total Estimate:</span>
-              <span className="stat-value">{formatCurrency(getTotalEstimate())}</span>
-            </div>
-          </div>
-        </header>
-
-        {/* Division Tabs - Pill Style */}
-        <div className="precision-tabs">
-          <button
-            className={`p-tab ${selectedDivision === 'mit' ? 'active' : ''}`}
-            onClick={() => setSelectedDivision('mit')}
-          >
-            MIT
-          </button>
-          <button
-            className={`p-tab ${selectedDivision === 'recon' ? 'active' : ''}`}
-            onClick={() => setSelectedDivision('recon')}
-          >
-            RECON
-          </button>
-          <button
-            className={`p-tab ${selectedDivision === 'largeLoss' ? 'active' : ''}`}
-            onClick={() => setSelectedDivision('largeLoss')}
-          >
-            LARGE LOSS
-          </button>
-        </div>
-
-        <div className="kanban-board">
-          {Object.values(columns).map(column => {
-            const columnTotal = column.cards.reduce((sum, card) => sum + (card.estimate || 0), 0);
-
-            return (
-              <div
-                key={column.id}
-                className="kanban-column p-card"
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, column.id)}
-              >
-                <div className="column-header" style={{ borderTopColor: column.color }}>
-                  <div className="column-header-top">
-                    <h3>{column.title}</h3>
-                    <span className="card-count">{column.cards.length}</span>
-                  </div>
-                  <div className="column-estimate">
-                    {formatCurrency(columnTotal)}
-                  </div>
-                </div>
-
-                <div className="column-content">
-                  {column.cards.map(card => (
-                    <div
-                      key={card.id}
-                      className="job-card"
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, card, column.id)}
-                    >
-                      <div className="card-header-wip">
-                        <span className="job-number">{card.jobNumber}</span>
-                        <span
-                          className="priority-badge"
-                          style={{ backgroundColor: getPriorityColor(card.priority) }}
-                        >
-                          {card.priority}
-                        </span>
-                      </div>
-                      <div className="card-body-wip">
-                        <div className="customer-name">{card.customer}</div>
-                        <div className="job-address">{card.address}</div>
-                        <div className="job-type">{card.type}</div>
-                        <div className="job-estimate">{formatCurrency(card.estimate)}</div>
-                      </div>
-                    </div>
-                  ))}
-
-                  {column.cards.length === 0 && (
-                    <div className="empty-column">
-                      Drop jobs here
-                    </div>
-                  )}
-                </div>
+        <div className="wip-board-page">
+          <header className="precision-header">
+            <h1>WIP Board</h1>
+            <div className="board-stats p-meta">
+              <div className="stat-item">
+                <span className="stat-label">Job Count:</span>
+                <span className="stat-value">{Object.values(columns).reduce((acc, col) => acc + col.cards.length, 0)}</span>
               </div>
-            );
-          })}
+              <div className="stat-divider"></div>
+              <div className="stat-item">
+                <span className="stat-label">Estimate Value:</span>
+                <span className="stat-value">{formatCurrency(getTotalEstimate())}</span>
+              </div>
+            </div>
+          </header>
+
+          <div className="precision-tabs">
+            <button
+              className={`p-tab ${selectedDivision === 'mit' ? 'active' : ''}`}
+              onClick={() => setSelectedDivision('mit')}
+            >
+              <span className="tab-icon">🔧</span>
+              MIT
+            </button>
+            <button
+              className={`p-tab ${selectedDivision === 'recon' ? 'active' : ''}`}
+              onClick={() => setSelectedDivision('recon')}
+            >
+              <span className="tab-icon">🏗️</span>
+              RECON
+            </button>
+            <button
+              className={`p-tab ${selectedDivision === 'largeLoss' ? 'active' : ''}`}
+              onClick={() => setSelectedDivision('largeLoss')}
+            >
+              <span className="tab-icon">📋</span>
+              LARGE LOSS
+            </button>
+          </div>
+
+          <div className="kanban-board">
+            {Object.values(columns).map(column => {
+              const columnTotal = column.cards.reduce((sum, card) => sum + (card.estimate || 0), 0);
+
+              return (
+                <div
+                  key={column.id}
+                  className="kanban-column"
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, column.id)}
+                >
+                  <div className={`column-header column-${column.id}`}>
+                    <div className="column-header-top">
+                      <h3>{column.title}</h3>
+                      <span className="card-count">{column.cards.length}</span>
+                    </div>
+                    <div className="column-estimate">
+                      {formatCurrency(columnTotal)}
+                    </div>
+                  </div>
+
+                  <div className="column-content">
+                    {column.cards.map(card => (
+                      <div
+                        key={card.id}
+                        className="job-card"
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, card, column.id)}
+                      >
+                        <div className="card-header-wip">
+                          <span className="job-number">{card.jobNumber}</span>
+                          <span className={`priority-badge priority-${card.priority}`}>
+                            {card.priority}
+                          </span>
+                        </div>
+                        <div className="card-body-wip">
+                          <div className="customer-name">{card.customer}</div>
+                          <div className="job-address">{card.address}</div>
+                          <div className="job-type">{card.type}</div>
+                          <div className="job-estimate">{formatCurrency(card.estimate)}</div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {column.cards.length === 0 && (
+                      <div className="empty-column">
+                        Drop jobs here
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </main>
     </div>

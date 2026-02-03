@@ -12,7 +12,7 @@ function DispatchAndScheduling() {
     const diff = today.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
     return new Date(today.setDate(diff));
   });
-
+  
   // Generate time slots from 7 AM to 7 PM
   const timeSlots = [];
   for (let hour = 7; hour <= 19; hour++) {
@@ -126,7 +126,7 @@ function DispatchAndScheduling() {
     if (draggedJob) {
       setSchedule(prev => {
         const newSchedule = { ...prev };
-
+        
         // If dragging from a scheduled slot, remove from source
         if (dragSource) {
           newSchedule[dragSource.day] = {
@@ -136,16 +136,16 @@ function DispatchAndScheduling() {
             )
           };
         }
-
+        
         // Add to destination (preserve assignedTech if moving from schedule)
         newSchedule[day] = {
           ...newSchedule[day],
           [timeSlot]: [
-            ...newSchedule[day][timeSlot],
+            ...newSchedule[day][timeSlot], 
             dragSource ? draggedJob : { ...draggedJob, assignedTech: null }
           ]
         };
-
+        
         return newSchedule;
       });
     }
@@ -169,7 +169,7 @@ function DispatchAndScheduling() {
       ...prev,
       [day]: {
         ...prev[day],
-        [timeSlot]: prev[day][timeSlot].map(job =>
+        [timeSlot]: prev[day][timeSlot].map(job => 
           job.id === jobId ? { ...job, assignedTech: techId } : job
         )
       }
@@ -177,7 +177,7 @@ function DispatchAndScheduling() {
   };
 
   const getPriorityClass = (priority) => {
-    switch (priority) {
+    switch(priority) {
       case 'urgent': return 'priority-urgent';
       case 'high': return 'priority-high';
       case 'medium': return 'priority-medium';
@@ -197,7 +197,7 @@ function DispatchAndScheduling() {
   const handleExport = () => {
     // Create CSV content
     let csvContent = 'Day,Date,Time,Client,Type,Priority,Duration (hrs),Technician,Address\n';
-
+    
     daysOfWeek.forEach(dayInfo => {
       timeSlots.forEach(timeSlot => {
         const jobs = schedule[dayInfo.name][timeSlot];
@@ -224,7 +224,7 @@ function DispatchAndScheduling() {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     const weekRange = `${daysOfWeek[0].dateString}-${daysOfWeek[6].dateString}`;
-
+    
     link.setAttribute('href', url);
     link.setAttribute('download', `schedule_${weekRange.replace(/\s/g, '_')}.csv`);
     link.style.visibility = 'hidden';
@@ -234,169 +234,164 @@ function DispatchAndScheduling() {
   };
 
   return (
-    <div className="precision-layout">
-      {/* Precision Main Content */}
-      <main className="precision-main">
-        <div className="precision-header">
-          <div className="header-left">
-            <h1>Dispatch & Scheduling</h1>
-            <div className="week-navigator">
-              <button className="p-btn-secondary nav-btn" onClick={goToPreviousWeek} title="Previous Week">
-                ‹
-              </button>
-              <button className="p-btn-secondary today-btn" onClick={goToToday}>
-                Today
-              </button>
-              <button className="p-btn-secondary nav-btn" onClick={goToNextWeek} title="Next Week">
-                ›
-              </button>
-              <span className="week-range p-meta">
-                {daysOfWeek[0].dateString} - {daysOfWeek[6].dateString}, {currentWeekStart.getFullYear()}
-              </span>
-            </div>
+    <div className="page-container dispatch-page">
+      <div className="dispatch-header">
+        <div className="header-left">
+          <h1>Dispatch & Scheduling</h1>
+          <div className="week-navigator">
+            <button className="nav-btn" onClick={goToPreviousWeek} title="Previous Week">
+              ‹
+            </button>
+            <button className="nav-btn today-btn" onClick={goToToday}>
+              Today
+            </button>
+            <button className="nav-btn" onClick={goToNextWeek} title="Next Week">
+              ›
+            </button>
+            <span className="week-range">
+              {daysOfWeek[0].dateString} - {daysOfWeek[6].dateString}, {currentWeekStart.getFullYear()}
+            </span>
           </div>
-          <div className="header-actions">
-            <button className="p-btn-primary" onClick={handlePrint}>Print Schedule</button>
-            <button className="p-btn-secondary" onClick={handleExport}>Export</button>
+        </div>
+        <div className="header-actions">
+          <button className="btn-primary" onClick={handlePrint}>Print Schedule</button>
+          <button className="btn-secondary" onClick={handleExport}>Export</button>
+        </div>
+      </div>
+
+      <div className="dispatch-layout">
+        {/* Unassigned Jobs Panel */}
+        <div className="unassigned-panel">
+          <h2>Unassigned Jobs</h2>
+          <div className="jobs-list">
+            {unassignedJobs.map(job => (
+              <div
+                key={job.id}
+                className={`job-card ${getPriorityClass(job.priority)}`}
+                draggable
+                onDragStart={(e) => handleDragStart(e, job)}
+                onDragEnd={handleDragEnd}
+              >
+                <div className="drag-handle">⋮⋮</div>
+                <div className="job-header">
+                  <h3>{job.client}</h3>
+                  <span className={`priority-badge ${job.priority}`}>
+                    {job.priority}
+                  </span>
+                </div>
+                <div className="job-details">
+                  <p><strong>Type:</strong> {job.type}</p>
+                  <p><strong>Duration:</strong> {job.duration} hrs</p>
+                  <p><strong>Address:</strong> {job.address}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="technicians-panel">
+            <h3>Available Technicians</h3>
+            {technicians.map(tech => (
+              <div key={tech.id} className="tech-card">
+                <div className="tech-avatar">{tech.name.charAt(0)}</div>
+                <div className="tech-info">
+                  <strong>{tech.name}</strong>
+                  <span>{tech.specialty}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="dispatch-layout">
-          {/* Unassigned Jobs Panel */}
-          <div className="unassigned-panel p-card">
-            <div className="p-card-header">
-              <h2>Unassigned Jobs</h2>
-            </div>
-            <div className="jobs-list">
-              {unassignedJobs.map(job => (
-                <div
-                  key={job.id}
-                  className={`job-card ${getPriorityClass(job.priority)}`}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, job)}
-                  onDragEnd={handleDragEnd}
-                >
-                  <div className="drag-handle">⋮⋮</div>
-                  <div className="job-header">
-                    <h3>{job.client}</h3>
-                    <span className={`priority-badge ${job.priority}`}>
-                      {job.priority}
-                    </span>
-                  </div>
-                  <div className="job-details">
-                    <p><strong>Type:</strong> {job.type}</p>
-                    <p><strong>Duration:</strong> {job.duration} hrs</p>
-                    <p><strong>Address:</strong> {job.address}</p>
-                  </div>
+        {/* Outlook-style Calendar Grid */}
+        <div className="calendar-container">
+          <div className="calendar-grid">
+            {/* Time Column */}
+            <div className="time-column">
+              <div className="time-header"></div>
+              {timeSlots.map(time => (
+                <div key={time} className="time-slot-label">
+                  {time}
                 </div>
               ))}
             </div>
 
-            <div className="technicians-panel">
-              <h3>Available Technicians</h3>
-              {technicians.map(tech => (
-                <div key={tech.id} className="tech-card">
-                  <div className="tech-avatar">{tech.name.charAt(0)}</div>
-                  <div className="tech-info">
-                    <strong>{tech.name}</strong>
-                    <span>{tech.specialty}</span>
+            {/* Day Columns */}
+            {daysOfWeek.map(dayInfo => {
+              const isToday = new Date().toDateString() === dayInfo.date.toDateString();
+              return (
+                <div key={dayInfo.name} className={`day-column ${isToday ? 'today' : ''}`}>
+                  <div className="day-header">
+                    <div className="day-name">{dayInfo.shortName}</div>
+                    <div className={`day-date ${isToday ? 'today-date' : ''}`}>{dayInfo.dateString}</div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Outlook-style Calendar Grid */}
-          <div className="calendar-container p-card">
-            <div className="calendar-grid">
-              {/* Time Column */}
-              <div className="time-column">
-                <div className="time-header"></div>
-                {timeSlots.map(time => (
-                  <div key={time} className="time-slot-label">
-                    {time}
-                  </div>
-                ))}
-              </div>
-
-              {/* Day Columns */}
-              {daysOfWeek.map(dayInfo => {
-                const isToday = new Date().toDateString() === dayInfo.date.toDateString();
-                return (
-                  <div key={dayInfo.name} className={`day-column ${isToday ? 'today' : ''}`}>
-                    <div className="day-header">
-                      <div className="day-name">{dayInfo.shortName}</div>
-                      <div className={`day-date ${isToday ? 'today-date' : ''}`}>{dayInfo.dateString}</div>
-                    </div>
-
-                    {timeSlots.map(timeSlot => {
-                      const slotId = `${dayInfo.name}-${timeSlot}`;
-                      const isDropTarget = dragOverSlot === slotId;
-                      return (
-                        <div
-                          key={slotId}
-                          className={`time-slot ${isDropTarget ? 'drop-target' : ''}`}
-                          onDragOver={handleDragOver}
-                          onDragEnter={() => handleDragEnter(dayInfo.name, timeSlot)}
-                          onDragLeave={handleDragLeave}
-                          onDrop={(e) => handleDrop(e, dayInfo.name, timeSlot)}
+                  
+                  {timeSlots.map(timeSlot => {
+                    const slotId = `${dayInfo.name}-${timeSlot}`;
+                    const isDropTarget = dragOverSlot === slotId;
+                    return (
+                      <div
+                        key={slotId}
+                        className={`time-slot ${isDropTarget ? 'drop-target' : ''}`}
+                        onDragOver={handleDragOver}
+                        onDragEnter={() => handleDragEnter(dayInfo.name, timeSlot)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, dayInfo.name, timeSlot)}
+                      >
+                        {isDropTarget && (
+                          <div className="drop-indicator">
+                            Drop here: {timeSlot}
+                          </div>
+                        )}
+                        {schedule[dayInfo.name][timeSlot].map((job, index) => (
+                      <div
+                        key={`${job.id}-${index}`}
+                        className={`scheduled-job ${getPriorityClass(job.priority)}`}
+                        style={{ height: `${job.duration * 60}px` }}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, job, dayInfo.name, timeSlot)}
+                        onDragEnd={handleDragEnd}
+                      >
+                        <button 
+                          className="remove-btn"
+                          onClick={() => removeJob(dayInfo.name, timeSlot, job.id)}
+                          title="Remove job"
                         >
-                          {isDropTarget && (
-                            <div className="drop-indicator">
-                              Drop here: {timeSlot}
+                          ×
+                        </button>
+                        <div className="job-content">
+                          <div className="job-title">{job.client}</div>
+                          <div className="job-type">{job.type}</div>
+                          <div className="job-duration">{job.duration} hrs</div>
+                          <select
+                            value={job.assignedTech || ''}
+                            onChange={(e) => assignTechnician(dayInfo.name, timeSlot, job.id, parseInt(e.target.value))}
+                            className="tech-select-inline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <option value="">Assign Tech</option>
+                            {technicians.map(tech => (
+                              <option key={tech.id} value={tech.id}>
+                                {tech.name}
+                              </option>
+                            ))}
+                          </select>
+                          {job.assignedTech && (
+                            <div className="assigned-tech-badge">
+                              👤 {getTechName(job.assignedTech)}
                             </div>
                           )}
-                          {schedule[dayInfo.name][timeSlot].map((job, index) => (
-                            <div
-                              key={`${job.id}-${index}`}
-                              className={`scheduled-job ${getPriorityClass(job.priority)}`}
-                              style={{ height: `${job.duration * 60}px` }}
-                              draggable
-                              onDragStart={(e) => handleDragStart(e, job, dayInfo.name, timeSlot)}
-                              onDragEnd={handleDragEnd}
-                            >
-                              <button
-                                className="remove-btn"
-                                onClick={() => removeJob(dayInfo.name, timeSlot, job.id)}
-                                title="Remove job"
-                              >
-                                ×
-                              </button>
-                              <div className="job-content">
-                                <div className="job-title">{job.client}</div>
-                                <div className="job-type">{job.type}</div>
-                                <div className="job-duration">{job.duration} hrs</div>
-                                <select
-                                  value={job.assignedTech || ''}
-                                  onChange={(e) => assignTechnician(dayInfo.name, timeSlot, job.id, parseInt(e.target.value))}
-                                  className="tech-select-inline p-input"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <option value="">Assign Tech</option>
-                                  {technicians.map(tech => (
-                                    <option key={tech.id} value={tech.id}>
-                                      {tech.name}
-                                    </option>
-                                  ))}
-                                </select>
-                                {job.assignedTech && (
-                                  <div className="assigned-tech-badge">
-                                    👤 {getTechName(job.assignedTech)}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ))}
                         </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </div>
+                      </div>
+                    ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

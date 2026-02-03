@@ -1,18 +1,46 @@
-/* Main Layout - relying on .precision-layout now */
+/* =========================================
+   DISPATCH & SCHEDULING - PREMIUM PRECISION THEME
+   Applying frontend-design skill enhancements
+   ========================================= */
+
+/* Premium Font Import */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ============ BASE LAYOUT ============ */
 .dispatch-page {
-  /* Using global layout */
+  padding: 2rem;
+  height: 100vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  background-color: var(--precision-bg);
+  color: var(--precision-text-primary);
+  font-family: 'DM Sans', var(--precision-font);
+  position: relative;
 }
 
+/* Subtle background texture for depth */
+.dispatch-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(246, 139, 31, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============ HEADER ============ */
 .dispatch-header {
-  /* Inherits styles from .precision-header mostly, specific overrides here */
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 2rem;
   flex-shrink: 0;
   gap: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .header-left {
@@ -23,166 +51,241 @@
 }
 
 .dispatch-header h1 {
-  /* Handled by .precision-header h1 */
   margin: 0;
+  color: var(--precision-text-primary) !important;
+  font-size: 1.75rem;
+  font-weight: 700;
   white-space: nowrap;
+  letter-spacing: -0.02em;
+  /* Override Page.css blue gradient */
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: var(--precision-text-primary) !important;
+  background-clip: unset !important;
 }
 
 .week-navigator {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  background: var(--precision-input-bg);
+  padding: 0.35rem;
+  border-radius: 12px;
 }
 
 .nav-btn {
-  /* Handled by .p-btn-secondary mostly, adds specific dimensions */
+  background: transparent;
+  border: none;
+  color: var(--precision-text-secondary);
   width: 36px;
   height: 36px;
-  padding: 0;
+  border-radius: 8px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+}
+
+.nav-btn:hover {
+  background: var(--precision-surface);
+  color: var(--precision-primary);
+  transform: scale(1.05);
 }
 
 .today-btn {
   width: auto;
   padding: 0 1rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--precision-primary);
+}
+
+.today-btn:hover {
+  background: rgba(246, 139, 31, 0.1);
 }
 
 .week-range {
-  /* Handled by .p-meta */
-  margin-left: 0.5rem;
+  color: var(--precision-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-left: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.01em;
 }
 
 .header-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
+/* Premium Buttons */
 .btn-primary,
 .btn-secondary {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--precision-primary) 0%, #e87c0f 100%);
   color: white;
+  box-shadow: 0 2px 8px rgba(246, 139, 31, 0.25);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(246, 139, 31, 0.35);
 }
 
-.btn-secondary {
-  background: rgba(59, 130, 246, 0.1);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+.dispatch-page .btn-secondary {
+  background: var(--precision-surface);
+  color: var(--precision-text-primary);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: var(--precision-shadow);
 }
 
-.btn-secondary:hover {
-  background: rgba(59, 130, 246, 0.2);
+.dispatch-page .btn-secondary:hover {
+  background: var(--precision-input-bg);
+  border-color: var(--precision-primary);
 }
 
+/* ============ MAIN LAYOUT ============ */
 .dispatch-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 300px 1fr;
   gap: 1.5rem;
   flex: 1;
   overflow: hidden;
   min-height: 0;
+  position: relative;
+  z-index: 1;
 }
 
-/* Unassigned Jobs Panel */
+/* ============ UNASSIGNED JOBS PANEL - GLASS EFFECT ============ */
 .unassigned-panel {
-  /* .p-card handles background/border */
+  background: var(--precision-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 1.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.15);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   max-height: 100%;
+  box-shadow:
+    0 4px 24px -4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .unassigned-panel h2 {
-  /* Handled by .p-card-header h2 */
   margin: 0;
+  color: var(--precision-text-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
 }
 
 .jobs-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.625rem;
   flex-shrink: 0;
 }
 
+/* ============ JOB CARDS - REFINED ============ */
 .job-card {
-  background: var(--precision-sidebar-bg);
-  border-radius: 6px;
-  padding: 0.75rem;
+  background: var(--precision-input-bg);
+  border-radius: 12px;
+  padding: 1rem;
   border: 1px solid transparent;
   cursor: grab;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  box-shadow: var(--precision-shadow);
+  overflow: hidden;
+}
+
+.job-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 4px 0 0 4px;
+  transition: width 0.2s ease;
 }
 
 .job-card:active {
   cursor: grabbing;
+  transform: scale(0.98);
 }
 
 .job-card:hover {
-  border-color: var(--precision-border-focus);
-  transform: translateY(-1px);
+  transform: translateY(-3px);
   box-shadow: var(--precision-shadow-lg);
+  border-color: rgba(148, 163, 184, 0.2);
 }
 
+.job-card:hover::before {
+  width: 6px;
+}
+
+/* Drag Handle */
 .drag-handle {
   position: absolute;
-  left: 0.25rem;
+  right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #64748b;
+  color: var(--precision-text-muted);
   font-size: 1rem;
   letter-spacing: -2px;
-  opacity: 0.5;
+  opacity: 0;
+  transition: opacity 0.2s ease;
   pointer-events: none;
 }
 
 .job-card:hover .drag-handle {
-  opacity: 1;
-  color: #3b82f6;
+  opacity: 0.6;
 }
 
-.job-card.priority-urgent {
-  border-left: 3px solid #ef4444;
+/* Priority Colors */
+.job-card.priority-urgent::before {
+  background: linear-gradient(180deg, #ef4444, #dc2626);
 }
 
-.job-card.priority-high {
-  border-left: 3px solid #f97316;
+.job-card.priority-high::before {
+  background: linear-gradient(180deg, #f97316, #ea580c);
 }
 
-.job-card.priority-medium {
-  border-left: 3px solid #eab308;
+.job-card.priority-medium::before {
+  background: linear-gradient(180deg, #eab308, #ca8a04);
 }
 
-.job-card.priority-low {
-  border-left: 3px solid #22c55e;
+.job-card.priority-low::before {
+  background: linear-gradient(180deg, #22c55e, #16a34a);
 }
 
 .job-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 0.75rem;
-  padding-left: 1rem;
+  gap: 0.5rem;
 }
 
 .job-header h3 {
@@ -190,9 +293,39 @@
   color: var(--precision-text-primary);
   font-size: 0.95rem;
   font-weight: 600;
+  line-height: 1.3;
 }
 
-/* Priority badges logic is fine, they use semantic colors */
+/* Priority Badges - Premium Pill Style */
+.priority-badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.priority-badge.urgent {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%);
+  color: #ef4444;
+}
+
+.priority-badge.high {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(234, 88, 12, 0.15) 100%);
+  color: #f97316;
+}
+
+.priority-badge.medium {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.15) 0%, rgba(202, 138, 4, 0.15) 100%);
+  color: #eab308;
+}
+
+.priority-badge.low {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.15) 100%);
+  color: #22c55e;
+}
 
 .job-details {
   display: flex;
@@ -204,63 +337,73 @@
   margin: 0;
   color: var(--precision-text-secondary);
   font-size: 0.8rem;
+  line-height: 1.4;
 }
 
 .job-details strong {
   color: var(--precision-text-muted);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
 }
 
-/* Technicians Panel */
+/* ============ TECHNICIANS PANEL ============ */
 .technicians-panel {
-  margin-top: 1rem;
+  margin-top: auto;
   padding-top: 1rem;
-  border-top: 1px solid var(--precision-input-bg);
-  flex-shrink: 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
 }
 
 .technicians-panel h3 {
   margin: 0 0 0.75rem 0;
   color: var(--precision-text-primary);
-  font-size: 0.95rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
 }
 
 .tech-card {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  /* Use lighter/darker surface for tech card background if needed, standard input bg works well */
-  background: var(--precision-active-bg);
-  border-radius: 6px;
+  gap: 0.75rem;
+  padding: 0.625rem;
+  background: var(--precision-input-bg);
+  border-radius: 10px;
   margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.tech-card:hover {
+  background: var(--precision-input-bg-hover);
 }
 
 .tech-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  /* Tech avatar brand color can stay */
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--precision-primary) 0%, #e87c0f 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(246, 139, 31, 0.25);
 }
 
 .tech-info {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  gap: 0.125rem;
 }
 
 .tech-info strong {
   color: var(--precision-text-primary);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -274,55 +417,61 @@
   text-overflow: ellipsis;
 }
 
-/* Outlook-style Calendar Container */
+/* ============ CALENDAR CONTAINER - GLASS EFFECT ============ */
 .calendar-container {
-  /* .p-card handles basic styling */
+  background: var(--precision-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
   overflow: auto;
   height: 100%;
-  padding: 0;
-  /* Remove padding for edge-to-edge grid */
+  box-shadow:
+    0 4px 24px -4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: 80px repeat(7, 1fr);
+  grid-template-columns: 72px repeat(7, 1fr);
   min-width: 1000px;
 }
 
-/* Time Column */
+/* ============ TIME COLUMN ============ */
 .time-column {
-  background: var(--precision-surface);
-  /* sticky header bg */
-  border-right: 1px solid var(--precision-input-bg);
+  background: var(--precision-bg);
+  border-right: 1px solid rgba(148, 163, 184, 0.1);
   position: sticky;
   left: 0;
   z-index: 2;
 }
 
 .time-header {
-  height: 60px;
-  border-bottom: 1px solid var(--precision-input-bg);
-  background: var(--precision-surface);
+  height: 64px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  background: var(--precision-bg);
   position: sticky;
   top: 0;
   z-index: 3;
 }
 
 .time-slot-label {
-  height: 60px;
+  height: 64px;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 0.25rem;
-  font-size: 0.75rem;
+  padding-top: 0.5rem;
+  font-size: 0.7rem;
   color: var(--precision-text-muted);
-  border-bottom: 1px solid var(--precision-input-bg);
-  font-weight: 500;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.02em;
 }
 
-/* Day Columns */
+/* ============ DAY COLUMNS ============ */
 .day-column {
-  border-right: 1px solid var(--precision-input-bg);
+  border-right: 1px solid rgba(148, 163, 184, 0.05);
   min-width: 120px;
 }
 
@@ -331,89 +480,83 @@
 }
 
 .day-header {
-  height: 60px;
+  height: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid var(--precision-input-bg);
-  background: var(--precision-surface);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  background: var(--precision-bg);
   position: sticky;
   top: 0;
   z-index: 1;
-  gap: 0.15rem;
+  gap: 0.25rem;
+  transition: background 0.2s ease;
 }
 
 .day-column.today .day-header {
-  background: var(--precision-active-bg);
-  border-bottom-color: var(--precision-primary);
+  background: rgba(246, 139, 31, 0.08);
 }
 
 .day-name {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   color: var(--precision-text-muted);
   text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
 }
 
 .day-date {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--precision-text-primary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .day-date.today-date {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--precision-primary) 0%, #e87c0f 100%);
   color: white;
-  padding: 0.15rem 0.75rem;
-  border-radius: 12px;
+  padding: 0.25rem 0.75rem;
+  border-radius: 8px;
   font-weight: 700;
+  box-shadow: 0 2px 8px rgba(246, 139, 31, 0.3);
 }
 
-/* Time Slots */
+/* ============ TIME SLOTS ============ */
 .time-slot {
-  height: 60px;
-  border-bottom: 1px solid var(--precision-input-bg);
+  height: 64px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.05);
   position: relative;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 .time-slot:hover {
-  background-color: var(--precision-active-bg);
+  background-color: var(--precision-input-bg);
 }
 
 .day-column.today .time-slot {
-  background-color: rgba(from var(--precision-primary) r g b / 0.03);
-  /* Modern CSS color syntax if supported, else fallback to slight tint */
-}
-
-/* simpler fallback for today */
-.day-column.today .time-slot {
-  background-color: var(--precision-sidebar-bg);
-  /* Use sidebar bg for slight contrast */
+  background-color: rgba(246, 139, 31, 0.02);
 }
 
 .day-column.today .time-slot:hover {
-  background-color: var(--precision-active-bg);
+  background-color: rgba(246, 139, 31, 0.06);
 }
 
 /* Drop Target Styles */
 .time-slot.drop-target {
-  background-color: rgba(59, 130, 246, 0.2) !important;
-  border: 2px dashed #3b82f6 !important;
-  animation: pulse 1s ease-in-out infinite;
+  background-color: rgba(246, 139, 31, 0.15) !important;
+  border: 2px dashed var(--precision-primary) !important;
+  animation: pulse-glow 1.5s ease-in-out infinite;
 }
 
-@keyframes pulse {
+@keyframes pulse-glow {
 
   0%,
   100% {
-    background-color: rgba(59, 130, 246, 0.2);
+    box-shadow: inset 0 0 0 rgba(246, 139, 31, 0);
   }
 
   50% {
-    background-color: rgba(59, 130, 246, 0.3);
+    box-shadow: inset 0 0 20px rgba(246, 139, 31, 0.1);
   }
 }
 
@@ -422,31 +565,31 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(59, 130, 246, 0.95);
+  background: linear-gradient(135deg, var(--precision-primary) 0%, #e87c0f 100%);
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 8px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   pointer-events: none;
   z-index: 10;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 16px rgba(246, 139, 31, 0.4);
   white-space: nowrap;
 }
 
-/* Scheduled Jobs in Time Slots */
+/* ============ SCHEDULED JOBS ============ */
 .scheduled-job {
   position: absolute;
-  left: 2px;
-  right: 2px;
-  top: 2px;
-  border-radius: 6px;
-  padding: 0.5rem;
-  border-left: 3px solid;
+  left: 3px;
+  right: 3px;
+  top: 3px;
+  border-radius: 8px;
+  padding: 0.5rem 0.625rem;
   overflow: hidden;
   cursor: grab;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1;
+  border-left: 4px solid;
 }
 
 .scheduled-job:active {
@@ -455,71 +598,75 @@
 
 .scheduled-job:hover {
   z-index: 2;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   transform: scale(1.02);
 }
 
 .scheduled-job.priority-urgent {
-  background: rgba(239, 68, 68, 0.85);
-  border-left-color: #dc2626;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.9) 100%);
+  border-left-color: #b91c1c;
   color: white;
 }
 
 .scheduled-job.priority-high {
-  background: rgba(249, 115, 22, 0.85);
-  border-left-color: #ea580c;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.9) 0%, rgba(234, 88, 12, 0.9) 100%);
+  border-left-color: #c2410c;
   color: white;
 }
 
 .scheduled-job.priority-medium {
-  background: rgba(234, 179, 8, 0.85);
-  border-left-color: #ca8a04;
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.9) 0%, rgba(234, 179, 8, 0.9) 100%);
+  border-left-color: #a16207;
   color: #1e293b;
 }
 
 .scheduled-job.priority-low {
-  background: rgba(34, 197, 94, 0.85);
-  border-left-color: #16a34a;
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.9) 0%, rgba(34, 197, 94, 0.9) 100%);
+  border-left-color: #15803d;
   color: white;
 }
 
 .remove-btn {
   position: absolute;
-  top: 0.25rem;
-  right: 0.25rem;
+  top: 0.35rem;
+  right: 0.35rem;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.875rem;
   line-height: 1;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   z-index: 10;
+  opacity: 0;
+}
+
+.scheduled-job:hover .remove-btn {
+  opacity: 1;
 }
 
 .remove-btn:hover {
-  background: rgba(239, 68, 68, 0.9);
-  border-color: white;
+  background: #ef4444;
   transform: scale(1.15);
 }
 
 .job-content {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
   height: 100%;
   overflow: hidden;
 }
 
 .job-title {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -527,27 +674,34 @@
 }
 
 .job-type {
-  font-size: 0.75rem;
-  opacity: 0.9;
+  font-size: 0.7rem;
+  opacity: 0.85;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .job-duration {
-  font-size: 0.7rem;
-  opacity: 0.8;
+  font-size: 0.65rem;
+  opacity: 0.75;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .tech-select-inline {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: inherit;
-  padding: 0.25rem 0.35rem;
+  padding: 0.2rem 0.35rem;
   border-radius: 4px;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   cursor: pointer;
   margin-top: 0.25rem;
+  transition: all 0.15s ease;
+}
+
+.tech-select-inline:hover {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .tech-select-inline:focus {
@@ -556,65 +710,74 @@
 }
 
 .tech-select-inline option {
-  background: #1e293b;
-  color: #f1f5f9;
+  background: var(--precision-surface);
+  color: var(--precision-text-primary);
 }
 
 .assigned-tech-badge {
-  font-size: 0.7rem;
-  opacity: 0.95;
-  margin-top: 0.25rem;
+  font-size: 0.65rem;
+  opacity: 0.9;
+  margin-top: 0.2rem;
   padding: 0.15rem 0.35rem;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
-/* Scrollbar Styling */
+/* ============ SCROLLBAR - REFINED ============ */
 .unassigned-panel::-webkit-scrollbar,
 .calendar-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 .unassigned-panel::-webkit-scrollbar-track,
 .calendar-container::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
-  border-radius: 4px;
+  background: transparent;
 }
 
 .unassigned-panel::-webkit-scrollbar-thumb,
 .calendar-container::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.4);
-  border-radius: 4px;
+  background: var(--precision-text-muted);
+  border-radius: 3px;
+  opacity: 0.5;
 }
 
 .unassigned-panel::-webkit-scrollbar-thumb:hover,
 .calendar-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.6);
+  background: var(--precision-text-secondary);
 }
 
-/* Responsive Design */
+/* ============ RESPONSIVE ============ */
 @media (max-width: 1400px) {
   .calendar-grid {
-    grid-template-columns: 70px repeat(7, 1fr);
-  }
-
-  .time-column {
-    width: 70px;
+    grid-template-columns: 64px repeat(7, 1fr);
   }
 }
 
 @media (max-width: 1024px) {
   .dispatch-layout {
     grid-template-columns: 1fr;
-    grid-template-rows: 250px 1fr;
+    grid-template-rows: 220px 1fr;
   }
 
   .unassigned-panel {
-    max-height: 250px;
+    max-height: 220px;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .jobs-list {
+    flex-direction: row;
+  }
+
+  .job-card {
+    min-width: 200px;
   }
 }
 
@@ -623,17 +786,23 @@
     padding: 1rem;
   }
 
+  .dispatch-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
   .dispatch-header h1 {
     font-size: 1.5rem;
   }
 
   .calendar-grid {
-    grid-template-columns: 60px repeat(7, 100px);
-    min-width: 760px;
+    grid-template-columns: 56px repeat(7, 100px);
+    min-width: 756px;
   }
 }
 
-/* Print Styles */
+/* ============ PRINT STYLES - PRESERVED ============ */
 @media print {
   @page {
     size: landscape;
@@ -651,7 +820,6 @@
     background: white !important;
   }
 
-  /* Hide navigation and other elements */
   .navigation,
   nav,
   header,
@@ -671,17 +839,17 @@
     overflow: visible;
     margin: 0;
     width: 100%;
-    display: flex !important;
-    flex-direction: column !important;
+  }
+
+  .dispatch-page::before {
+    display: none;
   }
 
   .page-container {
     background: white !important;
     padding: 0 !important;
-    display: block !important;
   }
 
-  /* Hide Saturday and Sunday columns */
   .day-column:nth-child(7),
   .day-column:nth-child(8) {
     display: none !important;
@@ -691,43 +859,21 @@
     border-bottom: 2px solid #333;
     padding-bottom: 10px;
     margin-bottom: 15px;
-    page-break-after: avoid;
-    display: flex !important;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .header-left {
-    display: flex !important;
-    flex-direction: column;
-    gap: 5px;
   }
 
   .dispatch-header h1 {
     color: #000 !important;
     font-size: 20pt;
-    margin: 0;
-    display: block !important;
-  }
-
-  .week-navigator {
-    display: flex !important;
-    align-items: center;
-    gap: 10px;
   }
 
   .week-range {
     color: #000 !important;
-    display: inline-block !important;
     font-size: 12pt;
     font-weight: bold;
   }
 
   .dispatch-layout {
-    display: grid !important;
     grid-template-columns: 1fr;
-    height: auto;
-    overflow: visible;
   }
 
   .calendar-container {
@@ -736,96 +882,65 @@
     overflow: visible !important;
     height: auto !important;
     border-radius: 0;
-    display: block !important;
   }
 
   .calendar-grid {
-    background: white !important;
-    display: grid !important;
     grid-template-columns: 60px repeat(5, 1fr) !important;
-    /* Time column + M-F only */
     min-width: 100%;
     font-size: 8pt;
   }
 
-  /* Time Column */
   .time-column {
     background: #f5f5f5;
     border-right: 2px solid #000;
-    position: static;
   }
 
   .time-header {
     background: #f5f5f5;
     border-bottom: 2px solid #000;
     height: 40px;
-    position: static;
   }
 
   .time-slot-label {
     background: white;
     color: #000;
     border-bottom: 1px solid #ddd;
-    border-right: 1px solid #ddd;
     height: 35px;
-    padding: 2px 4px;
     font-size: 7pt;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
   }
 
-  /* Day Columns */
   .day-column {
     background: white;
     border-right: 1px solid #000;
-    position: static;
   }
 
   .day-header {
     background: #e5e5e5;
     border-bottom: 2px solid #000;
     height: 40px;
-    padding: 4px;
-    position: static;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
   }
 
   .day-name {
     color: #000;
     font-size: 10pt;
-    font-weight: bold;
-    margin: 0;
   }
 
   .day-date {
     color: #000;
     font-size: 8pt;
-    margin: 0;
   }
 
   .time-slot {
     background: white;
     border-bottom: 1px solid #ddd;
-    border-right: 1px solid #ddd;
     height: 35px;
-    position: relative;
-    padding: 1px;
   }
 
-  /* Scheduled Jobs */
   .scheduled-job {
     border: 1px solid #000 !important;
-    border-left: 3px solid #000 !important;
     background: white !important;
     padding: 2px 4px;
     border-radius: 0;
-    opacity: 1 !important;
-    cursor: default;
     font-size: 7pt;
   }
 
@@ -853,31 +968,14 @@
     color: #000 !important;
   }
 
-  .job-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-
   .job-title {
     font-weight: bold;
     font-size: 7pt;
-    line-height: 1.2;
   }
 
   .job-type,
   .job-duration {
     font-size: 6pt;
-    line-height: 1.1;
-  }
-
-  .tech-select {
-    border: 1px solid #ccc;
-    background: white;
-    color: #000;
-    font-size: 6pt;
-    padding: 1px 2px;
-    margin-top: 1px;
   }
 
   .drop-indicator,
@@ -885,7 +983,6 @@
     display: none !important;
   }
 
-  /* Prevent page breaks within the schedule */
   .calendar-container,
   .calendar-grid {
     page-break-inside: avoid;

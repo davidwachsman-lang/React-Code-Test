@@ -1,0 +1,121 @@
+/* Company Directory */
+.company-directory {
+  width: 100%;
+}
+
+.company-directory-search-box {
+  position: relative;
+  max-width: 500px;
+  margin-bottom: 1rem;
+}
+
+.company-directory-search-input {
+  width: 100%;
+  padding: 0.875rem 2.5rem 0.875rem 1rem;
+  font-size: 1rem;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 10px;
+  color: #e2e8f0;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.company-directory-search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.company-directory-search-input::placeholder {
+  color: #64748b;
+}
+
+.company-directory-clear-search {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.company-directory-clear-search:hover {
+  color: #94a3b8;
+}
+
+.company-directory-results-info {
+  color: #94a3b8;
+  font-size: 0.9375rem;
+  margin-bottom: 1rem;
+}
+
+.company-directory-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.company-directory-empty p {
+  margin-bottom: 1rem;
+}
+
+.company-directory-table-wrap {
+  overflow-x: auto;
+}
+
+.company-directory-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.company-directory-table th,
+.company-directory-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(55, 65, 81, 0.5);
+}
+
+.company-directory-table thead th {
+  background: rgba(30, 41, 59, 0.8);
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.company-directory-th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.company-directory-th.sortable:hover {
+  background: rgba(30, 41, 59, 1);
+}
+
+.company-directory-table .header-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.company-directory-table .sort-indicator {
+  color: #60a5fa;
+  font-size: 0.75rem;
+}
+
+.company-directory-table tbody tr {
+  transition: background-color 0.2s;
+}
+
+.company-directory-table tbody tr:hover {
+  background: rgba(30, 41, 59, 0.4);
+}
+
+.company-directory-table td {
+  color: #cbd5e1;
+}

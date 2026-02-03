@@ -10,7 +10,6 @@ import Forms from './pages/Forms';
 import CRM from './pages/CRM';
 import FieldServices from './pages/FieldServices';
 import Goals from './pages/Goals';
-import FinancialsAndBilling from './pages/FinancialsAndBilling';
 import TMEstimate from './pages/TMEstimate';
 import ReportingAndAnalytics from './pages/ReportingAndAnalytics';
 import DailyWarRoom from './pages/DailyWarRoom';
@@ -167,7 +166,6 @@ function AppContent() {
           <Route path="/crm" element={<CRM />} />
           <Route path="/field-services" element={<FieldServices />} />
           <Route path="/goals" element={<Goals />} />
-          <Route path="/financials" element={<FinancialsAndBilling />} />
           <Route path="/tm-estimate" element={<TMEstimate />} />
           <Route path="/reporting" element={<ReportingAndAnalytics />} />
           <Route path="/war-room" element={<DailyWarRoom />} />

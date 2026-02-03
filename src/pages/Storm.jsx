@@ -2200,8 +2200,8 @@ function Storm() {
         </div>
       )}
 
-      {/* Daily Rhythms (inline below buttons) */}
-      {showDailyRhythms && (
+      {/* Daily Rhythms (inline below buttons) — only in storm section, not FNOL */}
+      {!showFNOLTest && showDailyRhythms && (
         <div className="storm-content-section storm-panel">
           <div className="storm-panel-header">
             <h2>Daily Rhythms</h2>

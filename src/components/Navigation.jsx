@@ -66,13 +66,6 @@ const GoalsIcon = () => (
   </svg>
 );
 
-const FinancialsIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="1" x2="12" y2="23"/>
-    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-  </svg>
-);
-
 const TMEstimateIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -170,7 +163,6 @@ function Navigation() {
     { path: '/field-services', label: 'Field Services', icon: <FieldServicesIcon /> },
     { path: '/goals', label: 'Goals', icon: <GoalsIcon /> },
     { path: '/reporting', label: 'Reporting & Analytics', icon: <ReportingIcon /> },
-    { path: '/financials', label: 'Financials & Billing', icon: <FinancialsIcon /> },
     { path: '/storm', label: 'Storm', icon: <StormIcon /> },
     { path: '/resources', label: 'Resource Center', icon: <ResourceCenterIcon /> },
     { path: '/expectations-2026', label: '2026 Expectations', icon: <Expectations2026Icon /> },

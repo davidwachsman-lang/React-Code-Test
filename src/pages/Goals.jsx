@@ -245,7 +245,7 @@ function Goals() {
                   </div>
                 </div>
                 {okr.progressPct > 0 && (
-                  <>
+                  <div className="okr-progress-block">
                     <div className="progress-bar">
                       <div
                         className="progress-fill"
@@ -256,7 +256,7 @@ function Goals() {
                       />
                     </div>
                     <div className="progress-label">{okr.progressPct}%</div>
-                  </>
+                  </div>
                 )}
               </div>
             ))}

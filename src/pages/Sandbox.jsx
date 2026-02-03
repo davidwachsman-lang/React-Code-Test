@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PerformanceScorecard from '../components/crm/PerformanceScorecard';
+import CompanyDirectory from '../components/CompanyDirectory';
 import './Page.css';
 import './CRM.css';
 import './Sandbox.css';
 
 function Sandbox() {
-  const [activeTab, setActiveTab] = useState('scorecard'); // 'scorecard', 'b2b-referrals', 'customer-nps', 'enps', and future tabs
+  const [activeTab, setActiveTab] = useState('scorecard'); // 'scorecard', 'b2b-referrals', 'customer-nps', 'enps', 'financials', 'company-directory', and future tabs
   const [npsScore, setNpsScore] = useState(null);
   const [npsSubmitted, setNpsSubmitted] = useState(false);
 
@@ -86,6 +87,20 @@ function Sandbox() {
           <span className="btn-icon">👥</span>
           eNPS
         </button>
+        <button 
+          className={`action-btn ${activeTab === 'financials' ? 'action-btn-green' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('financials')}
+        >
+          <span className="btn-icon">💰</span>
+          Financials & Billing
+        </button>
+        <button 
+          className={`action-btn ${activeTab === 'company-directory' ? 'action-btn-green' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('company-directory')}
+        >
+          <span className="btn-icon">📒</span>
+          Company Directory
+        </button>
         {/* Future tabs can be added here */}
       </div>
 
@@ -111,6 +126,33 @@ function Sandbox() {
         {activeTab === 'customer-nps' && (
           <div className="sandbox-placeholder">
             <p>Customer NPS feature coming soon...</p>
+          </div>
+        )}
+
+        {/* Company Directory View */}
+        {activeTab === 'company-directory' && (
+          <div className="customers-container">
+            <div className="customers-header">
+              <h2>Company Directory</h2>
+            </div>
+            <CompanyDirectory />
+          </div>
+        )}
+
+        {/* Financials & Billing View */}
+        {activeTab === 'financials' && (
+          <div className="sandbox-placeholder" style={{ maxWidth: 'none' }}>
+            <h2>Financials and Billing</h2>
+            <p>Manage invoices, payments, and financial tracking.</p>
+            <div className="content-section">
+              <h3>Financial Management</h3>
+              <ul>
+                <li>Invoice generation</li>
+                <li>Payment tracking</li>
+                <li>Expense management</li>
+                <li>Financial reporting</li>
+              </ul>
+            </div>
           </div>
         )}
 
@@ -190,7 +232,7 @@ function Sandbox() {
         )}
 
         {/* Placeholder for future tabs */}
-        {activeTab !== 'scorecard' && activeTab !== 'b2b-referrals' && activeTab !== 'customer-nps' && activeTab !== 'enps' && (
+        {activeTab !== 'scorecard' && activeTab !== 'b2b-referrals' && activeTab !== 'customer-nps' && activeTab !== 'enps' && activeTab !== 'financials' && activeTab !== 'company-directory' && (
           <div className="sandbox-placeholder">
             <p>Coming soon...</p>
           </div>

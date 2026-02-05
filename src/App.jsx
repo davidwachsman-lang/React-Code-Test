@@ -1,6 +1,13 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import AuthTokenHandler from './components/AuthTokenHandler';
+import ProtectedRoute from './components/ProtectedRoute';
 import Navigation from './components/Navigation';
+import Login from './pages/Login';
+import { ForgotPassword, ResetPassword } from './pages/ResetPassword';
+import AuthCallback from './pages/AuthCallback';
+import SetPassword from './pages/SetPassword';
 import Intake from './pages/Intake';
 import DispatchAndScheduling from './pages/DispatchAndScheduling';
 import WIPBoard from './pages/WIPBoard';
@@ -106,13 +113,24 @@ function AppContent() {
     return (
       <div className="App">
         <ScrollToTop />
-        <div className="app-content" style={{ marginLeft: 0 }}>
-          <Routes>
-            <Route path="/" element={<Estimating />} />
-            <Route path="/estimating" element={<Estimating />} />
-            <Route path="/*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/set-password" element={<SetPassword />} />
+          <Route path="/*" element={
+            <ProtectedRoute>
+              <div className="app-content" style={{ marginLeft: 0 }}>
+                <Routes>
+                  <Route path="/" element={<Estimating />} />
+                  <Route path="/estimating" element={<Estimating />} />
+                  <Route path="/*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </div>
+            </ProtectedRoute>
+          } />
+        </Routes>
       </div>
     );
   }
@@ -124,13 +142,24 @@ function AppContent() {
     return (
       <div className="App">
         <ScrollToTop />
-        <div className="app-content" style={{ marginLeft: 0 }}>
-          <Routes>
-            <Route path="/" element={<CRM />} />
-            <Route path="/crm" element={<CRM />} />
-            <Route path="/*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/set-password" element={<SetPassword />} />
+          <Route path="/*" element={
+            <ProtectedRoute>
+              <div className="app-content" style={{ marginLeft: 0 }}>
+                <Routes>
+                  <Route path="/" element={<CRM />} />
+                  <Route path="/crm" element={<CRM />} />
+                  <Route path="/*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </div>
+            </ProtectedRoute>
+          } />
+        </Routes>
       </div>
     );
   }
@@ -141,44 +170,71 @@ function AppContent() {
     return (
       <div className="App">
         <ScrollToTop />
-        <div className="app-content" style={{ marginLeft: 0 }}>
-          <Routes>
-            <Route path="/" element={<Storm />} />
-            <Route path="/storm" element={<Storm />} />
-            <Route path="/*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/set-password" element={<SetPassword />} />
+          <Route path="/*" element={
+            <ProtectedRoute>
+              <div className="app-content" style={{ marginLeft: 0 }}>
+                <Routes>
+                  <Route path="/" element={<Storm />} />
+                  <Route path="/storm" element={<Storm />} />
+                  <Route path="/*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </div>
+            </ProtectedRoute>
+          } />
+        </Routes>
       </div>
     );
   }
 
   return (
     <div className="App">
-      {!isTestRoute && <Navigation />}
       <ScrollToTop />
-      <div className={isTestRoute ? 'sales-test-content' : 'app-content'}>
-        <Routes>
-          <Route path="/dispatch" element={<DispatchAndScheduling />} />
-          <Route path="/wip-board" element={<WIPBoard />} />
-          <Route path="/estimating" element={<Estimating />} />
-          <Route path="/job-files" element={<JobFiles />} />
-          <Route path="/forms" element={<Forms />} />
-          <Route path="/crm" element={<CRM />} />
-          <Route path="/field-services" element={<FieldServices />} />
-          <Route path="/goals" element={<Goals />} />
-          <Route path="/tm-estimate" element={<TMEstimate />} />
-          <Route path="/reporting" element={<ReportingAndAnalytics />} />
-          <Route path="/war-room" element={<DailyWarRoom />} />
-          <Route path="/storm" element={<Storm />} />
-          <Route path="/resources" element={<ResourceCenter />} />
-          <Route path="/expectations-2026" element={<Expectations2026 />} />
-          <Route path="/sandbox" element={<Sandbox />} />
-          <Route path="/insurance-job-sops" element={<InsuranceJobSOPs />} />
-          <Route path="/conversion" element={<Conversion />} />
-          <Route path="/sales-test" element={<CRM />} />
-          <Route path="/" element={<Intake />} />
-        </Routes>
-      </div>
+      <Routes>
+        {/* Public routes - no auth required */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/set-password" element={<SetPassword />} />
+        
+        {/* Protected routes - auth required */}
+        <Route path="/*" element={
+          <ProtectedRoute>
+            <>
+              {!isTestRoute && <Navigation />}
+              <div className={isTestRoute ? 'sales-test-content' : 'app-content'}>
+                <Routes>
+                  <Route path="/dispatch" element={<DispatchAndScheduling />} />
+                  <Route path="/wip-board" element={<WIPBoard />} />
+                  <Route path="/estimating" element={<Estimating />} />
+                  <Route path="/job-files" element={<JobFiles />} />
+                  <Route path="/forms" element={<Forms />} />
+                  <Route path="/crm" element={<CRM />} />
+                  <Route path="/field-services" element={<FieldServices />} />
+                  <Route path="/goals" element={<Goals />} />
+                  <Route path="/tm-estimate" element={<TMEstimate />} />
+                  <Route path="/reporting" element={<ReportingAndAnalytics />} />
+                  <Route path="/war-room" element={<DailyWarRoom />} />
+                  <Route path="/storm" element={<Storm />} />
+                  <Route path="/resources" element={<ResourceCenter />} />
+                  <Route path="/expectations-2026" element={<Expectations2026 />} />
+                  <Route path="/sandbox" element={<Sandbox />} />
+                  <Route path="/insurance-job-sops" element={<InsuranceJobSOPs />} />
+                  <Route path="/conversion" element={<Conversion />} />
+                  <Route path="/sales-test" element={<CRM />} />
+                  <Route path="/" element={<Intake />} />
+                </Routes>
+              </div>
+            </>
+          </ProtectedRoute>
+        } />
+      </Routes>
     </div>
   );
 }
@@ -186,7 +242,11 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AppContent />
+      <AuthTokenHandler>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </AuthTokenHandler>
     </Router>
   );
 }

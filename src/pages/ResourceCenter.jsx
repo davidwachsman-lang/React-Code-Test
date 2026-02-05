@@ -12,7 +12,7 @@ const emptyForm = () => ({
   notes: ''
 });
 
-const RESOURCE_TAB = { EXTERNAL: 'external', INTERNAL: 'internal' };
+const RESOURCE_TAB = { EXTERNAL: 'external', INTERNAL: 'internal', MIT_TEAM: 'mit_team' };
 
 const ResourceCenter = () => {
   const [resourceTab, setResourceTab] = useState(RESOURCE_TAB.EXTERNAL);
@@ -176,7 +176,9 @@ const ResourceCenter = () => {
           <p className="resource-subtitle">
             {resourceTab === RESOURCE_TAB.EXTERNAL
               ? 'Quick access to vendors and sub-trades'
-              : 'Company directory (internal)'}
+              : resourceTab === RESOURCE_TAB.INTERNAL
+              ? 'Company directory (internal)'
+              : 'MIT team structure and assignments'}
           </p>
         </div>
         {resourceTab === RESOURCE_TAB.EXTERNAL && (
@@ -186,7 +188,7 @@ const ResourceCenter = () => {
         )}
       </div>
 
-      {/* External / Internal tabs */}
+      {/* External / Internal / MIT Team tabs */}
       <div className="resource-tabs">
         <button
           type="button"
@@ -202,9 +204,18 @@ const ResourceCenter = () => {
         >
           Internal
         </button>
+        <button
+          type="button"
+          className={`resource-tab ${resourceTab === RESOURCE_TAB.MIT_TEAM ? 'resource-tab-active' : ''}`}
+          onClick={() => setResourceTab(RESOURCE_TAB.MIT_TEAM)}
+        >
+          MIT Team Assignments
+        </button>
       </div>
 
-      {resourceTab === RESOURCE_TAB.INTERNAL ? (
+      {resourceTab === RESOURCE_TAB.MIT_TEAM ? (
+        <MITTeamAssignments />
+      ) : resourceTab === RESOURCE_TAB.INTERNAL ? (
         <InternalCompanyDirectory />
       ) : (
         <>
@@ -430,6 +441,132 @@ function InternalCompanyDirectory() {
             ))}
           </tbody>
         </table>
+      </div>
+    </div>
+  );
+}
+
+// MIT Team Assignments Component
+function MITTeamAssignments() {
+  return (
+    <div className="mit-team-assignments">
+      <div className="org-chart">
+        <div className="org-chart-top">
+          <div className="org-chart-card org-chart-card-top">
+            <span className="org-chart-name">Kenny</span>
+            <span className="org-chart-title">Operations Manager</span>
+          </div>
+        </div>
+        <div className="org-chart-branches">
+          {/* Blue Team - Kevin */}
+          <div className="org-chart-branch org-chart-branch-blue">
+            <div className="org-chart-card org-chart-card-pm">
+              <span className="org-chart-name">Kevin</span>
+              <span className="org-chart-title">Senior Production Manager</span>
+            </div>
+            <div className="org-chart-team">
+              <div className="org-chart-card org-chart-card-member">
+                <span className="org-chart-name">Brandie</span>
+                <span className="org-chart-title">Job File Coordinator</span>
+              </div>
+              <div className="org-chart-card org-chart-card-member">
+                <span className="org-chart-name">Gabriel</span>
+                <span className="org-chart-title">Crew Chief</span>
+                <div className="org-chart-nested">
+                  <div className="org-chart-card org-chart-card-nested">
+                    <span className="org-chart-name">Genesis</span>
+                    <span className="org-chart-title">Tech</span>
+                  </div>
+                </div>
+              </div>
+              <div className="org-chart-card org-chart-card-member">
+                <span className="org-chart-name">David</span>
+                <span className="org-chart-title">Crew Chief in Training</span>
+                <div className="org-chart-nested">
+                  <div className="org-chart-card org-chart-card-nested">
+                    <span className="org-chart-name">Tyler</span>
+                    <span className="org-chart-title">Tech</span>
+                  </div>
+                </div>
+              </div>
+              <div className="org-chart-card org-chart-card-member">
+                <span className="org-chart-name">Michael</span>
+                <span className="org-chart-title">Crew Chief in Training</span>
+                <div className="org-chart-nested">
+                  <div className="org-chart-card org-chart-card-nested">
+                    <span className="org-chart-name">Josue</span>
+                    <span className="org-chart-title">Tech</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <span className="org-chart-branch-label">Blue</span>
+          </div>
+
+          {/* Purple Team - Leo */}
+          <div className="org-chart-branch org-chart-branch-purple">
+            <div className="org-chart-card org-chart-card-pm">
+              <span className="org-chart-name">Leo</span>
+              <span className="org-chart-title">Production Manager</span>
+            </div>
+            <div className="org-chart-team">
+              <div className="org-chart-card org-chart-card-member">
+                <span className="org-chart-name">Brandie</span>
+                <span className="org-chart-title">Job File Coordinator</span>
+              </div>
+              <div className="org-chart-card org-chart-card-member">
+                <span className="org-chart-name">Ramon</span>
+                <span className="org-chart-title">Crew Chief</span>
+                <div className="org-chart-nested">
+                  <div className="org-chart-card org-chart-card-nested">
+                    <span className="org-chart-name">Frank</span>
+                    <span className="org-chart-title">Technician</span>
+                  </div>
+                </div>
+              </div>
+              <div className="org-chart-card org-chart-card-member">
+                <span className="org-chart-name">Roger</span>
+                <span className="org-chart-title">Demo Lead Tech</span>
+              </div>
+            </div>
+            <span className="org-chart-branch-label">Purple</span>
+          </div>
+
+          {/* Green Team - Aaron */}
+          <div className="org-chart-branch org-chart-branch-green">
+            <div className="org-chart-card org-chart-card-pm">
+              <span className="org-chart-name">Aaron</span>
+              <span className="org-chart-title">Production Manager</span>
+            </div>
+            <div className="org-chart-team">
+              <div className="org-chart-card org-chart-card-member">
+                <span className="org-chart-name">Brandie</span>
+                <span className="org-chart-title">Job File Coordinator</span>
+              </div>
+              <div className="org-chart-card org-chart-card-member">
+                <span className="org-chart-name">Pedro</span>
+                <span className="org-chart-title">Crew Chief</span>
+                <div className="org-chart-nested">
+                  <div className="org-chart-card org-chart-card-nested">
+                    <span className="org-chart-name">Juan</span>
+                    <span className="org-chart-title">Technician</span>
+                  </div>
+                </div>
+              </div>
+              <div className="org-chart-card org-chart-card-member">
+                <span className="org-chart-name">Monica</span>
+                <span className="org-chart-title">Cleaning Crew Chief</span>
+                <div className="org-chart-nested">
+                  <div className="org-chart-card org-chart-card-nested">
+                    <span className="org-chart-name">Leslie</span>
+                    <span className="org-chart-title">Cleaning Technician</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <span className="org-chart-branch-label">Green</span>
+          </div>
+        </div>
       </div>
     </div>
   );

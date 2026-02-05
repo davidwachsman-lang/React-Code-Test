@@ -727,3 +727,175 @@
   background: rgba(59, 130, 246, 0.3);
   border-radius: 2px;
 }
+
+/* MIT Team Assignments - Org Chart */
+.mit-team-assignments {
+  padding: 1.5rem 0;
+}
+
+.org-chart {
+  padding: 0.5rem 0;
+}
+
+.org-chart-top {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.org-chart-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: rgba(15, 23, 42, 0.5);
+  min-width: 140px;
+}
+
+.org-chart-name {
+  font-weight: 700;
+  color: #f1f5f9;
+  font-size: 1rem;
+}
+
+.org-chart-title {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+.org-chart-card-top {
+  background: rgba(234, 179, 8, 0.2);
+  border-color: rgba(234, 179, 8, 0.5);
+}
+
+.org-chart-card-top .org-chart-name {
+  color: #fbbf24;
+}
+
+.org-chart-branches {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.org-chart-branch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+.org-chart-branch-blue {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.org-chart-branch-purple {
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+.org-chart-branch-green {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.org-chart-card-pm {
+  width: 100%;
+  max-width: 200px;
+}
+
+.org-chart-branch-blue .org-chart-card-pm {
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.org-chart-branch-blue .org-chart-card-pm .org-chart-name {
+  color: #60a5fa;
+}
+
+.org-chart-branch-purple .org-chart-card-pm {
+  border-color: rgba(139, 92, 246, 0.4);
+  background: rgba(139, 92, 246, 0.12);
+}
+
+.org-chart-branch-purple .org-chart-card-pm .org-chart-name {
+  color: #a78bfa;
+}
+
+.org-chart-branch-green .org-chart-card-pm {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.org-chart-branch-green .org-chart-card-pm .org-chart-name {
+  color: #4ade80;
+}
+
+.org-chart-team {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 220px;
+}
+
+.org-chart-card-member {
+  width: 100%;
+  padding: 0.5rem 1rem;
+}
+
+.org-chart-nested {
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.org-chart-card-nested {
+  padding: 0.4rem 0.75rem;
+  min-width: auto;
+}
+
+.org-chart-card-nested .org-chart-name {
+  font-size: 0.9rem;
+}
+
+.org-chart-card-nested .org-chart-title {
+  font-size: 0.75rem;
+}
+
+.org-chart-branch-label {
+  position: absolute;
+  bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.org-chart-branch-blue .org-chart-branch-label {
+  color: #60a5fa;
+}
+
+.org-chart-branch-purple .org-chart-branch-label {
+  color: #a78bfa;
+}
+
+.org-chart-branch-green .org-chart-branch-label {
+  color: #4ade80;
+}
+
+@media (max-width: 768px) {
+  .org-chart-branches {
+    grid-template-columns: 1fr;
+  }
+}

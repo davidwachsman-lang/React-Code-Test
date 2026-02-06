@@ -159,11 +159,11 @@ function ProspectDetail({ prospect, parentProspect, onEdit, onClose, onRefresh }
                       <span>{prospect.email || 'N/A'}</span>
                     </div>
                     <div className="detail-item">
-                      <strong>Phone Primary:</strong>
+                      <strong>Cell Phone:</strong>
                       <span>{prospect.phone_primary || 'N/A'}</span>
                     </div>
                     <div className="detail-item">
-                      <strong>Phone Secondary:</strong>
+                      <strong>Office Line:</strong>
                       <span>{prospect.phone_secondary || 'N/A'}</span>
                     </div>
                   </div>

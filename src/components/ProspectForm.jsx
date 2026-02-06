@@ -216,7 +216,7 @@ function ProspectForm({ prospect = null, parentProspects = [], onSave, onCancel 
           />
         </div>
         <div className="form-group">
-          <label>Phone Primary</label>
+          <label>Cell Phone</label>
           <input
             type="tel"
             name="phone_primary"
@@ -225,7 +225,7 @@ function ProspectForm({ prospect = null, parentProspects = [], onSave, onCancel 
           />
         </div>
         <div className="form-group">
-          <label>Phone Secondary</label>
+          <label>Office Line</label>
           <input
             type="tel"
             name="phone_secondary"

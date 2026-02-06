@@ -97,8 +97,8 @@ function ProspectDetail({ prospect, parentProspect, onEdit, onClose, onRefresh }
 
   return (
     <div className="prospect-detail-modal">
-      <div className="modal-overlay" onClick={onClose}>
-        <div className="modal-content prospect-detail-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-overlay">
+        <div className="modal-content prospect-detail-content">
           <div className="modal-header">
             <div className="prospect-detail-header">
               {parentProspect && (

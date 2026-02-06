@@ -1007,8 +1007,8 @@ function TMEstimate() {
 
       {/* Equipment Picker Modal */}
       {showEquipmentPicker && (
-        <div className="modal-overlay" onClick={() => setShowEquipmentPicker(null)}>
-          <div className="modal-content equipment-picker-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay">
+          <div className="modal-content equipment-picker-modal">
             <div className="modal-header">
               <h3>Select Equipment</h3>
               <button

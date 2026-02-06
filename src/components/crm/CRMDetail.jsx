@@ -186,7 +186,7 @@ function CRMDetail({ crmRecord, parentRecord, onEdit, onClose, onRefresh }) {
 
   return (
     <div className="crm-detail-modal">
-      <div className="modal-overlay" onClick={onClose}></div>
+      <div className="modal-overlay"></div>
       <div className="modal-content crm-detail-content">
         <div className="crm-detail-header">
           <div className="header-left">

@@ -1081,11 +1081,8 @@ function CRM() {
 
       {/* CRM Form Modal */}
       {showForm && (
-        <div className="modal-overlay" onClick={() => {
-          setShowForm(false);
-          setEditingRecord(null);
-        }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay">
+          <div className="modal-content">
             <div className="modal-header">
               <h2>{editingRecord ? 'Edit CRM Record' : 'Add New CRM Record'}</h2>
               <button className="close-btn" onClick={() => {
@@ -1109,11 +1106,8 @@ function CRM() {
 
       {/* Quick Activity Form Modal */}
       {showQuickActivityForm && quickActivityRecord && (
-        <div className="modal-overlay" onClick={() => {
-          setShowQuickActivityForm(false);
-          setQuickActivityRecord(null);
-        }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay">
+          <div className="modal-content">
             <div className="modal-header">
               <h2>Quick Log Activity - {quickActivityRecord.company_name || 'Unnamed'}</h2>
               <button className="close-btn" onClick={() => {
@@ -2120,11 +2114,8 @@ function CRM() {
 
       {/* Activity Data Entry Modal */}
       {showActivityForm && (
-        <div className="modal-overlay" onClick={() => {
-          setShowActivityForm(false);
-          setSelectedActivityRep(null);
-        }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '500px' }}>
             <div className="modal-header">
               <h2>Activity Data Entry - {selectedActivityRep}</h2>
               <button className="close-btn" onClick={() => {
@@ -2255,11 +2246,8 @@ function CRM() {
 
       {/* Top Target Edit Modal */}
       {showTopTargetModal && editingTarget && (
-        <div className="modal-overlay" onClick={() => {
-          setShowTopTargetModal(false);
-          setEditingTarget(null);
-        }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '500px' }}>
             <div className="modal-header">
               <h2>Edit Target - {editingTarget.salesRep} (Position {editingTarget.position})</h2>
               <button className="close-btn" onClick={() => {
@@ -2400,12 +2388,8 @@ function CRM() {
 
       {/* Feature Upgrade Form Modal */}
       {showFeatureUpgradeForm && (
-        <div className="modal-overlay" onClick={() => {
-          setShowFeatureUpgradeForm(false);
-          setEditingFeatureUpgrade(null);
-          setFeatureUpgradeFormData({ salesRep: '', suggestedUpgrade: '' });
-        }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '600px' }}>
             <div className="modal-header">
               <h2>{editingFeatureUpgrade ? 'Edit Feature Upgrade' : 'Add Feature Upgrade'}</h2>
               <button className="close-btn" onClick={() => {

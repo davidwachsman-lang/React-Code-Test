@@ -1213,8 +1213,8 @@ function DispatchAndScheduling() {
 
       {/* Checklist Modal */}
       {checklistModal.open && (
-        <div className="checklist-modal-overlay" onClick={closeChecklist}>
-          <div className="checklist-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="checklist-modal-overlay">
+          <div className="checklist-modal">
             {(() => {
               const { crewId, jobIndex } = checklistModal;
               const job = schedule[crewId]?.[jobIndex];

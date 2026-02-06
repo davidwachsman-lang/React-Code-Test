@@ -582,8 +582,8 @@ const VendorFormModal = ({
   onChange,
   onSubmit
 }) => (
-  <div className="vendor-modal-backdrop" onClick={onClose} role="presentation">
-    <div className="vendor-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="vendor-modal-title">
+  <div className="vendor-modal-backdrop" role="presentation">
+    <div className="vendor-modal" role="dialog" aria-modal="true" aria-labelledby="vendor-modal-title">
       <div className="vendor-modal-header">
         <h2 id="vendor-modal-title">{isEdit ? 'Edit vendor' : 'Add vendor'}</h2>
         <button type="button" className="vendor-modal-close" onClick={onClose} aria-label="Close">

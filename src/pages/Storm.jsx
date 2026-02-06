@@ -2565,12 +2565,8 @@ function Storm() {
 
       {/* Job Edit Modal */}
       {showJobEditModal && jobEditFormData && selectedJob && (
-        <div className="modal-overlay" onClick={() => {
-          setShowJobEditModal(false);
-          setSelectedJob(null);
-          setJobEditFormData(null);
-        }}>
-          <div className="modal-content job-edit-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay">
+          <div className="modal-content job-edit-modal">
             <div className="modal-header">
               <h2>Edit Job: {selectedJob.customer_name || 'Unknown'}</h2>
               <button 

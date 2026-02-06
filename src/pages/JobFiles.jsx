@@ -633,8 +633,8 @@ function JobFiles() {
       </div>
 
       {selectedJob && (
-        <div className="modal-overlay" onClick={() => { setSelectedJob(null); setActiveTab('details'); }}>
-          <div className="modal-content job-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay">
+          <div className="modal-content job-modal">
             <div className="modal-header">
               <h2>Job: {selectedJob.job_number}</h2>
               <button onClick={() => { setSelectedJob(null); setActiveTab('details'); }} className="modal-close">&times;</button>
@@ -1326,8 +1326,8 @@ function JobFiles() {
 
       {/* Close Job Modal */}
       {showCloseModal && (
-        <div className="modal-overlay" onClick={() => setShowCloseModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay">
+          <div className="modal-content">
             <div className="modal-header">
               <h2>Close Job</h2>
               <button className="modal-close" onClick={() => setShowCloseModal(false)}>&times;</button>

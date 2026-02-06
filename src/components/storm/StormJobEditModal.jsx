@@ -142,8 +142,8 @@ function StormJobEditModal({ job, onClose, onSave }) {
   if (!job) return null;
 
   return (
-    <div className="storm-job-edit-modal-overlay" onClick={onClose}>
-      <div className="storm-job-edit-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="storm-job-edit-modal-overlay">
+      <div className="storm-job-edit-modal">
         <div className="storm-job-edit-header">
           <h2>Edit Job: {job.property_reference || job.id}</h2>
           <button type="button" className="close-button" onClick={onClose}>×</button>

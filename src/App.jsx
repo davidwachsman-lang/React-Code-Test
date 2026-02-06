@@ -68,22 +68,6 @@ function AppContent() {
   const storedStormOnly = localStorage.getItem('storm-only-mode') === 'true';
   const stormOnlyMode = envStormOnly || urlStormOnly || storedStormOnly;
   
-  // Debug logging
-  console.log('Deployment Mode Check:', {
-    envCrmOnly,
-    urlCrmOnly,
-    storedCrmOnly,
-    crmOnlyMode,
-    envEstimateOnly,
-    urlEstimateOnly,
-    storedEstimateOnly,
-    estimateOnlyMode,
-    envStormOnly,
-    urlStormOnly,
-    storedStormOnly,
-    stormOnlyMode,
-    search: window.location.search
-  });
   
   // If URL param is set, store it in localStorage for future visits
   if (urlCrmOnly && !storedCrmOnly) {
@@ -109,7 +93,6 @@ function AppContent() {
 
   // If Estimate-only mode, show only Estimating without navigation
   if (estimateOnlyMode) {
-    console.log('Estimate-only mode active, rendering Estimating component');
     return (
       <div className="App">
         <ScrollToTop />
@@ -135,8 +118,6 @@ function AppContent() {
     );
   }
   
-  console.log('Full app mode active, estimateOnlyMode:', estimateOnlyMode);
-
   // If CRM-only mode, show only CRM without navigation
   if (crmOnlyMode) {
     return (
@@ -166,7 +147,6 @@ function AppContent() {
   
   // If Storm-only mode, show only Storm without navigation
   if (stormOnlyMode) {
-    console.log('Storm-only mode active, rendering Storm component');
     return (
       <div className="App">
         <ScrollToTop />

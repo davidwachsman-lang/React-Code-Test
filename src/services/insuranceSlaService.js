@@ -6,6 +6,14 @@ const DOCUMENTS_TABLE = 'carrier_sla_documents';
 const CHECKLIST_TABLE = 'carrier_sla_checklist_items';
 const STORAGE_BUCKET = 'insurance-slas';
 
+/** Sanitize a file name for use in storage paths */
+function sanitizeFileName(name) {
+  return name
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/_{2,}/g, '_')
+    .slice(0, 200);
+}
+
 const insuranceSlaService = {
   /* ------------------------------------------------------------------ */
   /*  Carriers                                                          */
@@ -50,7 +58,7 @@ const insuranceSlaService = {
   },
 
   async deleteCarrier(id) {
-    // Storage files and DB rows cascade-delete via FK
+    // Documents and checklist items cascade-delete via FK ON DELETE CASCADE
     const response = await supabase
       .from(CARRIERS_TABLE)
       .delete()
@@ -69,12 +77,19 @@ const insuranceSlaService = {
    */
   async findOrCreateCarrier(name) {
     // Look for existing carrier (case-insensitive)
-    const { data: existing } = await supabase
+    const { data: existing, error: lookupError } = await supabase
       .from(CARRIERS_TABLE)
       .select('*')
       .ilike('name', name.trim())
       .maybeSingle();
+
+    if (lookupError) {
+      console.error('Carrier lookup failed:', lookupError);
+      throw new Error(lookupError.message || 'Failed to look up carrier');
+    }
+
     if (existing) return existing;
+
     // Create new carrier
     const response = await supabase
       .from(CARRIERS_TABLE)
@@ -94,12 +109,13 @@ const insuranceSlaService = {
       .select('*, insurance_carriers(name)')
       .order('uploaded_at', { ascending: false });
     const rows = handleSupabaseResult(response);
-    return (rows ?? []).map((row) => ({
-      ...row,
-      carrier_name: row.insurance_carriers?.name ?? 'Unknown',
-      // Remove the nested object to keep it flat
-      insurance_carriers: undefined,
-    }));
+    return (rows ?? []).map((row) => {
+      const { insurance_carriers, ...rest } = row;
+      return {
+        ...rest,
+        carrier_name: insurance_carriers?.name ?? 'Unknown',
+      };
+    });
   },
 
   async getDocuments(carrierId) {
@@ -119,7 +135,8 @@ const insuranceSlaService = {
    * @returns {object} the new carrier_sla_documents row
    */
   async uploadDocument(carrierId, file, extra = {}) {
-    const filePath = `${carrierId}/${Date.now()}_${file.name}`;
+    const safeName = sanitizeFileName(file.name);
+    const filePath = `${carrierId}/${Date.now()}_${safeName}`;
 
     // 1. Upload to Storage
     const { error: uploadError } = await supabase.storage
@@ -128,7 +145,7 @@ const insuranceSlaService = {
 
     if (uploadError) throw new Error(uploadError.message || 'Failed to upload PDF');
 
-    // 2. Get public URL
+    // 2. Get signed URL (private bucket) or public URL
     const { data: urlData } = supabase.storage
       .from(STORAGE_BUCKET)
       .getPublicUrl(filePath);
@@ -154,7 +171,12 @@ const insuranceSlaService = {
   async deleteDocument(docId, filePath) {
     // Remove from Storage
     if (filePath) {
-      await supabase.storage.from(STORAGE_BUCKET).remove([filePath]);
+      const { error: storageError } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .remove([filePath]);
+      if (storageError) {
+        console.error('Failed to delete file from storage:', storageError);
+      }
     }
     // Remove DB row
     const response = await supabase
@@ -187,7 +209,7 @@ const insuranceSlaService = {
     const rows = items.map((item, i) => ({
       carrier_id: carrierId,
       section: item.section || null,
-      text: item.text,
+      item_text: item.text,
       sort_order: item.sort_order ?? i,
     }));
     const response = await supabase
@@ -198,9 +220,15 @@ const insuranceSlaService = {
   },
 
   async updateChecklistItem(id, data) {
+    // Map 'text' field to 'item_text' column if present
+    const payload = { ...data };
+    if ('text' in payload) {
+      payload.item_text = payload.text;
+      delete payload.text;
+    }
     const response = await supabase
       .from(CHECKLIST_TABLE)
-      .update(data)
+      .update(payload)
       .eq('id', id)
       .select()
       .single();
@@ -217,13 +245,19 @@ const insuranceSlaService = {
 
   /**
    * Reorder checklist items by updating sort_order for each item.
+   * Uses Promise.allSettled to handle partial failures gracefully.
    * @param {{ id: string, sort_order: number }[]} items
    */
   async reorderChecklistItems(items) {
-    const promises = items.map(({ id, sort_order }) =>
-      supabase.from(CHECKLIST_TABLE).update({ sort_order }).eq('id', id)
+    const results = await Promise.allSettled(
+      items.map(({ id, sort_order }) =>
+        supabase.from(CHECKLIST_TABLE).update({ sort_order }).eq('id', id)
+      )
     );
-    await Promise.all(promises);
+    const failures = results.filter((r) => r.status === 'rejected' || r.value?.error);
+    if (failures.length > 0) {
+      console.error(`Reorder: ${failures.length}/${items.length} updates failed`, failures);
+    }
   },
 };
 

@@ -45,9 +45,24 @@ function DispatchExcelUpload({ onApply, onCancel }) {
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    reset();
+    setError('');
     setFileName(file.name);
-    setError(null);
     const ext = file.name.split('.').pop().toLowerCase();
+    const validTypes = [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel',
+      'text/csv',
+    ];
+    if (!validTypes.includes(file.type) && !['xlsx', 'xls', 'csv'].includes(ext)) {
+      setError('Invalid file type. Please upload an Excel (.xlsx, .xls) or CSV file.');
+      return;
+    }
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    if (file.size > MAX_FILE_SIZE) {
+      setError('File is too large. Maximum size is 10 MB.');
+      return;
+    }
     const reader = new FileReader();
     reader.onerror = () => setError('Failed to read file.');
     reader.onload = (ev) => {
@@ -104,9 +119,16 @@ function DispatchExcelUpload({ onApply, onCancel }) {
       const headerRow = json[headerIdx];
       const headers = [];
       const idxMap = [];
+      const seenHeaders = {};
       (headerRow || []).forEach((h, i) => {
-        const v = String(h || '').trim();
+        let v = String(h || '').trim();
         if (v) {
+          if (seenHeaders[v]) {
+            seenHeaders[v]++;
+            v = `${v} (${seenHeaders[v]})`;
+          } else {
+            seenHeaders[v] = 1;
+          }
           headers.push(v);
           idxMap.push(i);
         }
@@ -126,6 +148,10 @@ function DispatchExcelUpload({ onApply, onCancel }) {
         });
         return obj;
       }).filter((r) => Object.values(r).some((v) => v !== ''));
+      if (dataRows.length === 0) {
+        setError('The selected sheet has no data rows (only headers found).');
+        return;
+      }
       const autoMapping = autoDetect(headers);
       setRawData(dataRows);
       setMapping(autoMapping);
@@ -176,7 +202,7 @@ function DispatchExcelUpload({ onApply, onCancel }) {
       const opt = STATUS_OPTIONS.find((o) => o.value === status) || STATUS_OPTIONS[0];
       const address = map.address ? (row[map.address] || '') : '';
       return {
-        id: `row-${idx}-${Math.random()}`,
+        id: `row-${idx}`,
         pm: map.pm ? (row[map.pm] || '').trim() : '',
         crewChief: (row[map.crewChief] || '').trim(),
         jobNumber: (row[map.jobNumber] || '').trim(),

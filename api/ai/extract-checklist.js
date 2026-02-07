@@ -1,52 +1,4 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const OpenAI = require('openai');
-
-// Load environment variables
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 3001;
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-];
-
-// Middleware
-app.use(cors({
-  origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true
-}));
-app.use(express.json({ limit: '2mb' }));
-app.use(express.urlencoded({ extended: true }));
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Backend server is running' });
-});
-
-// Root endpoint
-app.get('/', (req, res) => {
-  res.json({
-    message: 'RestoreLogic.AI Backend API',
-    version: '1.0.0',
-    note: 'This application uses Supabase for all database operations. Frontend services connect directly to Supabase.',
-    endpoints: {
-      health: '/health',
-      aiExtractChecklist: 'POST /api/ai/extract-checklist',
-    }
-  });
-});
-
-/* ------------------------------------------------------------------ */
-/*  AI Checklist Extraction (OpenAI proxy)                             */
-/* ------------------------------------------------------------------ */
+import OpenAI from 'openai';
 
 const FULL_EXTRACT_PROMPT = `You are an expert at reading insurance SLA (Service Level Agreement) documents for restoration and mitigation companies.
 
@@ -99,7 +51,7 @@ No markdown, no code fences, no explanation — just the JSON array.`;
 function getOpenAIClient() {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error('OPENAI_API_KEY environment variable is not set');
-  return new OpenAI.default ? new OpenAI.default({ apiKey }) : new OpenAI({ apiKey });
+  return new OpenAI({ apiKey });
 }
 
 function parseAIResponse(content) {
@@ -120,7 +72,11 @@ function normalizeChecklist(items) {
     }));
 }
 
-app.post('/api/ai/extract-checklist', async (req, res) => {
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   const { pdfText, mode } = req.body || {};
 
   if (!pdfText || typeof pdfText !== 'string' || !pdfText.trim()) {
@@ -172,25 +128,4 @@ app.post('/api/ai/extract-checklist', async (req, res) => {
     console.error('AI extract-checklist error:', err);
     return res.status(500).json({ error: 'Failed to process PDF text' });
   }
-});
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Endpoint not found' });
-});
-
-// Error handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
-});
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
-  console.log(`Note: This app uses Supabase for database operations`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(`AI endpoint: POST http://localhost:${PORT}/api/ai/extract-checklist`);
-});
-
-module.exports = app;
+}

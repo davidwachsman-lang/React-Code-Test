@@ -366,18 +366,6 @@
   color: #e2e8f0;
 }
 
-.dispatch-map-infowindow {
-  padding: 0.25rem;
-  font-size: 0.9rem;
-  color: #1e293b;
-  min-width: 180px;
-}
-
-.dispatch-map-infowindow strong {
-  display: block;
-  margin-bottom: 0.35rem;
-}
-
 @media (max-width: 800px) {
   .dispatch-map-layout {
     flex-direction: column;

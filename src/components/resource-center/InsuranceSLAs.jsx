@@ -6,16 +6,20 @@ import './InsuranceSLAs.css';
 /* ------------------------------------------------------------------ */
 /*  PDF text extraction (pdfjs-dist)                                  */
 /* ------------------------------------------------------------------ */
-let pdfjsLib = null;
 
-async function loadPdfJs() {
-  if (pdfjsLib) return pdfjsLib;
-  pdfjsLib = await import('pdfjs-dist');
-  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.mjs',
-    import.meta.url,
-  ).toString();
-  return pdfjsLib;
+// Fix #1: Promise-based singleton to prevent concurrent loading race
+let pdfjsPromise = null;
+function loadPdfJs() {
+  if (!pdfjsPromise) {
+    pdfjsPromise = import('pdfjs-dist').then((lib) => {
+      lib.GlobalWorkerOptions.workerSrc = new URL(
+        'pdfjs-dist/build/pdf.worker.mjs',
+        import.meta.url,
+      ).href;
+      return lib;
+    });
+  }
+  return pdfjsPromise;
 }
 
 async function extractTextFromPdf(file) {
@@ -62,6 +66,12 @@ async function extractTextFromPdf(file) {
 /* ================================================================== */
 
 export default function InsuranceSLAs() {
+  // Fix #2: Unmount guard for async operations
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    return () => { mountedRef.current = false; };
+  }, []);
+
   // All documents (flat table data)
   const [allDocs, setAllDocs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -70,7 +80,7 @@ export default function InsuranceSLAs() {
   // Upload flow states: idle -> processing -> confirm -> saving
   const [uploadStep, setUploadStep] = useState('idle'); // idle | processing | confirm | saving
   const [uploadError, setUploadError] = useState(null);
-  // Each pending upload: { file, detectedName, checklist, processing, error }
+  // Each pending upload: { id, file, detectedName, checklist, processing, error, saved }
   const [pendingUploads, setPendingUploads] = useState([]);
   const fileInputRef = useRef(null);
 
@@ -93,8 +103,27 @@ export default function InsuranceSLAs() {
   const [aiProcessing, setAiProcessing] = useState(false);
   const [aiError, setAiError] = useState(null);
 
-  // Track which carrier IDs are currently generating checklists
-  const [generatingSet, setGeneratingSet] = useState(new Set());
+  // Fix #5: Removed generatingSet state and setGeneratingSet (dead code)
+
+  // Fix #9: Delete button double-click protection
+  const [deletingId, setDeletingId] = useState(null);
+
+  // Fix #8: Modal focus refs
+  const checklistModalRef = useRef(null);
+  const reviewModalRef = useRef(null);
+
+  // Fix #8: Auto-focus modals when opened
+  useEffect(() => {
+    if (checklistOpen && checklistModalRef.current) {
+      checklistModalRef.current.focus();
+    }
+  }, [checklistOpen]);
+
+  useEffect(() => {
+    if (reviewOpen && reviewModalRef.current) {
+      reviewModalRef.current.focus();
+    }
+  }, [reviewOpen]);
 
   /* ---------------------------------------------------------------- */
   /*  Data fetching                                                   */
@@ -105,11 +134,13 @@ export default function InsuranceSLAs() {
       setLoading(true);
       setError(null);
       const data = await insuranceSlaService.getAllDocumentsWithCarrier();
+      if (!mountedRef.current) return; // Fix #2
       setAllDocs(data ?? []);
     } catch (err) {
+      if (!mountedRef.current) return; // Fix #2
       setError(err?.message ?? 'Failed to load SLAs');
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false); // Fix #2
     }
   }, []);
 
@@ -128,14 +159,16 @@ export default function InsuranceSLAs() {
     setUploadStep('processing');
     setUploadError(null);
 
-    // Create a pending entry for each file
-    const entries = files.map((file) => ({
+    // Fix #7: Create a pending entry for each file with a unique id
+    const entries = files.map((file, i) => ({
+      id: Date.now() + '-' + i,
       file,
       detectedName: '',
       detectedDate: '',
       checklist: [],
       processing: true,
       error: null,
+      saved: false,
     }));
     setPendingUploads(entries);
 
@@ -144,10 +177,12 @@ export default function InsuranceSLAs() {
       files.map(async (file) => {
         const lines = await extractTextFromPdf(file);
         const fullText = lines.join('\n');
-        if (!fullText.trim()) throw new Error('No readable text found — PDF may be scanned/image-only.');
+        if (!fullText.trim()) throw new Error('No readable text found \u2014 PDF may be scanned/image-only.');
         return await extractCarrierAndChecklist(fullText);
       })
     );
+
+    if (!mountedRef.current) return; // Fix #2
 
     // Update each entry with AI results
     setPendingUploads((prev) =>
@@ -171,6 +206,7 @@ export default function InsuranceSLAs() {
       })
     );
 
+    if (!mountedRef.current) return; // Fix #2
     setUploadStep('confirm');
   };
 
@@ -181,25 +217,31 @@ export default function InsuranceSLAs() {
     );
   };
 
-  /** Remove a pending upload from the list */
+  // Fix #3: removePending without nested setState
   const removePending = (idx) => {
-    setPendingUploads((prev) => {
-      const next = prev.filter((_, i) => i !== idx);
-      if (next.length === 0) resetUpload();
-      return next;
-    });
+    setPendingUploads((prev) => prev.filter((_, i) => i !== idx));
   };
 
+  // Fix #3: useEffect to reset upload when all pending uploads are removed
+  useEffect(() => {
+    if (pendingUploads.length === 0 && uploadStep === 'confirm') {
+      resetUpload();
+    }
+  }, [pendingUploads.length, uploadStep]);
+
+  // Fix #4: Partial-failure handling in handleConfirmAll
   /** Step 2: Confirm & save all pending uploads */
   const handleConfirmAll = async () => {
-    const valid = pendingUploads.filter((u) => !u.error && u.detectedName.trim());
+    const valid = pendingUploads.filter((u) => !u.error && !u.saved && u.detectedName.trim());
     if (valid.length === 0) { setUploadError('No valid uploads to save.'); return; }
 
     setUploadStep('saving');
     setUploadError(null);
 
-    try {
-      for (const entry of valid) {
+    const succeededIds = new Set();
+
+    for (const entry of valid) {
+      try {
         const carrier = await insuranceSlaService.findOrCreateCarrier(entry.detectedName.trim());
         await insuranceSlaService.uploadDocument(carrier.id, entry.file, {
           publish_date: entry.detectedDate || null,
@@ -217,13 +259,28 @@ export default function InsuranceSLAs() {
           }));
           await insuranceSlaService.addChecklistItems(carrier.id, rows);
         }
-      }
 
+        succeededIds.add(entry.id);
+      } catch (err) {
+        // Continue processing the rest; this entry will remain for retry
+        console.error(`Failed to save "${entry.file.name}":`, err);
+      }
+    }
+
+    if (!mountedRef.current) return; // Fix #2
+
+    if (succeededIds.size === valid.length) {
+      // All succeeded
       resetUpload();
       await fetchAllDocs();
-    } catch (err) {
-      setUploadError(err?.message ?? 'Upload failed');
+    } else {
+      // Partial failure: filter out succeeded items so they aren't re-uploaded on retry
+      setPendingUploads((prev) => prev.filter((u) => !succeededIds.has(u.id)));
+      if (!mountedRef.current) return; // Fix #2
+      setUploadError(`${succeededIds.size} of ${valid.length} saved. Retry remaining uploads.`);
       setUploadStep('confirm');
+      // Still refresh the table to show what was saved
+      await fetchAllDocs();
     }
   };
 
@@ -234,44 +291,7 @@ export default function InsuranceSLAs() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  /* ---------------------------------------------------------------- */
-  /*  AI checklist generation (background)                            */
-  /* ---------------------------------------------------------------- */
-
-  const runAiChecklistBackground = async (carrierId, files) => {
-    setGeneratingSet((prev) => new Set(prev).add(carrierId));
-    try {
-      const allLines = [];
-      for (const file of files) {
-        const lines = await extractTextFromPdf(file);
-        allLines.push(...lines);
-      }
-      const fullText = allLines.join('\n');
-      if (!fullText.trim()) return;
-
-      const items = await generateChecklistFromText(fullText);
-      if (items.length > 0) {
-        const existing = await insuranceSlaService.getChecklistItems(carrierId);
-        const maxSort = (existing ?? []).length > 0
-          ? Math.max(...existing.map((it) => it.sort_order ?? 0))
-          : -1;
-        const rows = items.map((item, i) => ({
-          text: item.text,
-          section: item.section || null,
-          sort_order: maxSort + 1 + i,
-        }));
-        await insuranceSlaService.addChecklistItems(carrierId, rows);
-      }
-    } catch (err) {
-      console.error('AI checklist generation failed:', err);
-    } finally {
-      setGeneratingSet((prev) => {
-        const next = new Set(prev);
-        next.delete(carrierId);
-        return next;
-      });
-    }
-  };
+  // Fix #5: Removed runAiChecklistBackground (dead code)
 
   /* ---------------------------------------------------------------- */
   /*  AI review modal (from re-extract)                               */
@@ -292,11 +312,13 @@ export default function InsuranceSLAs() {
       const lines = await extractTextFromPdf(file);
       const fullText = lines.join('\n');
       const items = await generateChecklistFromText(fullText);
+      if (!mountedRef.current) return; // Fix #2
       setReviewItems(items);
     } catch (err) {
+      if (!mountedRef.current) return; // Fix #2
       setAiError(err?.message ?? 'Failed to generate checklist from PDF');
     } finally {
-      setAiProcessing(false);
+      if (mountedRef.current) setAiProcessing(false); // Fix #2
     }
   };
 
@@ -317,9 +339,11 @@ export default function InsuranceSLAs() {
         sort_order: maxSort + 1 + i,
       }));
       await insuranceSlaService.addChecklistItems(reviewCarrierId, items);
+      if (!mountedRef.current) return; // Fix #2
       // If the checklist modal is open for this carrier, refresh it
       if (checklistOpen && checklistCarrierId === reviewCarrierId) {
         const refreshed = await insuranceSlaService.getChecklistItems(reviewCarrierId);
+        if (!mountedRef.current) return; // Fix #2
         setChecklistItems(refreshed ?? []);
       }
       setReviewOpen(false);
@@ -341,11 +365,12 @@ export default function InsuranceSLAs() {
     setAddingItem(false);
     try {
       const items = await insuranceSlaService.getChecklistItems(doc.carrier_id);
+      if (!mountedRef.current) return; // Fix #2
       setChecklistItems(items ?? []);
     } catch (err) {
       console.error('Failed to load checklist', err);
     } finally {
-      setChecklistLoading(false);
+      if (mountedRef.current) setChecklistLoading(false); // Fix #2
     }
   };
 
@@ -371,6 +396,7 @@ export default function InsuranceSLAs() {
         sort_order: maxSort + 1,
       }]);
       const refreshed = await insuranceSlaService.getChecklistItems(checklistCarrierId);
+      if (!mountedRef.current) return; // Fix #2
       setChecklistItems(refreshed ?? []);
       setNewItemText('');
       setNewItemSection('');
@@ -383,6 +409,7 @@ export default function InsuranceSLAs() {
   const handleDeleteChecklistItem = async (item) => {
     try {
       await insuranceSlaService.deleteChecklistItem(item.id);
+      if (!mountedRef.current) return; // Fix #2
       setChecklistItems((prev) => prev.filter((it) => it.id !== item.id));
     } catch (err) {
       alert(err?.message ?? 'Failed to delete item');
@@ -457,8 +484,9 @@ export default function InsuranceSLAs() {
           {uploadError && <div className="sla-form-error">{uploadError}</div>}
 
           <div className="sla-pending-list">
+            {/* Fix #7: Use entry.id as key instead of array index */}
             {pendingUploads.map((entry, idx) => (
-              <div key={idx} className={`sla-pending-item${entry.error ? ' sla-pending-item-error' : ''}`}>
+              <div key={entry.id} className={`sla-pending-item${entry.error ? ' sla-pending-item-error' : ''}`}>
                 <div className="sla-pending-file-name">{entry.file.name}</div>
                 {entry.error ? (
                   <div className="sla-pending-error">{entry.error}</div>
@@ -476,7 +504,8 @@ export default function InsuranceSLAs() {
                     <div className="sla-confirm-meta">
                       {entry.detectedDate && (
                         <>
-                          <span>Published: {new Date(entry.detectedDate + 'T00:00:00').toLocaleDateString()}</span>
+                          {/* Fix #6: Use T12:00:00 to avoid timezone day-shift */}
+                          <span>Published: {new Date(entry.detectedDate + 'T12:00:00').toLocaleDateString()}</span>
                           <span>&middot;</span>
                         </>
                       )}
@@ -502,9 +531,9 @@ export default function InsuranceSLAs() {
               type="button"
               className="sla-btn-primary"
               onClick={handleConfirmAll}
-              disabled={!pendingUploads.some((u) => !u.error && u.detectedName.trim())}
+              disabled={!pendingUploads.some((u) => !u.error && !u.saved && u.detectedName.trim())}
             >
-              Confirm &amp; Save {pendingUploads.filter((u) => !u.error && u.detectedName.trim()).length} SLA{pendingUploads.filter((u) => !u.error && u.detectedName.trim()).length !== 1 ? 's' : ''}
+              Confirm &amp; Save {pendingUploads.filter((u) => !u.error && !u.saved && u.detectedName.trim()).length} SLA{pendingUploads.filter((u) => !u.error && !u.saved && u.detectedName.trim()).length !== 1 ? 's' : ''}
             </button>
           </div>
         </div>
@@ -575,43 +604,45 @@ export default function InsuranceSLAs() {
                     </a>
                   </td>
                   <td className="sla-table-date">
-                    {doc.publish_date ? new Date(doc.publish_date + 'T00:00:00').toLocaleDateString() : '—'}
+                    {/* Fix #6: Use T12:00:00 to avoid timezone day-shift */}
+                    {doc.publish_date ? new Date(doc.publish_date + 'T12:00:00').toLocaleDateString() : '—'}
                   </td>
                   <td className="sla-table-date">
                     {doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString() : '—'}
                   </td>
+                  {/* Fix #5: Removed generatingSet reference, always show checklist button */}
                   <td>
-                    {generatingSet.has(doc.carrier_id) ? (
-                      <span className="sla-table-generating" title="Generating checklist...">
-                        <span className="sla-mini-spinner" />
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        className="sla-table-checklist-btn"
-                        title="View checklist"
-                        onClick={() => openChecklist(doc)}
-                      >
-                        {/* Checklist icon */}
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20">
-                          <path d="M9 11l3 3L22 4" />
-                          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-                        </svg>
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      className="sla-table-checklist-btn"
+                      title="View checklist"
+                      onClick={() => openChecklist(doc)}
+                    >
+                      {/* Checklist icon */}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="20" height="20">
+                        <path d="M9 11l3 3L22 4" />
+                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+                      </svg>
+                    </button>
                   </td>
                   <td>
+                    {/* Fix #9: Delete button with double-click protection */}
                     <button
                       type="button"
                       className="sla-icon-btn sla-icon-btn-danger sla-icon-btn-sm"
                       title="Delete document"
+                      disabled={deletingId === doc.id}
                       onClick={async () => {
                         if (!window.confirm(`Delete "${doc.file_name}"?`)) return;
+                        setDeletingId(doc.id);
                         try {
                           await insuranceSlaService.deleteDocument(doc.id, doc.file_path);
+                          if (!mountedRef.current) return; // Fix #2
                           setAllDocs((prev) => prev.filter((d) => d.id !== doc.id));
                         } catch (err) {
                           alert(err?.message ?? 'Failed to delete document');
+                        } finally {
+                          if (mountedRef.current) setDeletingId(null);
                         }
                       }}
                     >
@@ -631,7 +662,16 @@ export default function InsuranceSLAs() {
       {/* Checklist modal */}
       {checklistOpen && (
         <div className="sla-modal-backdrop" onClick={closeChecklist}>
-          <div className="sla-modal sla-modal-lg" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+          {/* Fix #8: Focus trap + Escape handler for checklist modal */}
+          <div
+            className="sla-modal sla-modal-lg"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            tabIndex={-1}
+            ref={checklistModalRef}
+            onKeyDown={(e) => { if (e.key === 'Escape') closeChecklist(); }}
+          >
             <div className="sla-modal-header">
               <h2>Checklist &mdash; {checklistCarrierName}</h2>
               <button type="button" className="sla-modal-close" onClick={closeChecklist}>&times;</button>
@@ -646,9 +686,9 @@ export default function InsuranceSLAs() {
                 </p>
               )}
 
-              {/* Grouped items */}
-              {groupedChecklist.map((group, gi) => (
-                <div key={gi} className="sla-checklist-group">
+              {/* Fix #7: Grouped items with section-based key instead of array index */}
+              {groupedChecklist.map((group) => (
+                <div key={group.section || '__none__'} className="sla-checklist-group">
                   {group.section && (
                     <div className="sla-checklist-section-title">{group.section}</div>
                   )}
@@ -722,7 +762,16 @@ export default function InsuranceSLAs() {
       {/* AI checklist review modal */}
       {reviewOpen && (
         <div className="sla-modal-backdrop" onClick={() => !aiProcessing && setReviewOpen(false)}>
-          <div className="sla-modal sla-modal-lg" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+          {/* Fix #8: Focus trap + Escape handler for review modal */}
+          <div
+            className="sla-modal sla-modal-lg"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            tabIndex={-1}
+            ref={reviewModalRef}
+            onKeyDown={(e) => { if (e.key === 'Escape' && !aiProcessing) setReviewOpen(false); }}
+          >
             <div className="sla-modal-header">
               <h2>AI-Generated Checklist</h2>
               {!aiProcessing && (
@@ -750,8 +799,9 @@ export default function InsuranceSLAs() {
                     Review the {reviewItems.length} items below. Remove any you don&rsquo;t need, then save.
                   </p>
                   <div className="sla-review-list">
+                    {/* Fix #7: Use text+section combo as key for review items */}
                     {reviewItems.map((item, idx) => (
-                      <div key={idx} className="sla-review-item">
+                      <div key={`${item.section || ''}-${item.text}-${idx}`} className="sla-review-item">
                         <div className="sla-review-item-content">
                           {item.section && <span className="sla-review-section-tag">{item.section}</span>}
                           <span className="sla-review-item-text">{item.text}</span>

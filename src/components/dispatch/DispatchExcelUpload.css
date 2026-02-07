@@ -24,9 +24,15 @@
 
 .dispatch-excel-upload input[type="file"] {
   position: absolute;
-  width: 0;
-  height: 0;
-  opacity: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
 }
 
 .dispatch-excel-upload .file-input-label {

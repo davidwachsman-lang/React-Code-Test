@@ -668,10 +668,10 @@
   font-weight: 600;
 }
 
-.sla-ai-loading-sub {
-  font-size: 0.85rem !important;
-  font-weight: 400 !important;
-  color: #94a3b8 !important;
+.sla-ai-loading .sla-ai-loading-sub {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #94a3b8;
 }
 
 .sla-ai-spinner {
@@ -759,13 +759,5 @@
   .sla-page-header {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .sla-upload-fields {
-    flex-direction: column;
-  }
-
-  .sla-upload-name-input {
-    min-width: 0;
   }
 }

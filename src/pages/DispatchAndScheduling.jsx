@@ -55,9 +55,14 @@ const JOB_TYPES = [
   { value: 'emergency', label: 'Emergency', hours: 0.5 },
 ];
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function createEmptyJob() {
   return {
-    id: Date.now() + Math.random(),
+    id: crypto.randomUUID(),
     jobType: '',
     hours: 0,
     jobNumber: '',
@@ -65,9 +70,6 @@ function createEmptyJob() {
     address: '',
   };
 }
-
-const mapContainerStyle = { width: '100%', height: '400px', borderRadius: '8px' };
-const defaultCenter = { lat: 40.7128, lng: -74.006 };
 
 // 8:30 AM to 5:00 PM in 30-minute increments (decimal hours)
 const DAY_START = 8.5;
@@ -198,7 +200,6 @@ function DispatchAndScheduling() {
   const [viewMode, setViewMode] = useState('table');
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [visibleCrews, setVisibleCrews] = useState({});
-  const mapRef = useRef(null);
   const HOME_OFFICE = '2550 TN-109, Lebanon, TN 37090';
   const FALLBACK_DEPOT_COORDS = { lat: 36.2081, lng: -86.2911 };
   const depotAddress = import.meta.env.VITE_DISPATCH_DEPOT_ADDRESS || HOME_OFFICE;
@@ -319,17 +320,23 @@ function DispatchAndScheduling() {
       });
     });
     return { crewJobPlacements: placements, overflowJobs: overflow };
-  }, [schedule, driveTimeByCrew]);
+  }, [schedule, driveTimeByCrew, scheduleColumns]);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('jobs')
           .select('id, job_number, customer_name, property_address')
           .limit(100);
-        if (data) setJobsDatabase(data);
-      } catch (_) {}
+        if (error) {
+          console.error('Failed to load jobs database:', error);
+        } else if (data) {
+          setJobsDatabase(data);
+        }
+      } catch (err) {
+        console.error('Jobs database fetch error:', err);
+      }
     };
     load();
   }, []);
@@ -376,13 +383,22 @@ function DispatchAndScheduling() {
     } catch (_) {}
   }, [schedule, lanes, driveTimeByCrew, pmGroups, dateKey, optimizing]);
 
+  // Structural hash of schedule: only triggers re-estimation when job IDs or
+  // lane assignments change, not when job fields (customer, address, etc.) change.
+  const scheduleStructureKey = useMemo(() => {
+    const parts = Object.entries(schedule).map(([lane, jobs]) =>
+      `${lane}:${(jobs || []).map(j => j.id).join(',')}`
+    );
+    return parts.sort().join('|');
+  }, [schedule]);
+
   useEffect(() => {
     if (optimizing) return;
     const t = setTimeout(() => {
       runEstimateWithRefs();
     }, 800);
     return () => clearTimeout(t);
-  }, [schedule, lanes]);
+  }, [scheduleStructureKey, lanes]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -475,7 +491,7 @@ function DispatchAndScheduling() {
     if (!window.google?.maps?.DistanceMatrixService) throw new Error('Google Maps must be loaded. Wait a moment and try again.');
     report('geocoding_depot', 0, 0);
     const depotCoords = await getDepotCoords(depot);
-    if (!depotCoords?.lat || depotCoords?.lng == null) throw new Error('Could not geocode depot address.');
+    if (depotCoords?.lat == null || depotCoords?.lng == null) throw new Error('Could not geocode depot address.');
     const allJobs = [];
     lanesInput.forEach((lane) => {
       (scheduleInput[lane.id] || []).forEach((job) => {
@@ -579,7 +595,7 @@ function DispatchAndScheduling() {
     }
     try {
       const depotCoords = await getDepotCoords(depot);
-      if (!depotCoords?.lat || depotCoords?.lng == null) {
+      if (depotCoords?.lat == null || depotCoords?.lng == null) {
         if (!silent) setOptimizeError('Could not geocode depot address.');
         return;
       }
@@ -695,7 +711,7 @@ function DispatchAndScheduling() {
     });
     depotMarker.addListener('click', () => {
       if (infoWindowRef.current) {
-        infoWindowRef.current.setContent(`<div style="padding:4px;min-width:180px"><strong>Home Office</strong><div>${HOME_OFFICE}</div></div>`);
+        infoWindowRef.current.setContent(`<div style="padding:4px;min-width:180px"><strong>Home Office</strong><div>${escapeHtml(HOME_OFFICE)}</div></div>`);
         infoWindowRef.current.open(mapInstanceRef.current, depotMarker);
       }
     });
@@ -715,11 +731,11 @@ function DispatchAndScheduling() {
         if (infoWindowRef.current) {
           infoWindowRef.current.setContent(
             `<div style="padding:4px;min-width:180px;font-size:0.9rem">` +
-            `<strong>${job.crewName}</strong>` +
-            (job.jobNumber ? `<div>${job.jobNumber}</div>` : '') +
-            (job.customer ? `<div>${job.customer}</div>` : '') +
-            (job.address ? `<div style="color:#666">${job.address}</div>` : '') +
-            (job.jobType ? `<div>${job.jobType} &middot; ${job.hours}h</div>` : '') +
+            `<strong>${escapeHtml(job.crewName)}</strong>` +
+            (job.jobNumber ? `<div>${escapeHtml(job.jobNumber)}</div>` : '') +
+            (job.customer ? `<div>${escapeHtml(job.customer)}</div>` : '') +
+            (job.address ? `<div style="color:#666">${escapeHtml(job.address)}</div>` : '') +
+            (job.jobType ? `<div>${escapeHtml(job.jobType)} &middot; ${job.hours}h</div>` : '') +
             `</div>`
           );
           infoWindowRef.current.open(mapInstanceRef.current, marker);
@@ -750,7 +766,7 @@ function DispatchAndScheduling() {
     const initialSchedule = {};
     Object.keys(byCrew || {}).forEach((id) => {
       initialSchedule[id] = (byCrew[id] || []).map((j) => ({
-        id: j.id || Date.now() + Math.random(),
+        id: j.id || crypto.randomUUID(),
         jobType: j.jobType || '',
         hours: j.hours ?? 0,
         jobNumber: j.jobNumber || '',

@@ -384,84 +384,13 @@ const crmService = {
     });
   },
 
-  // Get ROI data with LTM metrics
+  // Get ROI data with LTM metrics (via Postgres view)
   async getROIData() {
-    const twelveMonthsAgo = new Date();
-    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
-    const ltmStartDate = twelveMonthsAgo.toISOString().split('T')[0];
-
-    // Get all CRM records
-    const crmRecords = await this.getAll();
-    
-    // Get all jobs from last 12 months
-    const jobsResponse = await supabase
-      .from('jobs')
-      .select('id, crm_id, date_received, estimate_value, referred_by')
-      .gte('date_received', ltmStartDate);
-    
-    const jobs = handleSupabaseResult(jobsResponse) || [];
-    
-    // Get last activity dates from activities
-    // Use created_at since activity_date column doesn't exist
-    const activitiesResponse = await supabase
-      .from('crm_activities')
-      .select('crm_id, created_at, activity_type')
+    const response = await supabase
+      .from('crm_roi_data')
+      .select('*')
       .order('created_at', { ascending: false });
-    
-    const activities = handleSupabaseResult(activitiesResponse) || [];
-    
-    // Calculate metrics for each CRM record
-    const roiData = crmRecords.map(record => {
-      // Filter jobs for this CRM record in LTM
-      const recordJobs = jobs.filter(j => j.crm_id === record.id);
-      
-      // Calculate referral jobs (jobs where this CRM record is the referrer)
-      const referralJobs = recordJobs.filter(j => j.referred_by && j.referred_by.toLowerCase().includes((record.company_name || '').toLowerCase()));
-      const referralJobsCount = referralJobs.length;
-      
-      // Calculate revenue (sum of estimate_value for all jobs in LTM)
-      const revenueLTM = recordJobs.reduce((sum, job) => sum + (parseFloat(job.estimate_value) || 0), 0);
-      
-      // Calculate cost from courting_cost field in CRM record (expenses spent while courting customer)
-      const costLTM = parseFloat(record.courting_cost) || 0;
-      
-      // Calculate ROI: (Revenue - Cost) / Cost * 100
-      const roi = costLTM > 0 ? ((revenueLTM - costLTM) / costLTM) * 100 : null;
-      
-      // Get last activity date (use created_at)
-      const recordActivities = activities.filter(a => a.crm_id === record.id);
-      const lastActivity = recordActivities.length > 0 ? recordActivities[0] : null;
-      const lastActivityDate = lastActivity ? lastActivity.created_at : null;
-      
-      // Calculate days since last activity
-      const daysSinceLastActivity = lastActivityDate 
-        ? Math.floor((new Date() - new Date(lastActivityDate)) / (1000 * 60 * 60 * 24))
-        : null;
-      
-      // Get last face-to-face activity (meeting or site_visit)
-      const f2fActivities = recordActivities.filter(a => 
-        a.activity_type === 'meeting' || a.activity_type === 'site_visit' || a.activity_type === 'lunch'
-      );
-      const lastF2F = f2fActivities.length > 0 ? f2fActivities[0] : null;
-      const lastF2FDate = lastF2F ? lastF2F.created_at : null;
-      
-      // Calculate days since last F2F
-      const daysSinceLastF2F = lastF2FDate 
-        ? Math.floor((new Date() - new Date(lastF2FDate)) / (1000 * 60 * 60 * 24))
-        : null;
-      
-      return {
-        ...record,
-        referral_jobs_ltm: referralJobsCount,
-        revenue_ltm: revenueLTM,
-        cost_ltm: costLTM,
-        roi: roi,
-        days_since_last_activity: daysSinceLastActivity,
-        days_since_last_f2f: daysSinceLastF2F
-      };
-    });
-    
-    return roiData;
+    return handleSupabaseResult(response) || [];
   },
 };
 

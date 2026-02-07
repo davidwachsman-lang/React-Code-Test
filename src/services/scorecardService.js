@@ -172,94 +172,18 @@ const scorecardService = {
     }
   },
 
-  // Calculate KPI metrics for a sales rep
+  // Calculate KPI metrics for a sales rep (via Postgres RPC)
   async calculateKPIMetrics(salesRepName, effectiveDate = null) {
+    if (!salesRepName || salesRepName.trim() === '') {
+      return { kpi1_actual_referrals: 0, kpi2_actual_clients: 0, kpi3_total_clients: 0, kpi3_visited_clients: 0 };
+    }
     try {
-      if (!salesRepName || salesRepName.trim() === '') {
-        return {
-          kpi1_actual_referrals: 0,
-          kpi2_actual_clients: 0,
-          kpi3_total_clients: 0,
-          kpi3_visited_clients: 0
-        };
-      }
-      
-      // Get all CRM records for this sales rep
-      const crmResponse = await supabase
-        .from('crm_records')
-        .select('id, company_name, relationship_stage, date_closed, primary_sales_rep')
-        .eq('primary_sales_rep', salesRepName);
-      
-      if (crmResponse.error) {
-        console.error('Error fetching CRM records:', crmResponse.error);
-        throw new Error(crmResponse.error.message);
-      }
-      
-      const crmRecords = crmResponse.data || [];
-      
-      // Filter closed clients (active_customer)
-      const closedClients = crmRecords.filter(r => r.relationship_stage === 'active_customer');
-      
-      // KPI 1: Count referrals from closed clients
-      // Get all jobs and check if referred_by matches closed client company names
-      const jobsResponse = await supabase
-        .from('jobs')
-        .select('id, crm_id, referred_by, date_received');
-      
-      let allJobs = [];
-      if (!jobsResponse.error) {
-        allJobs = jobsResponse.data || [];
-      }
-      
-      // Filter jobs where referred_by matches a closed client's company name
-      const referralJobs = allJobs.filter(job => {
-        if (!job.referred_by) return false;
-        return closedClients.some(client => 
-          client.company_name && 
-          job.referred_by.toLowerCase().includes(client.company_name.toLowerCase())
-        );
-      });
-      
-      const kpi1Actual = referralJobs.length;
-      
-      // KPI 2: Count new clients added (active_customer records)
-      const kpi2Actual = closedClients.length;
-      
-      // KPI 3: Count closed clients with F2F activities
-      const closedClientIds = closedClients.map(c => c.id);
-      
-      let kpi3Visited = 0;
-      if (closedClientIds.length > 0) {
-        const activitiesResponse = await supabase
-          .from('crm_activities')
-          .select('crm_id, activity_type')
-          .in('crm_id', closedClientIds)
-          .in('activity_type', ['meeting', 'site_visit', 'lunch']);
-        
-        if (!activitiesResponse.error) {
-          const activities = activitiesResponse.data || [];
-          // Get unique CRM IDs that have F2F activities
-          const visitedClientIds = [...new Set(activities.map(a => a.crm_id))];
-          kpi3Visited = visitedClientIds.length;
-        }
-      }
-      
-      const kpi3Total = closedClients.length;
-      
-      return {
-        kpi1_actual_referrals: kpi1Actual,
-        kpi2_actual_clients: kpi2Actual,
-        kpi3_total_clients: kpi3Total,
-        kpi3_visited_clients: kpi3Visited
-      };
+      const { data, error } = await supabase.rpc('calculate_kpi_metrics', { p_sales_rep: salesRepName });
+      if (error) throw error;
+      return data || { kpi1_actual_referrals: 0, kpi2_actual_clients: 0, kpi3_total_clients: 0, kpi3_visited_clients: 0 };
     } catch (error) {
       console.error(`Error calculating KPI metrics for ${salesRepName}:`, error);
-      return {
-        kpi1_actual_referrals: 0,
-        kpi2_actual_clients: 0,
-        kpi3_total_clients: 0,
-        kpi3_visited_clients: 0
-      };
+      return { kpi1_actual_referrals: 0, kpi2_actual_clients: 0, kpi3_total_clients: 0, kpi3_visited_clients: 0 };
     }
   },
 

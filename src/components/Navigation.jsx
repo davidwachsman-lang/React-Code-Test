@@ -180,10 +180,10 @@ function Navigation() {
     { path: '/job-files', label: 'Job Files', icon: <JobFilesIcon /> },
     { path: '/crm', label: 'CRM', icon: <CRMIcon /> },
     { path: '/field-services', label: 'Field Services', icon: <FieldServicesIcon /> },
-    { path: '/goals', label: 'Goals', icon: <GoalsIcon /> },
     { path: '/reporting', label: 'Reporting & Analytics', icon: <ReportingIcon /> },
     { path: '/storm', label: 'Storm', icon: <StormIcon /> },
     { path: '/resources', label: 'Resource Center', icon: <ResourceCenterIcon /> },
+    { path: '/goals', label: 'Goals', icon: <GoalsIcon /> },
     { path: '/expectations-2026', label: '2026 Expectations', icon: <Expectations2026Icon /> },
     { path: '/sandbox', label: 'Sandbox', icon: <SandboxIcon /> }
   ];

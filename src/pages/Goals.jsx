@@ -1,205 +1,262 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import './Page.css';
 import './Goals.css';
+import {
+  usePillars,
+  useKeyResults,
+  useFinancialTargets,
+  useInitiatives,
+  useUpdateInitiative,
+} from '../hooks/useGoals';
 
-function Goals() {
-  const [selectedQuarter] = useState('Q1 2025');
+// ── Status helpers ─────────────────────────────────────────
+const STATUS_COLORS = {
+  on_track: '#10b981',
+  at_risk: '#f59e0b',
+  off_track: '#ef4444',
+  not_started: '#6b7280',
+  in_progress: '#3b82f6',
+  complete: '#10b981',
+  overdue: '#ef4444',
+};
 
-  // Company-Level Annual OKRs
-  const topOkrs = [
-    {
-      id: 'rev',
-      label: 'Revenue',
-      targetLabel: '$50.0M',
-      actualLabel: '$23.4M YTD',
-      progressPct: 47,
-      status: 'warning'
-    },
-    {
-      id: 'gm',
-      label: 'Gross Margin %',
-      targetLabel: '45%',
-      actualLabel: '42.1% YTD',
-      progressPct: 94,
-      status: 'good'
-    },
-    {
-      id: 'ebitda',
-      label: 'EBITDA',
-      targetLabel: '$6.5M',
-      actualLabel: '$2.9M YTD',
-      progressPct: 44,
-      status: 'warning'
-    },
-    {
-      id: 'dso',
-      label: 'DSO',
-      targetLabel: '< 35 days',
-      actualLabel: '42 days',
-      progressPct: 0,
-      status: 'bad'
-    }
-  ];
+const STATUS_LABELS = {
+  on_track: 'On Track',
+  at_risk: 'At Risk',
+  off_track: 'Off Track',
+  not_started: 'Not Started',
+  in_progress: 'In Progress',
+  complete: 'Complete',
+  overdue: 'Overdue',
+};
 
-  // Department OKRs
-  const departmentOkrs = [
-    {
-      id: 'mit',
-      name: 'Mitigation',
-      krs: [
-        {
-          label: 'Close 800 mit jobs',
-          target: 'Target: 800',
-          actual: 'YTD: 410 (51%)',
-          status: 'warning'
-        },
-        {
-          label: 'Mit GM% ≥ 48%',
-          target: 'Target: 48%',
-          actual: 'YTD: 44.7%',
-          status: 'warning'
-        },
-        {
-          label: 'Cycle time < 3.5 days',
-          target: 'Target: 3.5',
-          actual: 'YTD: 4.1 days',
-          status: 'warning'
-        }
-      ]
-    },
-    {
-      id: 'recon',
-      name: 'Reconstruction',
-      krs: [
-        {
-          label: 'Recon revenue $18M',
-          target: 'Target: $18M',
-          actual: 'YTD: $8.4M (47%)',
-          status: 'warning'
-        },
-        {
-          label: 'Recon GM% ≥ 40%',
-          target: 'Target: 40%',
-          actual: 'YTD: 37%',
-          status: 'warning'
-        },
-        {
-          label: 'Punchlist < 10 days',
-          target: 'Target: 10',
-          actual: 'YTD: 12.2 days',
-          status: 'bad'
-        }
-      ]
-    },
-    {
-      id: 'finance',
-      name: 'Finance',
-      krs: [
-        {
-          label: 'DSO < 35 days',
-          target: 'Target: 35',
-          actual: 'YTD: 42',
-          status: 'bad'
-        },
-        {
-          label: 'Month-end close ≤ 5 days',
-          target: 'Target: 5',
-          actual: 'YTD: 4.6 days',
-          status: 'good'
-        }
-      ]
-    }
-  ];
+const INITIATIVE_STATUSES = ['not_started', 'in_progress', 'complete', 'at_risk', 'overdue'];
+const CADENCE_LABELS = { weekly: 'W', monthly: 'M', quarterly: 'Q' };
 
-  // Branch Metrics
-  const branchMetrics = [
-    {
-      id: 'nash',
-      name: 'Nashville',
-      revenueYtd: '$13.2M',
-      gmPct: '45%',
-      dso: '38',
-      status: 'good'
-    },
-    {
-      id: 'mn',
-      name: 'Minnesota',
-      revenueYtd: '$7.4M',
-      gmPct: '41%',
-      dso: '49',
-      status: 'bad'
-    },
-    {
-      id: 'nh',
-      name: 'New Hampshire',
-      revenueYtd: '$2.9M',
-      gmPct: '38%',
-      dso: '33',
-      status: 'warning'
-    }
-  ];
+function StatusBadge({ status, hide_not_started = false }) {
+  if (hide_not_started && status === 'not_started') return null;
+  const color = STATUS_COLORS[status] || '#6b7280';
+  return (
+    <span className="status-badge" style={{ backgroundColor: `${color}20`, color }}>
+      {STATUS_LABELS[status] || status}
+    </span>
+  );
+}
 
-  // Daily KPIs
-  const dailyKpis = [
-    {
-      id: 'jobs_sched',
-      label: 'Jobs Scheduled Today',
-      value: '37',
-      subLabel: 'Target: 40',
-      status: 'warning'
-    },
-    {
-      id: 'in_progress',
-      label: 'Jobs In Progress',
-      value: '112',
-      subLabel: 'Mit/Recon/LL mixed',
-      status: 'good'
-    },
-    {
-      id: 'behind',
-      label: 'Jobs Behind',
-      value: '9',
-      subLabel: 'Past promised date',
-      status: 'bad'
-    },
-    {
-      id: 'emergencies',
-      label: 'Emergencies (24h)',
-      value: '6',
-      subLabel: 'Water/Fire',
-      status: 'good'
-    },
-    {
-      id: 'missing_logs',
-      label: 'Missing Moisture Logs',
-      value: '14',
-      subLabel: 'Need today',
-      status: 'bad'
-    },
-    {
-      id: 'idle_equip',
-      label: 'Idle Equipment',
-      value: '51',
-      subLabel: 'Dehus/Airmovers',
-      status: 'warning'
-    }
-  ];
+// ── Section 1: Financial Scoreboard (card layout) ──────────
+function FinancialScoreboard({ targets }) {
+  const divisions = ['HB', 'IDRT', 'Total'];
+  const metrics = ['Net Revenue', 'Gross Margin %', 'Contribution Margin', 'EBITDA Margin'];
+  const companyTargets = (targets || []).filter((t) => t.division === 'Company');
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'good': return '#10b981';
-      case 'warning': return '#f59e0b';
-      case 'bad': return '#ef4444';
-      default: return '#6b7280';
-    }
+  const getTarget = (div, metric) =>
+    (targets || []).find((t) => t.division === div && t.metric_name === metric);
+
+  return (
+    <section className="goals-section">
+      <h2 className="section-title">Financial Scoreboard</h2>
+      <div className="scoreboard-cards">
+        {divisions.map((div) => (
+          <div key={div} className="scoreboard-card">
+            <div className="scoreboard-card-header">{div}</div>
+            <div className="scoreboard-metrics">
+              {metrics.map((metric) => {
+                const t = getTarget(div, metric);
+                return (
+                  <div key={metric} className="scoreboard-metric-row">
+                    <span className="scoreboard-metric-label">{metric}</span>
+                    <div className="scoreboard-metric-values">
+                      <span className="scoreboard-target">{t?.target_display ?? '—'}</span>
+                      {t?.actual_display && (
+                        <span className="scoreboard-actual">{t.actual_display}</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {companyTargets.length > 0 && (
+        <div className="company-kpis">
+          {companyTargets.map((t) => (
+            <div key={t.id} className="company-kpi-card">
+              <div className="company-kpi-label">{t.metric_name}</div>
+              <div className="company-kpi-value">{t.target_display}</div>
+              {t.actual_display && (
+                <div className="company-kpi-actual">Actual: {t.actual_display}</div>
+              )}
+              <StatusBadge status={t.status} hide_not_started />
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ── Section 2: Three-Pillar Key Results ────────────────────
+function PillarKeyResults({ pillars, keyResults }) {
+  const [expanded, setExpanded] = useState({});
+
+  const toggle = (id) => setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  const krByPillar = useMemo(() => {
+    const map = {};
+    (keyResults || []).forEach((kr) => {
+      const pid = kr.pillar_id;
+      if (!map[pid]) map[pid] = [];
+      map[pid].push(kr);
+    });
+    return map;
+  }, [keyResults]);
+
+  // Summary counts per pillar
+  const pillarSummary = (krs) => {
+    const active = krs.filter((k) => k.status !== 'not_started').length;
+    const onTrack = krs.filter((k) => k.status === 'on_track').length;
+    return { total: krs.length, active, onTrack };
   };
 
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case 'good': return 'On Track';
-      case 'warning': return 'At Risk';
-      case 'bad': return 'Off Track';
-      default: return status;
+  return (
+    <section className="goals-section">
+      <h2 className="section-title">Key Results by Pillar</h2>
+      <div className="pillar-grid">
+        {(pillars || []).map((pillar) => {
+          const isOpen = expanded[pillar.id] === true;
+          const krs = krByPillar[pillar.id] || [];
+          const summary = pillarSummary(krs);
+          return (
+            <div key={pillar.id} className={`pillar-card ${isOpen ? 'pillar-card--open' : ''}`}>
+              <button className="pillar-header" onClick={() => toggle(pillar.id)} type="button">
+                <div className="pillar-header-left">
+                  <span className="pillar-chevron">{isOpen ? '▾' : '▸'}</span>
+                  <h3 className="pillar-name">{pillar.name}</h3>
+                </div>
+                <div className="pillar-header-right">
+                  <span className="pillar-count">{summary.total} KRs</span>
+                  {summary.active > 0 && (
+                    <span className="pillar-active">{summary.onTrack}/{summary.active} on track</span>
+                  )}
+                </div>
+              </button>
+              {isOpen && (
+                <div className="kr-list">
+                  {krs.map((kr) => (
+                    <div key={kr.id} className="kr-item">
+                      <div className="kr-info">
+                        <div className="kr-label">{kr.label}</div>
+                        <div className="kr-details">
+                          <span className="kr-target-val">{kr.target_value}</span>
+                          {kr.actual_value && (
+                            <span className="kr-actual-val">{kr.actual_value}</span>
+                          )}
+                          <span className="kr-cadence">{CADENCE_LABELS[kr.measurement_cadence] || kr.measurement_cadence}</span>
+                        </div>
+                      </div>
+                      <StatusBadge status={kr.status} hide_not_started />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+// ── Section 3: Initiative Tracker (single table) ───────────
+function InitiativeTracker({ initiatives, onStatusChange }) {
+  const grouped = useMemo(() => {
+    const map = {};
+    (initiatives || []).forEach((init) => {
+      const key = init.sub_objective || 'Other';
+      if (!map[key]) map[key] = [];
+      map[key].push(init);
+    });
+    return map;
+  }, [initiatives]);
+
+  const groupOrder = [
+    'Cash + Margin',
+    'LL & HB Operations',
+    'Revenue Growth & Conversion',
+    'HB Sales & Marketing',
+  ];
+  const sortedGroups = groupOrder.filter((g) => grouped[g]);
+
+  return (
+    <section className="goals-section">
+      <h2 className="section-title">Initiative Tracker</h2>
+      <div className="initiative-table-wrap">
+        <table className="initiative-table">
+          <thead>
+            <tr>
+              <th>Initiative</th>
+              <th>Owner</th>
+              <th>Due</th>
+              <th>Metric</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedGroups.map((group) => (
+              <React.Fragment key={group}>
+                <tr className="initiative-group-row">
+                  <td colSpan={5}>{group}</td>
+                </tr>
+                {grouped[group].map((init) => (
+                  <tr key={init.id}>
+                    <td className="init-name">{init.initiative_name}</td>
+                    <td>{init.owner}</td>
+                    <td className="init-due">{init.due_date}</td>
+                    <td className="init-metric">{init.primary_metric || '—'}</td>
+                    <td>
+                      <select
+                        className="init-status-select"
+                        value={init.status}
+                        onChange={(e) => onStatusChange(init.id, e.target.value)}
+                        style={{
+                          color: STATUS_COLORS[init.status] || '#6b7280',
+                          borderColor: `${STATUS_COLORS[init.status] || '#6b7280'}40`,
+                        }}
+                      >
+                        {INITIATIVE_STATUSES.map((s) => (
+                          <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+// ── Main Goals Page ────────────────────────────────────────
+function Goals() {
+  const { data: pillars, loading: lp } = usePillars();
+  const { data: keyResults, loading: lk } = useKeyResults();
+  const { data: financials, loading: lf } = useFinancialTargets();
+  const { data: initiatives, loading: li, refetch: refetchInit } = useInitiatives();
+  const { updateInitiative } = useUpdateInitiative();
+
+  const loading = lp || lk || lf || li;
+
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await updateInitiative(id, { status: newStatus });
+      refetchInit();
+    } catch (err) {
+      console.error('Failed to update initiative status:', err);
     }
   };
 
@@ -207,160 +264,25 @@ function Goals() {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h1>Goals & OKR Dashboard</h1>
-          <p>Annual financial outcomes tied to operational performance across branches and service lines</p>
+          <h1>FY26 Goals</h1>
+          <p>Three pillars — Ops Execution, Cash + Margin, Sales & Marketing</p>
         </div>
         <div className="status-legend">
-          <span className="legend-item good">On track</span>
-          <span className="legend-item warning">At risk</span>
-          <span className="legend-item bad">Off track</span>
+          <span className="legend-item good">On Track</span>
+          <span className="legend-item warning">At Risk</span>
+          <span className="legend-item bad">Off Track</span>
         </div>
       </div>
 
-      <div className="goals-content">
-        {/* Company-Level OKRs */}
-        <section className="okr-section">
-          <h2 className="section-title">Company-Level Annual OKRs</h2>
-          <div className="okr-grid">
-            {topOkrs.map((okr) => (
-              <div key={okr.id} className="okr-card">
-                <div className="okr-header">
-                  <span className="okr-label">{okr.label}</span>
-                  <span
-                    className="status-badge"
-                    style={{
-                      backgroundColor: `${getStatusColor(okr.status)}20`,
-                      color: getStatusColor(okr.status)
-                    }}
-                  >
-                    {getStatusLabel(okr.status)}
-                  </span>
-                </div>
-                <div className="okr-values">
-                  <div className="okr-target">
-                    Target: <strong>{okr.targetLabel}</strong>
-                  </div>
-                  <div className="okr-actual">
-                    Actual: <strong>{okr.actualLabel}</strong>
-                  </div>
-                </div>
-                {okr.progressPct > 0 && (
-                  <div className="okr-progress-block">
-                    <div className="progress-bar">
-                      <div
-                        className="progress-fill"
-                        style={{
-                          width: `${Math.min(okr.progressPct, 100)}%`,
-                          backgroundColor: getStatusColor(okr.status)
-                        }}
-                      />
-                    </div>
-                    <div className="progress-label">{okr.progressPct}%</div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Department OKRs & Branch Leaderboard */}
-        <div className="middle-section">
-          {/* Department OKRs */}
-          <section className="department-section">
-            <h2 className="section-title">Quarterly Key Results by Department</h2>
-            <div className="department-grid">
-              {departmentOkrs.map((dept) => (
-                <div key={dept.id} className="department-card">
-                  <h3 className="department-name">{dept.name}</h3>
-                  <div className="kr-list">
-                    {dept.krs.map((kr, idx) => (
-                      <div key={`${dept.id}-${idx}`} className="kr-item">
-                        <div className="kr-info">
-                          <div className="kr-label">{kr.label}</div>
-                          <div className="kr-details">
-                            {kr.target} · {kr.actual}
-                          </div>
-                        </div>
-                        <span
-                          className="kr-status"
-                          style={{
-                            backgroundColor: `${getStatusColor(kr.status)}20`,
-                            color: getStatusColor(kr.status)
-                          }}
-                        >
-                          {kr.status === 'good' ? 'On track' : kr.status === 'warning' ? 'Watch' : 'Off'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Branch Leaderboard */}
-          <section className="branch-section">
-            <div className="branch-card">
-              <h3 className="branch-title">Branch Leaderboard</h3>
-              <div className="branch-table">
-                <div className="branch-table-header">
-                  <div>Branch</div>
-                  <div>Revenue YTD</div>
-                  <div>GM%</div>
-                  <div>DSO</div>
-                  <div>Status</div>
-                </div>
-                {branchMetrics.map((branch) => (
-                  <div key={branch.id} className="branch-table-row">
-                    <div className="branch-name">{branch.name}</div>
-                    <div>{branch.revenueYtd}</div>
-                    <div>{branch.gmPct}</div>
-                    <div>{branch.dso}</div>
-                    <div>
-                      <span
-                        className="branch-status"
-                        style={{
-                          backgroundColor: `${getStatusColor(branch.status)}20`,
-                          color: getStatusColor(branch.status)
-                        }}
-                      >
-                        {branch.status === 'good' ? 'Strong' : branch.status === 'warning' ? 'Mixed' : 'Needs focus'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+      {loading ? (
+        <div className="goals-loading">Loading...</div>
+      ) : (
+        <div className="goals-content">
+          <FinancialScoreboard targets={financials} />
+          <PillarKeyResults pillars={pillars} keyResults={keyResults} />
+          <InitiativeTracker initiatives={initiatives} onStatusChange={handleStatusChange} />
         </div>
-
-        {/* Daily Operational KPIs */}
-        <section className="kpi-section">
-          <h2 className="section-title">Daily Operational KPIs</h2>
-          <div className="kpi-grid">
-            {dailyKpis.map((kpi) => (
-              <div key={kpi.id} className="kpi-card">
-                <div className="kpi-header">
-                  <div className="kpi-label">{kpi.label}</div>
-                  {kpi.status && (
-                    <span
-                      className="kpi-status"
-                      style={{
-                        backgroundColor: `${getStatusColor(kpi.status)}20`,
-                        color: getStatusColor(kpi.status)
-                      }}
-                    >
-                      {kpi.status === 'good' ? 'OK' : kpi.status === 'warning' ? 'Watch' : 'Alert'}
-                    </span>
-                  )}
-                </div>
-                <div className="kpi-value">{kpi.value}</div>
-                {kpi.subLabel && <div className="kpi-sublabel">{kpi.subLabel}</div>}
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
+      )}
     </div>
   );
 }

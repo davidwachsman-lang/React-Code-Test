@@ -78,7 +78,6 @@ function ProspectFilters({ filters, onFilterChange }) {
           <option value="all">All Reps</option>
           <option value="bri">Bri</option>
           <option value="paige">Paige</option>
-          <option value="matt">Matt</option>
           <option value="tony">Tony</option>
         </select>
       </div>

@@ -67,8 +67,10 @@ async function extractTextFromPdf(file) {
 
 export default function InsuranceSLAs() {
   // Fix #2: Unmount guard for async operations
+  // Must set true in setup (not just useRef init) for React Strict Mode compatibility
   const mountedRef = useRef(true);
   useEffect(() => {
+    mountedRef.current = true;
     return () => { mountedRef.current = false; };
   }, []);
 

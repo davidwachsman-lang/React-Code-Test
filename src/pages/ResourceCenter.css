@@ -111,6 +111,147 @@
   background: rgba(59, 130, 246, 0.3);
 }
 
+/* Back button */
+.resource-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem 0.4rem 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  border-radius: 8px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.75rem;
+}
+
+.resource-back-btn:hover {
+  background: rgba(30, 41, 59, 1);
+  color: #e2e8f0;
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.resource-back-btn svg {
+  flex-shrink: 0;
+}
+
+/* Landing card grid */
+.resource-landing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.resource-landing-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2.5rem 1.5rem;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(71, 85, 105, 0.35);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
+}
+
+.resource-landing-card:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.resource-landing-card:active {
+  transform: translateY(-1px);
+}
+
+.resource-landing-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #60a5fa;
+  transition: all 0.25s ease;
+}
+
+.resource-landing-card:hover .resource-landing-icon {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.resource-landing-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  letter-spacing: 0.01em;
+}
+
+.resource-landing-subtitle {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  line-height: 1.4;
+  max-width: 240px;
+}
+
+/* Insurance SLAs placeholder */
+.resource-sla-placeholder {
+  padding: 2rem 0;
+}
+
+.resource-sla-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px dashed rgba(71, 85, 105, 0.5);
+  border-radius: 14px;
+  color: #64748b;
+}
+
+.resource-sla-empty svg {
+  color: #475569;
+}
+
+.resource-sla-empty h3 {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.resource-sla-empty p {
+  color: #64748b;
+  font-size: 0.9375rem;
+  margin: 0;
+  max-width: 400px;
+}
+
+/* Responsive landing grid */
+@media (max-width: 640px) {
+  .resource-landing-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .resource-landing-card {
+    padding: 2rem 1.25rem;
+  }
+}
+
 /* Internal company directory */
 .resource-internal-directory {
   width: 100%;

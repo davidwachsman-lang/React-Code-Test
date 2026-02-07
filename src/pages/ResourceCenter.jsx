@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { VENDOR_CATEGORIES, CATEGORY_COLORS } from '../data/vendorData';
 import { INTERNAL_DIRECTORY } from '../data/internalDirectoryData';
 import { vendorService } from '../services';
+import InsuranceSLAs from '../components/resource-center/InsuranceSLAs';
 import './ResourceCenter.css';
 
 const emptyForm = () => ({
@@ -12,10 +13,79 @@ const emptyForm = () => ({
   notes: ''
 });
 
-const RESOURCE_TAB = { EXTERNAL: 'external', INTERNAL: 'internal', MIT_TEAM: 'mit_team' };
+const RESOURCE_TAB = {
+  LANDING: 'landing',
+  EXTERNAL: 'external',
+  INTERNAL: 'internal',
+  SLA: 'sla',
+  ORG_CHARTS: 'org_charts',
+};
+
+const LANDING_CARDS = [
+  {
+    id: RESOURCE_TAB.EXTERNAL,
+    title: 'Vendor & External Resources',
+    subtitle: 'Quick access to vendors and sub-trades',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="36" height="36">
+        <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M22 21v-2a4 4 0 00-3-3.87" />
+        <path d="M16 3.13a4 4 0 010 7.75" />
+      </svg>
+    ),
+  },
+  {
+    id: RESOURCE_TAB.INTERNAL,
+    title: 'Company Directory',
+    subtitle: 'Internal contacts, roles, and departments',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="36" height="36">
+        <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+        <line x1="8" y1="7" x2="16" y2="7" />
+        <line x1="8" y1="11" x2="14" y2="11" />
+      </svg>
+    ),
+  },
+  {
+    id: RESOURCE_TAB.SLA,
+    title: 'Insurance SLAs',
+    subtitle: 'Service level agreements by carrier',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="36" height="36">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="M9 12l2 2 4-4" />
+      </svg>
+    ),
+  },
+  {
+    id: RESOURCE_TAB.ORG_CHARTS,
+    title: 'Org Charts',
+    subtitle: 'Team structure and assignments',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="36" height="36">
+        <rect x="3" y="3" width="7" height="7" rx="1.5" />
+        <rect x="14" y="3" width="7" height="7" rx="1.5" />
+        <rect x="8.5" y="14" width="7" height="7" rx="1.5" />
+        <line x1="6.5" y1="10" x2="6.5" y2="12" />
+        <line x1="17.5" y1="10" x2="17.5" y2="12" />
+        <line x1="6.5" y1="12" x2="17.5" y2="12" />
+        <line x1="12" y1="12" x2="12" y2="14" />
+      </svg>
+    ),
+  },
+];
+
+const SECTION_TITLES = {
+  [RESOURCE_TAB.EXTERNAL]: 'Vendor & External Resources',
+  [RESOURCE_TAB.INTERNAL]: 'Company Directory',
+  [RESOURCE_TAB.SLA]: 'Insurance SLAs',
+  [RESOURCE_TAB.ORG_CHARTS]: 'Org Charts',
+};
 
 const ResourceCenter = () => {
-  const [resourceTab, setResourceTab] = useState(RESOURCE_TAB.EXTERNAL);
+  const [resourceTab, setResourceTab] = useState(RESOURCE_TAB.LANDING);
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -141,45 +211,27 @@ const ResourceCenter = () => {
     return String(phone).replace(/\D/g, '');
   };
 
-  if (loading) {
-    return (
-      <div className="resource-center">
-        <div className="resource-header">
-          <h1>Resource Center</h1>
-          <p className="resource-subtitle">Quick access to vendors and sub-trades</p>
-        </div>
-        <div className="resource-loading">Loading vendors…</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="resource-center">
-        <div className="resource-header">
-          <h1>Resource Center</h1>
-          <p className="resource-subtitle">Quick access to vendors and sub-trades</p>
-        </div>
-        <div className="resource-error">
-          <p>{error}</p>
-          <button type="button" onClick={() => window.location.reload()}>Retry</button>
-        </div>
-      </div>
-    );
-  }
+  const isLanding = resourceTab === RESOURCE_TAB.LANDING;
 
   return (
     <div className="resource-center">
+      {/* Header */}
       <div className="resource-header resource-header-with-action">
         <div>
-          <h1>Resource Center</h1>
-          <p className="resource-subtitle">
-            {resourceTab === RESOURCE_TAB.EXTERNAL
-              ? 'Quick access to vendors and sub-trades'
-              : resourceTab === RESOURCE_TAB.INTERNAL
-              ? 'Company directory (internal)'
-              : 'MIT team structure and assignments'}
-          </p>
+          {!isLanding && (
+            <button
+              type="button"
+              className="resource-back-btn"
+              onClick={() => setResourceTab(RESOURCE_TAB.LANDING)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              Back
+            </button>
+          )}
+          <h1>{isLanding ? 'Resource Center' : SECTION_TITLES[resourceTab]}</h1>
+          {isLanding && <p className="resource-subtitle">Select a section below</p>}
         </div>
         {resourceTab === RESOURCE_TAB.EXTERNAL && (
           <button type="button" className="resource-add-btn" onClick={openAdd}>
@@ -188,143 +240,128 @@ const ResourceCenter = () => {
         )}
       </div>
 
-      {/* External / Internal / MIT Team tabs */}
-      <div className="resource-tabs">
-        <button
-          type="button"
-          className={`resource-tab ${resourceTab === RESOURCE_TAB.EXTERNAL ? 'resource-tab-active' : ''}`}
-          onClick={() => setResourceTab(RESOURCE_TAB.EXTERNAL)}
-        >
-          External
-        </button>
-        <button
-          type="button"
-          className={`resource-tab ${resourceTab === RESOURCE_TAB.INTERNAL ? 'resource-tab-active' : ''}`}
-          onClick={() => setResourceTab(RESOURCE_TAB.INTERNAL)}
-        >
-          Internal
-        </button>
-        <button
-          type="button"
-          className={`resource-tab ${resourceTab === RESOURCE_TAB.MIT_TEAM ? 'resource-tab-active' : ''}`}
-          onClick={() => setResourceTab(RESOURCE_TAB.MIT_TEAM)}
-        >
-          MIT Team Assignments
-        </button>
-      </div>
-
-      {resourceTab === RESOURCE_TAB.MIT_TEAM ? (
-        <MITTeamAssignments />
-      ) : resourceTab === RESOURCE_TAB.INTERNAL ? (
-        <InternalCompanyDirectory />
-      ) : (
-        <>
-      {/* Search and Filter Bar */}
-      <div className="resource-controls">
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Search by name, phone, or notes..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-          {searchTerm && (
-            <button className="clear-search" onClick={() => setSearchTerm('')}>
-              &times;
-            </button>
-          )}
-        </div>
-
-        {/* Category Pills */}
-        <div className="category-pills">
-          <button
-            className={`category-pill ${selectedCategory === 'All' ? 'active' : ''}`}
-            onClick={() => setSelectedCategory('All')}
-          >
-            All
-          </button>
-          {VENDOR_CATEGORIES.map(category => (
+      {/* Landing page — 4 cards */}
+      {isLanding && (
+        <div className="resource-landing-grid">
+          {LANDING_CARDS.map((card) => (
             <button
-              key={category}
-              className={`category-pill ${selectedCategory === category ? 'active' : ''}`}
-              style={{
-                '--pill-color': CATEGORY_COLORS[category] || '#64748b'
-              }}
-              onClick={() => setSelectedCategory(category)}
+              key={card.id}
+              type="button"
+              className="resource-landing-card"
+              onClick={() => setResourceTab(card.id)}
             >
-              {category}
+              <span className="resource-landing-icon">{card.icon}</span>
+              <span className="resource-landing-title">{card.title}</span>
+              <span className="resource-landing-subtitle">{card.subtitle}</span>
             </button>
           ))}
         </div>
-      </div>
+      )}
 
-      {/* Results Count */}
-      <div className="results-info">
-        {filteredVendors.length} vendor{filteredVendors.length !== 1 ? 's' : ''} found
-        {selectedCategory !== 'All' && ` in ${selectedCategory}`}
-      </div>
-
-      {/* Vendor Cards */}
-      {filteredVendors.length === 0 ? (
-        <div className="no-results">
-          <p>No vendors found matching your criteria.</p>
-          <button onClick={() => { setSearchTerm(''); setSelectedCategory('All'); }}>
-            Clear filters
-          </button>
-        </div>
-      ) : selectedCategory === 'All' ? (
-        // Grouped view when showing all categories
-        Object.keys(groupedVendors).sort().map(category => (
-          <div key={category} className="vendor-group">
-            <h2 className="group-title" style={{ borderColor: CATEGORY_COLORS[category] }}>
-              <span 
-                className="group-badge" 
-                style={{ backgroundColor: CATEGORY_COLORS[category] }}
-              >
-                {groupedVendors[category].length}
-              </span>
-              {category}
-            </h2>
-            <div className="vendor-grid">
-              {groupedVendors[category].map(vendor => (
-                <VendorCard
-                  key={vendor.id}
-                  vendor={vendor}
-                  formatPhone={formatPhone}
-                  onEdit={openEdit}
-                />
-              ))}
+      {/* Vendor & External Resources */}
+      {resourceTab === RESOURCE_TAB.EXTERNAL && (
+        <>
+          {loading ? (
+            <div className="resource-loading">Loading vendors...</div>
+          ) : error ? (
+            <div className="resource-error">
+              <p>{error}</p>
+              <button type="button" onClick={() => window.location.reload()}>Retry</button>
             </div>
-          </div>
-        ))
-      ) : (
-        // Flat grid when filtering by category
-        <div className="vendor-grid">
-          {filteredVendors.map(vendor => (
-            <VendorCard
-              key={vendor.id}
-              vendor={vendor}
-              formatPhone={formatPhone}
-              onEdit={openEdit}
-            />
-          ))}
-        </div>
-      )}
-
-      {modalOpen && (
-        <VendorFormModal
-          isEdit={!!editingVendor}
-          formData={formData}
-          formError={formError}
-          formSaving={formSaving}
-          onClose={closeModal}
-          onChange={handleFormChange}
-          onSubmit={handleFormSubmit}
-        />
-      )}
+          ) : (
+            <>
+              <div className="resource-controls">
+                <div className="search-box">
+                  <input
+                    type="text"
+                    placeholder="Search by name, phone, or notes..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="search-input"
+                  />
+                  {searchTerm && (
+                    <button className="clear-search" onClick={() => setSearchTerm('')}>
+                      &times;
+                    </button>
+                  )}
+                </div>
+                <div className="category-pills">
+                  <button
+                    className={`category-pill ${selectedCategory === 'All' ? 'active' : ''}`}
+                    onClick={() => setSelectedCategory('All')}
+                  >
+                    All
+                  </button>
+                  {VENDOR_CATEGORIES.map(category => (
+                    <button
+                      key={category}
+                      className={`category-pill ${selectedCategory === category ? 'active' : ''}`}
+                      style={{ '--pill-color': CATEGORY_COLORS[category] || '#64748b' }}
+                      onClick={() => setSelectedCategory(category)}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="results-info">
+                {filteredVendors.length} vendor{filteredVendors.length !== 1 ? 's' : ''} found
+                {selectedCategory !== 'All' && ` in ${selectedCategory}`}
+              </div>
+              {filteredVendors.length === 0 ? (
+                <div className="no-results">
+                  <p>No vendors found matching your criteria.</p>
+                  <button onClick={() => { setSearchTerm(''); setSelectedCategory('All'); }}>
+                    Clear filters
+                  </button>
+                </div>
+              ) : selectedCategory === 'All' ? (
+                Object.keys(groupedVendors).sort().map(category => (
+                  <div key={category} className="vendor-group">
+                    <h2 className="group-title" style={{ borderColor: CATEGORY_COLORS[category] }}>
+                      <span className="group-badge" style={{ backgroundColor: CATEGORY_COLORS[category] }}>
+                        {groupedVendors[category].length}
+                      </span>
+                      {category}
+                    </h2>
+                    <div className="vendor-grid">
+                      {groupedVendors[category].map(vendor => (
+                        <VendorCard key={vendor.id} vendor={vendor} formatPhone={formatPhone} onEdit={openEdit} />
+                      ))}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="vendor-grid">
+                  {filteredVendors.map(vendor => (
+                    <VendorCard key={vendor.id} vendor={vendor} formatPhone={formatPhone} onEdit={openEdit} />
+                  ))}
+                </div>
+              )}
+              {modalOpen && (
+                <VendorFormModal
+                  isEdit={!!editingVendor}
+                  formData={formData}
+                  formError={formError}
+                  formSaving={formSaving}
+                  onClose={closeModal}
+                  onChange={handleFormChange}
+                  onSubmit={handleFormSubmit}
+                />
+              )}
+            </>
+          )}
         </>
       )}
+
+      {/* Company Directory */}
+      {resourceTab === RESOURCE_TAB.INTERNAL && <InternalCompanyDirectory />}
+
+      {/* Insurance SLAs */}
+      {resourceTab === RESOURCE_TAB.SLA && <InsuranceSLAs />}
+
+      {/* Org Charts */}
+      {resourceTab === RESOURCE_TAB.ORG_CHARTS && <MITTeamAssignments />}
     </div>
   );
 };
@@ -446,7 +483,7 @@ function InternalCompanyDirectory() {
   );
 }
 
-// MIT Team Assignments Component
+// MIT Team Assignments / Org Charts Component
 function MITTeamAssignments() {
   return (
     <div className="mit-team-assignments">

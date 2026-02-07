@@ -9,4 +9,5 @@ export { default as crmService } from './crmService';
 export { default as crmActivityService } from './crmActivityService';
 export { default as propertyService } from './propertyService';
 export { default as vendorService } from './vendorService';
+export { default as insuranceSlaService } from './insuranceSlaService';
 export { supabase } from './supabaseClient';

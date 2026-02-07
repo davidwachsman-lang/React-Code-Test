@@ -1,0 +1,771 @@
+/* ================================================================== */
+/*  Insurance SLAs – component styles                                 */
+/*  Matches the dark-theme design language from ResourceCenter.css    */
+/* ================================================================== */
+
+.sla-container {
+  width: 100%;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Page header                                                       */
+/* ------------------------------------------------------------------ */
+
+.sla-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.sla-page-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Buttons                                                           */
+/* ------------------------------------------------------------------ */
+
+.sla-add-btn {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.6);
+  border-radius: 8px;
+  color: #e2e8f0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.sla-add-btn:hover {
+  background: rgba(59, 130, 246, 0.6);
+  border-color: #3b82f6;
+}
+
+.sla-btn-primary {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: #3b82f6;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sla-btn-primary:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.sla-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sla-btn-secondary {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.875rem;
+  background: transparent;
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  border-radius: 8px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sla-btn-secondary:hover {
+  border-color: #64748b;
+  color: #e2e8f0;
+}
+
+.sla-btn-sm {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8125rem;
+}
+
+.sla-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 6px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sla-icon-btn:hover {
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(59, 130, 246, 0.25);
+}
+
+.sla-icon-btn-danger:hover {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.4);
+  background: rgba(248, 113, 113, 0.15);
+}
+
+.sla-icon-btn-sm {
+  padding: 0.2rem;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Upload flow                                                       */
+/* ------------------------------------------------------------------ */
+
+.sla-upload-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 10px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  animation: sla-fade-in 0.2s ease;
+}
+
+.sla-upload-confirm {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 10px;
+  animation: sla-fade-in 0.2s ease;
+}
+
+.sla-confirm-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.sla-confirm-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.sla-confirm-input {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  color: #f1f5f9;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sla-confirm-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.sla-confirm-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin-bottom: 0.75rem;
+}
+
+.sla-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* Pending uploads list (multi-file) */
+.sla-pending-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+}
+
+.sla-pending-item {
+  position: relative;
+  padding: 0.75rem 2.25rem 0.75rem 0.85rem;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+}
+
+.sla-pending-item-error {
+  border-color: rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.05);
+}
+
+.sla-pending-file-name {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 0.4rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sla-pending-error {
+  font-size: 0.8125rem;
+  color: #f87171;
+}
+
+.sla-pending-remove {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.sla-pending-remove:hover {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.sla-form-error {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  background: rgba(248, 113, 113, 0.15);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 8px;
+  color: #f87171;
+  font-size: 0.875rem;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Loading / Error / Empty                                           */
+/* ------------------------------------------------------------------ */
+
+.sla-loading {
+  color: #94a3b8;
+  text-align: center;
+  padding: 2rem;
+}
+
+.sla-error {
+  color: #f87171;
+  text-align: center;
+  padding: 2rem;
+}
+
+.sla-error button {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  border-radius: 8px;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+.sla-error button:hover {
+  background: rgba(59, 130, 246, 0.5);
+}
+
+.sla-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px dashed rgba(71, 85, 105, 0.5);
+  border-radius: 14px;
+  color: #64748b;
+}
+
+.sla-empty svg {
+  color: #475569;
+}
+
+.sla-empty h3 {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.sla-empty p {
+  color: #64748b;
+  font-size: 0.9375rem;
+  margin: 0;
+  max-width: 400px;
+}
+
+.sla-panel-empty {
+  color: #64748b;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 1.5rem 0;
+  margin: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main SLA table                                                    */
+/* ------------------------------------------------------------------ */
+
+.sla-table-wrap {
+  overflow-x: auto;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(55, 65, 81, 0.4);
+  border-radius: 12px;
+}
+
+.sla-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.sla-table th,
+.sla-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(55, 65, 81, 0.35);
+}
+
+.sla-table thead th {
+  background: rgba(30, 41, 59, 0.7);
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.sla-table tbody tr {
+  transition: background 0.15s;
+}
+
+.sla-table tbody tr:hover {
+  background: rgba(30, 41, 59, 0.45);
+}
+
+.sla-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.sla-table-carrier {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.sla-table-file-link {
+  display: inline-flex;
+  align-items: center;
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+
+.sla-table-file-link:hover {
+  color: #60a5fa;
+}
+
+.sla-table-date {
+  color: #64748b;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.sla-table-checklist-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem;
+  background: none;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 6px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sla-table-checklist-btn:hover {
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.sla-table-generating {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem;
+}
+
+.sla-mini-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: sla-spin 0.8s linear infinite;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Checklist (inside modal)                                          */
+/* ------------------------------------------------------------------ */
+
+.sla-checklist-modal-body {
+  padding: 1rem 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.sla-checklist-group {
+  margin-bottom: 1rem;
+}
+
+.sla-checklist-group:last-child {
+  margin-bottom: 0;
+}
+
+.sla-checklist-section-title {
+  font-size: 0.775rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #60a5fa;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(96, 165, 250, 0.15);
+}
+
+.sla-checklist-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sla-checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.sla-checklist-item:hover {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.sla-check-square {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(100, 116, 139, 0.5);
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sla-checklist-text {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+}
+
+.sla-checklist-delete {
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.sla-checklist-item:hover .sla-checklist-delete {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Inline add item                                                   */
+/* ------------------------------------------------------------------ */
+
+.sla-inline-add {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  margin-top: 0.75rem;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+}
+
+.sla-inline-input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.875rem;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 6px;
+  color: #e2e8f0;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.sla-inline-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.sla-inline-input::placeholder {
+  color: #64748b;
+}
+
+.sla-inline-section {
+  font-size: 0.8125rem;
+}
+
+.sla-inline-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Modal                                                             */
+/* ------------------------------------------------------------------ */
+
+.sla-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: sla-fade-in 0.2s ease;
+}
+
+@keyframes sla-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.sla-modal {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  animation: sla-slide-up 0.25s ease;
+}
+
+.sla-modal-lg {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes sla-slide-up {
+  from { opacity: 0; transform: scale(0.96) translateY(-10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.sla-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+}
+
+.sla-modal-header h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.sla-modal-close {
+  padding: 0.25rem;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.sla-modal-close:hover {
+  color: #e2e8f0;
+  background: rgba(100, 116, 139, 0.2);
+}
+
+.sla-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(59, 130, 246, 0.15);
+}
+
+/* ------------------------------------------------------------------ */
+/*  AI Review modal                                                   */
+/* ------------------------------------------------------------------ */
+
+.sla-review-body {
+  padding: 1rem 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.sla-ai-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: #e2e8f0;
+}
+
+.sla-ai-loading p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.sla-ai-loading-sub {
+  font-size: 0.85rem !important;
+  font-weight: 400 !important;
+  color: #94a3b8 !important;
+}
+
+.sla-ai-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(59, 130, 246, 0.2);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: sla-spin 0.8s linear infinite;
+}
+
+@keyframes sla-spin {
+  to { transform: rotate(360deg); }
+}
+
+.sla-ai-error {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  color: #f87171;
+  font-size: 0.9375rem;
+}
+
+.sla-ai-error button {
+  margin-top: 1rem;
+}
+
+.sla-review-info {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin: 0 0 1rem 0;
+}
+
+.sla-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sla-review-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.35);
+  border: 1px solid rgba(55, 65, 81, 0.3);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.sla-review-item:hover {
+  background: rgba(30, 41, 59, 0.55);
+  border-color: rgba(59, 130, 246, 0.25);
+}
+
+.sla-review-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sla-review-section-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.12);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+  margin-right: 0.35rem;
+}
+
+.sla-review-item-text {
+  font-size: 0.875rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Responsive                                                        */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 640px) {
+  .sla-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sla-upload-fields {
+    flex-direction: column;
+  }
+
+  .sla-upload-name-input {
+    min-width: 0;
+  }
+}

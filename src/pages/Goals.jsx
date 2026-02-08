@@ -47,7 +47,12 @@ function StatusBadge({ status, hide_not_started = false }) {
 function FinancialScoreboard({ targets }) {
   const divisions = ['HB', 'IDRT', 'Total'];
   const metrics = ['Net Revenue', 'Gross Margin %', 'Contribution Margin', 'EBITDA Margin'];
-  const companyTargets = (targets || []).filter((t) => t.division === 'Company');
+  const companyTargets = (targets || []).filter(
+    (t) =>
+      t.division === 'Company' &&
+      t.metric_name !== 'Revolver Headroom' &&
+      t.metric_name !== 'Unallocated Spend Reduction'
+  );
 
   const getTarget = (div, metric) =>
     (targets || []).find((t) => t.division === div && t.metric_name === metric);

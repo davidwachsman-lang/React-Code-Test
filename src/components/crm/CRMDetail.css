@@ -16,22 +16,23 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.6);
   z-index: 1;
 }
 
 .crm-detail-content {
   position: relative;
   z-index: 2;
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  border-radius: 8px;
+  background-color: var(--precision-surface);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
   width: 90%;
   max-width: 1200px;
   max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: var(--precision-shadow-lg);
 }
 
 .crm-detail-header {
@@ -39,10 +40,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(55, 65, 81, 0.8);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
 }
 
-.header-left {
+.crm-detail-modal .header-left {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -51,7 +52,7 @@
 .star-button-header {
   background: none;
   border: none;
-  color: #9ca3af;
+  color: var(--precision-text-muted);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0.25rem;
@@ -59,16 +60,16 @@
 }
 
 .star-button-header:hover {
-  color: #fbbf24;
+  color: var(--precision-warning);
 }
 
 .star-button-header.starred {
-  color: #fbbf24;
+  color: var(--precision-warning);
 }
 
 .crm-detail-header h2 {
   margin: 0;
-  color: #e5e7eb;
+  color: var(--precision-text-primary);
   font-size: 1.5rem;
 }
 
@@ -83,80 +84,81 @@
 }
 
 .stage-badge-header.stage-prospect {
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background-color: rgba(14, 165, 233, 0.15);
+  color: var(--precision-blue);
+  border: 1px solid rgba(14, 165, 233, 0.3);
 }
 
 .stage-badge-header.stage-active-customer {
-  background: rgba(34, 197, 94, 0.2);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.4);
+  background-color: rgba(16, 185, 129, 0.15);
+  color: var(--precision-success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .stage-badge-header.stage-inactive {
-  background: rgba(234, 179, 8, 0.2);
-  color: #facc15;
-  border: 1px solid rgba(234, 179, 8, 0.4);
+  background-color: rgba(245, 158, 11, 0.15);
+  color: var(--precision-warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .stage-badge-header.stage-lost {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.4);
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--precision-error);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .health-indicator {
   font-size: 0.875rem;
   font-weight: 600;
+  color: var(--precision-text-primary);
 }
 
-.header-actions {
+.crm-detail-modal .header-actions {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
   align-items: center;
 }
 
-.btn-action {
+.crm-detail-modal .btn-action {
   padding: 0.5rem 1rem;
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  border-radius: 4px;
-  background: rgba(30, 41, 59, 0.8);
-  color: #e5e7eb;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius-sm);
+  background-color: var(--precision-input-bg);
+  color: var(--precision-text-primary);
   cursor: pointer;
   font-size: 0.875rem;
   transition: background-color 0.2s;
 }
 
-.btn-action:hover {
-  background: rgba(30, 41, 59, 1);
+.crm-detail-modal .btn-action:hover {
+  background-color: var(--precision-input-bg-hover);
 }
 
 .btn-convert {
-  background: rgba(34, 197, 94, 0.2);
-  border-color: rgba(34, 197, 94, 0.4);
-  color: #4ade80;
+  background-color: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: var(--precision-success);
 }
 
 .btn-lost,
 .btn-inactive {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #f87171;
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: var(--precision-error);
 }
 
 .btn-reactivate {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: rgba(59, 130, 246, 0.4);
-  color: #60a5fa;
+  background-color: rgba(14, 165, 233, 0.15);
+  border-color: rgba(14, 165, 233, 0.3);
+  color: var(--precision-blue);
 }
 
 .crm-detail-tabs {
   display: flex;
   gap: 0.5rem;
   padding: 0 1.5rem;
-  border-bottom: 1px solid rgba(55, 65, 81, 0.8);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
 }
 
 .crm-detail-tabs button {
@@ -164,7 +166,7 @@
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #9ca3af;
+  color: var(--precision-text-secondary);
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
@@ -172,12 +174,12 @@
 }
 
 .crm-detail-tabs button:hover {
-  color: #e5e7eb;
+  color: var(--precision-text-primary);
 }
 
 .crm-detail-tabs button.active {
-  color: #3b82f6;
-  border-bottom-color: #3b82f6;
+  color: var(--precision-primary);
+  border-bottom-color: var(--precision-primary);
 }
 
 .crm-detail-body {
@@ -191,7 +193,7 @@
 }
 
 .detail-section h3 {
-  color: #e5e7eb;
+  color: var(--precision-text-primary);
   font-size: 1.125rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -204,12 +206,12 @@
 }
 
 .detail-grid > div {
-  color: #cbd5e1;
+  color: var(--precision-text-primary);
   font-size: 0.875rem;
 }
 
 .detail-grid strong {
-  color: #9ca3af;
+  color: var(--precision-text-secondary);
   display: block;
   margin-bottom: 0.25rem;
   font-size: 0.75rem;
@@ -226,32 +228,31 @@
 
 .section-header h3 {
   margin: 0;
-  color: #e5e7eb;
+  color: var(--precision-text-primary);
   font-size: 1.125rem;
   font-weight: 600;
 }
 
 .btn-add {
   padding: 0.5rem 1rem;
-  background: #3b82f6;
+  background-color: var(--precision-primary);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--precision-radius);
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
 }
 
 .btn-add:hover {
-  background: #2563eb;
+  background-color: var(--precision-primary-hover);
 }
 
 .crm-detail-body a {
-  color: #60a5fa;
+  color: var(--precision-blue);
   text-decoration: none;
 }
 
 .crm-detail-body a:hover {
   text-decoration: underline;
 }
-

@@ -445,42 +445,14 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
             autoComplete="off"
           />
           {showParentDropdown && parentSearchTerm && filteredParentRecords.length > 0 && (
-            <div
-              ref={parentDropdownRef}
-              className="parent-autocomplete-dropdown"
-              style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                backgroundColor: 'rgba(30, 41, 59, 0.98)',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                borderRadius: '8px',
-                maxHeight: '200px',
-                overflowY: 'auto',
-                zIndex: 1000,
-                marginTop: '4px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-              }}
-            >
+            <div ref={parentDropdownRef} className="parent-autocomplete-dropdown">
               {filteredParentRecords.map(record => {
                 const displayName = record.company_name || `${record.first_name} ${record.last_name}`.trim() || 'Unnamed';
                 return (
                   <div
                     key={record.id}
+                    className="parent-autocomplete-item"
                     onClick={() => handleParentSelect(record.id, displayName)}
-                    style={{
-                      padding: '10px 15px',
-                      cursor: 'pointer',
-                      borderBottom: '1px solid rgba(59, 130, 246, 0.1)',
-                      color: '#f1f5f9'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = 'transparent';
-                    }}
                   >
                     {displayName}
                   </div>
@@ -488,26 +460,13 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
               })}
               {onCreateParent && (
                 <div
+                  className="parent-autocomplete-create"
                   onClick={async () => {
                     setShowParentDropdown(false);
                     const newParent = await onCreateParent(parentSearchTerm);
                     if (newParent) {
                       handleParentSelect(newParent.id, parentSearchTerm);
                     }
-                  }}
-                  style={{
-                    padding: '10px 15px',
-                    cursor: 'pointer',
-                    borderTop: '1px solid rgba(59, 130, 246, 0.3)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    color: '#60a5fa',
-                    fontWeight: '500'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
                   }}
                 >
                   + Create "{parentSearchTerm}" as new parent
@@ -516,46 +475,19 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
             </div>
           )}
           {showParentDropdown && parentSearchTerm && filteredParentRecords.length === 0 && (
-            <div
-              ref={parentDropdownRef}
-              style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                backgroundColor: 'rgba(30, 41, 59, 0.98)',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                borderRadius: '8px',
-                zIndex: 1000,
-                marginTop: '4px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-              }}
-            >
-              <div style={{ padding: '10px 15px', color: '#94a3b8' }}>
+            <div ref={parentDropdownRef} className="parent-autocomplete-dropdown">
+              <div className="parent-autocomplete-empty">
                 No matching records found
               </div>
               {onCreateParent && (
                 <div
+                  className="parent-autocomplete-create"
                   onClick={async () => {
                     setShowParentDropdown(false);
                     const newParent = await onCreateParent(parentSearchTerm);
                     if (newParent) {
                       handleParentSelect(newParent.id, parentSearchTerm);
                     }
-                  }}
-                  style={{
-                    padding: '10px 15px',
-                    cursor: 'pointer',
-                    borderTop: '1px solid rgba(59, 130, 246, 0.3)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    color: '#60a5fa',
-                    fontWeight: '500'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
                   }}
                 >
                   + Create "{parentSearchTerm}" as new parent
@@ -665,10 +597,10 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
       <div className="form-group">
         <label>
           Address
-          {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
-          {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
-          {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
-          {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
+          {autocompleteStatus === 'ready' && <span className="autocomplete-status-ready">✓ Autocomplete active</span>}
+          {autocompleteStatus === 'loading' && <span className="autocomplete-status-loading">Loading...</span>}
+          {autocompleteStatus === 'error' && <span className="autocomplete-status-error">⚠ API Error</span>}
+          {autocompleteStatus === 'unavailable' && <span className="autocomplete-status-unavailable">Manual entry</span>}
         </label>
         <input
           type="text"
@@ -680,7 +612,7 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
           autoComplete="off"
         />
         {autocompleteStatus === 'error' && (
-          <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
+          <small className="autocomplete-status-error" style={{ display: 'block', marginTop: '4px' }}>
             Google Maps API error. Please enter address manually or check browser console for details.
           </small>
         )}

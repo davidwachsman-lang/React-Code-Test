@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import './Page.css';
+import React, { useState, useEffect, useRef } from 'react';
 import './Estimating.css';
 import { estimateService } from '../services';
 import { jsPDF } from 'jspdf';
@@ -1072,10 +1071,12 @@ function Estimating() {
   const totals = calculateTotals();
 
   return (
-    <div className="page-container estimating-page">
-      <div className="estimate-container">
-        <h1>SPWC Estimate Tool v2</h1>
-
+    <div className="precision-layout">
+      <main className="precision-main">
+        <header className="precision-header">
+          <h1>SPWC Estimate Tool v2</h1>
+        </header>
+        <div className="estimate-container">
         {/* Estimate Management */}
         <div className="estimate-management">
           <div className="management-grid">
@@ -1105,8 +1106,8 @@ function Estimating() {
               </select>
             </div>
             <div className="field-group">
-              <label style={{ opacity: 0 }}>Actions</label>
-              <button type="button" onClick={newEstimate} style={{ width: '100%', padding: '10px' }}>
+              <label className="label-invisible" htmlFor="new-estimate-btn">Actions</label>
+              <button type="button" id="new-estimate-btn" onClick={newEstimate} className="btn-block">
                 New Estimate
               </button>
             </div>
@@ -1116,8 +1117,8 @@ function Estimating() {
             <button onClick={() => saveEstimate(false)}>💾 Save Estimate</button>
             <button onClick={generateAndSavePDF}>📄 Generate PDF</button>
             <button onClick={deleteEstimate} className="delete-btn">🗑️ Delete Selected</button>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
-            <input
+            <label className="auto-save-label">
+              <input
                 type="checkbox"
                 checked={autoSaveEnabled}
                 onChange={(e) => {
@@ -1128,7 +1129,7 @@ function Estimating() {
                   }
                 }}
               />
-              <span style={{ fontSize: '0.9rem' }}>Auto-save</span>
+              <span>Auto-save</span>
             </label>
           </div>
           
@@ -1191,10 +1192,10 @@ function Estimating() {
           <div className="field-group">
             <label htmlFor="property-address">
               Property Address
-              {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
-              {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
-              {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
-              {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
+              {autocompleteStatus === 'ready' && <span className="autocomplete-status ready">✓ Autocomplete active</span>}
+              {autocompleteStatus === 'loading' && <span className="autocomplete-status loading">Loading...</span>}
+              {autocompleteStatus === 'error' && <span className="autocomplete-status error">⚠ API Error</span>}
+              {autocompleteStatus === 'unavailable' && <span className="autocomplete-status unavailable">Manual entry</span>}
             </label>
             <input
               type="text"
@@ -1206,7 +1207,7 @@ function Estimating() {
               autoComplete="off"
             />
             {autocompleteStatus === 'error' && (
-              <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
+              <small className="autocomplete-error-hint">
                 Google Maps API error. Please enter address manually or check browser console for details.
               </small>
             )}
@@ -1414,8 +1415,8 @@ function Estimating() {
         {rooms.map(room => {
           const roomItems = roomLineItems[room.id] || [];
           return (
-            <div key={room.id} style={{ marginBottom: '30px', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '15px' }}>
-              <h3 style={{ marginTop: '0', marginBottom: '15px', color: '#1e293b' }}>
+            <div key={room.id} className="room-line-items-card">
+              <h3>
                 {room.name || `Room ${room.id}`}
               </h3>
         <table className="estimate-table">
@@ -1433,7 +1434,7 @@ function Estimating() {
           <tbody>
                   {roomItems.length === 0 ? (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>
+                      <td colSpan="7" className="empty-state-cell">
                         No line items for this room yet. Click "Add Line Item" below to add items.
                       </td>
                     </tr>
@@ -1447,14 +1448,7 @@ function Estimating() {
                               type="text"
                               value={room.name || `Room ${room.id}`}
                               readOnly
-                              className="readonly"
-                              style={{ 
-                                fontWeight: '600', 
-                                backgroundColor: '#f1f5f9',
-                                border: '1px solid #cbd5e1',
-                                padding: '8px',
-                                borderRadius: '4px'
-                              }}
+                              className="readonly room-name-readonly"
                             />
                           </td>
                   <td>
@@ -1515,14 +1509,14 @@ function Estimating() {
                   )}
           </tbody>
         </table>
-              <div className="button-row" style={{ marginTop: '10px' }}>
+              <div className="button-row button-row-tight">
                 <button onClick={() => addLineItem(room.id)} className="add-btn">+ Add Line Item to {room.name || `Room ${room.id}`}</button>
               </div>
             </div>
           );
         })}
         
-        <div className="button-row" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+        <div className="button-row button-row-end">
           <button onClick={generateAndSavePDF} className="print-btn">📄 Create Customer Estimate</button>
         </div>
 
@@ -1588,7 +1582,8 @@ function Estimating() {
           </div>
         </div>
 
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

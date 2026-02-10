@@ -215,13 +215,20 @@
 }
 
 .nav-user-info {
-  margin-left: 1rem;
+  margin-left: 0;
   display: flex;
   flex-direction: column;
   white-space: nowrap;
+  overflow: hidden;
+  max-width: 0;
   opacity: 0;
-  animation: fadeIn 0.2s forwards;
-  animation-delay: 0.1s;
+  transition: max-width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.25s ease, margin-left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.navigation-sidebar.expanded .nav-user-info {
+  max-width: 180px;
+  opacity: 1;
+  margin-left: 1rem;
 }
 
 .user-name {
@@ -244,7 +251,6 @@
   display: flex;
   align-items: center;
   transition: background 0.2s;
-  /* Align using same logic as User Profile: padding-left 20px */
   padding-left: 20px;
   min-height: 60px;
 }
@@ -253,24 +259,32 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-.theme-toggle-full {
+.theme-toggle-inner {
   display: flex;
   align-items: center;
   gap: 1rem;
   color: var(--precision-text-secondary);
   font-size: 0.9rem;
-  width: 100%;
+  min-width: 40px;
 }
 
-.theme-toggle-full .toggle-icon {
+.theme-toggle-inner .toggle-icon {
   width: 40px;
+  flex-shrink: 0;
   display: flex;
   justify-content: center;
-}
-
-.theme-toggle-mini {
   font-size: 1.2rem;
-  width: 40px;
-  display: flex;
-  justify-content: center;
+}
+
+.theme-toggle-inner .toggle-label {
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  transition: max-width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.25s ease;
+}
+
+.navigation-sidebar.expanded .theme-toggle-inner .toggle-label {
+  max-width: 120px;
+  opacity: 1;
 }

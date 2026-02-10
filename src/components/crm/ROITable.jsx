@@ -9,6 +9,7 @@ import {
   createColumnHelper,
 } from '@tanstack/react-table';
 import './CRMTable.css';
+import './ROITable.css';
 
 const columnHelper = createColumnHelper();
 
@@ -172,11 +173,9 @@ function ROITable({ records = [], onRecordClick }) {
         cell: (info) => {
           const roi = info.getValue();
           const roiValue = typeof roi === 'number' ? roi : null;
+          const roiClass = roiValue !== null && roiValue >= 0 ? 'roi-value-positive' : roiValue !== null ? 'roi-value-negative' : 'roi-value-na';
           return (
-            <span style={{ 
-              color: roiValue !== null && roiValue >= 0 ? '#10b981' : roiValue !== null ? '#ef4444' : '#94a3b8',
-              fontWeight: roiValue !== null ? '600' : 'normal'
-            }}>
+            <span className={roiClass}>
               {formatROI(roiValue)}
             </span>
           );
@@ -249,7 +248,7 @@ function ROITable({ records = [], onRecordClick }) {
   return (
     <div className="crm-table-container">
       <div className="crm-table-controls">
-        <div className="crm-search-bar" style={{ marginBottom: '1rem' }}>
+        <div className="crm-search-bar">
           <label>Search</label>
           <input
             type="text"
@@ -257,16 +256,6 @@ function ROITable({ records = [], onRecordClick }) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
-            style={{
-              width: '100%',
-              maxWidth: '400px',
-              padding: '0.5rem',
-              borderRadius: '6px',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              backgroundColor: 'rgba(30, 41, 59, 0.8)',
-              color: '#f1f5f9',
-              fontSize: '0.9rem'
-            }}
           />
         </div>
         <div className="crm-table-actions-bar">

@@ -1,0 +1,25 @@
+/* ROI value color classes - use with theme variables */
+.roi-value-positive {
+  color: var(--precision-success);
+  font-weight: 600;
+}
+
+.roi-value-negative {
+  color: var(--precision-error);
+  font-weight: 600;
+}
+
+.roi-value-na {
+  color: var(--precision-text-muted);
+  font-weight: normal;
+}
+
+/* Search bar when ROITable used standalone (e.g. Sandbox) */
+.crm-table-container .crm-search-bar {
+  margin-bottom: 0;
+}
+
+.crm-table-container .crm-search-bar .search-input {
+  width: 100%;
+  max-width: 400px;
+}

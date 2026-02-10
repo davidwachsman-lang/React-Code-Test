@@ -20,6 +20,7 @@ import CRMVIPCustomersWidget from '../components/crm/widgets/CRMVIPCustomersWidg
 import CRMRecentActivitiesWidget from '../components/crm/widgets/CRMRecentActivitiesWidget';
 import ActivityForm from '../components/ActivityForm';
 import { jsPDF } from 'jspdf';
+import './Page.css';
 import './CRM.css';
 
 function CRM() {
@@ -1011,68 +1012,72 @@ function CRM() {
   }, [crmRecords]);
 
   return (
-    <div className="precision-layout crm-page">
-      <div className="precision-main">
-        <div className="precision-header">
-          <h1>Customer Relationship Management</h1>
-        </div>
+    <div className="page-container crm-page">
+      <div className="crm-header">
+        <h1>Customer Relationship Management</h1>
+      </div>
 
-        {error && (
-          <div className="crm-error">
-            <p>{error.message || 'Failed to load CRM records'}</p>
-            <button className="crm-tab-btn crm-tab-btn--primary" onClick={refetch} disabled={loading}>
-              Retry
-            </button>
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="crm-action-buttons">
-          <button className="crm-tab-btn crm-tab-btn--primary" onClick={() => {
-            setEditingRecord(null);
-            setShowForm(true);
-          }}>
-            Add CRM Record
-          </button>
-          <button 
-            className={`crm-tab-btn crm-tab-btn--success ${activeTab === 'all' ? 'active' : ''}`}
-            onClick={() => setActiveTab('all')}
-          >
-            CRM
-          </button>
-          <button 
-            className={`crm-tab-btn crm-tab-btn--blue ${activeTab === 'funnel' ? 'active' : ''}`}
-            onClick={() => setActiveTab('funnel')}
-          >
-            Sales Funnel
-          </button>
-          <button 
-            className={`crm-tab-btn crm-tab-btn--orange ${activeTab === 'playbook' ? 'active' : ''}`}
-            onClick={() => setActiveTab('playbook')}
-          >
-            Insight Meeting Playbook
-          </button>
-          <button 
-            className={`crm-tab-btn crm-tab-btn--blue ${activeTab === 'activity' ? 'active' : ''}`}
-            onClick={() => setActiveTab('activity')}
-          >
-            Activity Tracking
-          </button>
-          <button 
-            className={`crm-tab-btn crm-tab-btn--success ${activeTab === 'topTargets' ? 'active' : ''}`}
-            onClick={() => setActiveTab('topTargets')}
-          >
-            Top 10 Targets
-          </button>
-          <button 
-            className={`crm-tab-btn crm-tab-btn--teal ${activeTab === 'featureUpgrades' ? 'active' : ''}`}
-            onClick={() => setActiveTab('featureUpgrades')}
-          >
-            Feature Upgrades
+      {error && (
+        <div className="crm-error">
+          <p>{error.message || 'Failed to load CRM records'}</p>
+          <button onClick={refetch} disabled={loading}>
+            Retry
           </button>
         </div>
+      )}
 
-        <div className="precision-content">
+      {/* Action Buttons */}
+      <div className="crm-action-buttons">
+        <button className="action-btn action-btn-blue" onClick={() => {
+          setEditingRecord(null);
+          setShowForm(true);
+        }}>
+          <span className="btn-icon">👤</span>
+          Add CRM Record
+        </button>
+        <button 
+          className={`action-btn ${activeTab === 'all' ? 'action-btn-green' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('all')}
+        >
+          <span className="btn-icon">📋</span>
+          CRM
+        </button>
+        <button 
+          className={`action-btn ${activeTab === 'funnel' ? 'action-btn-purple' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('funnel')}
+        >
+          <span className="btn-icon">📊</span>
+          Sales Funnel
+        </button>
+        <button 
+          className={`action-btn ${activeTab === 'playbook' ? 'action-btn-orange' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('playbook')}
+        >
+          <span className="btn-icon">📋</span>
+          Insight Meeting Playbook
+        </button>
+        <button 
+          className={`action-btn ${activeTab === 'activity' ? 'action-btn-blue' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('activity')}
+        >
+          <span className="btn-icon">📝</span>
+          Activity Tracking
+        </button>
+        <button 
+          className={`action-btn ${activeTab === 'topTargets' ? 'action-btn-green' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('topTargets')}
+        >
+          <span className="btn-icon">🎯</span>
+          Top 10 Targets
+        </button>
+        <button 
+          className={`action-btn ${activeTab === 'featureUpgrades' ? 'action-btn-teal' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('featureUpgrades')}
+        >
+          <span className="btn-icon">✨</span>
+          Feature Upgrades
+        </button>
+      </div>
 
       {/* CRM Form Modal */}
       {showForm && (
@@ -1871,25 +1876,25 @@ function CRM() {
           );
 
           return (
-            <div className="activity-table-section">
-              <h3 className="activity-table-title">{title}</h3>
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ color: '#f1f5f9', marginBottom: '1rem' }}>{title}</h3>
               <div className="customers-table-container">
                 <table className="customers-table activity-tracking-table">
                   <thead>
                     <tr>
-                      <th rowSpan="2" className="activity-header-cell activity-header-rep">Sales Rep</th>
-                      <th colSpan="4" className="activity-header-cell activity-header-activity">ACTIVITY</th>
-                      <th colSpan="4" className="activity-header-cell activity-header-conversion">CONVERSION</th>
+                      <th rowSpan="2" style={{ color: '#ffffff', textAlign: 'center' }}>Sales Rep</th>
+                      <th colSpan="4" style={{ backgroundColor: 'rgba(255, 182, 193, 0.2)', textAlign: 'center', color: '#ffffff' }}>ACTIVITY</th>
+                      <th colSpan="4" style={{ backgroundColor: 'rgba(144, 238, 144, 0.2)', textAlign: 'center', color: '#ffffff' }}>CONVERSION</th>
                     </tr>
                     <tr>
-                      <th className="activity-header-cell activity-header-activity-col">Cold Calls</th>
-                      <th className="activity-header-cell activity-header-activity-col">Insight Meetings</th>
-                      <th className="activity-header-cell activity-header-activity-col">Initial Commitments</th>
-                      <th className="activity-header-cell activity-header-activity-col">Referral Jobs</th>
-                      <th className="activity-header-cell activity-header-conversion-col">Insight Mtg</th>
-                      <th className="activity-header-cell activity-header-conversion-col">Initial Commitment</th>
-                      <th className="activity-header-cell activity-header-conversion-col">Referral Job</th>
-                      <th className="activity-header-cell activity-header-conversion-col">Full Funnel</th>
+                      <th style={{ backgroundColor: 'rgba(255, 255, 200, 0.3)', color: '#ffffff', textAlign: 'center' }}>Cold Calls</th>
+                      <th style={{ backgroundColor: 'rgba(255, 255, 200, 0.3)', color: '#ffffff', textAlign: 'center' }}>Insight Meetings</th>
+                      <th style={{ backgroundColor: 'rgba(255, 255, 200, 0.3)', color: '#ffffff', textAlign: 'center' }}>Initial Commitments</th>
+                      <th style={{ backgroundColor: 'rgba(255, 255, 200, 0.3)', color: '#ffffff', textAlign: 'center' }}>Referral Jobs</th>
+                      <th style={{ backgroundColor: 'rgba(173, 216, 230, 0.3)', color: '#ffffff', textAlign: 'center' }}>Insight Mtg</th>
+                      <th style={{ backgroundColor: 'rgba(173, 216, 230, 0.3)', color: '#ffffff', textAlign: 'center' }}>Initial Commitment</th>
+                      <th style={{ backgroundColor: 'rgba(173, 216, 230, 0.3)', color: '#ffffff', textAlign: 'center' }}>Referral Job</th>
+                      <th style={{ backgroundColor: 'rgba(173, 216, 230, 0.3)', color: '#ffffff', textAlign: 'center' }}>Full Funnel</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1906,31 +1911,31 @@ function CRM() {
                         <tr 
                           key={rep} 
                           onClick={handleRowClick ? () => handleRowClick(rep) : undefined}
-                          className={isEditable ? 'activity-row-editable' : ''}
+                          style={isEditable ? { cursor: 'pointer' } : {}}
                         >
-                          <td className="customer-name activity-data-cell">{rep}</td>
-                          <td className="activity-data-cell">{repData.coldCalls}</td>
-                          <td className="activity-data-cell">{repData.insightMeetings}</td>
-                          <td className="activity-data-cell">{repData.initialCommitments}</td>
-                          <td className="activity-data-cell">{repData.referralJobs}</td>
-                          <td className="activity-data-cell">{conversions.insightMtg}%</td>
-                          <td className="activity-data-cell">{conversions.initialCommitment}%</td>
-                          <td className="activity-data-cell">{conversions.referralJob}%</td>
-                          <td className="activity-data-cell">{conversions.fullFunnel}%</td>
+                          <td className="customer-name" style={{ color: '#ffffff', textAlign: 'center' }}>{rep}</td>
+                          <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.coldCalls}</td>
+                          <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.insightMeetings}</td>
+                          <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.initialCommitments}</td>
+                          <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.referralJobs}</td>
+                          <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.insightMtg}%</td>
+                          <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.initialCommitment}%</td>
+                          <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.referralJob}%</td>
+                          <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.fullFunnel}%</td>
                         </tr>
                       );
                     })}
                     {/* HB Nashville Subtotal */}
-                    <tr className="activity-subtotal-row">
-                      <td className="customer-name activity-data-cell">HB Nashville</td>
-                      <td className="activity-data-cell">{hbNashvilleTotals.coldCalls}</td>
-                      <td className="activity-data-cell">{hbNashvilleTotals.insightMeetings}</td>
-                      <td className="activity-data-cell">{hbNashvilleTotals.initialCommitments}</td>
-                      <td className="activity-data-cell">{hbNashvilleTotals.referralJobs}</td>
-                      <td className="activity-data-cell">{hbNashvilleConversions.insightMtg}%</td>
-                      <td className="activity-data-cell">{hbNashvilleConversions.initialCommitment}%</td>
-                      <td className="activity-data-cell">{hbNashvilleConversions.referralJob}%</td>
-                      <td className="activity-data-cell">{hbNashvilleConversions.fullFunnel}%</td>
+                    <tr style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)', fontWeight: '600' }}>
+                      <td className="customer-name" style={{ color: '#ffffff', textAlign: 'center' }}>HB Nashville</td>
+                      <td style={{ color: '#ffffff', textAlign: 'center' }}>{hbNashvilleTotals.coldCalls}</td>
+                      <td style={{ color: '#ffffff', textAlign: 'center' }}>{hbNashvilleTotals.insightMeetings}</td>
+                      <td style={{ color: '#ffffff', textAlign: 'center' }}>{hbNashvilleTotals.initialCommitments}</td>
+                      <td style={{ color: '#ffffff', textAlign: 'center' }}>{hbNashvilleTotals.referralJobs}</td>
+                      <td style={{ textAlign: 'center', color: '#ffffff' }}>{hbNashvilleConversions.insightMtg}%</td>
+                      <td style={{ textAlign: 'center', color: '#ffffff' }}>{hbNashvilleConversions.initialCommitment}%</td>
+                      <td style={{ textAlign: 'center', color: '#ffffff' }}>{hbNashvilleConversions.referralJob}%</td>
+                      <td style={{ textAlign: 'center', color: '#ffffff' }}>{hbNashvilleConversions.fullFunnel}%</td>
                     </tr>
                     {/* National Sales Reps */}
                     {nationalSalesReps.map(rep => {
@@ -1945,43 +1950,43 @@ function CRM() {
                         <tr 
                           key={rep} 
                           onClick={handleRowClick ? () => handleRowClick(rep) : undefined}
-                          className={isEditable ? 'activity-row-editable' : ''}
+                          style={isEditable ? { cursor: 'pointer' } : {}}
                         >
-                          <td className="customer-name activity-data-cell">{rep}</td>
-                          <td className="activity-data-cell">{repData.coldCalls}</td>
-                          <td className="activity-data-cell">{repData.insightMeetings}</td>
-                          <td className="activity-data-cell">{repData.initialCommitments}</td>
-                          <td className="activity-data-cell">{repData.referralJobs}</td>
-                          <td className="activity-data-cell">{conversions.insightMtg}%</td>
-                          <td className="activity-data-cell">{conversions.initialCommitment}%</td>
-                          <td className="activity-data-cell">{conversions.referralJob}%</td>
-                          <td className="activity-data-cell">{conversions.fullFunnel}%</td>
+                          <td className="customer-name" style={{ color: '#ffffff', textAlign: 'center' }}>{rep}</td>
+                          <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.coldCalls}</td>
+                          <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.insightMeetings}</td>
+                          <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.initialCommitments}</td>
+                          <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.referralJobs}</td>
+                          <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.insightMtg}%</td>
+                          <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.initialCommitment}%</td>
+                          <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.referralJob}%</td>
+                          <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.fullFunnel}%</td>
                         </tr>
                       );
                     })}
                     {/* National Sales Subtotal */}
-                    <tr className="activity-subtotal-row">
-                      <td className="customer-name activity-data-cell">National Sales</td>
-                      <td className="activity-data-cell">{nationalSalesTotals.coldCalls}</td>
-                      <td className="activity-data-cell">{nationalSalesTotals.insightMeetings}</td>
-                      <td className="activity-data-cell">{nationalSalesTotals.initialCommitments}</td>
-                      <td className="activity-data-cell">{nationalSalesTotals.referralJobs}</td>
-                      <td className="activity-data-cell">{nationalSalesConversions.insightMtg}%</td>
-                      <td className="activity-data-cell">{nationalSalesConversions.initialCommitment}%</td>
-                      <td className="activity-data-cell">{nationalSalesConversions.referralJob}%</td>
-                      <td className="activity-data-cell">{nationalSalesConversions.fullFunnel}%</td>
+                    <tr style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)', fontWeight: '600' }}>
+                      <td className="customer-name" style={{ color: '#ffffff', textAlign: 'center' }}>National Sales</td>
+                      <td style={{ color: '#ffffff', textAlign: 'center' }}>{nationalSalesTotals.coldCalls}</td>
+                      <td style={{ color: '#ffffff', textAlign: 'center' }}>{nationalSalesTotals.insightMeetings}</td>
+                      <td style={{ color: '#ffffff', textAlign: 'center' }}>{nationalSalesTotals.initialCommitments}</td>
+                      <td style={{ color: '#ffffff', textAlign: 'center' }}>{nationalSalesTotals.referralJobs}</td>
+                      <td style={{ textAlign: 'center', color: '#ffffff' }}>{nationalSalesConversions.insightMtg}%</td>
+                      <td style={{ textAlign: 'center', color: '#ffffff' }}>{nationalSalesConversions.initialCommitment}%</td>
+                      <td style={{ textAlign: 'center', color: '#ffffff' }}>{nationalSalesConversions.referralJob}%</td>
+                      <td style={{ textAlign: 'center', color: '#ffffff' }}>{nationalSalesConversions.fullFunnel}%</td>
                     </tr>
                     {/* Grand Total */}
-                    <tr className="activity-total-row">
-                      <td className="customer-name activity-data-cell">TOTAL</td>
-                      <td className="activity-data-cell">{totals.coldCalls}</td>
-                      <td className="activity-data-cell">{totals.insightMeetings}</td>
-                      <td className="activity-data-cell">{totals.initialCommitments}</td>
-                      <td className="activity-data-cell">{totals.referralJobs}</td>
-                      <td className="activity-data-cell">{totalConversions.insightMtg}%</td>
-                      <td className="activity-data-cell">{totalConversions.initialCommitment}%</td>
-                      <td className="activity-data-cell">{totalConversions.referralJob}%</td>
-                      <td className="activity-data-cell">{totalConversions.fullFunnel}%</td>
+                    <tr style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', fontWeight: '600' }}>
+                      <td className="customer-name" style={{ color: '#ffffff', textAlign: 'center' }}>TOTAL</td>
+                      <td style={{ color: '#ffffff', textAlign: 'center' }}>{totals.coldCalls}</td>
+                      <td style={{ color: '#ffffff', textAlign: 'center' }}>{totals.insightMeetings}</td>
+                      <td style={{ color: '#ffffff', textAlign: 'center' }}>{totals.initialCommitments}</td>
+                      <td style={{ color: '#ffffff', textAlign: 'center' }}>{totals.referralJobs}</td>
+                      <td style={{ textAlign: 'center', color: '#ffffff' }}>{totalConversions.insightMtg}%</td>
+                      <td style={{ textAlign: 'center', color: '#ffffff' }}>{totalConversions.initialCommitment}%</td>
+                      <td style={{ textAlign: 'center', color: '#ffffff' }}>{totalConversions.referralJob}%</td>
+                      <td style={{ textAlign: 'center', color: '#ffffff' }}>{totalConversions.fullFunnel}%</td>
                     </tr>
                   </tbody>
                 </table>
@@ -2232,7 +2237,7 @@ function CRM() {
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                                 {target.companyName || <span className="top-targets-empty">Click to add</span>}
                                 {target.notes && (
-                                  <span className="top-targets-notes-indicator" title={target.notes}>Note</span>
+                                  <span style={{ fontSize: '0.85rem', color: '#60a5fa', flexShrink: 0 }} title={target.notes}>📝</span>
                                 )}
                               </div>
                             </td>
@@ -2279,9 +2284,9 @@ function CRM() {
                   onChange={(e) => setTargetFormData({...targetFormData, status: e.target.value})}
                 >
                   <option value="">Select status...</option>
-                  <option value="red">Stalled / Needs Help</option>
-                  <option value="yellow">Active but Unvalidated - Risk Remains</option>
-                  <option value="green">Validated & Advancing</option>
+                  <option value="red">🔴 Stalled / Needs Help</option>
+                  <option value="yellow">🟡 Active but Unvalidated - Risk Remains</option>
+                  <option value="green">🟢 Validated & Advancing</option>
                 </select>
               </div>
               <div className="form-group">
@@ -2490,8 +2495,6 @@ function CRM() {
           onRefresh={refetch}
         />
       )}
-        </div>
-      </div>
     </div>
   );
 }

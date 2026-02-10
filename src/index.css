@@ -52,6 +52,249 @@ textarea {
 
 /* Base Heading */
 h1 {
-  font-size: 3.2em;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.1;
+  color: var(--precision-text-primary);
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--precision-text-primary);
+}
+
+h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--precision-text-primary);
+}
+
+/* =========================================================================
+   PRECISION INTERFACE - COMPONENT SYSTEM
+   ========================================================================= */
+
+/* --- Layout --- */
+
+.precision-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--precision-bg);
+}
+
+.precision-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 4rem;
+  max-width: 1400px;
+  /* Increased from 1200px for better data density */
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .precision-main {
+    padding: 1.5rem;
+  }
+}
+
+.precision-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.precision-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+/* --- Cards --- */
+.p-card {
+  background-color: var(--precision-surface);
+  border-radius: var(--precision-radius);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  padding: 1.5rem;
+  box-shadow: var(--precision-shadow);
+  color: var(--precision-text-primary);
+}
+
+/* --- Inputs --- */
+.p-input {
+  background-color: var(--precision-input-bg);
+  border: 1px solid transparent;
+  border-radius: var(--precision-radius-sm);
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: var(--precision-text-primary);
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.p-input:focus {
+  background-color: var(--precision-surface);
+  box-shadow: inset 0 0 0 1px var(--precision-border-focus);
+}
+
+.p-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.p-input-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--precision-text-secondary);
+}
+
+/* --- Buttons --- */
+.p-btn-primary {
+  background-color: var(--precision-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  border-radius: var(--precision-radius);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.p-btn-primary:hover {
+  background-color: var(--precision-primary-hover);
+  transform: translateY(-1px);
+}
+
+.p-btn-secondary {
+  background-color: transparent;
+  color: var(--precision-text-secondary);
+  border: 1px solid var(--precision-text-secondary);
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: var(--precision-radius);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  opacity: 0.7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.p-btn-secondary:hover {
+  background-color: var(--precision-input-bg);
+  opacity: 1;
+}
+
+.p-btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--precision-error);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: var(--precision-radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.p-btn-danger:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* --- Tabs --- */
+.precision-tabs {
+  display: inline-flex;
+  background-color: var(--precision-tab-track);
+  padding: 4px;
+  border-radius: 99px;
+  gap: 2px;
+}
+
+.p-tab {
+  padding: 0.5rem 1.5rem;
+  border-radius: 99px;
+  border: none;
+  background: transparent;
+  color: var(--precision-text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.p-tab.active {
+  background-color: var(--precision-surface);
+  color: var(--precision-text-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+}
+
+/* --- Selection Tiles --- */
+.p-tile {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: var(--precision-radius);
+  padding: 1rem;
+  background-color: var(--precision-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.p-tile:hover {
+  border-color: var(--precision-primary);
+}
+
+.p-tile.selected {
+  border-color: var(--precision-primary);
+  background-color: rgba(246, 139, 31, 0.1);
+  color: var(--precision-primary);
+}
+
+.p-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+
+/* --- Badges --- */
+.p-badge {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--precision-success);
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* --- Alerts --- */
+.p-alert {
+  padding: 1rem;
+  border-radius: var(--precision-radius);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.p-alert.success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--precision-success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.p-alert.error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--precision-error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }

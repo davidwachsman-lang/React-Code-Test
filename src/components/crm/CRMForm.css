@@ -1,29 +1,29 @@
 .crm-form {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  border-radius: 8px;
+  background-color: var(--precision-surface);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.form-section-header {
+.crm-form .form-section-header {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #e5e7eb;
+  color: var(--precision-text-primary);
   margin-bottom: 1rem;
   margin-top: 1.5rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.form-section-header:first-child {
+.crm-form .form-section-header:first-child {
   margin-top: 0;
 }
 
-.form-section-divider {
+.crm-form .form-section-divider {
   height: 1px;
-  background: rgba(55, 65, 81, 0.8);
+  background-color: rgba(148, 163, 184, 0.25);
   margin: 1.5rem 0;
 }
 
@@ -41,7 +41,7 @@
 }
 
 .form-group label {
-  color: #9ca3af;
+  color: var(--precision-text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
@@ -51,10 +51,10 @@
 .form-group select,
 .form-group textarea {
   padding: 0.75rem;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  border-radius: 4px;
-  color: #e5e7eb;
+  background-color: var(--precision-input-bg);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius-sm);
+  color: var(--precision-text-primary);
   font-size: 0.875rem;
 }
 
@@ -62,8 +62,8 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--precision-border-focus);
+  box-shadow: inset 0 0 0 1px var(--precision-border-focus);
 }
 
 .form-group textarea {
@@ -82,7 +82,7 @@
   gap: 0.5rem;
   margin-bottom: 0;
   cursor: pointer;
-  color: #e5e7eb;
+  color: var(--precision-text-primary);
 }
 
 .form-checkbox input[type="checkbox"] {
@@ -91,46 +91,46 @@
   cursor: pointer;
 }
 
-.form-actions {
+.crm-form .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(55, 65, 81, 0.8);
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
 }
 
-.btn-primary,
-.btn-secondary {
+.crm-form .btn-primary,
+.crm-form .btn-secondary {
   padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
+  border-radius: var(--precision-radius);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.btn-primary {
-  background: #3b82f6;
+.crm-form .btn-primary {
+  background-color: var(--precision-primary);
   color: white;
+  border: none;
 }
 
-.btn-primary:hover {
-  background: #2563eb;
+.crm-form .btn-primary:hover {
+  background-color: var(--precision-primary-hover);
 }
 
-.btn-secondary {
-  background: rgba(30, 41, 59, 0.8);
-  color: #e5e7eb;
-  border: 1px solid rgba(55, 65, 81, 0.8);
+.crm-form .btn-secondary {
+  background-color: transparent;
+  color: var(--precision-text-secondary);
+  border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
-.btn-secondary:hover {
-  background: rgba(30, 41, 59, 1);
+.crm-form .btn-secondary:hover {
+  background-color: var(--precision-input-bg);
+  color: var(--precision-text-primary);
 }
 
-/* Tab Styles */
 .crm-form-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -140,7 +140,7 @@
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1rem;
-  border-bottom: 1px solid rgba(55, 65, 81, 0.8);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
   padding-bottom: 0.5rem;
 }
 
@@ -149,7 +149,7 @@
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #9ca3af;
+  color: var(--precision-text-secondary);
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
@@ -157,19 +157,18 @@
 }
 
 .crm-form-tabs button:hover {
-  color: #e5e7eb;
+  color: var(--precision-text-primary);
 }
 
 .crm-form-tabs button.active {
-  color: #3b82f6;
-  border-bottom-color: #3b82f6;
+  color: var(--precision-primary);
+  border-bottom-color: var(--precision-primary);
 }
 
-/* Activities Tab */
 .crm-form-activities {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  border-radius: 8px;
+  background-color: var(--precision-surface);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
   padding: 1.5rem;
 }
 
@@ -181,37 +180,104 @@
 }
 
 .activities-header h3 {
-  color: #e5e7eb;
+  color: var(--precision-text-primary);
   font-size: 1.125rem;
   font-weight: 600;
   margin: 0;
 }
 
 .activity-form-wrapper {
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
+  background-color: var(--precision-input-bg);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
   padding: 1rem;
   margin-bottom: 1.5rem;
 }
 
 .loading-message {
-  color: #9ca3af;
+  color: var(--precision-text-secondary);
   text-align: center;
   padding: 2rem;
+}
+
+.autocomplete-status-ready {
+  color: var(--precision-success);
+  margin-left: 8px;
+  font-size: 0.8em;
+}
+
+.autocomplete-status-loading {
+  color: var(--precision-warning);
+  margin-left: 8px;
+  font-size: 0.8em;
+}
+
+.autocomplete-status-error {
+  color: var(--precision-error);
+  margin-left: 8px;
+  font-size: 0.8em;
+}
+
+.autocomplete-status-unavailable {
+  color: var(--precision-text-muted);
+  margin-left: 8px;
+  font-size: 0.8em;
+}
+
+.parent-autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--precision-surface);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 4px;
+  box-shadow: var(--precision-shadow-lg);
+}
+
+.parent-autocomplete-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  color: var(--precision-text-primary);
+}
+
+.parent-autocomplete-item:hover {
+  background-color: var(--precision-input-bg);
+}
+
+.parent-autocomplete-create {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  background-color: rgba(246, 139, 31, 0.08);
+  color: var(--precision-primary);
+  font-weight: 500;
+}
+
+.parent-autocomplete-create:hover {
+  background-color: rgba(246, 139, 31, 0.15);
+}
+
+.parent-autocomplete-empty {
+  padding: 10px 15px;
+  color: var(--precision-text-secondary);
 }
 
 @media (max-width: 768px) {
   .form-row {
     flex-direction: column;
   }
-  
+
   .crm-form {
     padding: 1rem;
   }
-  
+
   .crm-form-tabs {
     flex-wrap: wrap;
   }
 }
-

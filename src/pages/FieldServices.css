@@ -1,33 +1,142 @@
-.field-services-content {
-  padding: 1.5rem;
+/* =========================================
+   FIELD SERVICES - PRECISION THEME (Frontend-design refined)
+   ========================================= */
+
+.precision-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--precision-bg);
+  color: var(--precision-text-primary);
+  font-family: var(--precision-font);
+  padding-left: 80px;
+  position: relative;
+}
+
+.precision-layout::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 15% 20%, rgba(246, 139, 31, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 90% 80%, rgba(14, 165, 233, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.precision-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 4rem;
+  transition: margin-left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  z-index: 1;
+}
+
+.precision-main h1,
+.precision-main h2 {
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  -webkit-text-fill-color: unset;
+}
+
+.precision-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-shrink: 0;
+  animation: fsFadeUp 0.45s cubic-bezier(0.25, 0.8, 0.25, 1) both;
+}
+
+.precision-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--precision-text-primary);
+  letter-spacing: -0.025em;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.precision-header-subtitle {
+  font-size: 0.95rem;
+  color: var(--precision-text-secondary);
+  margin: 0.25rem 0 0 0;
+}
+
+.field-services-back-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--precision-text-secondary);
+  background-color: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: var(--precision-radius);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.field-services-back-btn:hover {
+  background-color: var(--precision-input-bg);
+  color: var(--precision-text-primary);
+  border-color: var(--precision-primary);
+}
+
+.precision-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+  animation: fsFadeUp 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) 0.06s both;
+}
+
+@keyframes fsFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .field-services-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .field-service-card {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+  background-color: var(--precision-surface);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
   padding: 1.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
   text-align: left;
   display: flex;
   align-items: flex-start;
   gap: 1rem;
   min-height: 120px;
+  box-shadow: var(--precision-shadow);
 }
 
 .field-service-card:hover {
-  background: rgba(15, 23, 42, 0.8);
-  border-color: rgba(59, 130, 246, 0.4);
+  background-color: var(--precision-input-bg-hover);
+  border-color: rgba(148, 163, 184, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  box-shadow: var(--precision-shadow-lg);
+}
+
+.field-service-card.active {
+  border-left: 4px solid var(--precision-primary);
+  background-color: rgba(246, 139, 31, 0.06);
+  border-color: rgba(246, 139, 31, 0.35);
 }
 
 .field-service-card:active {
@@ -41,9 +150,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(59, 130, 246, 0.1);
+  background-color: rgba(246, 139, 31, 0.1);
   border-radius: 10px;
-  color: #3b82f6;
+  color: var(--precision-primary);
 }
 
 .field-service-card-icon svg {
@@ -56,7 +165,7 @@
 }
 
 .field-service-card-content h3 {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-size: 1.125rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
@@ -64,34 +173,43 @@
 }
 
 .field-service-card-content p {
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.5;
 }
 
 .field-service-detail {
-  margin-top: 2rem;
+  margin-top: 0.5rem;
+  animation: fsFadeUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) 0.12s both;
 }
 
+.field-service-card:nth-child(1) { animation: fsFadeUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) 0.05s both; }
+.field-service-card:nth-child(2) { animation: fsFadeUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) 0.1s both; }
+.field-service-card:nth-child(3) { animation: fsFadeUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) 0.15s both; }
+.field-service-card:nth-child(4) { animation: fsFadeUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) 0.2s both; }
+.field-service-card:nth-child(5) { animation: fsFadeUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) 0.25s both; }
+
+/* Documentation panel */
 .documentation-panel {
-  background: rgba(15, 23, 42, 0.7);
-  border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  background-color: var(--precision-surface);
+  border-radius: var(--precision-radius);
+  border: 1px solid rgba(148, 163, 184, 0.25);
   padding: 1.75rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  box-shadow: var(--precision-shadow);
 }
 
 .documentation-header h2 {
-  color: #e5e7eb;
+  color: var(--precision-text-primary);
   font-size: 1.4rem;
   margin: 0 0 0.25rem 0;
 }
 
 .documentation-subtitle {
-  color: #9ca3af;
+  color: var(--precision-text-secondary);
   font-size: 0.9rem;
   margin: 0;
 }
@@ -104,15 +222,15 @@
 
 .documentation-job-card,
 .documentation-checklist {
-  background: rgba(15, 23, 42, 0.85);
-  border-radius: 10px;
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  background-color: var(--precision-input-bg);
+  border-radius: var(--precision-radius);
+  border: 1px solid rgba(148, 163, 184, 0.25);
   padding: 1.25rem 1.5rem;
 }
 
 .documentation-job-card h3,
 .documentation-checklist h3 {
-  color: #e5e7eb;
+  color: var(--precision-text-primary);
   font-size: 1.05rem;
   margin: 0 0 1rem 0;
 }
@@ -128,18 +246,18 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #6b7280;
+  color: var(--precision-text-secondary);
   margin-bottom: 0.1rem;
 }
 
 .job-value {
   font-size: 0.9rem;
-  color: #e5e7eb;
+  color: var(--precision-text-primary);
 }
 
 .job-notes {
   font-size: 0.85rem;
-  color: #9ca3af;
+  color: var(--precision-text-secondary);
   line-height: 1.5;
 }
 
@@ -161,7 +279,7 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #9ca3af;
+  color: var(--precision-text-secondary);
   margin-bottom: 0.35rem;
 }
 
@@ -170,22 +288,24 @@
   align-items: flex-start;
   gap: 0.5rem;
   font-size: 0.9rem;
-  color: #e5e7eb;
+  color: var(--precision-text-primary);
 }
 
 .check-square {
   width: 14px;
   height: 14px;
   border-radius: 4px;
-  border: 1px solid rgba(59, 130, 246, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.5);
   margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .documentation-footer {
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: var(--precision-text-secondary);
 }
 
+/* Empty state */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -193,29 +313,35 @@
   justify-content: center;
   padding: 3rem 1.5rem;
   text-align: center;
-  background: rgba(15, 23, 42, 0.6);
-  border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background-color: var(--precision-surface);
+  border-radius: var(--precision-radius);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: var(--precision-shadow);
 }
 
 .empty-state h2 {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-size: 1.5rem;
   margin-bottom: 0.75rem;
   font-weight: 600;
 }
 
 .empty-state p {
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   font-size: 1rem;
   max-width: 500px;
   line-height: 1.6;
 }
 
-/* Mobile responsiveness */
+@media (max-width: 900px) {
+  .precision-main {
+    padding: 1.5rem;
+  }
+}
+
 @media (max-width: 768px) {
-  .field-services-content {
-    padding: 1rem;
+  .precision-layout {
+    padding-left: 0;
   }
 
   .field-services-grid {
@@ -259,12 +385,7 @@
   }
 }
 
-/* Small mobile devices */
 @media (max-width: 480px) {
-  .field-services-content {
-    padding: 0.75rem;
-  }
-
   .field-service-card {
     flex-direction: column;
     align-items: center;

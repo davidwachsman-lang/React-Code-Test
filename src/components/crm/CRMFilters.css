@@ -1,7 +1,7 @@
 .crm-filters-wrapper {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  border-radius: 8px;
+  background-color: var(--precision-surface);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
   padding: 1rem;
   margin-bottom: 1rem;
 }
@@ -12,7 +12,7 @@
 
 .crm-search-bar label {
   display: block;
-  color: #9ca3af;
+  color: var(--precision-text-secondary);
   font-size: 0.875rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
@@ -23,16 +23,17 @@
 .crm-search-bar .search-input {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  border-radius: 4px;
-  color: #e5e7eb;
+  background-color: var(--precision-input-bg);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius-sm);
+  color: var(--precision-text-primary);
   font-size: 0.875rem;
 }
 
 .crm-search-bar .search-input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--precision-border-focus);
+  box-shadow: inset 0 0 0 1px var(--precision-border-focus);
 }
 
 .crm-filters {
@@ -49,7 +50,7 @@
 }
 
 .filter-group label {
-  color: #9ca3af;
+  color: var(--precision-text-secondary);
   font-size: 0.875rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
@@ -60,17 +61,18 @@
 .filter-select,
 .filter-date {
   padding: 0.5rem 0.75rem;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  border-radius: 4px;
-  color: #e5e7eb;
+  background-color: var(--precision-input-bg);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius-sm);
+  color: var(--precision-text-primary);
   font-size: 0.875rem;
 }
 
 .filter-select:focus,
 .filter-date:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--precision-border-focus);
+  box-shadow: inset 0 0 0 1px var(--precision-border-focus);
 }
 
 .filter-checkbox {
@@ -99,9 +101,8 @@
   .crm-filters {
     flex-direction: column;
   }
-  
+
   .filter-group {
     width: 100%;
   }
 }
-

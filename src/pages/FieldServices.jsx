@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import TimeTracking from '../components/TimeTracking';
 import ScheduleView from '../components/ScheduleView';
-import './Page.css';
 import './FieldServices.css';
 
 // SVG Icon Components
@@ -85,22 +84,33 @@ function FieldServices() {
   ];
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <div>
-          <h1>Field Services</h1>
-          <p>Manage field operations, technicians, and service schedules</p>
-        </div>
-      </div>
-
-      <div className="field-services-content">
-        <div className="field-services-grid">
-          {sections.map((section) => (
+    <div className="precision-layout">
+      <div className="precision-main">
+        <div className="precision-header">
+          <div>
+            <h1>Field Services</h1>
+            <p className="precision-header-subtitle">Manage field operations, technicians, and service schedules</p>
+          </div>
+          {activeSection && (
             <button
-              key={section.id}
-              className="field-service-card"
-              onClick={() => setActiveSection(section.id)}
+              type="button"
+              className="field-services-back-btn"
+              onClick={() => setActiveSection(null)}
             >
+              Back to menu
+            </button>
+          )}
+        </div>
+
+        <div className="precision-content">
+          <div className="field-services-grid">
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                className={`field-service-card ${activeSection === section.id ? 'active' : ''}`}
+                onClick={() => setActiveSection(section.id)}
+              >
               <div className="field-service-card-icon">
                 {section.icon}
               </div>
@@ -358,6 +368,7 @@ function FieldServices() {
             )}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

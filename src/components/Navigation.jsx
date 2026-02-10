@@ -213,29 +213,21 @@ function Navigation({ onExpandChange }) {
         </ul>
       </div>
 
-      {/* Bottom Section: User Profile */}
+      {/* Bottom Section: User Profile - always rendered, visibility via CSS for smooth expand/collapse */}
       <div className="nav-user">
         <div className="nav-avatar">AD</div>
-        {isExpanded && (
-          <div className="nav-user-info">
-            <span className="user-name">Admin Dispatch</span>
-            <span className="user-role">Administrator</span>
-          </div>
-        )}
+        <div className="nav-user-info">
+          <span className="user-name">Admin Dispatch</span>
+          <span className="user-role">Administrator</span>
+        </div>
       </div>
 
-      {/* Theme Toggle - Persists in sidebar */}
+      {/* Theme Toggle - single structure, label visibility via CSS for smooth expand/collapse */}
       <div className="nav-theme-toggle" onClick={toggleTheme} title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>
-        {isExpanded ? (
-          <div className={`theme-toggle-full ${isDarkMode ? 'dark' : 'light'}`}>
-            <span className="toggle-icon">{isDarkMode ? '🌙' : '☀️'}</span>
-            <span className="toggle-label">{isDarkMode ? 'Dark Mode' : 'Light Mode'}</span>
-          </div>
-        ) : (
-          <div className="theme-toggle-mini">
-            {isDarkMode ? '🌙' : '☀️'}
-          </div>
-        )}
+        <div className={`theme-toggle-inner ${isDarkMode ? 'dark' : 'light'}`}>
+          <span className="toggle-icon">{isDarkMode ? '🌙' : '☀️'}</span>
+          <span className="toggle-label">{isDarkMode ? 'Dark Mode' : 'Light Mode'}</span>
+        </div>
       </div>
     </nav>
   );

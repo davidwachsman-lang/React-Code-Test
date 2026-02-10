@@ -1,5 +1,5 @@
 /* =========================================
-   WIP BOARD - PRECISION THEME
+   WIP BOARD - PRECISION THEME (Frontend-design refined)
    ========================================= */
 
 /* Precision layout (same as Intake - no dependency on Page.css) */
@@ -22,6 +22,35 @@
   transition: margin-left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
+/* Staggered entrance */
+.precision-header {
+  animation: wipFadeUp 0.4s ease-out both;
+}
+
+.precision-tabs {
+  animation: wipFadeUp 0.4s ease-out 0.08s both;
+}
+
+.kanban-board {
+  animation: wipFadeUp 0.45s ease-out 0.12s both;
+}
+
+.kanban-column:nth-child(1) { animation: wipFadeUp 0.35s ease-out 0.18s both; }
+.kanban-column:nth-child(2) { animation: wipFadeUp 0.35s ease-out 0.22s both; }
+.kanban-column:nth-child(3) { animation: wipFadeUp 0.35s ease-out 0.26s both; }
+.kanban-column:nth-child(4) { animation: wipFadeUp 0.35s ease-out 0.3s both; }
+
+@keyframes wipFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Header */
 .precision-header {
   display: flex;
@@ -35,28 +64,40 @@
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--precision-text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   margin: 0;
+  line-height: 1.15;
 }
 
 .board-stats.p-meta {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
   font-size: 0.9rem;
-  color: var(--precision-text-muted);
+  color: var(--precision-text-primary);
+  padding: 0;
+  background-color: transparent;
 }
 
 .stat-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--precision-radius);
+  background-color: var(--precision-input-bg);
+  color: var(--precision-text-primary);
+  box-shadow: var(--precision-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.precision-header .stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--precision-shadow-lg);
 }
 
 .stat-divider {
-  width: 2px;
-  height: 40px;
-  background: rgba(148, 163, 184, 0.4);
+  display: none;
 }
 
 .stat-label {
@@ -65,8 +106,24 @@
   font-weight: 500;
 }
 
-html.dark-mode .stat-label {
+/* Light mode: each stat block has dark bg so labels/values are white */
+html:not(.dark-mode) .precision-header .stat-item {
+  background-color: #0F172A;
   color: #ffffff;
+}
+html:not(.dark-mode) .precision-header .stat-item .stat-label,
+html:not(.dark-mode) .precision-header .stat-item .stat-value {
+  color: #ffffff !important;
+}
+
+/* Dark mode: each stat block uses surface, white text */
+html.dark-mode .precision-header .stat-item {
+  background-color: var(--precision-surface);
+  color: #ffffff;
+}
+html.dark-mode .precision-header .stat-item .stat-label,
+html.dark-mode .precision-header .stat-item .stat-value {
+  color: #ffffff !important;
 }
 
 .stat-value {
@@ -95,7 +152,7 @@ html.dark-mode .stat-label {
   font-weight: 500;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -103,12 +160,13 @@ html.dark-mode .stat-label {
 
 .precision-tabs .p-tab:hover {
   color: var(--precision-text-primary);
+  transform: translateY(-1px);
 }
 
 .precision-tabs .p-tab.active {
   background-color: var(--precision-surface);
   color: var(--precision-text-primary);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   font-weight: 600;
 }
 
@@ -148,6 +206,12 @@ html.dark-mode .stat-label {
   border-radius: var(--precision-radius);
   box-shadow: var(--precision-shadow);
   overflow: hidden;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.kanban-column:hover {
+  box-shadow: var(--precision-shadow-lg);
+  border-color: rgba(148, 163, 184, 0.35);
 }
 
 .column-header {
@@ -158,6 +222,7 @@ html.dark-mode .stat-label {
   flex-direction: column;
   gap: 0.5rem;
   flex-shrink: 0;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
 .column-header.column-pending {
@@ -222,18 +287,21 @@ html.dark-mode .stat-label {
   border-radius: var(--precision-radius);
   padding: 0.75rem;
   cursor: grab;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: var(--precision-shadow);
 }
 
 .job-card:active {
   cursor: grabbing;
+  transform: scale(0.98);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  opacity: 0.92;
 }
 
 .job-card:hover {
   background-color: var(--precision-input-bg-hover);
   border-color: rgba(148, 163, 184, 0.5);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: var(--precision-shadow-lg);
 }
 
@@ -323,6 +391,12 @@ html.dark-mode .stat-label {
   border-radius: var(--precision-radius);
   min-height: 100px;
   background-color: transparent;
+  animation: emptyPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes emptyPulse {
+  0%, 100% { opacity: 0.85; border-color: var(--precision-text-secondary); }
+  50% { opacity: 1; border-color: var(--precision-text-muted); }
 }
 
 /* Scrollbars */

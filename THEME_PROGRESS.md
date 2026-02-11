@@ -165,6 +165,7 @@ When adding or restyling any text input:
 | Sandbox                | `/sandbox`          | Precision layout, tokens, action links and tab buttons; PerformanceScorecard + eNPS survey; light/dark parity |
 | Conversion             | `/conversion`       | Precision layout, tokens, funnel table, ribbon rows, estimate tables and status badges; light/dark parity |
 | Daily War Room         | `/war-room`         | Precision layout, tokens, sidebar/metrics; staggered metric card reveal; urgent/warning via tokens; light/dark parity |
+| TM Estimate            | `/tm-estimate`      | Precision layout, tokens, schedule cards; standard input design; staggered reveal; light/dark parity |
 
 ### Not yet improved
 
@@ -172,7 +173,6 @@ When adding or restyling any text input:
 |------------------------|---------------------|
 | Job Files              | `/job-files`        |
 | Forms                  | `/forms`            |
-| TM Estimate            | `/tm-estimate`      |
 | Insurance Job SOPs     | `/insurance-job-sops` |
 
 ---

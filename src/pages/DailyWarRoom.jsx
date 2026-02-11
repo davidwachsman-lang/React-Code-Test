@@ -35,36 +35,34 @@ function DailyWarRoom() {
         <div className="main-sidebar">
           {/* HB Nashville Section */}
           <div className="division-section">
-            <div className="division-row">
-              <button
-                type="button"
-                className={`division-btn ${selectedDivision === 'hb-nashville' ? 'active' : ''}`}
-                onClick={() => setSelectedDivision('hb-nashville')}
-              >
-                <span className="division-icon">🏠</span>
-                <span className="division-name">HB Nashville</span>
-              </button>
-              {selectedDivision === 'hb-nashville' && (
-                <div className="subdivision-list">
-                  <button
-                    type="button"
-                    className={`subdivision-btn ${selectedSubdivision === 'mit' ? 'active' : ''}`}
-                    onClick={() => setSelectedSubdivision('mit')}
-                  >
-                    <span className="subdivision-icon">🔧</span>
-                    <span className="subdivision-name">MIT</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`subdivision-btn ${selectedSubdivision === 'recon' ? 'active' : ''}`}
-                    onClick={() => setSelectedSubdivision('recon')}
-                  >
-                    <span className="subdivision-icon">🏗️</span>
-                    <span className="subdivision-name">RECON</span>
-                  </button>
-                </div>
-              )}
-            </div>
+            <button
+              type="button"
+              className={`division-btn ${selectedDivision === 'hb-nashville' ? 'active' : ''}`}
+              onClick={() => setSelectedDivision('hb-nashville')}
+            >
+              <span className="division-icon">🏠</span>
+              <span className="division-name">HB Nashville</span>
+            </button>
+            {selectedDivision === 'hb-nashville' && (
+              <div className="subdivision-list">
+                <button
+                  type="button"
+                  className={`subdivision-btn ${selectedSubdivision === 'mit' ? 'active' : ''}`}
+                  onClick={() => setSelectedSubdivision('mit')}
+                >
+                  <span className="subdivision-icon">🔧</span>
+                  <span className="subdivision-name">MIT</span>
+                </button>
+                <button
+                  type="button"
+                  className={`subdivision-btn ${selectedSubdivision === 'recon' ? 'active' : ''}`}
+                  onClick={() => setSelectedSubdivision('recon')}
+                >
+                  <span className="subdivision-icon">🏗️</span>
+                  <span className="subdivision-name">RECON</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Large Loss Section */}

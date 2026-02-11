@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import equipmentCatalogService from '../services/equipmentCatalogService';
 import laborPricingService from '../services/laborPricingService';
-import './Page.css';
 import './TMEstimate.css';
 
 const miscellaneousItems = [
@@ -513,22 +512,21 @@ function TMEstimate() {
   };
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <div>
-          <h1>T&M Estimate Calculator</h1>
-          <p>Create detailed Time & Materials estimates with five cost schedules</p>
-        </div>
-        <div className="header-actions">
-          <div className="action-buttons">
-            <button onClick={downloadPDF} className="action-button download-button">
+    <div className="precision-layout tm-estimate-page">
+      <div className="precision-main">
+        <header className="tm-estimate-header">
+          <div className="tm-estimate-header-text">
+            <h1>T&M Estimate Calculator</h1>
+            <p className="tm-estimate-subtitle">Create detailed Time & Materials estimates with five cost schedules</p>
+          </div>
+          <div className="header-actions">
+            <button type="button" onClick={downloadPDF} className="tm-download-btn">
               Download PDF
             </button>
           </div>
-        </div>
-      </div>
+        </header>
 
-      <div className="tm-estimate-content">
+        <div className="precision-content tm-estimate-content">
         {/* Project Info */}
         <div className="project-info-card">
           <label htmlFor="projectName">Project Name</label>
@@ -538,7 +536,7 @@ function TMEstimate() {
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
             placeholder="Enter project name"
-            className="project-name-input"
+            className="project-name-input p-input"
           />
 
           <div className="project-info-field">
@@ -548,19 +546,19 @@ function TMEstimate() {
               type="text"
               value={estimatorName}
               onChange={(e) => setEstimatorName(e.target.value)}
-              placeholder="Enter estimator name"
-              className="project-name-input"
+            placeholder="Enter estimator name"
+            className="project-name-input p-input"
             />
           </div>
         </div>
 
         {/* Schedule Cards */}
-        {scheduleTypes.map((schedule) => {
+        {        scheduleTypes.map((schedule) => {
           const scheduleTotal = calculateScheduleTotal(schedule.id);
           const items = schedules[schedule.id];
 
           return (
-            <div key={schedule.id} className="schedule-card">
+            <div key={schedule.id} className={`schedule-card schedule-card-${schedule.id}`}>
               <div className="schedule-header">
                 <div className="schedule-title">
                   <span className="schedule-id">Schedule {schedule.id}</span>
@@ -1002,6 +1000,7 @@ function TMEstimate() {
         <div className="grand-total-display">
           <span className="total-label">Grand Total:</span>
           <span className="total-amount">{formatCurrency(calculateGrandTotal())}</span>
+        </div>
         </div>
       </div>
 

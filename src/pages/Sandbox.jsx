@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PerformanceScorecard from '../components/crm/PerformanceScorecard';
-import './Page.css';
-import './CRM.css';
 import './Sandbox.css';
 
 function Sandbox() {
@@ -11,85 +9,69 @@ function Sandbox() {
   const [npsSubmitted, setNpsSubmitted] = useState(false);
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Sandbox</h1>
-        <p className="page-subtitle">Experimental features and items in development</p>
-      </div>
+    <div className="precision-layout sandbox-page">
+      <div className="precision-main">
+        <header className="sandbox-header">
+          <h1>Sandbox</h1>
+          <p className="sandbox-subtitle">Experimental features and items in development</p>
+        </header>
 
-      <div className="sandbox-actions">
-        <Link 
-          to="/war-room"
-          className="action-btn action-btn-blue"
-          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-        >
-          <span className="btn-icon">⚡</span>
-          Daily War Room
-        </Link>
-        <Link 
-          to="/tm-estimate"
-          className="action-btn action-btn-blue"
-          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-        >
-          <span className="btn-icon">📋</span>
-          T&M Estimate
-        </Link>
-        <Link 
-          to="/forms"
-          className="action-btn action-btn-blue"
-          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-        >
-          <span className="btn-icon">📄</span>
-          Forms
-        </Link>
-        <Link 
-          to="/insurance-job-sops"
-          className="action-btn action-btn-blue"
-          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-        >
-          <span className="btn-icon">📑</span>
-          Insurance Job SOPs
-        </Link>
-        <Link 
-          to="/conversion"
-          className="action-btn action-btn-blue"
-          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-        >
-          <span className="btn-icon">🔄</span>
-          Conversion
-        </Link>
-        <button 
-          className={`action-btn ${activeTab === 'scorecard' ? 'action-btn-green' : 'action-btn-gray'}`}
-          onClick={() => setActiveTab('scorecard')}
-        >
-          <span className="btn-icon">⭐</span>
-          Performance Scorecard
-        </button>
-        <button 
-          className={`action-btn ${activeTab === 'b2b-referrals' ? 'action-btn-green' : 'action-btn-gray'}`}
-          onClick={() => setActiveTab('b2b-referrals')}
-        >
-          <span className="btn-icon">🤝</span>
-          B2B Referrals
-        </button>
-        <button 
-          className={`action-btn ${activeTab === 'customer-nps' ? 'action-btn-green' : 'action-btn-gray'}`}
-          onClick={() => setActiveTab('customer-nps')}
-        >
-          <span className="btn-icon">📊</span>
-          Customer NPS
-        </button>
-        <button 
-          className={`action-btn ${activeTab === 'enps' ? 'action-btn-green' : 'action-btn-gray'}`}
-          onClick={() => setActiveTab('enps')}
-        >
-          <span className="btn-icon">👥</span>
-          eNPS
-        </button>
-        {/* Future tabs can be added here */}
-      </div>
+        <div className="sandbox-actions">
+          <Link to="/war-room" className="sandbox-action-link">
+            <span className="sandbox-btn-icon">⚡</span>
+            Daily War Room
+          </Link>
+          <Link to="/tm-estimate" className="sandbox-action-link">
+            <span className="sandbox-btn-icon">📋</span>
+            T&M Estimate
+          </Link>
+          <Link to="/forms" className="sandbox-action-link">
+            <span className="sandbox-btn-icon">📄</span>
+            Forms
+          </Link>
+          <Link to="/insurance-job-sops" className="sandbox-action-link">
+            <span className="sandbox-btn-icon">📑</span>
+            Insurance Job SOPs
+          </Link>
+          <Link to="/conversion" className="sandbox-action-link">
+            <span className="sandbox-btn-icon">🔄</span>
+            Conversion
+          </Link>
+          <button
+            type="button"
+            className={`sandbox-tab-btn ${activeTab === 'scorecard' ? 'sandbox-tab-btn-active' : ''}`}
+            onClick={() => setActiveTab('scorecard')}
+          >
+            <span className="sandbox-btn-icon">⭐</span>
+            Performance Scorecard
+          </button>
+          <button
+            type="button"
+            className={`sandbox-tab-btn ${activeTab === 'b2b-referrals' ? 'sandbox-tab-btn-active' : ''}`}
+            onClick={() => setActiveTab('b2b-referrals')}
+          >
+            <span className="sandbox-btn-icon">🤝</span>
+            B2B Referrals
+          </button>
+          <button
+            type="button"
+            className={`sandbox-tab-btn ${activeTab === 'customer-nps' ? 'sandbox-tab-btn-active' : ''}`}
+            onClick={() => setActiveTab('customer-nps')}
+          >
+            <span className="sandbox-btn-icon">📊</span>
+            Customer NPS
+          </button>
+          <button
+            type="button"
+            className={`sandbox-tab-btn ${activeTab === 'enps' ? 'sandbox-tab-btn-active' : ''}`}
+            onClick={() => setActiveTab('enps')}
+          >
+            <span className="sandbox-btn-icon">👥</span>
+            eNPS
+          </button>
+        </div>
 
-      <div className="sandbox-content">
+        <div className="precision-content sandbox-content">
         {/* Performance Scorecard View */}
         {activeTab === 'scorecard' && (
           <div className="customers-container">
@@ -144,13 +126,15 @@ function Sandbox() {
                 {npsScore !== null && (
                   <div className="nps-actions">
                     <button
-                      className="action-btn action-btn-green"
+                      type="button"
+                      className="sandbox-nps-btn sandbox-nps-btn-primary"
                       onClick={() => setNpsSubmitted(true)}
                     >
                       Submit
                     </button>
                     <button
-                      className="action-btn action-btn-gray"
+                      type="button"
+                      className="sandbox-nps-btn sandbox-nps-btn-secondary"
                       onClick={() => {
                         setNpsScore(null);
                         setNpsSubmitted(false);
@@ -175,7 +159,8 @@ function Sandbox() {
                     {npsScore <= 6 && <p className="nps-detractor">Detractor</p>}
                   </div>
                   <button
-                    className="action-btn action-btn-gray"
+                    type="button"
+                    className="sandbox-nps-btn sandbox-nps-btn-secondary"
                     onClick={() => {
                       setNpsScore(null);
                       setNpsSubmitted(false);
@@ -195,6 +180,7 @@ function Sandbox() {
             <p>Coming soon...</p>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

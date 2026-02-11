@@ -4,7 +4,6 @@ import jobService from '../services/jobService';
 import customerService from '../services/customerService';
 import propertyService from '../services/propertyService';
 import StormMap from '../components/storm/StormMap';
-import './Page.css';
 import './Storm.css';
 
 function Storm() {
@@ -1974,12 +1973,15 @@ function Storm() {
   };
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Storm</h1>
-      </div>
-      <div className="page-content">
-        {renderManageEvent()}
+    <div className="precision-layout storm-page">
+      <div className="precision-main">
+        <header className="storm-header">
+          <h1>Storm</h1>
+          <p>Manage storm events, intake, and jobs.</p>
+        </header>
+        <div className="storm-content precision-content">
+          {renderManageEvent()}
+        </div>
       </div>
 
       {/* Job Edit Modal */}

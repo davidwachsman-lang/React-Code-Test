@@ -47,25 +47,52 @@
   color: var(--precision-text-secondary);
 }
 
-.schedule-form .form-group input,
+/* Technician name input: exact Intake #callerName color scheme (THEME_PROGRESS standard); high specificity so global .form-group input cannot override */
+.schedule-view-container .schedule-form .form-group input.p-input {
+  background-color: var(--precision-input-bg);
+  border: 1px solid transparent;
+  border-radius: var(--precision-radius-sm);
+  color: var(--precision-text-primary);
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  height: 49px;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+/* Exact same hover as Intake #callerName: only background darkens (light) or lightens (dark) */
+.schedule-view-container .schedule-form .form-group input.p-input:hover {
+  background-color: var(--precision-input-bg-hover);
+}
+
+.schedule-view-container .schedule-form .form-group input.p-input:focus {
+  outline: none;
+  background-color: var(--precision-surface);
+  box-shadow: inset 0 0 0 1px var(--precision-border-focus);
+}
+
+.schedule-view-container .schedule-form .form-group input.p-input::placeholder {
+  color: var(--precision-text-muted);
+  opacity: 1;
+}
+
 .schedule-form .form-group select {
   background-color: var(--precision-input-bg);
   color: var(--precision-text-primary);
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  border-radius: var(--precision-radius);
+  border: 1px solid transparent;
+  border-radius: var(--precision-radius-sm);
   height: 49px;
   box-sizing: border-box;
 }
 
-.schedule-form .form-group input:focus,
-.schedule-form .form-group select:focus {
-  border-color: var(--precision-border-focus);
-  outline: none;
+.schedule-form .form-group select:hover {
+  background-color: var(--precision-input-bg-hover);
 }
 
-/* Light mode: readable grey placeholder */
-html:not(.dark-mode) .schedule-form .form-group input::placeholder {
-  color: var(--precision-text-secondary);
+.schedule-form .form-group select:focus {
+  outline: none;
+  background-color: var(--precision-surface);
+  box-shadow: inset 0 0 0 1px var(--precision-border-focus);
 }
 
 .load-schedule-button {

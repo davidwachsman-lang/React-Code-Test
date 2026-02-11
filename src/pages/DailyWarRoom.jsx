@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './Page.css';
 import './DailyWarRoom.css';
 
 function DailyWarRoom() {
@@ -24,48 +23,54 @@ function DailyWarRoom() {
   };
 
   return (
-    <div className="page-container war-room-page">
-      <div className="war-room-header">
-        <h1>Daily War Room</h1>
-      </div>
+    <div className="precision-layout war-room-page">
+      <div className="precision-main">
+        <header className="war-room-header">
+          <h1>Daily War Room</h1>
+          <p className="war-room-subtitle">Division escalation metrics and action tracking</p>
+        </header>
 
-      {/* Content Area with Left Sidebar */}
-      <div className="war-room-content">
+        <div className="precision-content war-room-content">
         {/* Left Sidebar - All Divisions and Subdivisions */}
         <div className="main-sidebar">
           {/* HB Nashville Section */}
           <div className="division-section">
-            <button 
-              className={`division-btn ${selectedDivision === 'hb-nashville' ? 'active' : ''}`}
-              onClick={() => setSelectedDivision('hb-nashville')}
-            >
-              <span className="division-icon">🏠</span>
-              <span className="division-name">HB Nashville</span>
-            </button>
-            
-            {selectedDivision === 'hb-nashville' && (
-              <div className="subdivision-list">
-                <button 
-                  className={`subdivision-btn ${selectedSubdivision === 'mit' ? 'active' : ''}`}
-                  onClick={() => setSelectedSubdivision('mit')}
-                >
-                  <span className="subdivision-icon">🔧</span>
-                  <span className="subdivision-name">MIT</span>
-                </button>
-                <button 
-                  className={`subdivision-btn ${selectedSubdivision === 'recon' ? 'active' : ''}`}
-                  onClick={() => setSelectedSubdivision('recon')}
-                >
-                  <span className="subdivision-icon">🏗️</span>
-                  <span className="subdivision-name">RECON</span>
-                </button>
-              </div>
-            )}
+            <div className="division-row">
+              <button
+                type="button"
+                className={`division-btn ${selectedDivision === 'hb-nashville' ? 'active' : ''}`}
+                onClick={() => setSelectedDivision('hb-nashville')}
+              >
+                <span className="division-icon">🏠</span>
+                <span className="division-name">HB Nashville</span>
+              </button>
+              {selectedDivision === 'hb-nashville' && (
+                <div className="subdivision-list">
+                  <button
+                    type="button"
+                    className={`subdivision-btn ${selectedSubdivision === 'mit' ? 'active' : ''}`}
+                    onClick={() => setSelectedSubdivision('mit')}
+                  >
+                    <span className="subdivision-icon">🔧</span>
+                    <span className="subdivision-name">MIT</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`subdivision-btn ${selectedSubdivision === 'recon' ? 'active' : ''}`}
+                    onClick={() => setSelectedSubdivision('recon')}
+                  >
+                    <span className="subdivision-icon">🏗️</span>
+                    <span className="subdivision-name">RECON</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Large Loss Section */}
           <div className="division-section">
-            <button 
+            <button
+              type="button"
               className={`division-btn ${selectedDivision === 'large-loss' ? 'active' : ''}`}
               onClick={() => {
                 setSelectedDivision('large-loss');
@@ -388,6 +393,7 @@ function DailyWarRoom() {
               </div>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>

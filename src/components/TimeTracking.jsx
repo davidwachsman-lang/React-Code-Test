@@ -159,6 +159,7 @@ function TimeTracking() {
             <input
               id="technicianName"
               type="text"
+              className="p-input"
               value={technicianName}
               onChange={(e) => setTechnicianName(e.target.value)}
               placeholder="Enter your name"

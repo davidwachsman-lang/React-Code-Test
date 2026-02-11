@@ -47,6 +47,14 @@
   margin-bottom: 0.5rem;
 }
 
+/* Technician Name label: darker for better legibility */
+.time-tracking-container .time-tracking-form .form-group label {
+  color: #334155;
+}
+html.dark-mode .time-tracking-container .time-tracking-form .form-group label {
+  color: #737373;
+}
+
 .form-group input,
 .form-group textarea {
   width: 100%;
@@ -76,6 +84,35 @@
   resize: vertical;
   min-height: 80px;
   font-family: inherit;
+}
+
+/* Technician name input: THEME_PROGRESS standard (Intake/ScheduleView parity); high specificity over .form-group input */
+.time-tracking-container .time-tracking-form .form-group input.p-input {
+  background-color: var(--precision-input-bg);
+  border: 1px solid transparent;
+  border-radius: var(--precision-radius-sm);
+  color: var(--precision-text-primary);
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  height: 49px;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+.time-tracking-container .time-tracking-form .form-group input.p-input:hover {
+  background-color: var(--precision-input-bg-hover);
+}
+.time-tracking-container .time-tracking-form .form-group input.p-input:focus {
+  outline: none;
+  background-color: var(--precision-surface);
+  box-shadow: inset 0 0 0 1px var(--precision-border-focus);
+}
+.time-tracking-container .time-tracking-form .form-group input.p-input::placeholder {
+  color: var(--precision-text-muted);
+  opacity: 1;
+}
+.time-tracking-container .time-tracking-form .form-group input.p-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Jobs Section */

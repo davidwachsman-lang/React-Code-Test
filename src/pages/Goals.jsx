@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './Page.css';
 import './Goals.css';
 
 function Goals() {
@@ -185,15 +184,6 @@ function Goals() {
     }
   ];
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'good': return '#10b981';
-      case 'warning': return '#f59e0b';
-      case 'bad': return '#ef4444';
-      default: return '#6b7280';
-    }
-  };
-
   const getStatusLabel = (status) => {
     switch (status) {
       case 'good': return 'On Track';
@@ -204,20 +194,21 @@ function Goals() {
   };
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <div>
-          <h1>Goals & OKR Dashboard</h1>
-          <p>Annual financial outcomes tied to operational performance across branches and service lines</p>
-        </div>
-        <div className="status-legend">
-          <span className="legend-item good">On track</span>
-          <span className="legend-item warning">At risk</span>
-          <span className="legend-item bad">Off track</span>
-        </div>
-      </div>
+    <div className="precision-layout goals-page">
+      <div className="precision-main">
+        <header className="goals-header">
+          <div className="goals-header-text">
+            <h1>Goals & OKR Dashboard</h1>
+            <p>Annual financial outcomes tied to operational performance across branches and service lines</p>
+          </div>
+          <div className="status-legend">
+            <span className="legend-item good">On track</span>
+            <span className="legend-item warning">At risk</span>
+            <span className="legend-item bad">Off track</span>
+          </div>
+        </header>
 
-      <div className="goals-content">
+        <div className="goals-content">
         {/* Company-Level OKRs */}
         <section className="okr-section">
           <h2 className="section-title">Company-Level Annual OKRs</h2>
@@ -226,13 +217,7 @@ function Goals() {
               <div key={okr.id} className="okr-card">
                 <div className="okr-header">
                   <span className="okr-label">{okr.label}</span>
-                  <span
-                    className="status-badge"
-                    style={{
-                      backgroundColor: `${getStatusColor(okr.status)}20`,
-                      color: getStatusColor(okr.status)
-                    }}
-                  >
+                  <span className={`status-badge ${okr.status}`}>
                     {getStatusLabel(okr.status)}
                   </span>
                 </div>
@@ -248,11 +233,8 @@ function Goals() {
                   <>
                     <div className="progress-bar">
                       <div
-                        className="progress-fill"
-                        style={{
-                          width: `${Math.min(okr.progressPct, 100)}%`,
-                          backgroundColor: getStatusColor(okr.status)
-                        }}
+                        className={`progress-fill ${okr.status}`}
+                        style={{ width: `${Math.min(okr.progressPct, 100)}%` }}
                       />
                     </div>
                     <div className="progress-label">{okr.progressPct}%</div>
@@ -281,13 +263,7 @@ function Goals() {
                             {kr.target} · {kr.actual}
                           </div>
                         </div>
-                        <span
-                          className="kr-status"
-                          style={{
-                            backgroundColor: `${getStatusColor(kr.status)}20`,
-                            color: getStatusColor(kr.status)
-                          }}
-                        >
+                        <span className={`kr-status ${kr.status}`}>
                           {kr.status === 'good' ? 'On track' : kr.status === 'warning' ? 'Watch' : 'Off'}
                         </span>
                       </div>
@@ -317,13 +293,7 @@ function Goals() {
                     <div>{branch.gmPct}</div>
                     <div>{branch.dso}</div>
                     <div>
-                      <span
-                        className="branch-status"
-                        style={{
-                          backgroundColor: `${getStatusColor(branch.status)}20`,
-                          color: getStatusColor(branch.status)
-                        }}
-                      >
+                      <span className={`branch-status ${branch.status}`}>
                         {branch.status === 'good' ? 'Strong' : branch.status === 'warning' ? 'Mixed' : 'Needs focus'}
                       </span>
                     </div>
@@ -343,13 +313,7 @@ function Goals() {
                 <div className="kpi-header">
                   <div className="kpi-label">{kpi.label}</div>
                   {kpi.status && (
-                    <span
-                      className="kpi-status"
-                      style={{
-                        backgroundColor: `${getStatusColor(kpi.status)}20`,
-                        color: getStatusColor(kpi.status)
-                      }}
-                    >
+                    <span className={`kpi-status ${kpi.status}`}>
                       {kpi.status === 'good' ? 'OK' : kpi.status === 'warning' ? 'Watch' : 'Alert'}
                     </span>
                   )}
@@ -360,6 +324,7 @@ function Goals() {
             ))}
           </div>
         </section>
+        </div>
       </div>
     </div>
   );

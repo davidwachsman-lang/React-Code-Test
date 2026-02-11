@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import roleExpectationsNotesService from '../services/roleExpectationsNotesService';
-import './Page.css';
 import './Expectations2026.css';
 
 function Expectations2026() {
@@ -176,14 +175,14 @@ function Expectations2026() {
   };
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <div>
+    <div className="precision-layout expectations-2026-page">
+      <div className="precision-main">
+        <header className="expectations-2026-header">
           <h1>FY26 Expectations</h1>
-        </div>
-      </div>
+          <p className="expectations-2026-subtitle">Team and role-specific expectations & performance management</p>
+        </header>
 
-      <div className="expectations-content">
+        <div className="precision-content expectations-2026-content">
         {/* Team Expectations Overview */}
         <section className="expectations-section team-expectations">
           <h2 className="section-title">Team Expectations</h2>
@@ -236,7 +235,7 @@ function Expectations2026() {
               id="role-select"
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
-              className="role-dropdown"
+              className="role-dropdown p-input"
             >
               <option value="">-- Select a Role --</option>
               {roles.map(role => (
@@ -289,7 +288,7 @@ function Expectations2026() {
                       </div>
                       <textarea
                         id="self-notes"
-                        className="notes-textarea"
+                        className="notes-textarea p-input"
                         value={selfNotes}
                         onChange={(e) => setSelfNotes(e.target.value)}
                         placeholder="Enter self notes here..."
@@ -332,7 +331,7 @@ function Expectations2026() {
                       </div>
                       <textarea
                         id="manager-notes"
-                        className="notes-textarea"
+                        className="notes-textarea p-input"
                         value={managerNotes}
                         onChange={(e) => setManagerNotes(e.target.value)}
                         placeholder="Enter manager notes here..."
@@ -370,6 +369,7 @@ function Expectations2026() {
             </div>
           )}
         </section>
+        </div>
       </div>
     </div>
   );

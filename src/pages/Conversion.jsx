@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import './Page.css';
 import './Conversion.css';
 
 function Conversion() {
@@ -511,12 +510,14 @@ function Conversion() {
   };
 
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1>Estimate Conversion Dashboard</h1>
-        <p className="page-subtitle">Track estimate performance and conversion metrics</p>
-      </div>
+    <div className="precision-layout conversion-page">
+      <div className="precision-main">
+        <header className="conversion-header">
+          <h1>Estimate Conversion Dashboard</h1>
+          <p className="conversion-subtitle">Track estimate performance and conversion metrics</p>
+        </header>
 
+        <div className="precision-content conversion-content-wrapper">
       {/* Conversion Funnel Metrics Table */}
       <div className="conversion-content">
         <div className="content-section">
@@ -722,6 +723,8 @@ function Conversion() {
               {renderDivisionTable(llEstimates, 'LL')}
             </div>
           )}
+        </div>
+      </div>
         </div>
       </div>
     </div>

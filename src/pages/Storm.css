@@ -1,4 +1,34 @@
-/* Storm page specific styles */
+/* Storm page - Precision theme */
+.storm-page .storm-header {
+  margin-bottom: 2rem;
+  animation: stormFadeUp 0.45s cubic-bezier(0.25, 0.8, 0.25, 1) both;
+}
+
+.storm-page .storm-content {
+  animation: stormFadeUp 0.45s cubic-bezier(0.25, 0.8, 0.25, 1) 0.06s both;
+}
+
+@keyframes stormFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.storm-page .storm-header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--precision-text-primary);
+  line-height: 1.2;
+}
+
+.storm-page .storm-header p {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--precision-text-secondary);
+}
+
 .storm-container {
   padding: 20px;
 }
@@ -13,19 +43,19 @@
 .storm-btn {
   padding: 1rem 2rem;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--precision-radius);
   font-size: 1rem;
   font-weight: 600;
   color: white;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  box-shadow: var(--precision-shadow);
   min-width: 200px;
 }
 
 .storm-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--precision-shadow-lg);
 }
 
 .storm-btn:active {
@@ -33,57 +63,57 @@
 }
 
 .storm-btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background-color: var(--precision-primary);
 }
 
 .storm-btn-primary:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background-color: var(--precision-primary-hover);
 }
 
 .storm-btn-secondary {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background-color: var(--precision-success);
 }
 
 .storm-btn-secondary:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  filter: brightness(1.08);
 }
 
 .storm-btn-tertiary {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background-color: var(--precision-blue);
 }
 
 .storm-btn-tertiary:hover {
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  filter: brightness(1.08);
 }
 
 .storm-content-section {
   margin-top: 3rem;
   padding: 2rem;
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
-  border-radius: 16px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background-color: var(--precision-surface);
+  border-radius: var(--precision-radius);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: var(--precision-shadow);
 }
 
 .storm-content-section p {
-  color: #cbd5e1;
+  color: var(--precision-text-secondary);
   font-size: 1.1rem;
 }
 
 /* Manage Event Styles */
 .manage-event-container {
   margin-top: 2rem;
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
-  border-radius: 16px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background-color: var(--precision-surface);
+  border-radius: var(--precision-radius);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: var(--precision-shadow);
   overflow: hidden;
 }
 
 .manage-event-tabs {
   display: flex;
-  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
-  background: rgba(15, 23, 42, 0.4);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+  background-color: var(--precision-input-bg);
 }
 
 .manage-event-tab {
@@ -91,23 +121,23 @@
   padding: 1rem 2rem;
   border: none;
   background: transparent;
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   border-bottom: 3px solid transparent;
 }
 
 .manage-event-tab:hover {
-  color: #60a5fa;
-  background: rgba(59, 130, 246, 0.1);
+  color: var(--precision-text-primary);
+  background-color: var(--precision-input-bg-hover);
 }
 
 .manage-event-tab.active {
-  color: #3b82f6;
-  border-bottom-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.15);
+  color: var(--precision-text-primary);
+  border-bottom-color: var(--precision-primary);
+  background-color: var(--precision-surface);
 }
 
 /* Intake Form Styles */
@@ -116,15 +146,11 @@
 }
 
 .intake-header {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 2rem;
   text-align: center;
-  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .storm-intake-form {
@@ -134,19 +160,19 @@
 }
 
 .form-section {
-  background: rgba(15, 23, 42, 0.4);
+  background-color: var(--precision-input-bg);
   padding: 1.5rem;
-  border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.1);
+  border-radius: var(--precision-radius);
+  border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .form-section-title {
-  color: #60a5fa;
+  color: var(--precision-text-primary);
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 /* Property Information Layout */
@@ -181,10 +207,10 @@
   align-items: center;
   justify-content: center;
   padding: 0.6rem 1.25rem;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
-  color: #94a3b8;
+  background-color: var(--precision-input-bg);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius-sm);
+  color: var(--precision-text-secondary);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -196,14 +222,14 @@
 }
 
 .toggle-option.active {
-  background: rgba(34, 197, 94, 0.2);
-  border-color: #22c55e;
-  color: #22c55e;
+  background-color: color-mix(in srgb, var(--precision-success) 18%, transparent);
+  border-color: var(--precision-success);
+  color: var(--precision-success);
 }
 
 .toggle-option:hover {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.5);
+  background-color: var(--precision-input-bg-hover);
+  border-color: rgba(148, 163, 184, 0.4);
 }
 
 /* Site Conditions Row */
@@ -213,7 +239,7 @@
   align-items: center;
   padding: 1rem 0;
   margin-top: 0.5rem;
-  border-top: 1px solid rgba(59, 130, 246, 0.1);
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
   flex-wrap: wrap;
 }
 
@@ -224,7 +250,7 @@
 }
 
 .condition-item > label:first-child {
-  color: #cbd5e1;
+  color: var(--precision-text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
 }
@@ -233,16 +259,16 @@
 .toggle-buttons {
   display: flex;
   gap: 0;
-  border-radius: 8px;
+  border-radius: var(--precision-radius-sm);
   overflow: hidden;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.25);
 }
 
 .toggle-btn {
   padding: 0.5rem 1rem;
   border: none;
-  background: rgba(15, 23, 42, 0.6);
-  color: #94a3b8;
+  background-color: var(--precision-input-bg);
+  color: var(--precision-text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -250,16 +276,16 @@
 }
 
 .toggle-btn:first-child {
-  border-right: 1px solid rgba(59, 130, 246, 0.3);
+  border-right: 1px solid rgba(148, 163, 184, 0.25);
 }
 
 .toggle-btn:hover {
-  background: rgba(59, 130, 246, 0.1);
-  color: #f1f5f9;
+  background-color: var(--precision-input-bg-hover);
+  color: var(--precision-text-primary);
 }
 
 .toggle-btn.active {
-  background: #3b82f6;
+  background-color: var(--precision-primary);
   color: white;
 }
 
@@ -269,10 +295,10 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1rem;
-  background: rgba(15, 23, 42, 0.4);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 8px;
-  color: #cbd5e1;
+  background-color: var(--precision-input-bg);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius-sm);
+  color: var(--precision-text-primary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -281,20 +307,20 @@
 }
 
 .condition-checkbox:hover {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.4);
+  background-color: var(--precision-input-bg-hover);
+  border-color: rgba(148, 163, 184, 0.4);
 }
 
 .condition-checkbox input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #3b82f6;
+  accent-color: var(--precision-primary);
   cursor: pointer;
   border-radius: 4px;
 }
 
 .condition-checkbox input[type="checkbox"]:checked + span {
-  color: #60a5fa;
+  color: var(--precision-primary);
 }
 
 .form-grid {
@@ -320,8 +346,8 @@
   grid-column: 1 / -1;
 }
 
-.form-group label {
-  color: #cbd5e1;
+.storm-page .form-group label {
+  color: var(--precision-text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
@@ -329,48 +355,52 @@
   width: 100%;
 }
 
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="tel"],
-.form-group input[type="number"],
-.form-group input[type="date"],
-.form-group select,
-.form-group textarea {
-  padding: 0.75rem;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.6);
-  color: #f1f5f9;
+/* THEME_PROGRESS: standard input design for Storm forms */
+.storm-page .form-group input[type="text"],
+.storm-page .form-group input[type="email"],
+.storm-page .form-group input[type="tel"],
+.storm-page .form-group input[type="number"],
+.storm-page .form-group input[type="date"],
+.storm-page .form-group select,
+.storm-page .form-group textarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--precision-radius-sm);
+  background-color: var(--precision-input-bg);
+  color: var(--precision-text-primary);
   font-size: 0.95rem;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   width: 100%;
   box-sizing: border-box;
 }
 
-.form-group input[type="text"]:focus,
-.form-group input[type="email"]:focus,
-.form-group input[type="tel"]:focus,
-.form-group input[type="number"]:focus,
-.form-group input[type="date"]:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.storm-page .form-group input:hover,
+.storm-page .form-group select:hover,
+.storm-page .form-group textarea:hover {
+  background-color: var(--precision-input-bg-hover);
+}
+
+.storm-page .form-group input[type="text"]:focus,
+.storm-page .form-group input[type="email"]:focus,
+.storm-page .form-group input[type="tel"]:focus,
+.storm-page .form-group input[type="number"]:focus,
+.storm-page .form-group input[type="date"]:focus,
+.storm-page .form-group select:focus,
+.storm-page .form-group textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  background: rgba(15, 23, 42, 0.8);
+  background-color: var(--precision-surface);
+  box-shadow: inset 0 0 0 1px var(--precision-border-focus);
 }
 
-.form-group input[type="text"]::placeholder,
-.form-group input[type="email"]::placeholder,
-.form-group input[type="tel"]::placeholder,
-.form-group input[type="number"]::placeholder,
-.form-group textarea::placeholder {
-  color: #64748b;
+.storm-page .form-group input::placeholder,
+.storm-page .form-group textarea::placeholder {
+  color: var(--precision-text-muted);
+  opacity: 1;
 }
 
-.form-group input.readonly-field {
-  background: rgba(15, 23, 42, 0.4);
-  color: #94a3b8;
+.storm-page .form-group input.readonly-field {
+  background-color: var(--precision-input-bg);
+  color: var(--precision-text-secondary);
   cursor: not-allowed;
 }
 
@@ -386,20 +416,22 @@
   justify-content: flex-end;
   margin-top: 1rem;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(59, 130, 246, 0.2);
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .storm-btn-gray {
-  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  background-color: var(--precision-input-bg);
+  color: var(--precision-text-primary);
+  border: 1px solid rgba(148, 163, 184, 0.25);
 }
 
 .storm-btn-gray:hover {
-  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+  background-color: var(--precision-input-bg-hover);
 }
 
 /* Tab Badge */
 .tab-badge {
-  background: #3b82f6;
+  background-color: var(--precision-primary);
   color: white;
   font-size: 0.7rem;
   padding: 0.2rem 0.5rem;
@@ -415,11 +447,11 @@
 
 /* Add Event Section */
 .add-event-section {
-  background: rgba(15, 23, 42, 0.4);
-  border-radius: 12px;
+  background-color: var(--precision-input-bg);
+  border-radius: var(--precision-radius);
   padding: 1.25rem;
   margin-bottom: 1.5rem;
-  border: 1px solid rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.25);
 }
 
 .section-header {
@@ -430,17 +462,17 @@
 }
 
 .section-header h3 {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-size: 1.1rem;
   margin: 0;
 }
 
 .toggle-form-btn {
   padding: 0.5rem 1rem;
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  border-radius: 8px;
-  background: rgba(59, 130, 246, 0.1);
-  color: #60a5fa;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius-sm);
+  background-color: var(--precision-input-bg);
+  color: var(--precision-text-primary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -448,21 +480,21 @@
 }
 
 .toggle-form-btn:hover {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: #3b82f6;
+  background-color: var(--precision-input-bg-hover);
+  border-color: rgba(148, 163, 184, 0.4);
 }
 
 .toggle-form-btn.active {
-  background: #3b82f6;
+  background-color: var(--precision-primary);
   color: white;
-  border-color: #3b82f6;
+  border-color: var(--precision-primary);
 }
 
 /* Event Form */
 .event-form {
   margin-top: 1.25rem;
   padding-top: 1.25rem;
-  border-top: 1px solid rgba(59, 130, 246, 0.2);
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .event-form-row {
@@ -489,21 +521,21 @@
 
 /* Events Table Section */
 .events-table-section {
-  background: rgba(15, 23, 42, 0.4);
-  border-radius: 12px;
+  background-color: var(--precision-input-bg);
+  border-radius: var(--precision-radius);
   padding: 1.25rem;
-  border: 1px solid rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.25);
 }
 
 .events-table-section h3 {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-size: 1.1rem;
   margin: 0 0 1rem 0;
 }
 
 .loading-text,
 .empty-text {
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   text-align: center;
   padding: 2rem;
   font-size: 0.95rem;
@@ -514,23 +546,27 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
+  background-color: var(--precision-surface);
+  border-radius: var(--precision-radius-sm);
+  overflow: hidden;
 }
 
 .events-table th {
   text-align: left;
   padding: 0.75rem 1rem;
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   font-weight: 600;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  background-color: var(--precision-input-bg);
 }
 
 .events-table td {
   padding: 0.875rem 1rem;
-  color: #cbd5e1;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  color: var(--precision-text-primary);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .event-row {
@@ -539,21 +575,21 @@
 }
 
 .event-row:hover {
-  background: rgba(59, 130, 246, 0.1);
+  background-color: var(--precision-input-bg);
 }
 
 .event-row.selected {
-  background: rgba(59, 130, 246, 0.2);
-  border-left: 3px solid #3b82f6;
+  background-color: color-mix(in srgb, var(--precision-primary) 12%, transparent);
+  border-left: 3px solid var(--precision-primary);
 }
 
 .event-row.selected td {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
 }
 
 .event-row.editing {
-  background: rgba(59, 130, 246, 0.15);
-  border-left: 3px solid #60a5fa;
+  background-color: color-mix(in srgb, var(--precision-primary) 10%, transparent);
+  border-left: 3px solid var(--precision-primary);
 }
 
 .event-row.editing td {
@@ -564,10 +600,10 @@
 .event-edit-select {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  border-radius: 6px;
-  background: rgba(15, 23, 42, 0.8);
-  color: #f1f5f9;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius-sm);
+  background-color: var(--precision-input-bg);
+  color: var(--precision-text-primary);
   font-size: 0.9rem;
   transition: all 0.2s ease;
 }
@@ -575,9 +611,8 @@
 .event-edit-input:focus,
 .event-edit-select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-  background: rgba(15, 23, 42, 0.95);
+  background-color: var(--precision-surface);
+  box-shadow: inset 0 0 0 1px var(--precision-border-focus);
 }
 
 .event-edit-select {
@@ -586,7 +621,7 @@
 
 .event-name {
   font-weight: 500;
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
 }
 
 .status-badge {
@@ -598,13 +633,13 @@
 }
 
 .status-badge.active {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
+  background-color: color-mix(in srgb, var(--precision-success) 20%, transparent);
+  color: var(--precision-success);
 }
 
 .status-badge.inactive {
-  background: rgba(148, 163, 184, 0.2);
-  color: #94a3b8;
+  background-color: color-mix(in srgb, var(--precision-text-muted) 25%, transparent);
+  color: var(--precision-text-secondary);
 }
 
 /* No Event Selected */
@@ -614,13 +649,13 @@
 }
 
 .no-event-selected h3 {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-size: 1.25rem;
   margin-bottom: 0.75rem;
 }
 
 .no-event-selected p {
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   margin-bottom: 1.5rem;
 }
 
@@ -631,23 +666,23 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding: 0.875rem 1.25rem;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  border-radius: 10px;
+  background-color: color-mix(in srgb, var(--precision-primary) 12%, transparent);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
 }
 
 .event-badge {
-  background: #3b82f6;
+  background-color: var(--precision-primary);
   color: white;
   padding: 0.35rem 0.75rem;
-  border-radius: 6px;
+  border-radius: var(--precision-radius-sm);
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .event-info {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-weight: 500;
   flex: 1;
 }
@@ -655,35 +690,35 @@
 .change-event-btn {
   padding: 0.4rem 0.75rem;
   border: 1px solid rgba(148, 163, 184, 0.4);
-  border-radius: 6px;
+  border-radius: var(--precision-radius-sm);
   background: transparent;
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .change-event-btn:hover {
-  background: rgba(148, 163, 184, 0.1);
-  color: #f1f5f9;
-  border-color: rgba(148, 163, 184, 0.6);
+  background-color: var(--precision-input-bg-hover);
+  color: var(--precision-text-primary);
+  border-color: rgba(148, 163, 184, 0.5);
 }
 
 /* Jobs Container */
 .jobs-container {
   padding: 2rem;
-  color: #cbd5e1;
+  color: var(--precision-text-secondary);
 }
 
 .jobs-container h2 {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-size: 1.75rem;
   margin-bottom: 1rem;
 }
 
 .jobs-container p {
   font-size: 1.1rem;
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
 }
 
 /* Priority Checkboxes */
@@ -698,16 +733,16 @@
   align-items: flex-start;
   gap: 1rem;
   padding: 1rem;
-  background: rgba(15, 23, 42, 0.4);
-  border: 2px solid rgba(59, 130, 246, 0.2);
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  background-color: var(--precision-input-bg);
+  border: 2px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .priority-checkbox-item:hover {
-  background: rgba(15, 23, 42, 0.6);
-  border-color: rgba(59, 130, 246, 0.4);
+  background-color: var(--precision-input-bg-hover);
+  border-color: rgba(148, 163, 184, 0.4);
 }
 
 .priority-checkbox-item input[type="checkbox"] {
@@ -715,17 +750,13 @@
   height: 20px;
   margin-top: 2px;
   cursor: pointer;
-  accent-color: #3b82f6;
+  accent-color: var(--precision-primary);
   flex-shrink: 0;
 }
 
-.priority-checkbox-item input[type="checkbox"]:checked {
-  accent-color: #3b82f6;
-}
-
 .priority-checkbox-item:has(input[type="checkbox"]:checked) {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
+  background-color: color-mix(in srgb, var(--precision-primary) 12%, transparent);
+  border-color: var(--precision-primary);
 }
 
 .priority-label {
@@ -737,22 +768,22 @@
 }
 
 .priority-title {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-size: 1rem;
   font-weight: 600;
 }
 
 .priority-description {
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   font-size: 0.875rem;
 }
 
 .priority-checkbox-item:has(input[type="checkbox"]:checked) .priority-title {
-  color: #60a5fa;
+  color: var(--precision-primary);
 }
 
 .priority-checkbox-item:has(input[type="checkbox"]:checked) .priority-description {
-  color: #cbd5e1;
+  color: var(--precision-text-secondary);
 }
 
 /* Emergency Details Styles */
@@ -781,32 +812,32 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: rgba(15, 23, 42, 0.4);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  background-color: var(--precision-input-bg);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
+  transition: all 0.2s ease;
   cursor: pointer;
   min-height: 44px;
   width: 100%;
 }
 
 .emergency-checkbox-item:hover {
-  background: rgba(15, 23, 42, 0.6);
-  border-color: rgba(59, 130, 246, 0.4);
+  background-color: var(--precision-input-bg-hover);
+  border-color: rgba(148, 163, 184, 0.4);
 }
 
 .emergency-checkbox-item input[type="checkbox"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #3b82f6;
+  accent-color: var(--precision-primary);
   flex-shrink: 0;
   margin: 0;
   border-radius: 4px;
 }
 
 .emergency-checkbox-item label {
-  color: #cbd5e1;
+  color: var(--precision-text-primary);
   font-size: 0.95rem;
   cursor: pointer;
   flex: 1;
@@ -816,12 +847,12 @@
 }
 
 .emergency-checkbox-item:has(input[type="checkbox"]:checked) {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
+  background-color: color-mix(in srgb, var(--precision-primary) 12%, transparent);
+  border-color: var(--precision-primary);
 }
 
 .emergency-checkbox-item:has(input[type="checkbox"]:checked) label {
-  color: #60a5fa;
+  color: var(--precision-primary);
   font-weight: 500;
 }
 
@@ -832,7 +863,7 @@
 }
 
 .section-label {
-  color: #cbd5e1;
+  color: var(--precision-text-secondary);
   font-size: 0.95rem;
   font-weight: 500;
 }
@@ -848,40 +879,40 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: rgba(15, 23, 42, 0.4);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  background-color: var(--precision-input-bg);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .affected-area-item:hover {
-  background: rgba(15, 23, 42, 0.6);
-  border-color: rgba(59, 130, 246, 0.4);
+  background-color: var(--precision-input-bg-hover);
+  border-color: rgba(148, 163, 184, 0.4);
 }
 
 .affected-area-item input[type="checkbox"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #3b82f6;
+  accent-color: var(--precision-primary);
   flex-shrink: 0;
 }
 
 .affected-area-item label {
-  color: #cbd5e1;
+  color: var(--precision-text-secondary);
   font-size: 0.95rem;
   cursor: pointer;
   flex: 1;
 }
 
 .affected-area-item:has(input[type="checkbox"]:checked) {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
+  background-color: color-mix(in srgb, var(--precision-primary) 12%, transparent);
+  border-color: var(--precision-primary);
 }
 
 .affected-area-item:has(input[type="checkbox"]:checked) label {
-  color: #60a5fa;
+  color: var(--precision-primary);
   font-weight: 500;
 }
 
@@ -899,24 +930,24 @@
 
 .water-depth-input {
   padding: 0.75rem;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.6);
-  color: #f1f5f9;
+  border: 1px solid transparent;
+  border-radius: var(--precision-radius-sm);
+  background-color: var(--precision-input-bg);
+  color: var(--precision-text-primary);
   font-size: 0.95rem;
   width: 120px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .water-depth-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  background: rgba(15, 23, 42, 0.8);
+  border-color: var(--precision-primary);
+  box-shadow: inset 0 0 0 1px var(--precision-border-focus);
+  background-color: var(--precision-surface);
 }
 
 .water-depth-unit {
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   font-size: 0.95rem;
 }
 
@@ -929,20 +960,20 @@
 
 /* Google Places Autocomplete Styling */
 .pac-container {
-  background-color: rgba(15, 23, 42, 0.98) !important;
-  border: 1px solid rgba(59, 130, 246, 0.5) !important;
-  border-radius: 8px !important;
+  background-color: var(--precision-surface) !important;
+  border: 1px solid rgba(148, 163, 184, 0.3) !important;
+  border-radius: var(--precision-radius) !important;
   margin-top: 4px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: var(--precision-shadow-lg) !important;
   font-family: inherit !important;
 }
 
 .pac-item {
   background-color: transparent !important;
-  border-top: 1px solid rgba(59, 130, 246, 0.2) !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.2) !important;
   padding: 10px 12px !important;
   cursor: pointer !important;
-  color: #e2e8f0 !important;
+  color: var(--precision-text-secondary) !important;
   font-size: 14px !important;
   line-height: 1.5 !important;
 }
@@ -953,17 +984,17 @@
 
 .pac-item:hover,
 .pac-item-selected {
-  background-color: rgba(59, 130, 246, 0.2) !important;
+  background-color: var(--precision-input-bg) !important;
 }
 
 .pac-item-query {
-  color: #f1f5f9 !important;
+  color: var(--precision-text-primary) !important;
   font-weight: 600 !important;
   font-size: 14px !important;
 }
 
 .pac-matched {
-  color: #3b82f6 !important;
+  color: var(--precision-primary) !important;
   font-weight: 700 !important;
 }
 
@@ -972,7 +1003,7 @@
   width: 20px !important;
   height: 20px !important;
   margin-right: 8px !important;
-  background-color: rgba(59, 130, 246, 0.3) !important;
+  background-color: color-mix(in srgb, var(--precision-primary) 25%, transparent) !important;
   border-radius: 4px !important;
 }
 
@@ -981,7 +1012,7 @@
 }
 
 .pac-item-query .pac-icon {
-  background-color: rgba(59, 130, 246, 0.5) !important;
+  background-color: color-mix(in srgb, var(--precision-primary) 35%, transparent) !important;
 }
 
 /* Hide Google logo in autocomplete */
@@ -992,9 +1023,9 @@
 /* PlaceAutocompleteElement (New API) Styling - Match form input styling */
 gmp-place-autocomplete {
   --gmpx-color-surface: transparent !important;
-  --gmpx-color-on-surface: #f1f5f9 !important;
-  --gmpx-color-on-surface-variant: #cbd5e1 !important;
-  --gmpx-color-primary: #3b82f6 !important;
+  --gmpx-color-on-surface: var(--precision-text-primary) !important;
+  --gmpx-color-on-surface-variant: var(--precision-text-secondary) !important;
+  --gmpx-color-primary: var(--precision-primary) !important;
   --gmpx-color-outline: transparent !important;
   --gmpx-font-family-base: inherit !important;
   --gmpx-font-size-base: 0.95rem !important;
@@ -1002,29 +1033,29 @@ gmp-place-autocomplete {
   display: block !important;
   padding: 0.75rem !important;
   margin: 0 !important;
-  border: 1px solid rgba(59, 130, 246, 0.3) !important;
-  border-radius: 8px !important;
-  background-color: rgba(30, 41, 59, 0.5) !important;
-  transition: all 0.3s ease !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  border-radius: var(--precision-radius) !important;
+  background-color: var(--precision-input-bg) !important;
+  transition: all 0.2s ease !important;
   box-sizing: border-box !important;
   outline: none !important;
 }
 
 gmp-place-autocomplete:focus-within {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-  background-color: rgba(30, 41, 59, 0.7) !important;
+  border-color: var(--precision-primary) !important;
+  box-shadow: inset 0 0 0 1px var(--precision-border-focus) !important;
+  background-color: var(--precision-surface) !important;
 }
 
 /* Target the input inside the web component */
 gmp-place-autocomplete::part(input) {
-  color: #f1f5f9 !important;
+  color: var(--precision-text-primary) !important;
   background-color: transparent !important;
 }
 
 /* Style the input field directly */
 gmp-place-autocomplete input {
-  color: #f1f5f9 !important;
+  color: var(--precision-text-primary) !important;
   background-color: transparent !important;
   border: none !important;
   border-radius: 0 !important;
@@ -1035,7 +1066,7 @@ gmp-place-autocomplete input {
 }
 
 gmp-place-autocomplete input::placeholder {
-  color: #94a3b8 !important;
+  color: var(--precision-text-secondary) !important;
 }
 
 gmp-place-autocomplete input:focus {
@@ -1043,19 +1074,19 @@ gmp-place-autocomplete input:focus {
   border: none !important;
   box-shadow: none !important;
   background-color: transparent !important;
-  color: #f1f5f9 !important;
+  color: var(--precision-text-primary) !important;
 }
 
 /* Style the dropdown suggestions */
 gmp-place-autocomplete::part(suggestions) {
-  background-color: rgba(15, 23, 42, 0.98) !important;
-  border: 1px solid rgba(59, 130, 246, 0.5) !important;
-  border-radius: 8px !important;
-  color: #f1f5f9 !important;
+  background-color: var(--precision-surface) !important;
+  border: 1px solid rgba(148, 163, 184, 0.3) !important;
+  border-radius: var(--precision-radius) !important;
+  color: var(--precision-text-primary) !important;
 }
 
 gmp-place-autocomplete::part(suggestion) {
-  color: #e2e8f0 !important;
+  color: var(--precision-text-secondary) !important;
   padding: 10px 12px !important;
 }
 
@@ -1066,9 +1097,9 @@ gmp-place-autocomplete::part(suggestion):hover {
 /* Add Event Container */
 .add-event-container {
   margin-top: 2rem;
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
+  background-color: var(--precision-surface);
   border-radius: 16px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   overflow: hidden;
 }
@@ -1078,12 +1109,12 @@ gmp-place-autocomplete::part(suggestion):hover {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
-  background: rgba(15, 23, 42, 0.4);
+  border-bottom: 2px solid rgba(148, 163, 184, 0.2);
+  background-color: var(--precision-input-bg);
 }
 
 .add-event-header h2 {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-size: 1.75rem;
   font-weight: 700;
   margin: 0;
@@ -1092,7 +1123,7 @@ gmp-place-autocomplete::part(suggestion):hover {
 .close-btn {
   background: transparent;
   border: none;
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   font-size: 2rem;
   cursor: pointer;
   padding: 0;
@@ -1107,7 +1138,7 @@ gmp-place-autocomplete::part(suggestion):hover {
 
 .close-btn:hover {
   background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  color: var(--precision-error);
 }
 
 .storm-event-form {
@@ -1127,7 +1158,7 @@ gmp-place-autocomplete::part(suggestion):hover {
 }
 
 .select-event-header h2 {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-size: 1.75rem;
   font-weight: 700;
   margin: 0;
@@ -1137,7 +1168,7 @@ gmp-place-autocomplete::part(suggestion):hover {
 .no-events-message {
   text-align: center;
   padding: 3rem;
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   font-size: 1.1rem;
 }
 
@@ -1154,25 +1185,25 @@ gmp-place-autocomplete::part(suggestion):hover {
 .events-table {
   width: 100%;
   border-collapse: collapse;
-  background: rgba(15, 23, 42, 0.4);
+  background-color: var(--precision-input-bg);
   border-radius: 8px;
   overflow: hidden;
 }
 
 .events-table thead {
-  background: rgba(59, 130, 246, 0.15);
-  border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+  background-color: color-mix(in srgb, var(--precision-primary) 12%, transparent);
+  border-bottom: 2px solid rgba(148, 163, 184, 0.25);
 }
 
 .events-table th {
   padding: 1rem;
   text-align: left;
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-weight: 600;
   font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-right: 1px solid rgba(59, 130, 246, 0.2);
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .events-table th:last-child {
@@ -1180,29 +1211,29 @@ gmp-place-autocomplete::part(suggestion):hover {
 }
 
 .events-table tbody tr {
-  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .events-table tbody tr:hover {
-  background: rgba(59, 130, 246, 0.1);
+  background-color: color-mix(in srgb, var(--precision-primary) 10%, transparent);
 }
 
 .events-table tbody tr.selected {
-  background: rgba(59, 130, 246, 0.2);
-  border-left: 4px solid #3b82f6;
+  background-color: color-mix(in srgb, var(--precision-primary) 15%, transparent);
+  border-left: 4px solid var(--precision-primary);
 }
 
 .events-table tbody tr.selected:hover {
-  background: rgba(59, 130, 246, 0.25);
+  background-color: color-mix(in srgb, var(--precision-primary) 18%, transparent);
 }
 
 .events-table td {
   padding: 1rem;
-  color: #cbd5e1;
+  color: var(--precision-text-secondary);
   font-size: 0.95rem;
-  border-right: 1px solid rgba(59, 130, 246, 0.1);
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .events-table td:last-child {
@@ -1210,26 +1241,26 @@ gmp-place-autocomplete::part(suggestion):hover {
 }
 
 .event-name-cell {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-weight: 600;
 }
 
 .event-badge {
-  background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background-color: color-mix(in srgb, var(--precision-primary) 15%, transparent);
+  border: 1px solid rgba(148, 163, 184, 0.3);
   border-radius: 6px;
   padding: 0.25rem 0.75rem;
   font-size: 0.85rem;
-  color: #60a5fa;
+  color: var(--precision-primary);
   font-weight: 500;
 }
 
 .change-event-btn {
-  background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background-color: color-mix(in srgb, var(--precision-primary) 15%, transparent);
+  border: 1px solid rgba(148, 163, 184, 0.3);
   border-radius: 6px;
   padding: 0.5rem 1rem;
-  color: #60a5fa;
+  color: var(--precision-primary);
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -1237,8 +1268,8 @@ gmp-place-autocomplete::part(suggestion):hover {
 }
 
 .change-event-btn:hover {
-  background: rgba(59, 130, 246, 0.3);
-  border-color: #3b82f6;
+  background-color: color-mix(in srgb, var(--precision-primary) 20%, transparent);
+  border-color: var(--precision-primary);
 }
 
 /* Disabled Tab Styling */
@@ -1291,34 +1322,34 @@ gmp-place-autocomplete::part(suggestion):hover {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: rgba(15, 23, 42, 0.4);
-  border: 2px solid rgba(59, 130, 246, 0.2);
-  border-radius: 8px;
+  background-color: var(--precision-input-bg);
+  border: 2px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   flex: 1;
   justify-content: center;
   font-weight: 500;
-  color: #cbd5e1;
+  color: var(--precision-text-secondary);
 }
 
 .property-type-option:hover {
-  background: rgba(15, 23, 42, 0.6);
-  border-color: rgba(59, 130, 246, 0.4);
+  background-color: var(--precision-input-bg-hover);
+  border-color: rgba(148, 163, 184, 0.4);
 }
 
 .property-type-option input[type="radio"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #3b82f6;
+  accent-color: var(--precision-primary);
 }
 
 .property-type-option:has(input[type="radio"]:checked),
 .property-type-option.active {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
-  color: #60a5fa;
+  background-color: color-mix(in srgb, var(--precision-primary) 12%, transparent);
+  border-color: var(--precision-primary);
+  color: var(--precision-primary);
   font-weight: 600;
 }
 
@@ -1339,14 +1370,14 @@ gmp-place-autocomplete::part(suggestion):hover {
   gap: 0.5rem;
   cursor: pointer;
   font-size: 0.875rem;
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
 }
 
 .same-as-customer-checkbox input[type="checkbox"] {
   width: 16px;
   height: 16px;
   cursor: pointer;
-  accent-color: #3b82f6;
+  accent-color: var(--precision-primary);
 }
 
 .same-as-customer-checkbox span {
@@ -1367,8 +1398,8 @@ gmp-place-autocomplete::part(suggestion):hover {
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 1.25rem;
-  background: rgba(15, 23, 42, 0.4);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background-color: var(--precision-input-bg);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1377,32 +1408,32 @@ gmp-place-autocomplete::part(suggestion):hover {
 }
 
 .radio-option:hover {
-  background: rgba(15, 23, 42, 0.6);
-  border-color: rgba(59, 130, 246, 0.4);
+  background-color: var(--precision-input-bg-hover);
+  border-color: rgba(148, 163, 184, 0.3);
 }
 
 .radio-option input[type="radio"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #3b82f6;
+  accent-color: var(--precision-primary);
   margin: 0;
   flex-shrink: 0;
 }
 
 .radio-option:has(input[type="radio"]:checked) {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
+  background-color: color-mix(in srgb, var(--precision-primary) 12%, transparent);
+  border-color: var(--precision-primary);
 }
 
 .radio-option:has(input[type="radio"]:checked) span {
-  color: #60a5fa;
+  color: var(--precision-primary);
 }
 
 .radio-option span {
   cursor: pointer;
   font-size: 0.95rem;
-  color: #cbd5e1;
+  color: var(--precision-text-secondary);
   font-weight: 500;
 }
 
@@ -1436,47 +1467,47 @@ gmp-place-autocomplete::part(suggestion):hover {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: rgba(15, 23, 42, 0.4);
-  border: 2px solid rgba(59, 130, 246, 0.2);
+  background-color: var(--precision-input-bg);
+  border: 2px solid rgba(148, 163, 184, 0.25);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .payment-method-option:hover {
-  background: rgba(15, 23, 42, 0.6);
-  border-color: rgba(59, 130, 246, 0.4);
+  background-color: var(--precision-input-bg-hover);
+  border-color: rgba(148, 163, 184, 0.3);
 }
 
 .payment-method-option input[type="radio"] {
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: #3b82f6;
+  accent-color: var(--precision-primary);
 }
 
 .payment-method-option:has(input[type="radio"]:checked) {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
+  background-color: color-mix(in srgb, var(--precision-primary) 12%, transparent);
+  border-color: var(--precision-primary);
 }
 
 .payment-method-option span {
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
 }
 
 .payment-method-option:has(input[type="radio"]:checked) span {
-  color: #60a5fa;
+  color: var(--precision-primary);
 }
 
 .payment-method-subfields {
   margin-left: 2.75rem;
   margin-top: 0.5rem;
   padding: 1rem;
-  background: rgba(15, 23, 42, 0.3);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background-color: var(--precision-input-bg);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -1489,7 +1520,7 @@ input[type="checkbox"] {
   height: 18px;
   border-radius: 4px;
   cursor: pointer;
-  accent-color: #3b82f6;
+  accent-color: var(--precision-primary);
   appearance: checkbox;
   -webkit-appearance: checkbox;
   -moz-appearance: checkbox;
@@ -1515,8 +1546,8 @@ input[type="checkbox"] {
   display: flex;
   gap: 0.5rem;
   margin: 1.5rem 0;
-  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
-  background: rgba(15, 23, 42, 0.4);
+  border-bottom: 2px solid rgba(148, 163, 184, 0.2);
+  background-color: var(--precision-input-bg);
   padding: 0 1rem;
 }
 
@@ -1524,7 +1555,7 @@ input[type="checkbox"] {
   padding: 1rem 2rem;
   border: none;
   background: transparent;
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -1534,12 +1565,12 @@ input[type="checkbox"] {
 }
 
 .view-tab:hover {
-  color: #60a5fa;
+  color: var(--precision-primary);
   background-color: rgba(59, 130, 246, 0.1);
 }
 
 .view-tab.active {
-  color: #60a5fa;
+  color: var(--precision-primary);
   border-bottom-color: #3b82f6;
   background-color: rgba(59, 130, 246, 0.15);
 }
@@ -1564,10 +1595,10 @@ input[type="checkbox"] {
 
 .view-toggle-btn {
   padding: 0.75rem 1.5rem;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background-color: var(--precision-input-bg-hover);
+  border: 1px solid rgba(148, 163, 184, 0.25);
   border-radius: 8px;
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
@@ -1575,24 +1606,24 @@ input[type="checkbox"] {
 }
 
 .view-toggle-btn:hover {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.5);
-  color: #60a5fa;
+  background-color: color-mix(in srgb, var(--precision-primary) 10%, transparent);
+  border-color: rgba(148, 163, 184, 0.35);
+  color: var(--precision-primary);
 }
 
 .view-toggle-btn.active {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: #3b82f6;
-  color: #60a5fa;
+  background-color: color-mix(in srgb, var(--precision-primary) 15%, transparent);
+  border-color: var(--precision-primary);
+  color: var(--precision-primary);
 }
 
 .jobs-table-container {
   width: 100%;
   display: flex;
   flex-direction: column;
-  background: rgba(15, 23, 42, 0.8);
+  background-color: var(--precision-surface);
   border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.25);
   overflow: hidden;
   height: calc(100vh - 300px);
   min-height: 600px;
@@ -1600,12 +1631,12 @@ input[type="checkbox"] {
 }
 
 .jobs-table-container h3 {
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-size: 1.35rem;
   padding: 1.5rem 1.5rem;
   margin: 0;
-  border-bottom: 2px solid rgba(59, 130, 246, 0.3);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
+  border-bottom: 2px solid rgba(148, 163, 184, 0.25);
+  background-color: color-mix(in srgb, var(--precision-primary) 8%, transparent);
   font-weight: 700;
   letter-spacing: 0.5px;
 }
@@ -1624,17 +1655,17 @@ input[type="checkbox"] {
 }
 
 .jobs-table-wrapper::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background-color: var(--precision-input-bg);
   border-radius: 5px;
 }
 
 .jobs-table-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.4);
+  background-color: color-mix(in srgb, var(--precision-primary) 25%, transparent);
   border-radius: 5px;
 }
 
 .jobs-table-wrapper::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.6);
+  background-color: color-mix(in srgb, var(--precision-primary) 40%, transparent);
 }
 
 .jobs-table {
@@ -1645,7 +1676,7 @@ input[type="checkbox"] {
 }
 
 .jobs-table thead {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%);
+  background-color: color-mix(in srgb, var(--precision-primary) 12%, transparent);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -1654,13 +1685,13 @@ input[type="checkbox"] {
 .jobs-table th {
   padding: 1rem 1rem;
   text-align: left;
-  color: #60a5fa;
+  color: var(--precision-primary);
   font-weight: 700;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   white-space: nowrap;
-  border-bottom: 2px solid rgba(59, 130, 246, 0.4);
+  border-bottom: 2px solid rgba(148, 163, 184, 0.3);
 }
 
 .jobs-table th:first-child {
@@ -1685,8 +1716,8 @@ input[type="checkbox"] {
 .jobs-table th:nth-child(11) { min-width: 110px; } /* Status */
 
 .jobs-table tbody tr {
-  background: rgba(15, 23, 42, 0.3);
-  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  background-color: var(--precision-input-bg);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -1696,14 +1727,14 @@ input[type="checkbox"] {
 }
 
 .jobs-table tbody tr:hover {
-  background: rgba(59, 130, 246, 0.12);
+  background-color: color-mix(in srgb, var(--precision-primary) 10%, transparent);
   transform: scale(1.002);
 }
 
 .jobs-table tbody tr.selected {
-  background: rgba(59, 130, 246, 0.2);
-  border-left: 4px solid #3b82f6;
-  box-shadow: -2px 0 8px rgba(59, 130, 246, 0.3);
+  background-color: color-mix(in srgb, var(--precision-primary) 15%, transparent);
+  border-left: 4px solid var(--precision-primary);
+  box-shadow: var(--precision-shadow);
 }
 
 .jobs-table tbody tr:last-child {
@@ -1712,7 +1743,7 @@ input[type="checkbox"] {
 
 .jobs-table td {
   padding: 1.125rem 1rem;
-  color: #e2e8f0;
+  color: var(--precision-text-secondary);
   font-size: 0.9rem;
   vertical-align: middle;
   line-height: 1.5;
@@ -1722,7 +1753,7 @@ input[type="checkbox"] {
 .jobs-table td:first-child {
   padding-left: 1.5rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
 }
 
 .jobs-table td:last-child {
@@ -1737,7 +1768,7 @@ input[type="checkbox"] {
 
 .jobs-table td:nth-child(10) { /* Est. Revenue */
   font-weight: 600;
-  color: #60a5fa;
+  color: var(--precision-primary);
   font-family: 'Courier New', monospace;
 }
 
@@ -1754,27 +1785,27 @@ input[type="checkbox"] {
 
 .power-display.power-on {
   background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
+  color: var(--precision-success);
   border: 1px solid rgba(34, 197, 94, 0.4);
 }
 
 .power-display.power-off {
   background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  color: var(--precision-error);
   border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
 .power-display.power-unknown {
   background: rgba(148, 163, 184, 0.1);
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
   border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .jobs-map-container {
   width: 100%;
-  background: rgba(15, 23, 42, 0.6);
+  background-color: var(--precision-input-bg-hover);
   border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -1791,7 +1822,7 @@ input[type="checkbox"] {
 .empty-state {
   padding: 3rem;
   text-align: center;
-  color: #94a3b8;
+  color: var(--precision-text-secondary);
 }
 
 .empty-state p {
@@ -1802,10 +1833,10 @@ input[type="checkbox"] {
 .priority-display {
   display: inline-block;
   padding: 0.25rem 0.5rem;
-  background: rgba(59, 130, 246, 0.15);
+  background-color: color-mix(in srgb, var(--precision-primary) 12%, transparent);
   border-radius: 6px;
   font-weight: 600;
-  color: #60a5fa;
+  color: var(--precision-primary);
 }
 
 .property-type-display,
@@ -1819,7 +1850,7 @@ input[type="checkbox"] {
 
 .customer-name-cell {
   font-weight: 500;
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
 }
 
 .days-since-loss {
@@ -1859,9 +1890,9 @@ input[type="checkbox"] {
 .jobs-table .status-badge.status-drying,
 .jobs-table .status-badge.status-in_progress,
 .jobs-table .status-badge.status-wip {
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background-color: color-mix(in srgb, var(--precision-primary) 15%, transparent);
+  color: var(--precision-primary);
+  border: 1px solid rgba(148, 163, 184, 0.3);
 }
 
 .jobs-table .status-badge.status-demo {
@@ -1915,7 +1946,7 @@ input[type="checkbox"] {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
@@ -1935,15 +1966,15 @@ input[type="checkbox"] {
 }
 
 .modal-content.job-edit-modal {
-  background: rgba(30, 41, 59, 0.95);
+  background-color: var(--precision-surface);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: var(--precision-radius);
   width: 100%;
   max-width: 1200px;
   max-height: 95vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--precision-shadow-lg);
   animation: slideUp 0.3s ease;
 }
 
@@ -1963,30 +1994,30 @@ input[type="checkbox"] {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
   position: sticky;
   top: 0;
-  background: rgba(30, 41, 59, 0.98);
+  background-color: var(--precision-surface);
   z-index: 10;
 }
 
 .modal-header h2 {
   margin: 0;
-  color: #f1f5f9;
+  color: var(--precision-text-primary);
   font-size: 1.5rem;
   font-weight: 600;
 }
 
 .modal-close {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #f87171;
+  background-color: color-mix(in srgb, var(--precision-error) 15%, transparent);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: var(--precision-error);
   font-size: 1.75rem;
   width: 40px;
   height: 40px;
-  border-radius: 8px;
+  border-radius: var(--precision-radius-sm);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1995,10 +2026,9 @@ input[type="checkbox"] {
 }
 
 .modal-close:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.5);
-  color: #ef4444;
-  transform: scale(1.1);
+  background-color: color-mix(in srgb, var(--precision-error) 25%, transparent);
+  color: var(--precision-error);
+  transform: scale(1.05);
 }
 
 .job-edit-modal .storm-intake-form {
@@ -2007,7 +2037,7 @@ input[type="checkbox"] {
 
 .job-edit-modal .form-actions {
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(59, 130, 246, 0.2);
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
   margin-top: 1.5rem;
   display: flex;
   gap: 1rem;
@@ -2022,7 +2052,7 @@ input[type="checkbox"] {
 
 .job-edit-modal .storm-btn:disabled:hover {
   transform: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--precision-shadow);
 }
 
 /* Scrollbar styling for modal */
@@ -2031,17 +2061,17 @@ input[type="checkbox"] {
 }
 
 .job-edit-modal::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background-color: var(--precision-input-bg);
   border-radius: 6px;
 }
 
 .job-edit-modal::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.5);
+  background-color: var(--precision-primary);
   border-radius: 6px;
-  border: 2px solid rgba(15, 23, 42, 0.5);
+  opacity: 0.5;
 }
 
 .job-edit-modal::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.7);
+  opacity: 0.8;
 }
 

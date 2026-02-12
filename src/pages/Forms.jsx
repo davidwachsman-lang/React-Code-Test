@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './Page.css';
 import './Forms.css';
 
 function Forms() {
@@ -74,31 +73,35 @@ function Forms() {
   };
 
   return (
-    <div className="page-container forms-page">
-      <div className="forms-header">
-        <h1>Forms</h1>
-      </div>
-      
-      <div className="search-container">
-        <input
-          type="text"
-          className="form-search-bar"
-          placeholder="Search for any form..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        {searchTerm && (
-          <button 
-            className="clear-search"
-            onClick={() => setSearchTerm('')}
-            title="Clear search"
-          >
-            ×
-          </button>
-        )}
-      </div>
+    <div className="precision-layout forms-page">
+      <div className="precision-main">
+        <header className="forms-header">
+          <h1>Forms</h1>
+          <p className="forms-subtitle">Browse and access forms by category</p>
+        </header>
 
-      <div className="forms-content">
+        <div className="precision-content forms-content-wrapper">
+        <div className="search-container">
+          <input
+            type="text"
+            className="form-search-bar p-input"
+            placeholder="Search for any form..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              className="clear-search"
+              onClick={() => setSearchTerm('')}
+              title="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
+
+        <div className="forms-content">
         {searchTerm && (
           <div className="search-info">
             Searching for: <strong>{searchTerm}</strong>
@@ -109,9 +112,11 @@ function Forms() {
           {categories.map(category => (
             <div
               key={category.id}
+              role="button"
+              tabIndex={0}
               className={`category-card ${selectedCategory === category.id ? 'active' : ''}`}
               onClick={() => handleCategoryClick(category.id)}
-              style={{ '--category-color': category.color }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCategoryClick(category.id); } }}
             >
               <div className="category-icon">{category.icon}</div>
               <div className="category-info">
@@ -132,8 +137,11 @@ function Forms() {
                 {categories.find(c => c.id === selectedCategory)?.subcategories.map(sub => (
                   <div
                     key={sub.id}
+                    role="button"
+                    tabIndex={0}
                     className={`subcategory-card ${selectedSubcategory === sub.id ? 'active' : ''}`}
                     onClick={() => handleSubcategoryClick(sub.id)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSubcategoryClick(sub.id); } }}
                   >
                     <div className="subcategory-icon">{sub.icon}</div>
                     <div className="subcategory-name">{sub.name}</div>
@@ -152,6 +160,8 @@ function Forms() {
             )}
           </div>
         )}
+        </div>
+        </div>
       </div>
     </div>
   );

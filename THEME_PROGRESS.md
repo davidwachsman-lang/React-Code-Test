@@ -166,13 +166,13 @@ When adding or restyling any text input:
 | Conversion             | `/conversion`       | Precision layout, tokens, funnel table, ribbon rows, estimate tables and status badges; light/dark parity |
 | Daily War Room         | `/war-room`         | Precision layout, tokens, sidebar/metrics; staggered metric card reveal; urgent/warning via tokens; light/dark parity |
 | TM Estimate            | `/tm-estimate`      | Precision layout, tokens, schedule cards; standard input design; staggered reveal; light/dark parity |
+| Forms                  | `/forms`            | Precision layout, tokens, category/subcategory cards; search with standard input; staggered reveal; light/dark parity |
 
 ### Not yet improved
 
 | Page                   | Route               |
 |------------------------|---------------------|
 | Job Files              | `/job-files`        |
-| Forms                  | `/forms`            |
 | Insurance Job SOPs     | `/insurance-job-sops` |
 
 ---

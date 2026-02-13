@@ -30,7 +30,7 @@ function DispatchAndScheduling() {
     weekDates, weekLabel, weekSnapshots,
     scheduleRef, lanesRef,
     goPrev, goNext, goToday,
-    updateJob, addJob, removeJob, moveJobToUnassigned,
+    updateJob, addJob, removeJob, moveJobToUnassigned, copyJobToLane,
     totalHours, finalizeSchedule, pushUndo,
     saving, saveError, finalized, conflicts,
     undo, redo, canUndo, canRedo,
@@ -260,7 +260,13 @@ function DispatchAndScheduling() {
     setOptimizing(true);
     setOptimizeProgress(null);
     try {
-      const { newSchedule, newDriveTimes } = await runFullOptimize(initialSchedule, lanesToUse, setOptimizeProgress);
+      // Only optimize crew lanes — PM lanes stay empty for manual assignment
+      const crewLanes = lanesToUse.filter((l) => l.type !== 'pm');
+      const { newSchedule, newDriveTimes } = await runFullOptimize(initialSchedule, crewLanes, setOptimizeProgress);
+      // Ensure PM lanes have empty arrays in the schedule
+      lanesToUse.filter((l) => l.type === 'pm').forEach((l) => {
+        if (!newSchedule[l.id]) newSchedule[l.id] = [];
+      });
       setSchedule(newSchedule);
       setDriveTimeByCrew((prev) => ({ ...prev, ...newDriveTimes }));
     } catch (err) {
@@ -340,7 +346,7 @@ function DispatchAndScheduling() {
             driveTimeByCrew={driveTimeByCrew}
             totalHours={totalHours}
             addJob={addJob} removeJob={removeJob} updateJob={updateJob}
-            moveJobToUnassigned={moveJobToUnassigned} moveJobToLane={moveJobToLane}
+            moveJobToUnassigned={moveJobToUnassigned} moveJobToLane={moveJobToLane} copyJobToLane={copyJobToLane}
           />
         </div>
       )}

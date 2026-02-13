@@ -28,7 +28,7 @@ export const JOB_TYPES = [
 ];
 
 export const DAY_START = 8.5;
-export const DAY_END = 17;
+export const DAY_END = 18;
 export const SLOT_INTERVAL = 0.5;
 export const TIME_SLOTS = [];
 for (let h = DAY_START; h <= DAY_END; h += SLOT_INTERVAL) {
@@ -37,6 +37,66 @@ for (let h = DAY_START; h <= DAY_END; h += SLOT_INTERVAL) {
 
 export const HOME_OFFICE = '2550 TN-109, Lebanon, TN 37090';
 export const FALLBACK_DEPOT_COORDS = { lat: 36.2081, lng: -86.2911 };
+
+// ─── Color Family Generator ──────────────────────────────────────────────────
+
+/**
+ * Generate a color family from a base hex color.
+ * Returns [baseColor, shade1, shade2, ...] where shades get progressively lighter.
+ * PM gets the base color; each crew chief gets a lighter variant of the same hue.
+ */
+export function generateColorFamily(baseHex, crewCount) {
+  // Parse hex to RGB
+  const hex = baseHex.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16) / 255;
+  const g = parseInt(hex.substring(2, 4), 16) / 255;
+  const b = parseInt(hex.substring(4, 6), 16) / 255;
+
+  // RGB → HSL
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0, l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (max === g) h = ((b - r) / d + 2) / 6;
+    else h = ((r - g) / d + 4) / 6;
+  }
+
+  // HSL → hex helper
+  const hslToHex = (hh, ss, ll) => {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+    let rr, gg, bb;
+    if (ss === 0) {
+      rr = gg = bb = ll;
+    } else {
+      const q = ll < 0.5 ? ll * (1 + ss) : ll + ss - ll * ss;
+      const p = 2 * ll - q;
+      rr = hue2rgb(p, q, hh + 1 / 3);
+      gg = hue2rgb(p, q, hh);
+      bb = hue2rgb(p, q, hh - 1 / 3);
+    }
+    const toHex = (v) => Math.round(Math.min(1, Math.max(0, v)) * 255).toString(16).padStart(2, '0');
+    return `#${toHex(rr)}${toHex(gg)}${toHex(bb)}`;
+  };
+
+  const colors = [baseHex]; // PM gets the base color
+  for (let i = 0; i < crewCount; i++) {
+    // Progressively lighter: increase lightness, slightly decrease saturation
+    const step = (i + 1) / (crewCount + 1);
+    const newL = Math.min(0.88, l + (0.88 - l) * step * 0.7);
+    const newS = Math.max(0.2, s - s * step * 0.3);
+    colors.push(hslToHex(h, newS, newL));
+  }
+  return colors;
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -93,6 +153,8 @@ function dateToString(d) {
 export function findPmForCrew(crewName, pmGroups) {
   const lower = (crewName || '').toLowerCase().trim();
   for (const pm of pmGroups) {
+    // Match PM's own name (for PM lanes) or any crew chief name
+    if ((pm.pm || '').toLowerCase().trim() === lower) return pm;
     if (pm.crews.some((c) => c.toLowerCase() === lower)) return pm;
   }
   return null;
@@ -218,7 +280,9 @@ export default function useDispatchSchedule(userId = null) {
         if (!cancelled && dbSchedule?.schedule_data) {
           const parsed = dbSchedule.schedule_data;
           if (parsed.lanes && parsed.schedule) {
-            setLanes(parsed.lanes);
+            // Backward-compat: lanes without a type field get type: 'crew'
+            const migratedLanes = parsed.lanes.map((ln) => ln.type ? ln : { ...ln, type: 'crew' });
+            setLanes(migratedLanes);
             setSchedule(parsed.schedule);
             setDriveTimeByCrew(parsed.driveTimeByCrew || {});
             if (Array.isArray(parsed.pmGroups) && parsed.pmGroups.length > 0) {
@@ -237,7 +301,9 @@ export default function useDispatchSchedule(userId = null) {
           try {
             const parsed = JSON.parse(saved);
             if (parsed.lanes && Array.isArray(parsed.lanes) && parsed.schedule) {
-              setLanes(parsed.lanes);
+              // Backward-compat: lanes without a type field get type: 'crew'
+              const migratedLanes = parsed.lanes.map((ln) => ln.type ? ln : { ...ln, type: 'crew' });
+              setLanes(migratedLanes);
               setSchedule(parsed.schedule);
               setDriveTimeByCrew(parsed.driveTimeByCrew || {});
               if (Array.isArray(parsed.pmGroups) && parsed.pmGroups.length > 0) {
@@ -302,6 +368,10 @@ export default function useDispatchSchedule(userId = null) {
       const pmIdxB = pmB ? pmGroups.indexOf(pmB) : pmGroups.length;
       if (pmIdxA !== pmIdxB) return pmIdxA - pmIdxB;
       if (pmA && pmA === pmB) {
+        // PM-type lanes sort first within their group
+        const isPmA = a.type === 'pm' ? 1 : 0;
+        const isPmB = b.type === 'pm' ? 1 : 0;
+        if (isPmA !== isPmB) return isPmB - isPmA; // pm lanes first
         const crewIdxA = pmA.crews.findIndex((c) => c.toLowerCase() === (a.name || '').toLowerCase().trim());
         const crewIdxB = pmA.crews.findIndex((c) => c.toLowerCase() === (b.name || '').toLowerCase().trim());
         return crewIdxA - crewIdxB;
@@ -426,6 +496,16 @@ export default function useDispatchSchedule(userId = null) {
     });
   }, [pushUndo]);
 
+  /** Copy a job to a PM lane (keeps original in source lane, adds copy with new ID to target). */
+  const copyJobToLane = useCallback((targetLaneId, job) => {
+    pushUndo();
+    const copy = { ...job, id: crypto.randomUUID() };
+    setSchedule((prev) => ({
+      ...prev,
+      [targetLaneId]: [...(prev[targetLaneId] || []), copy],
+    }));
+  }, [pushUndo]);
+
   const totalHours = useCallback((crewId) => {
     return (schedule[crewId] || []).reduce((sum, j) => sum + (Number(j.hours) || 0), 0);
   }, [schedule]);
@@ -542,7 +622,7 @@ export default function useDispatchSchedule(userId = null) {
     scheduleRef, lanesRef,
     // Actions
     goPrev, goNext, goToday,
-    updateJob, addJob, removeJob, moveJobToUnassigned,
+    updateJob, addJob, removeJob, moveJobToUnassigned, copyJobToLane,
     totalHours, finalizeSchedule, pushUndo,
     // Undo/Redo
     undo, redo, canUndo, canRedo,

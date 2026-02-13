@@ -1,6 +1,7 @@
 // Dispatch Team Service — CRUD for PM → Crew Chief hierarchy
 // Replaces the hardcoded DEFAULT_PM_GROUPS
 import { supabase, handleSupabaseResult } from './supabaseClient';
+import { generateColorFamily } from '../hooks/useDispatchSchedule';
 
 const TABLE = 'dispatch_teams';
 
@@ -49,18 +50,31 @@ const dispatchTeamService = {
       });
       const pmGroups = Array.from(pmMap.values());
 
-      // Build lanes
-      let laneIdx = 0;
+      // Build lanes — PM lane (base color) + crew lanes (lighter shades)
+      let pmIdx = 0;
+      let crewIdx = 0;
       const lanes = [];
       pmGroups.forEach((group) => {
-        group.crews.forEach((crewName) => {
-          lanes.push({
-            id: `crew-${laneIdx}`,
-            name: crewName,
-            color: LANE_COLORS[laneIdx % LANE_COLORS.length],
-          });
-          laneIdx++;
+        const baseColor = group.color || PM_COLORS[pmIdx % PM_COLORS.length];
+        const family = generateColorFamily(baseColor, group.crews.length);
+        // PM lane gets the base color
+        lanes.push({
+          id: `pm-${pmIdx}`,
+          name: group.pm,
+          color: family[0],
+          type: 'pm',
         });
+        // Crew lanes get progressively lighter shades
+        group.crews.forEach((crewName, ci) => {
+          lanes.push({
+            id: `crew-${crewIdx}`,
+            name: crewName,
+            color: family[ci + 1],
+            type: 'crew',
+          });
+          crewIdx++;
+        });
+        pmIdx++;
       });
 
       return { pmGroups, lanes };
@@ -75,17 +89,28 @@ const dispatchTeamService = {
    */
   getDefaults() {
     const pmGroups = DEFAULT_PM_GROUPS.map((g) => ({ ...g, crews: [...g.crews] }));
-    let laneIdx = 0;
+    let pmIdx = 0;
+    let crewIdx = 0;
     const lanes = [];
     pmGroups.forEach((group) => {
-      group.crews.forEach((crewName) => {
-        lanes.push({
-          id: `crew-${laneIdx}`,
-          name: crewName,
-          color: LANE_COLORS[laneIdx % LANE_COLORS.length],
-        });
-        laneIdx++;
+      const baseColor = group.color || PM_COLORS[pmIdx % PM_COLORS.length];
+      const family = generateColorFamily(baseColor, group.crews.length);
+      lanes.push({
+        id: `pm-${pmIdx}`,
+        name: group.pm,
+        color: family[0],
+        type: 'pm',
       });
+      group.crews.forEach((crewName, ci) => {
+        lanes.push({
+          id: `crew-${crewIdx}`,
+          name: crewName,
+          color: family[ci + 1],
+          type: 'crew',
+        });
+        crewIdx++;
+      });
+      pmIdx++;
     });
     return { pmGroups, lanes };
   },

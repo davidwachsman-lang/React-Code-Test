@@ -439,6 +439,21 @@
   color: #f1f5f9;
 }
 
+.dispatch-map-pm-badge {
+  display: inline-block;
+  margin-left: 0.3rem;
+  padding: 0.05rem 0.35rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 3px;
+  color: #60a5fa;
+  vertical-align: middle;
+}
+
 .dispatch-map-crew-stats {
   margin-left: auto;
   font-size: 0.75rem;
@@ -617,7 +632,8 @@
 .dispatch-date-label {
   margin-left: 0.5rem;
   font-size: 1rem;
-  color: #94a3b8;
+  color: #ef4444;
+  font-weight: 600;
 }
 
 /* Table view layout */
@@ -777,6 +793,22 @@
   vertical-align: top;
 }
 
+.dispatch-time-grid tbody tr {
+  height: 2.5rem;
+}
+
+.dispatch-time-grid tbody td {
+  height: 2.5rem;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.dispatch-time-grid tbody td.dispatch-time-col {
+  padding: 0.2rem 0.5rem;
+  vertical-align: middle;
+}
+
 .dispatch-time-col {
   width: 90px;
   min-width: 90px;
@@ -800,13 +832,14 @@
 
 .dispatch-pm-col {
   text-align: center;
+  vertical-align: middle;
   padding: 0.5rem 0.75rem;
   border-bottom: 3px solid;
   background: rgba(15, 23, 42, 0.7);
 }
 
 .dispatch-pm-col .pm-header-name {
-  display: block;
+  display: inline;
   font-weight: 700;
   font-size: 1rem;
   color: #f1f5f9;
@@ -830,6 +863,26 @@
   min-width: 140px;
   text-align: center;
   border-top-width: 3px !important;
+}
+
+.dispatch-crew-col-pm {
+  background: rgba(59, 130, 246, 0.08);
+  border-top-width: 4px !important;
+}
+
+.grid-crew-role-badge {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 4px;
+  color: #60a5fa;
+  vertical-align: middle;
 }
 
 .dispatch-crew-col .grid-crew-name {
@@ -860,10 +913,22 @@
   min-width: 140px;
   background: rgba(15, 23, 42, 0.5);
   border-left-width: 3px !important;
+  position: relative;
+  overflow: hidden;
 }
 
 .dispatch-job-cell.empty-cell {
   background: rgba(15, 23, 42, 0.2);
+}
+
+/* Absolutely positioned wrapper — fills the rowSpan cell without pushing rows */
+.dispatch-job-cell-inner {
+  position: absolute;
+  inset: 0;
+  padding: 0.25rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* Drive-time indicator shown above job block */
@@ -887,12 +952,11 @@
 
 .grid-job-block {
   position: relative;
-  padding: 0.5rem;
-  padding-bottom: 1.75rem;
+  padding: 0.35rem 0.5rem;
+  padding-right: 1.5rem;
   border-radius: 6px;
   background: rgba(30, 41, 59, 0.8);
   border: 1px solid rgba(59, 130, 246, 0.2);
-  min-height: 60px;
   cursor: grab;
   transition: border-color 0.15s;
 }
@@ -914,19 +978,26 @@
 .grid-job-number {
   font-weight: 600;
   color: #f1f5f9;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .grid-job-customer {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #94a3b8;
-  margin-top: 0.2rem;
 }
 
-.grid-job-meta {
+.grid-job-status {
+  display: inline-block;
+  margin-top: 0.15rem;
+  padding: 0.1rem 0.4rem;
   font-size: 0.75rem;
-  color: #64748b;
-  margin-top: 0.25rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  background: rgba(59, 130, 246, 0.2);
+  border-radius: 3px;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+  width: fit-content;
 }
 
 .grid-remove-job {

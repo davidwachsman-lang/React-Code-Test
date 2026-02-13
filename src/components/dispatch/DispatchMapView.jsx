@@ -175,7 +175,7 @@ export default function DispatchMapView({
                 <button type="button" className="dispatch-map-crew-toggle" onClick={() => toggleCrewVisibility(col.id)} title={visible ? 'Hide route' : 'Show route'}>
                   <span className="dispatch-map-crew-swatch" style={{ background: visible ? col.color : '#475569' }} />
                 </button>
-                <span className="dispatch-map-crew-label">{col.name}</span>
+                <span className="dispatch-map-crew-label">{col.name}{col.type === 'pm' && <span className="dispatch-map-pm-badge">PM</span>}</span>
                 <span className="dispatch-map-crew-stats">
                   {crewJobs.length} job{crewJobs.length !== 1 ? 's' : ''}
                   {geocoded.length < crewJobs.length && ` (${geocoded.length} mapped)`}

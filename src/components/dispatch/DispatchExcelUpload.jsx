@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { hoursForJobType } from '../../config/dispatchJobDurations';
+import { generateColorFamily } from '../../hooks/useDispatchSchedule';
 import './DispatchExcelUpload.css';
 
 // Status/type options for dispatch → hours
@@ -249,21 +250,71 @@ function DispatchExcelUpload({ onApply, onCancel }) {
   };
 
   const applyToSchedule = () => {
-    const uniqueCrews = [];
+    // Build PM groups from the data (if PM column was mapped)
+    // Each crew chief belongs to ONE PM only (first occurrence wins)
+    const PM_GROUP_COLORS = ['#3b82f6', '#8b5cf6', '#22c55e', '#f97316', '#ef4444', '#06b6d4', '#ec4899', '#84cc16'];
+    const pmGroupsFromData = [];
+    const globalAssignedCrews = new Set();
+    rows.forEach((r) => {
+      const pmName = (r.pm || '').trim();
+      const crewName = (r.crewChief || '').trim();
+      if (!pmName || !crewName) return;
+      // Skip if this crew chief is already assigned to any PM
+      if (globalAssignedCrews.has(crewName.toLowerCase())) return;
+      let group = pmGroupsFromData.find((g) => g.pm.toLowerCase() === pmName.toLowerCase());
+      if (!group) {
+        group = { pm: pmName, title: '', color: PM_GROUP_COLORS[pmGroupsFromData.length % PM_GROUP_COLORS.length], crews: [] };
+        pmGroupsFromData.push(group);
+      }
+      group.crews.push(crewName);
+      globalAssignedCrews.add(crewName.toLowerCase());
+    });
+
+    // Build lanes — PM lanes first per group, then crew lanes with color families
+    const lanes = [];
+    const allLaneNames = []; // ordered names for crewChiefToLaneId mapping
+    let pmIdx = 0;
+    let crewIdx = 0;
+
+    // Track which crew chiefs belong to a PM group
+    const assignedCrews = new Set();
+    pmGroupsFromData.forEach((group) => {
+      const baseColor = group.color || PM_GROUP_COLORS[pmIdx % PM_GROUP_COLORS.length];
+      const family = generateColorFamily(baseColor, group.crews.length);
+      // PM lane
+      lanes.push({ id: `pm-${pmIdx}`, name: group.pm, color: family[0], type: 'pm' });
+      allLaneNames.push(group.pm);
+      // Crew lanes
+      group.crews.forEach((crewName, ci) => {
+        lanes.push({ id: `crew-${crewIdx}`, name: crewName, color: family[ci + 1], type: 'crew' });
+        allLaneNames.push(crewName);
+        assignedCrews.add(crewName.toLowerCase());
+        crewIdx++;
+      });
+      pmIdx++;
+    });
+
+    // Orphan crews (no PM) get LANE_COLORS fallback
+    let orphanIdx = 0;
     rows.forEach((r) => {
       const n = String(r.crewChief || '').trim();
-      if (n && !uniqueCrews.includes(n)) uniqueCrews.push(n);
+      if (n && !assignedCrews.has(n.toLowerCase()) && !allLaneNames.includes(n)) {
+        lanes.push({ id: `crew-${crewIdx}`, name: n, color: LANE_COLORS[orphanIdx % LANE_COLORS.length], type: 'crew' });
+        allLaneNames.push(n);
+        assignedCrews.add(n.toLowerCase());
+        crewIdx++;
+        orphanIdx++;
+      }
     });
-    const lanes = uniqueCrews.map((name, i) => ({
-      id: 'crew-' + i,
-      name,
-      color: LANE_COLORS[i % LANE_COLORS.length],
-    }));
+
+    // Build schedule buckets
     const byCrew = {};
     lanes.forEach((l) => { byCrew[l.id] = []; });
     byCrew[UNASSIGNED_ID] = [];
     rows.forEach((r) => {
-      const crewId = crewChiefToLaneId(r.crewChief, uniqueCrews);
+      const trimmedCrew = String(r.crewChief || '').trim();
+      const idx = allLaneNames.indexOf(trimmedCrew);
+      const crewId = idx >= 0 ? lanes[idx].id : UNASSIGNED_ID;
       if (!byCrew[crewId]) byCrew[crewId] = [];
       byCrew[crewId].push({
         id: r.id || Date.now() + Math.random(),
@@ -275,23 +326,6 @@ function DispatchExcelUpload({ onApply, onCancel }) {
         latitude: r.latitude,
         longitude: r.longitude,
       });
-    });
-
-    // Build PM groups from the data (if PM column was mapped)
-    const PM_GROUP_COLORS = ['#3b82f6', '#8b5cf6', '#22c55e', '#f97316', '#ef4444', '#06b6d4', '#ec4899', '#84cc16'];
-    const pmGroupsFromData = [];
-    rows.forEach((r) => {
-      const pmName = (r.pm || '').trim();
-      const crewName = (r.crewChief || '').trim();
-      if (!pmName || !crewName) return;
-      let group = pmGroupsFromData.find((g) => g.pm.toLowerCase() === pmName.toLowerCase());
-      if (!group) {
-        group = { pm: pmName, title: '', color: PM_GROUP_COLORS[pmGroupsFromData.length % PM_GROUP_COLORS.length], crews: [] };
-        pmGroupsFromData.push(group);
-      }
-      if (!group.crews.some((c) => c.toLowerCase() === crewName.toLowerCase())) {
-        group.crews.push(crewName);
-      }
     });
 
     onApply(byCrew, lanes, pmGroupsFromData);

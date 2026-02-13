@@ -5,11 +5,20 @@ import {
   JOB_TYPES,
 } from '../../hooks/useDispatchSchedule';
 
+const COLOR_TEAM_NAMES = {
+  '#3b82f6': 'Blue', '#8b5cf6': 'Purple', '#22c55e': 'Green', '#f97316': 'Orange',
+  '#ef4444': 'Red', '#06b6d4': 'Teal', '#ec4899': 'Pink', '#84cc16': 'Lime',
+};
+
+function teamNameFromColor(hex) {
+  return COLOR_TEAM_NAMES[hex] || 'Team';
+}
+
 export default function DispatchTimeGrid({
   schedule, scheduleColumns, pmHeaderGroups,
   driveTimeByCrew,
   totalHours,
-  addJob, removeJob, updateJob, moveJobToUnassigned, moveJobToLane,
+  addJob, removeJob, updateJob, moveJobToUnassigned, moveJobToLane, copyJobToLane,
 }) {
   // Compute job placements on the time grid + overflow
   const { crewJobPlacements, overflowJobs } = useMemo(() => {
@@ -57,26 +66,23 @@ export default function DispatchTimeGrid({
       <div className="dispatch-time-grid-wrap">
         <table className="dispatch-time-grid">
           <thead>
-            {/* PM spanning row */}
+            {/* Team spanning row */}
             <tr className="dispatch-pm-header-row">
               <th className="dispatch-time-col" rowSpan={2}>Time</th>
               {pmHeaderGroups.map((g, i) => (
                 <th key={i} colSpan={g.colSpan} className={`dispatch-pm-col${g.pm ? '' : ' dispatch-pm-col-empty'}`} style={{ borderBottomColor: g.color }}>
                   {g.pm && (
-                    <>
-                      <span className="pm-header-name">{g.pm}</span>
-                      <span className="pm-header-title">{g.title}</span>
-                    </>
+                    <span className="pm-header-name">{teamNameFromColor(g.color)} Team</span>
                   )}
                 </th>
               ))}
             </tr>
-            {/* Crew chief row */}
+            {/* Crew / PM lane header row */}
             <tr>
               {scheduleColumns.map((col) => (
                 <th
                   key={col.id}
-                  className="dispatch-crew-col dispatch-drop-target"
+                  className={`dispatch-crew-col dispatch-drop-target${col.type === 'pm' ? ' dispatch-crew-col-pm' : ''}`}
                   style={{ borderTopColor: col.color }}
                   onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('dispatch-drag-over'); }}
                   onDragLeave={(e) => { e.currentTarget.classList.remove('dispatch-drag-over'); }}
@@ -85,11 +91,16 @@ export default function DispatchTimeGrid({
                     e.currentTarget.classList.remove('dispatch-drag-over');
                     try {
                       const data = JSON.parse(e.dataTransfer.getData('application/json'));
-                      if (data.source === 'unassigned' && data.job) moveJobToLane(col.id, data.job);
+                      if (data.source === 'unassigned' && data.job) {
+                        moveJobToLane(col.id, data.job);
+                      } else if (data.source === 'lane' && data.job && col.type === 'pm') {
+                        // Copy job to PM lane (keeps original in crew lane)
+                        copyJobToLane(col.id, data.job);
+                      }
                     } catch (_) {}
                   }}
                 >
-                  <span className="grid-crew-name">{col.name}</span>
+                  <span className="grid-crew-name">{col.name}{col.type === 'pm' && <span className="grid-crew-role-badge">PM</span>}</span>
                   <span className="grid-crew-working">Working: {totalHours(col.id).toFixed(1)}h</span>
                   <span className="grid-crew-drive">Drive: {formatDriveTime(getDriveTotal(driveTimeByCrew[col.id]))}</span>
                 </th>
@@ -101,6 +112,22 @@ export default function DispatchTimeGrid({
               const placeAtRow = (crewId) => (crewJobPlacements[crewId] || []).find((p) => p.startRowIndex === rowIndex);
               const inSpan = (crewId) => (crewJobPlacements[crewId] || []).some((p) => rowIndex > p.startRowIndex && rowIndex < p.startRowIndex + p.rowSpan);
 
+              // Shared drop handler for body cells — copies job to PM lanes
+              const handleCellDragOver = (e) => { e.preventDefault(); e.currentTarget.classList.add('dispatch-drag-over'); };
+              const handleCellDragLeave = (e) => { e.currentTarget.classList.remove('dispatch-drag-over'); };
+              const handleCellDrop = (col) => (e) => {
+                e.preventDefault();
+                e.currentTarget.classList.remove('dispatch-drag-over');
+                try {
+                  const data = JSON.parse(e.dataTransfer.getData('application/json'));
+                  if (data.source === 'unassigned' && data.job) {
+                    moveJobToLane(col.id, data.job);
+                  } else if (data.source === 'lane' && data.job && col.type === 'pm') {
+                    copyJobToLane(col.id, data.job);
+                  }
+                } catch (_) {}
+              };
+
               return (
                 <tr key={rowIndex}>
                   <td className="dispatch-time-col time-slot-label">{hourToLabel(slotHour)}</td>
@@ -110,47 +137,33 @@ export default function DispatchTimeGrid({
                       const { job, startHour, endHour, rowSpan, preDriveMin } = place;
                       const jobIndex = (schedule[col.id] || []).findIndex((j) => j.id === job.id);
                       return (
-                        <td key={col.id} rowSpan={rowSpan} className="dispatch-job-cell" style={{ borderLeftColor: col.color }}>
-                          {preDriveMin > 0 && (
-                            <div className="grid-drive-indicator">
-                              <span className="grid-drive-icon">&#128663;</span> {preDriveMin} min drive
-                            </div>
-                          )}
-                          <div className="grid-job-block" draggable onDragStart={(e) => {
-                            e.dataTransfer.setData('application/json', JSON.stringify({ type: 'job', source: 'lane', laneId: col.id, jobIndex, job }));
-                            e.dataTransfer.effectAllowed = 'move';
-                          }}>
-                            <div className="grid-job-time">{hourToLabel(startHour)} – {hourToLabel(endHour)}</div>
-                            <div className="grid-job-number">{job.jobNumber || '—'}</div>
-                            <div className="grid-job-customer">{job.customer || '—'}</div>
-                            <div className="grid-job-meta">
-                              {job.jobType || '—'} &middot;{' '}
-                              <input
-                                type="number"
-                                className="grid-job-hours-input"
-                                value={job.hours}
-                                min="0"
-                                max="24"
-                                step="0.5"
-                                onClick={(e) => e.stopPropagation()}
-                                onChange={(e) => {
-                                  if (jobIndex >= 0) updateJob(col.id, jobIndex, 'hours', Number(e.target.value) || 0);
-                                }}
-                                title="Override hours for this job"
-                              />h
-                            </div>
-                            {jobIndex >= 0 && (
-                              <>
+                        <td
+                          key={col.id} rowSpan={rowSpan} className="dispatch-job-cell" style={{ borderLeftColor: col.color }}
+                          onDragOver={handleCellDragOver} onDragLeave={handleCellDragLeave} onDrop={handleCellDrop(col)}
+                        >
+                          <div className="dispatch-job-cell-inner">
+                            <div className="grid-job-block" draggable onDragStart={(e) => {
+                              e.dataTransfer.setData('application/json', JSON.stringify({ type: 'job', source: 'lane', laneId: col.id, jobIndex, job }));
+                              e.dataTransfer.effectAllowed = 'move';
+                            }}>
+                              <div className="grid-job-number">{job.jobNumber || '—'}</div>
+                              <div className="grid-job-customer">{job.customer || '—'}</div>
+                              <div className="grid-job-status">{job.jobType || '—'}</div>
+                              {jobIndex >= 0 && (
                                 <button type="button" className="grid-remove-job" onClick={() => removeJob(col.id, jobIndex)} aria-label="Remove job">&times;</button>
-                                <button type="button" className="grid-to-unassigned" onClick={() => moveJobToUnassigned(col.id, jobIndex)} aria-label="Move to unassigned">Unassign</button>
-                              </>
-                            )}
+                              )}
+                            </div>
                           </div>
                         </td>
                       );
                     }
                     if (inSpan(col.id)) return null;
-                    return <td key={col.id} className="dispatch-job-cell empty-cell" />;
+                    return (
+                      <td
+                        key={col.id} className="dispatch-job-cell empty-cell"
+                        onDragOver={handleCellDragOver} onDragLeave={handleCellDragLeave} onDrop={handleCellDrop(col)}
+                      />
+                    );
                   })}
                 </tr>
               );

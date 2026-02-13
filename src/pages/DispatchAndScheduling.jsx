@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { jsPDF } from 'jspdf';
 import { supabase } from '../services/supabaseClient';
 import { geocodeAddress } from '../services/geocodingService';
 import { getTravelTimeMatrix, nearestNeighborOrder, MAX_POINTS_PER_REQUEST } from '../services/distanceMatrixService';
 import DispatchExcelUpload from '../components/dispatch/DispatchExcelUpload';
+import { hoursForJobType } from '../config/dispatchJobDurations';
 import './Page.css';
 import './DispatchAndScheduling.css';
 
@@ -20,7 +22,7 @@ const PM_COLORS = ['#3b82f6', '#8b5cf6', '#22c55e', '#f97316', '#ef4444', '#06b6
 // is uploaded, the pmGroups state is rebuilt dynamically from the spreadsheet data.
 const DEFAULT_PM_GROUPS = [
   { pm: 'Kevin', title: 'Sr. Production Manager', color: PM_COLORS[0], crews: ['Gabriel', 'David', 'Michael'] },
-  { pm: 'Leo', title: 'Production Manager', color: PM_COLORS[1], crews: ['Ramon'] },
+  { pm: 'Leo', title: 'Production Manager', color: PM_COLORS[1], crews: ['Ramon', 'Roger'] },
   { pm: 'Aaron', title: 'Production Manager', color: PM_COLORS[2], crews: ['Pedro', 'Monica'] },
 ];
 
@@ -45,14 +47,16 @@ function findPmForCrew(crewName, pmGroups) {
 
 const JOB_TYPES = [
   { value: '', label: 'Select type...', hours: 0 },
-  { value: 'dry', label: 'Dry', hours: 0.5 },
-  { value: 'monitoring', label: 'Monitoring', hours: 0.5 },
-  { value: 'stabilization', label: 'Stabilization', hours: 0.5 },
-  { value: 'new-start', label: 'New Start', hours: 0.5 },
-  { value: 'continue-service', label: 'Continue Service', hours: 0.5 },
-  { value: 'demo', label: 'Demo', hours: 0.5 },
-  { value: 'equipment-pickup', label: 'Equipment Pickup', hours: 0.5 },
-  { value: 'emergency', label: 'Emergency', hours: 0.5 },
+  { value: 'dry', label: 'Dry', hours: hoursForJobType('dry') },
+  { value: 'monitoring', label: 'Monitoring', hours: hoursForJobType('monitoring') },
+  { value: 'stabilization', label: 'Stabilization', hours: hoursForJobType('stabilization') },
+  { value: 'walkthrough', label: 'Walkthrough', hours: hoursForJobType('walkthrough') },
+  { value: 'new-start', label: 'New Start', hours: hoursForJobType('new-start') },
+  { value: 'continue-service', label: 'Continue Service', hours: hoursForJobType('continue-service') },
+  { value: 'demo', label: 'Demo', hours: hoursForJobType('demo') },
+  { value: 'packout', label: 'Packout', hours: hoursForJobType('packout') },
+  { value: 'equipment-pickup', label: 'Equipment Pickup', hours: hoursForJobType('equipment-pickup') },
+  { value: 'emergency', label: 'Emergency', hours: hoursForJobType('emergency') },
 ];
 
 function escapeHtml(str) {
@@ -149,6 +153,7 @@ function findBestInsertionIndex(existingJobs, newJob, depotCoords) {
 
 function DispatchAndScheduling() {
   const [date, setDate] = useState(() => new Date());
+  const [rangeMode, setRangeMode] = useState('day'); // 'day' | 'week'
   const [lanes, setLanes] = useState(() => [...DEFAULT_LANES]);
   const [pmGroups, setPmGroups] = useState(() => [...DEFAULT_PM_GROUPS]);
 
@@ -220,6 +225,8 @@ function DispatchAndScheduling() {
   const [optimizeError, setOptimizeError] = useState('');
   const [optimizeProgress, setOptimizeProgress] = useState(null);
   const [driveTimeByCrew, setDriveTimeByCrew] = useState(() => ({}));
+  const [emailError, setEmailError] = useState('');
+  const [emailSuccess, setEmailSuccess] = useState('');
   const scheduleRef = useRef(schedule);
   const lanesRef = useRef(lanes);
   scheduleRef.current = schedule;
@@ -342,9 +349,12 @@ function DispatchAndScheduling() {
   }, []);
 
   // localStorage persistence keyed by date
+  const dateToKey = (d) => (
+    `dispatch-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  );
   const dateKey = useMemo(() => {
     const d = date;
-    return `dispatch-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return dateToKey(d);
   }, [date]);
 
   // Load from localStorage when date changes
@@ -354,12 +364,45 @@ function DispatchAndScheduling() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.lanes && Array.isArray(parsed.lanes) && parsed.schedule) {
-          setLanes(parsed.lanes);
-          setSchedule(parsed.schedule);
-          setDriveTimeByCrew(parsed.driveTimeByCrew || {});
-          if (Array.isArray(parsed.pmGroups) && parsed.pmGroups.length > 0) {
-            setPmGroups(parsed.pmGroups);
+          // Merge in any newly-added default crew lanes (ex: adding "Roger" under Leo)
+          const nextPmGroups = Array.isArray(parsed.pmGroups) && parsed.pmGroups.length > 0
+            ? parsed.pmGroups.map((g) => ({ ...g, crews: Array.isArray(g.crews) ? [...g.crews] : [] }))
+            : [...DEFAULT_PM_GROUPS].map((g) => ({ ...g, crews: [...g.crews] }));
+          const leoGroup = nextPmGroups.find((g) => String(g?.pm || '').toLowerCase() === 'leo');
+          if (leoGroup && Array.isArray(leoGroup.crews)) {
+            const hasRoger = leoGroup.crews.some((c) => String(c || '').toLowerCase().trim() === 'roger');
+            if (!hasRoger) leoGroup.crews.push('Roger');
           }
+
+          const lanesIn = parsed.lanes;
+          const scheduleIn = parsed.schedule;
+          const driveIn = parsed.driveTimeByCrew || {};
+
+          const hasRogerLane = lanesIn.some((l) => String(l?.name || '').toLowerCase().trim() === 'roger');
+          if (hasRogerLane) {
+            setLanes(lanesIn);
+            setSchedule(scheduleIn);
+            setDriveTimeByCrew(driveIn);
+            setPmGroups(nextPmGroups);
+            return;
+          }
+
+          // Add lane with a new, non-colliding crew-N id
+          const maxIdx = lanesIn.reduce((max, l) => {
+            const m = String(l?.id || '').match(/^crew-(\d+)$/);
+            if (!m) return max;
+            const n = Number(m[1]);
+            return Number.isFinite(n) ? Math.max(max, n) : max;
+          }, -1);
+          const nextIdx = maxIdx + 1;
+          const newLane = { id: `crew-${nextIdx}`, name: 'Roger', color: LANE_COLORS[nextIdx % LANE_COLORS.length] };
+          const nextLanes = [...lanesIn, newLane];
+          const nextSchedule = { ...scheduleIn, [newLane.id]: scheduleIn?.[newLane.id] || [] };
+
+          setLanes(nextLanes);
+          setSchedule(nextSchedule);
+          setDriveTimeByCrew(driveIn);
+          setPmGroups(nextPmGroups);
           return;
         }
       }
@@ -407,9 +450,339 @@ function DispatchAndScheduling() {
   }, [isLoaded]);
 
   const formatDate = (d) => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-  const goPrev = () => setDate((d) => { const n = new Date(d); n.setDate(n.getDate() - 1); return n; });
-  const goNext = () => setDate((d) => { const n = new Date(d); n.setDate(n.getDate() + 1); return n; });
+  const formatDayShort = (d) => d.toLocaleDateString('en-US', { weekday: 'short' });
+  const formatMd = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const startOfWeekMonday = (d) => {
+    const n = new Date(d);
+    const day = n.getDay(); // 0=Sun..6=Sat
+    const diff = (day === 0 ? -6 : 1 - day); // Monday start
+    n.setDate(n.getDate() + diff);
+    n.setHours(0, 0, 0, 0);
+    return n;
+  };
+  const weekDates = useMemo(() => {
+    const start = startOfWeekMonday(date);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  }, [date]);
+  const weekLabel = useMemo(() => {
+    const start = weekDates[0];
+    const end = weekDates[6];
+    return `Week of ${formatMd(start)} – ${formatMd(end)}`;
+  }, [weekDates]);
+
+  const goPrev = () => setDate((d) => { const n = new Date(d); n.setDate(n.getDate() - (rangeMode === 'week' ? 7 : 1)); return n; });
+  const goNext = () => setDate((d) => { const n = new Date(d); n.setDate(n.getDate() + (rangeMode === 'week' ? 7 : 1)); return n; });
   const goToday = () => setDate(new Date());
+
+  useEffect(() => {
+    if (rangeMode === 'week' && viewMode === 'map') setViewMode('table');
+  }, [rangeMode, viewMode]);
+
+  const weekSnapshots = useMemo(() => {
+    return weekDates.map((d) => {
+      const key = dateToKey(d);
+      let payload = null;
+      try {
+        const saved = localStorage.getItem(key);
+        if (saved) payload = JSON.parse(saved);
+      } catch (_) {}
+
+      const lanesForDay = Array.isArray(payload?.lanes) ? payload.lanes : [];
+      const scheduleForDay = payload?.schedule && typeof payload.schedule === 'object' ? payload.schedule : {};
+      const driveForDay = payload?.driveTimeByCrew && typeof payload.driveTimeByCrew === 'object' ? payload.driveTimeByCrew : {};
+      const jobsByCrewName = {};
+
+      lanesForDay.forEach((lane) => {
+        const crewName = String(lane?.name || '').replace(/\s+/g, ' ').trim();
+        if (!crewName) return;
+        const jobs = Array.isArray(scheduleForDay[lane.id]) ? scheduleForDay[lane.id] : [];
+        const drive = driveForDay[lane.id] ?? null;
+        jobsByCrewName[crewName] = { jobs, drive };
+      });
+
+      const unassignedJobs = Array.isArray(scheduleForDay.unassigned) ? scheduleForDay.unassigned : [];
+
+      return { date: d, key, jobsByCrewName, unassignedJobs };
+    });
+  }, [weekDates]);
+
+  const weekCrewRows = useMemo(() => {
+    const allNamesSet = new Set();
+    weekSnapshots.forEach((s) => {
+      Object.keys(s.jobsByCrewName || {}).forEach((name) => {
+        const n = String(name || '').replace(/\s+/g, ' ').trim();
+        if (n) allNamesSet.add(n);
+      });
+    });
+    const allNames = Array.from(allNamesSet);
+
+    // Alias rule: if a single-token name exists (e.g. "Gabriel") and a longer name
+    // starting with "Gabriel " exists in the same week (e.g. "Gabriel Smith"),
+    // collapse the short name into the longest matching full name.
+    const alias = new Map(); // original -> canonical
+    allNames.forEach((n) => alias.set(n, n));
+    allNames.forEach((n) => {
+      const trimmed = n.trim();
+      if (!trimmed || /\s/.test(trimmed)) return; // only single-token names
+      const lower = trimmed.toLowerCase();
+      const candidates = allNames.filter((m) => m.toLowerCase().startsWith(lower + ' ') && /\s/.test(m));
+      if (candidates.length === 0) return;
+      const best = [...candidates].sort((a, b) => b.length - a.length)[0];
+      alias.set(n, best);
+    });
+
+    const canonicalToSources = new Map();
+    allNames.forEach((n) => {
+      const canonical = alias.get(n) || n;
+      if (!canonicalToSources.has(canonical)) canonicalToSources.set(canonical, []);
+      canonicalToSources.get(canonical).push(n);
+    });
+
+    return Array.from(canonicalToSources.entries())
+      .map(([canonical, sources]) => ({
+        canonical,
+        sources: sources.sort((a, b) => a.localeCompare(b)),
+      }))
+      .sort((a, b) => a.canonical.localeCompare(b.canonical));
+  }, [weekSnapshots]);
+
+  const buildOnePageSchedulePdf = () => {
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 32;
+    const colGap = 20;
+    const cols = 2;
+    const colWidth = (pageWidth - margin * 2 - colGap * (cols - 1)) / cols;
+
+    const title = `Dispatch Schedule — ${formatDate(date)}`;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text(title, margin, 28);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(80);
+    doc.text(`Generated: ${new Date().toLocaleString('en-US')}`, margin, 44);
+    doc.setTextColor(0);
+
+    const crews = [
+      ...scheduleColumns.map((c) => ({ id: c.id, name: c.name, color: c.color })),
+      { id: 'unassigned', name: 'Unassigned', color: UNASSIGNED.color },
+    ];
+
+    const lineH = 11;
+    const blockGap = 10;
+    let col = 0;
+    let x = margin;
+    let y = 58;
+
+    const moveToNextColumn = () => {
+      col += 1;
+      if (col >= cols) return false;
+      x = margin + col * (colWidth + colGap);
+      y = 58;
+      return true;
+    };
+
+    const fitBlock = (neededHeight) => {
+      if (y + neededHeight <= pageHeight - margin) return true;
+      return moveToNextColumn();
+    };
+
+    const ellipsize = (s, maxLen = 70) => {
+      const str = String(s || '').trim();
+      if (!str) return '';
+      if (str.length <= maxLen) return str;
+      return str.slice(0, Math.max(0, maxLen - 1)).trimEnd() + '…';
+    };
+
+    const buildCrewLines = (crewId) => {
+      const jobs = schedule[crewId] || [];
+      const legs = getDriveLegs(driveTimeByCrew[crewId]);
+      let cursor = DAY_START;
+      let jobIdx = 0;
+      const lines = [];
+      jobs.forEach((job) => {
+        const hours = Number(job.hours) || 0;
+        const legSec = legs[jobIdx] || 0;
+        cursor += (legSec / 3600);
+        const startHour = cursor;
+        const endHour = cursor + hours;
+        cursor = endHour;
+        jobIdx++;
+
+        const time = hours > 0 ? `${hourToLabel(startHour)}–${hourToLabel(endHour)}` : '—';
+        const jobNum = job.jobNumber ? String(job.jobNumber).trim() : '—';
+        const cust = job.customer ? String(job.customer).trim() : '';
+        const type = job.jobType ? String(job.jobType).trim() : '';
+        const meta = [type, hours > 0 ? `${hours}h` : ''].filter(Boolean).join(' · ');
+        const text = `${time}  ${jobNum}  ${ellipsize(cust, 34)}${meta ? `  (${meta})` : ''}`;
+        lines.push(text);
+      });
+      return lines;
+    };
+
+    for (const crew of crews) {
+      const isUnassigned = crew.id === 'unassigned';
+      const jobs = schedule[crew.id] || [];
+      if (!jobs.length) continue;
+
+      const header = `${crew.name} — Working: ${totalHours(crew.id).toFixed(1)}h${isUnassigned ? '' : ` · Drive: ${formatDriveTime(getDriveTotal(driveTimeByCrew[crew.id]))}`}`;
+      const lines = buildCrewLines(crew.id);
+
+      // Build wrapped lines (ensure we stay one-page by truncating if needed)
+      const wrapped = [];
+      const maxTextWidth = colWidth - 14;
+      lines.forEach((ln) => {
+        const parts = doc.splitTextToSize(ln, maxTextWidth);
+        wrapped.push(...parts);
+      });
+
+      const maxLinesForThisBlock = 18; // keeps blocks compact to fit one page
+      const visible = wrapped.slice(0, maxLinesForThisBlock);
+      const truncatedCount = Math.max(0, wrapped.length - visible.length);
+
+      const blockHeight = (2 * lineH) + (visible.length * lineH) + (truncatedCount ? lineH : 0) + blockGap;
+      if (!fitBlock(blockHeight)) break; // no more room on the one-page PDF
+
+      // Header
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text(header, x, y);
+      y += lineH + 2;
+
+      // Lines
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      visible.forEach((t) => {
+        doc.text(String(t), x + 10, y);
+        y += lineH;
+      });
+      if (truncatedCount) {
+        doc.setTextColor(120);
+        doc.text(`… +${truncatedCount} more`, x + 10, y);
+        doc.setTextColor(0);
+        y += lineH;
+      }
+      y += blockGap;
+    }
+
+    const safeDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const filename = `dispatch-schedule-${safeDate}.pdf`;
+    return { doc, filename, title };
+  };
+
+  const exportOnePagePdf = () => {
+    const { doc, filename } = buildOnePageSchedulePdf();
+    doc.save(filename);
+  };
+
+  const buildScheduleEmailBodies = () => {
+    const title = `Dispatch Schedule — ${formatDate(date)}`;
+    const generated = `Generated: ${new Date().toLocaleString('en-US')}`;
+    const crews = [
+      ...scheduleColumns.map((c) => ({ id: c.id, name: c.name })),
+      { id: 'unassigned', name: 'Unassigned' },
+    ];
+
+    const lines = [];
+    const htmlParts = [];
+
+    lines.push(title);
+    lines.push(generated);
+    lines.push('');
+
+    htmlParts.push(`<div style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Arial, sans-serif;">`);
+    htmlParts.push(`<h2 style="margin:0 0 6px 0;">${escapeHtml(title)}</h2>`);
+    htmlParts.push(`<div style="color:#555; font-size:12px; margin:0 0 14px 0;">${escapeHtml(generated)}</div>`);
+
+    const renderCrewLines = (crewId) => {
+      const jobs = schedule[crewId] || [];
+      const legs = getDriveLegs(driveTimeByCrew[crewId]);
+      let cursor = DAY_START;
+      let jobIdx = 0;
+      const out = [];
+      jobs.forEach((job) => {
+        const hours = Number(job.hours) || 0;
+        const legSec = legs[jobIdx] || 0;
+        cursor += (legSec / 3600);
+        const startHour = cursor;
+        const endHour = cursor + hours;
+        cursor = endHour;
+        jobIdx++;
+
+        const time = hours > 0 ? `${hourToLabel(startHour)}–${hourToLabel(endHour)}` : '—';
+        const jobNum = job.jobNumber ? String(job.jobNumber).trim() : '—';
+        const cust = job.customer ? String(job.customer).trim() : '';
+        const type = job.jobType ? String(job.jobType).trim() : '';
+        const meta = [type, hours > 0 ? `${hours}h` : ''].filter(Boolean).join(' · ');
+        out.push(`${time}  ${jobNum}  ${cust}${meta ? `  (${meta})` : ''}`.trim());
+      });
+      return out;
+    };
+
+    crews.forEach((crew) => {
+      const jobs = schedule[crew.id] || [];
+      if (!jobs.length) return;
+      const isUnassigned = crew.id === 'unassigned';
+      const header = `${crew.name} — Working: ${totalHours(crew.id).toFixed(1)}h${isUnassigned ? '' : ` · Drive: ${formatDriveTime(getDriveTotal(driveTimeByCrew[crew.id]))}`}`;
+      const crewLines = renderCrewLines(crew.id);
+      lines.push(header);
+      crewLines.forEach((ln) => lines.push(`- ${ln}`));
+      lines.push('');
+
+      htmlParts.push(`<h3 style="margin:14px 0 6px 0; font-size:14px;">${escapeHtml(header)}</h3>`);
+      htmlParts.push('<ul style="margin:0 0 10px 18px; padding:0;">');
+      crewLines.forEach((ln) => {
+        htmlParts.push(`<li style="margin:0 0 4px 0; font-size:12px;">${escapeHtml(ln)}</li>`);
+      });
+      htmlParts.push('</ul>');
+    });
+
+    htmlParts.push('</div>');
+
+    return {
+      bodyText: lines.join('\n'),
+      bodyHtml: htmlParts.join(''),
+    };
+  };
+
+  const openEmailDraft = () => {
+    setEmailError('');
+    setEmailSuccess('');
+    try {
+      // Open email draft in the user's default mail app (Outlook, Mail, etc.)
+      const subject = `Dispatch Schedule — ${formatDate(date)}`;
+      const { bodyText } = buildScheduleEmailBodies();
+
+      // Keep body reasonably short to avoid mailto URL length limits
+      const MAX_BODY_CHARS = 3500;
+      let clipped = bodyText;
+      let note = '';
+      if (bodyText.length > MAX_BODY_CHARS) {
+        clipped = bodyText.slice(0, MAX_BODY_CHARS);
+        note = '\n\n[Schedule truncated for email draft. Full schedule copied to clipboard.]';
+        try {
+          if (navigator?.clipboard?.writeText) {
+            navigator.clipboard.writeText(bodyText);
+          }
+        } catch (_) {}
+      }
+
+      const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(clipped + note)}`;
+      window.location.href = mailto;
+      setEmailSuccess('Email draft opened.');
+    } catch (err) {
+      setEmailError(err?.message || 'Failed to open email draft.');
+    }
+  };
 
   const updateJob = (crewId, jobIndex, field, value) => {
     setSchedule((prev) => {
@@ -448,29 +821,115 @@ function DispatchAndScheduling() {
   };
 
   const moveJobToLane = async (laneId, job) => {
-    // Geocode the job if it doesn't have coordinates yet
-    let lat = job.latitude;
-    let lng = job.longitude;
-    if ((lat == null || lng == null) && job.address?.trim() && window.google?.maps?.Geocoder) {
-      try {
-        const coords = await geocodeAddress(job.address);
-        if (coords) { lat = coords.lat; lng = coords.lng; }
-      } catch (_) { /* geocode failed — insert at end */ }
+    const report = (step, current, total) => setOptimizeProgress({ step, current, total });
+    setOptimizing(true);
+    setOptimizeError('');
+    setOptimizeProgress(null);
+    try {
+      // Depot coords (fallback if needed)
+      report('geocoding_depot', 0, 0);
+      const depot = (depotAddress || '').trim();
+      let depotCoords = await getDepotCoords(depot);
+      if (!depotCoords) depotCoords = FALLBACK_DEPOT_COORDS;
+
+      // Ensure the newly assigned job is geocoded if possible
+      let lat = job.latitude;
+      let lng = job.longitude;
+      if ((lat == null || lng == null) && job.address?.trim() && window.google?.maps?.Geocoder) {
+        try {
+          const coords = await geocodeAddress(job.address);
+          if (coords) { lat = coords.lat; lng = coords.lng; }
+        } catch (_) {}
+      }
+      const jobWithCoords = { ...job, latitude: lat ?? null, longitude: lng ?? null };
+
+      // Build the full lane list and optimize the *entire* crew route order
+      const currentJobs = scheduleRef.current[laneId] || [];
+      const laneJobs = [...currentJobs, jobWithCoords];
+
+      const jobsToGeocode = laneJobs.filter((j) =>
+        (j.latitude == null || j.longitude == null) && j.address?.trim()
+      );
+      report('geocoding', 0, jobsToGeocode.length);
+
+      const withCoords = [];
+      const withoutCoords = [];
+      for (let i = 0; i < laneJobs.length; i++) {
+        const j = laneJobs[i];
+        let jLat = j.latitude;
+        let jLng = j.longitude;
+        if ((jLat == null || jLng == null) && j.address?.trim()) {
+          report('geocoding', Math.min(i + 1, jobsToGeocode.length), jobsToGeocode.length);
+          try {
+            const coords = await geocodeAddress(j.address);
+            if (coords?.lat != null && coords?.lng != null) {
+              jLat = coords.lat;
+              jLng = coords.lng;
+            }
+          } catch (_) {}
+        }
+        if (jLat != null && jLng != null) {
+          withCoords.push({ ...j, latitude: jLat, longitude: jLng });
+        } else {
+          withoutCoords.push({ ...j, latitude: jLat ?? null, longitude: jLng ?? null });
+        }
+      }
+
+      // Optimize order using distance matrix (capped to API limit)
+      let orderedLaneJobs = [...withCoords, ...withoutCoords];
+      let drive = { total: 0, legs: [] };
+      if (withCoords.length > 0 && window.google?.maps?.DistanceMatrixService) {
+        report('matrix', 0, 0);
+        const maxJobsForMatrix = MAX_POINTS_PER_REQUEST - 1;
+        const capped = withCoords.slice(0, maxJobsForMatrix);
+        const overflowWithCoords = withCoords.slice(maxJobsForMatrix);
+        const depotPoint = { lat: depotCoords.lat, lng: depotCoords.lng };
+        const points = [depotPoint, ...capped.map((j) => ({ lat: j.latitude, lng: j.longitude }))];
+        const crewMatrix = await getTravelTimeMatrix(points);
+        report('routes', 1, 1);
+        const order = nearestNeighborOrder(crewMatrix);
+        const orderedWithCoords = order.map((idx) => capped[idx - 1]).filter(Boolean);
+        orderedLaneJobs = [...orderedWithCoords, ...overflowWithCoords, ...withoutCoords];
+
+        // Drive totals/legs in the optimized order (includes return leg)
+        let totalDriveSec = 0;
+        const legs = [];
+        if (order.length > 0) {
+          const depotToFirst = (crewMatrix[0][order[0]] ?? 0) || 0;
+          legs.push(depotToFirst);
+          totalDriveSec += depotToFirst;
+          for (let k = 0; k < order.length - 1; k++) {
+            const leg = (crewMatrix[order[k]][order[k + 1]] ?? 0) || 0;
+            legs.push(leg);
+            totalDriveSec += leg;
+          }
+          const returnLeg = (crewMatrix[order[order.length - 1]][0] ?? 0) || 0;
+          legs.push(returnLeg);
+          totalDriveSec += returnLeg;
+        }
+        drive = { total: totalDriveSec, legs };
+      }
+
+      setSchedule((prev) => {
+        const next = { ...prev };
+        next.unassigned = (prev.unassigned || []).filter((j) => j.id !== job.id);
+        next[laneId] = orderedLaneJobs;
+        return next;
+      });
+      setDriveTimeByCrew((prev) => ({ ...prev, [laneId]: drive }));
+    } catch (err) {
+      setOptimizeError(err?.message || 'Optimization failed.');
+      // Fall back to simple append if optimization fails
+      setSchedule((prev) => {
+        const next = { ...prev };
+        next.unassigned = (prev.unassigned || []).filter((j) => j.id !== job.id);
+        next[laneId] = [...(prev[laneId] || []), job];
+        return next;
+      });
+    } finally {
+      setOptimizing(false);
+      setOptimizeProgress(null);
     }
-    const jobWithCoords = { ...job, latitude: lat ?? null, longitude: lng ?? null };
-
-    // Find the optimal position via cheapest-insertion on the current route
-    const currentJobs = scheduleRef.current[laneId] || [];
-    const bestIdx = findBestInsertionIndex(currentJobs, jobWithCoords, FALLBACK_DEPOT_COORDS);
-
-    setSchedule((prev) => {
-      const next = { ...prev };
-      next.unassigned = (prev.unassigned || []).filter((j) => j.id !== job.id);
-      const laneJobs = [...(prev[laneId] || [])];
-      laneJobs.splice(bestIdx, 0, jobWithCoords);
-      next[laneId] = laneJobs;
-      return next;
-    });
   };
 
   const moveJobToUnassigned = (laneId, jobIndex) => {
@@ -851,7 +1310,23 @@ function DispatchAndScheduling() {
             <button type="button" onClick={goPrev} aria-label="Previous day">←</button>
             <button type="button" onClick={goToday} className="today-btn">Today</button>
             <button type="button" onClick={goNext} aria-label="Next day">→</button>
-            <span className="dispatch-date-label">{formatDate(date)}</span>
+            <span className="dispatch-date-label">{rangeMode === 'week' ? weekLabel : formatDate(date)}</span>
+          </div>
+          <div className="dispatch-range-toggle" role="tablist" aria-label="Range">
+            <button
+              type="button"
+              className={rangeMode === 'day' ? 'active' : ''}
+              onClick={() => setRangeMode('day')}
+            >
+              Day
+            </button>
+            <button
+              type="button"
+              className={rangeMode === 'week' ? 'active' : ''}
+              onClick={() => setRangeMode('week')}
+            >
+              Week
+            </button>
           </div>
           <button
             type="button"
@@ -860,6 +1335,29 @@ function DispatchAndScheduling() {
           >
             {showExcelUpload ? 'Hide upload' : 'Upload Excel'}
           </button>
+          <button
+            type="button"
+            className="dispatch-export-pdf-btn"
+            onClick={exportOnePagePdf}
+            disabled={rangeMode === 'week'}
+            title={rangeMode === 'week' ? 'Switch to Day view to export' : 'Export a one-page PDF for email review'}
+          >
+            Export PDF
+          </button>
+          <button
+            type="button"
+            className="dispatch-email-schedule-btn"
+            onClick={openEmailDraft}
+            disabled={rangeMode === 'week'}
+            title={rangeMode === 'week' ? 'Switch to Day view to email' : 'Open an email draft with the schedule as text'}
+          >
+            Email Schedule
+          </button>
+          {(emailError || emailSuccess) && (
+            <span className={`dispatch-email-status ${emailError ? 'error' : 'ok'}`}>
+              {emailError || emailSuccess}
+            </span>
+          )}
           {optimizeError && <span className="dispatch-optimize-error">{optimizeError}</span>}
           <div className="dispatch-view-toggle">
             <button
@@ -873,6 +1371,7 @@ function DispatchAndScheduling() {
               type="button"
               className={viewMode === 'map' ? 'active' : ''}
               onClick={() => setViewMode('map')}
+              disabled={rangeMode === 'week'}
             >
               Map
             </button>
@@ -887,7 +1386,96 @@ function DispatchAndScheduling() {
         />
       )}
 
-      {viewMode === 'map' && (
+      {rangeMode === 'week' && (
+        <div className="dispatch-week-view">
+          <div className="dispatch-week-hint">Click a day header to open that day’s schedule.</div>
+          <div className="dispatch-week-table-wrap">
+            <table className="dispatch-week-table">
+              <thead>
+                <tr>
+                  <th className="dispatch-week-crew-col">Crew</th>
+                  {weekSnapshots.map((snap) => {
+                    const d = snap.date;
+                    const key = snap.key;
+                    return (
+                      <th key={key} className="dispatch-week-day-col">
+                        <button
+                          type="button"
+                          className="dispatch-week-daybtn"
+                          onClick={() => {
+                            setDate(new Date(d));
+                            setRangeMode('day');
+                            setViewMode('table');
+                          }}
+                          title="Open day view"
+                        >
+                          <div className="dispatch-week-dayname">{formatDayShort(d)}</div>
+                          <div className="dispatch-week-daydate">{formatMd(d)}</div>
+                        </button>
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {weekCrewRows.length === 0 && (
+                  <tr>
+                    <td className="dispatch-week-empty" colSpan={1 + weekSnapshots.length}>
+                      No saved schedules found for this week yet.
+                    </td>
+                  </tr>
+                )}
+                {weekCrewRows.map((row) => (
+                  <tr key={row.canonical}>
+                    <td className="dispatch-week-crew">{row.canonical}</td>
+                    {weekSnapshots.map((snap) => {
+                      let jobs = [];
+                      let drive = null;
+                      row.sources.forEach((name) => {
+                        const entry = snap.jobsByCrewName?.[name];
+                        if (Array.isArray(entry?.jobs) && entry.jobs.length) jobs = jobs.concat(entry.jobs);
+                        if (!drive && entry?.drive) drive = entry.drive;
+                      });
+                      const hours = jobs.reduce((sum, j) => sum + (Number(j?.hours) || 0), 0);
+                      const driveLabel = drive ? formatDriveTime(getDriveTotal(drive)) : '';
+                      return (
+                        <td key={snap.key + row.canonical} className="dispatch-week-cell">
+                          {jobs.length > 0 ? (
+                            <>
+                              <div className="dispatch-week-main">{jobs.length} job{jobs.length !== 1 ? 's' : ''} · {hours.toFixed(1)}h</div>
+                              {driveLabel && <div className="dispatch-week-sub">Drive: {driveLabel}</div>}
+                            </>
+                          ) : (
+                            <div className="dispatch-week-dash">—</div>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+                <tr className="dispatch-week-unassigned-row">
+                  <td className="dispatch-week-crew">Unassigned</td>
+                  {weekSnapshots.map((snap) => {
+                    const jobs = Array.isArray(snap.unassignedJobs) ? snap.unassignedJobs : [];
+                    const hours = jobs.reduce((sum, j) => sum + (Number(j?.hours) || 0), 0);
+                    return (
+                      <td key={snap.key + '-unassigned'} className="dispatch-week-cell">
+                        {jobs.length > 0 ? (
+                          <div className="dispatch-week-main">{jobs.length} job{jobs.length !== 1 ? 's' : ''} · {hours.toFixed(1)}h</div>
+                        ) : (
+                          <div className="dispatch-week-dash">—</div>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {rangeMode === 'day' && viewMode === 'map' && (
         <div className="dispatch-map-layout">
           {/* Crew sidebar */}
           <div className="dispatch-map-sidebar">
@@ -962,7 +1550,7 @@ function DispatchAndScheduling() {
         </div>
       )}
 
-      {viewMode === 'table' && (
+      {rangeMode === 'day' && viewMode === 'table' && (
       <div className="dispatch-table-view">
         <div
           className="dispatch-unassigned-pool"

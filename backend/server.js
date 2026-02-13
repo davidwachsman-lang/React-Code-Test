@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const OpenAI = require('openai');
+const nodemailer = require('nodemailer');
 
 // Load environment variables
 dotenv.config();
@@ -23,7 +24,7 @@ app.use(cors({
   },
   credentials: true
 }));
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
@@ -40,8 +41,118 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/health',
       aiExtractChecklist: 'POST /api/ai/extract-checklist',
+      emailDispatchSchedule: 'POST /api/dispatch/email-schedule',
     }
   });
+});
+
+/* ------------------------------------------------------------------ */
+/*  Dispatch — Email schedule PDF                                      */
+/* ------------------------------------------------------------------ */
+
+function getBool(val, fallback = false) {
+  if (val == null) return fallback;
+  const s = String(val).trim().toLowerCase();
+  if (['true', '1', 'yes', 'y'].includes(s)) return true;
+  if (['false', '0', 'no', 'n'].includes(s)) return false;
+  return fallback;
+}
+
+function getSmtpConfigFromEnv() {
+  const host = process.env.SMTP_HOST;
+  const port = Number(process.env.SMTP_PORT || 587);
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const from = process.env.SMTP_FROM;
+  const secure = getBool(process.env.SMTP_SECURE, port === 465);
+
+  if (!host || !user || !pass || !from) {
+    return { ok: false, error: 'SMTP is not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM (and optionally SMTP_SECURE).' };
+  }
+  return {
+    ok: true,
+    host,
+    port,
+    user,
+    pass,
+    from,
+    secure,
+  };
+}
+
+function buildTransporter() {
+  const cfg = getSmtpConfigFromEnv();
+  if (!cfg.ok) throw new Error(cfg.error);
+  return nodemailer.createTransport({
+    host: cfg.host,
+    port: cfg.port,
+    secure: cfg.secure,
+    auth: { user: cfg.user, pass: cfg.pass },
+  });
+}
+
+app.post('/api/dispatch/email-schedule', async (req, res) => {
+  const {
+    to,
+    subject,
+    bodyText,
+    bodyHtml,
+    pdfBase64,
+    filename,
+  } = req.body || {};
+
+  if (!to || typeof to !== 'string' || !to.trim()) {
+    return res.status(400).json({ error: '`to` is required (comma-separated emails ok).' });
+  }
+  if (!subject || typeof subject !== 'string' || !subject.trim()) {
+    return res.status(400).json({ error: '`subject` is required.' });
+  }
+  if (!pdfBase64 || typeof pdfBase64 !== 'string' || !pdfBase64.trim()) {
+    return res.status(400).json({ error: '`pdfBase64` is required.' });
+  }
+
+  let pdfBuf;
+  try {
+    pdfBuf = Buffer.from(pdfBase64, 'base64');
+  } catch (_) {
+    return res.status(400).json({ error: 'Invalid `pdfBase64` encoding.' });
+  }
+  if (!pdfBuf || pdfBuf.length < 50) {
+    return res.status(400).json({ error: 'PDF attachment is empty or invalid.' });
+  }
+
+  try {
+    const cfg = getSmtpConfigFromEnv();
+    if (!cfg.ok) {
+      return res.status(500).json({ error: cfg.error });
+    }
+
+    const transporter = buildTransporter();
+    const info = await transporter.sendMail({
+      from: cfg.from,
+      to: to.trim(),
+      subject: subject.trim(),
+      text: typeof bodyText === 'string' && bodyText.trim() ? bodyText : undefined,
+      html: typeof bodyHtml === 'string' && bodyHtml.trim() ? bodyHtml : undefined,
+      attachments: [
+        {
+          filename: (typeof filename === 'string' && filename.trim()) ? filename.trim() : 'schedule.pdf',
+          content: pdfBuf,
+          contentType: 'application/pdf',
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      ok: true,
+      messageId: info.messageId || null,
+      accepted: info.accepted || [],
+      rejected: info.rejected || [],
+    });
+  } catch (err) {
+    console.error('Email schedule error:', err);
+    return res.status(500).json({ error: err?.message || 'Failed to send email.' });
+  }
 });
 
 /* ------------------------------------------------------------------ */

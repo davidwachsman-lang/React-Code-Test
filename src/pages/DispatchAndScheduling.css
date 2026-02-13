@@ -28,6 +28,39 @@
   gap: 1rem;
 }
 
+.dispatch-range-toggle {
+  display: flex;
+  gap: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.dispatch-range-toggle button {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.9rem;
+  background: rgba(30, 41, 59, 0.8);
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.dispatch-range-toggle button:hover {
+  color: #e2e8f0;
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.dispatch-range-toggle button.active {
+  background: rgba(148, 163, 184, 0.18);
+  color: #e2e8f0;
+}
+
+.dispatch-range-toggle button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .dispatch-upload-excel-btn {
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
@@ -43,6 +76,66 @@
 .dispatch-upload-excel-btn:hover {
   background: rgba(34, 197, 94, 0.3);
   border-color: #22c55e;
+}
+
+.dispatch-export-pdf-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  border-radius: 8px;
+  color: #60a5fa;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.dispatch-export-pdf-btn:hover {
+  background: rgba(59, 130, 246, 0.26);
+  border-color: rgba(59, 130, 246, 0.7);
+}
+
+.dispatch-export-pdf-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dispatch-email-schedule-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: rgba(168, 85, 247, 0.18);
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  border-radius: 8px;
+  color: #c084fc;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+}
+
+.dispatch-email-schedule-btn:hover {
+  background: rgba(168, 85, 247, 0.26);
+  border-color: rgba(168, 85, 247, 0.7);
+}
+
+.dispatch-email-schedule-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dispatch-email-status {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85rem;
+  margin-left: 0.25rem;
+  color: #94a3b8;
+}
+
+.dispatch-email-status.ok {
+  color: #4ade80;
+}
+
+.dispatch-email-status.error {
+  color: #f87171;
 }
 
 .dispatch-view-toggle {
@@ -74,6 +167,11 @@
   color: #60a5fa;
 }
 
+.dispatch-view-toggle button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .dispatch-overflow-badge {
   display: inline-flex;
   align-items: center;
@@ -88,6 +186,109 @@
   color: #1e293b;
   border-radius: 9px;
   vertical-align: middle;
+}
+
+.dispatch-week-view {
+  background: rgba(30, 41, 59, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.dispatch-week-hint {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-bottom: 0.75rem;
+}
+
+.dispatch-week-table-wrap {
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.dispatch-week-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.dispatch-week-table th,
+.dispatch-week-table td {
+  padding: 0.75rem 0.75rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  vertical-align: top;
+}
+
+.dispatch-week-table thead th {
+  position: sticky;
+  top: 0;
+  background: rgba(15, 23, 42, 0.8);
+  z-index: 2;
+}
+
+.dispatch-week-crew-col {
+  width: 220px;
+}
+
+.dispatch-week-daybtn {
+  width: 100%;
+  text-align: left;
+  padding: 0.25rem 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #e2e8f0;
+}
+
+.dispatch-week-daybtn:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.dispatch-week-dayname {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.dispatch-week-daydate {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-top: 0.15rem;
+}
+
+.dispatch-week-crew {
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.dispatch-week-cell {
+  color: #e2e8f0;
+}
+
+.dispatch-week-main {
+  font-weight: 600;
+}
+
+.dispatch-week-sub {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.dispatch-week-dash {
+  color: #64748b;
+}
+
+.dispatch-week-unassigned-row td {
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.dispatch-week-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #94a3b8;
 }
 
 /* Progress overlay */

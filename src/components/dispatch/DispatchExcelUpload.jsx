@@ -1,12 +1,17 @@
 import React, { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
+import { hoursForJobType } from '../../config/dispatchJobDurations';
 import './DispatchExcelUpload.css';
 
-// Status options for dispatch: Dry, Monitoring, Stabilization → hours
+// Status/type options for dispatch → hours
 export const STATUS_OPTIONS = [
-  { value: 'dry', label: 'Dry', hours: 0.5 },
-  { value: 'monitoring', label: 'Monitoring', hours: 0.5 },
-  { value: 'stabilization', label: 'Stabilization', hours: 0.5 },
+  { value: 'dry', label: 'Dry', hours: hoursForJobType('dry') },
+  { value: 'monitoring', label: 'Monitoring', hours: hoursForJobType('monitoring') },
+  { value: 'stabilization', label: 'Stabilization', hours: hoursForJobType('stabilization') },
+  { value: 'walkthrough', label: 'Walkthrough', hours: hoursForJobType('walkthrough') },
+  { value: 'demo', label: 'Demo', hours: hoursForJobType('demo') },
+  { value: 'packout', label: 'Packout', hours: hoursForJobType('packout') },
+  { value: 'equipment-pickup', label: 'Equipment Pickup', hours: hoursForJobType('equipment-pickup') },
 ];
 
 const UNASSIGNED_ID = 'unassigned';
@@ -194,6 +199,10 @@ function DispatchExcelUpload({ onApply, onCancel }) {
       if (/dry/.test(s)) return 'dry';
       if (/monitor/.test(s)) return 'monitoring';
       if (/stabil/.test(s)) return 'stabilization';
+      if (/walk/.test(s)) return 'walkthrough';
+      if (/demo/.test(s)) return 'demo';
+      if (/pack/.test(s)) return 'packout';
+      if (/pick\s*up|pickup|equipment\s*pick/.test(s)) return 'equipment-pickup';
       return '';
     };
     return data.map((row, idx) => {

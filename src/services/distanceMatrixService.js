@@ -129,8 +129,54 @@ export function nearestNeighborOrder(matrix) {
   return order;
 }
 
+/**
+ * 2-opt improvement: iteratively reverse sub-sequences to shorten total route.
+ * Operates on the order array returned by nearestNeighborOrder (job indices 1..n).
+ * Index 0 is the depot (fixed start/end, not in the order array).
+ * @param {number[]} order - Job indices (1..n) from nearestNeighborOrder
+ * @param {number[][]} matrix - Travel time matrix (0 = depot, 1..n = jobs)
+ * @returns {number[]} Improved order
+ */
+export function twoOptImprove(order, matrix) {
+  if (!order || order.length < 3 || !matrix?.length) return order || [];
+  let route = [...order];
+  let improved = true;
+  const maxIter = 50;
+  let iter = 0;
+
+  const cost = (from, to) => {
+    if (from < 0 || from >= matrix.length || to < 0 || to >= matrix.length) return Infinity;
+    return matrix[from][to] ?? Infinity;
+  };
+
+  while (improved && iter < maxIter) {
+    improved = false;
+    iter++;
+    for (let i = 0; i < route.length - 1; i++) {
+      for (let j = i + 1; j < route.length; j++) {
+        const prevI = i === 0 ? 0 : route[i - 1]; // depot or previous job
+        const nodeI = route[i];
+        const nodeJ = route[j];
+        const nextJ = j === route.length - 1 ? 0 : route[j + 1]; // depot or next job
+
+        const currentCost = cost(prevI, nodeI) + cost(nodeJ, nextJ);
+        const newCost = cost(prevI, nodeJ) + cost(nodeI, nextJ);
+
+        if (newCost < currentCost - 0.01) {
+          // Reverse the segment from i to j
+          const reversed = route.slice(i, j + 1).reverse();
+          route = [...route.slice(0, i), ...reversed, ...route.slice(j + 1)];
+          improved = true;
+        }
+      }
+    }
+  }
+  return route;
+}
+
 export default {
   getTravelTimeMatrix,
   nearestNeighborOrder,
+  twoOptImprove,
   MAX_POINTS_PER_REQUEST,
 };

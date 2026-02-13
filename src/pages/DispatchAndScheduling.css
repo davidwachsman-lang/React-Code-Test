@@ -1079,3 +1079,134 @@
   background: rgba(59, 130, 246, 0.25);
   border-color: rgba(59, 130, 246, 0.6);
 }
+
+/* ─── Undo / Redo ─────────────────────────────────────────────────────────── */
+.dispatch-undo-redo {
+  display: flex;
+  gap: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.dispatch-undo-btn,
+.dispatch-redo-btn {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: rgba(30, 41, 59, 0.8);
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.dispatch-undo-btn:hover:not(:disabled),
+.dispatch-redo-btn:hover:not(:disabled) {
+  color: #e2e8f0;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.dispatch-undo-btn:disabled,
+.dispatch-redo-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─── Finalize button ─────────────────────────────────────────────────────── */
+.dispatch-finalize-btn {
+  padding: 0.5rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: rgba(34, 197, 94, 0.18);
+  border: 1px solid rgba(34, 197, 94, 0.5);
+  border-radius: 8px;
+  color: #4ade80;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+}
+
+.dispatch-finalize-btn:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.3);
+  border-color: #22c55e;
+}
+
+.dispatch-finalize-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dispatch-finalize-btn.finalized {
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.25);
+  color: #86efac;
+}
+
+/* ─── Conflict warnings ──────────────────────────────────────────────────── */
+.dispatch-conflicts {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.dispatch-conflict-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+.dispatch-conflict-item.overtime {
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: #fbbf24;
+}
+
+.dispatch-conflict-item.duplicate {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+/* ─── Per-job hours input ─────────────────────────────────────────────────── */
+.grid-job-hours-input {
+  width: 3.2rem;
+  padding: 0.15rem 0.3rem;
+  font-size: 0.75rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 4px;
+  color: #e2e8f0;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.grid-job-hours-input::-webkit-inner-spin-button,
+.grid-job-hours-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.grid-job-hours-input:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+/* ─── Save error ──────────────────────────────────────────────────────────── */
+.dispatch-save-error {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 8px;
+  color: #f87171;
+  text-align: center;
+}

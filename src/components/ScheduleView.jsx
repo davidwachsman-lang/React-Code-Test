@@ -1,14 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import scheduleService from '../services/scheduleService';
 import './ScheduleView.css';
 
 function ScheduleView() {
+  const { user } = useAuth();
   const [technicianName, setTechnicianName] = useState('');
   const [todaySchedule, setTodaySchedule] = useState([]);
   const [upcomingSchedule, setUpcomingSchedule] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasLoaded, setHasLoaded] = useState(false);
+
+  // Auto-populate technician name from logged-in user
+  useEffect(() => {
+    if (user?.user_metadata?.full_name && !technicianName) {
+      setTechnicianName(user.user_metadata.full_name);
+    }
+  }, [user]);
 
   const loadSchedules = async () => {
     if (!technicianName.trim()) {

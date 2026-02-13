@@ -1,0 +1,238 @@
+/* ─── Job File Checks Page ────────────────────────────────────────────────── */
+
+.jfc-subtitle {
+  font-size: 1rem;
+  color: #94a3b8;
+  margin: -0.5rem 0 1.5rem 0;
+}
+
+/* Card container */
+.jfc-card {
+  background: rgba(30, 41, 59, 0.45);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.jfc-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.jfc-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.jfc-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.jfc-summary {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.jfc-clear-btn {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 6px;
+  color: #f87171;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.jfc-clear-btn:hover {
+  background: rgba(239, 68, 68, 0.28);
+}
+
+/* Upload area */
+.jfc-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  gap: 1rem;
+}
+
+.jfc-upload-icon {
+  width: 48px;
+  height: 48px;
+  color: #64748b;
+}
+
+.jfc-upload-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.jfc-upload-text {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  text-align: center;
+  max-width: 420px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.jfc-upload-text strong {
+  color: #e2e8f0;
+}
+
+.jfc-upload-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  max-width: 480px;
+}
+
+.jfc-upload-check-tag {
+  padding: 0.2rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 4px;
+  color: #60a5fa;
+}
+
+.jfc-upload-btn {
+  margin-top: 0.5rem;
+  padding: 0.6rem 1.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: rgba(34, 197, 94, 0.18);
+  border: 1px solid rgba(34, 197, 94, 0.5);
+  border-radius: 8px;
+  color: #4ade80;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.jfc-upload-btn:hover {
+  background: rgba(34, 197, 94, 0.3);
+  border-color: #22c55e;
+}
+
+/* Table */
+.jfc-table-wrap {
+  overflow-x: auto;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.jfc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.jfc-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.jfc-table th {
+  padding: 0.6rem 0.5rem;
+  background: rgba(15, 23, 42, 0.8);
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.jfc-th-job {
+  text-align: left;
+  padding-left: 1.25rem !important;
+  min-width: 120px;
+}
+
+.jfc-th-info {
+  text-align: left;
+  min-width: 100px;
+}
+
+.jfc-th-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.jfc-th-sortable:hover {
+  color: #e2e8f0;
+}
+
+.jfc-th-check {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.jfc-row {
+  transition: background 0.15s;
+}
+
+.jfc-row:hover {
+  background: rgba(148, 163, 184, 0.06);
+}
+
+.jfc-td-job {
+  padding: 0.5rem 0.5rem 0.5rem 1.25rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.jfc-td-info {
+  padding: 0.5rem 0.5rem;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.jfc-td-check {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.5rem 0.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.jfc-td-toggle {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.jfc-td-toggle:hover {
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.jfc-td-check.present {
+  color: #22c55e;
+}
+
+.jfc-td-check.missing {
+  color: #ef4444;
+}

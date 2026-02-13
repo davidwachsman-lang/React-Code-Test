@@ -126,6 +126,13 @@ const SandboxIcon = () => (
   </svg>
 );
 
+const JobFileChecksIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 11l3 3L22 4"/>
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+  </svg>
+);
+
 const ResourceCenterIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -180,6 +187,7 @@ function Navigation() {
     { path: '/job-files', label: 'Job Files', icon: <JobFilesIcon /> },
     { path: '/crm', label: 'CRM', icon: <CRMIcon /> },
     { path: '/field-services', label: 'Field Services', icon: <FieldServicesIcon /> },
+    { path: '/job-file-checks', label: 'Job File Checks', icon: <JobFileChecksIcon /> },
     { path: '/reporting', label: 'Reporting & Analytics', icon: <ReportingIcon /> },
     { path: '/storm', label: 'Storm', icon: <StormIcon /> },
     { path: '/resources', label: 'Resource Center', icon: <ResourceCenterIcon /> },

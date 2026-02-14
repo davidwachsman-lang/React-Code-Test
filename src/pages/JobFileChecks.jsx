@@ -8,9 +8,9 @@ const FILE_CHECK_HEADERS = [
 ];
 
 const INFO_COLUMNS = [
+  { label: 'Customer', aliases: ['customer', 'client', 'customername'] },
   { label: 'PM', aliases: ['pm', 'projectmanager'] },
   { label: 'Crew Chief', aliases: ['crewchief', 'crew'] },
-  { label: 'Customer', aliases: ['customer', 'client', 'customername'] },
 ];
 
 function fuzzyMatch(colName, target) {

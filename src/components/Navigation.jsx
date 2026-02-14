@@ -133,6 +133,15 @@ const JobFileChecksIcon = () => (
   </svg>
 );
 
+const EstimateControlTowerIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 3h18v18H3z"/>
+    <path d="M7 16v-5"/>
+    <path d="M12 16V8"/>
+    <path d="M17 16v-3"/>
+  </svg>
+);
+
 const ResourceCenterIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -184,6 +193,7 @@ function Navigation() {
     { path: '/dispatch', label: 'Dispatch & Scheduling', icon: <DispatchIcon /> },
     { path: '/wip-board', label: 'WIP Board', icon: <WIPBoardIcon /> },
     { path: '/estimating', label: 'Estimating', icon: <EstimatingIcon /> },
+    { path: '/estimate-control-tower', label: 'Estimate Control Tower', icon: <EstimateControlTowerIcon /> },
     { path: '/job-files', label: 'Job Files', icon: <JobFilesIcon /> },
     { path: '/job-file-checks', label: 'Job File Checks', icon: <JobFileChecksIcon /> },
     { path: '/crm', label: 'CRM', icon: <CRMIcon /> },

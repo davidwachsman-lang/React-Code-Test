@@ -12,6 +12,7 @@ import Intake from './pages/Intake';
 import DispatchAndScheduling from './pages/DispatchAndScheduling';
 import WIPBoard from './pages/WIPBoard';
 import Estimating from './pages/Estimating';
+import EstimateControlTower from './pages/EstimateControlTower';
 import JobFiles from './pages/JobFiles';
 import Forms from './pages/Forms';
 import CRM from './pages/CRM';
@@ -194,6 +195,7 @@ function AppContent() {
                   <Route path="/dispatch" element={<DispatchAndScheduling />} />
                   <Route path="/wip-board" element={<WIPBoard />} />
                   <Route path="/estimating" element={<Estimating />} />
+                  <Route path="/estimate-control-tower" element={<EstimateControlTower />} />
                   <Route path="/job-files" element={<JobFiles />} />
                   <Route path="/forms" element={<Forms />} />
                   <Route path="/crm" element={<CRM />} />

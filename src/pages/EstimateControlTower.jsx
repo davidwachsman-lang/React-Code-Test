@@ -101,24 +101,41 @@ function EstimateControlTower() {
         </div>
       </div>
 
-      {/* KPI Ribbon — Row 2 */}
-      <div className="ect-kpi-row ect-kpi-row-3">
-        <div className="ect-kpi-card accent-blue">
-          <span className="ect-kpi-label">FNOL to Estimate</span>
-          <span className="ect-kpi-value">{kpis.fnolToEstimate.avgDays}d</span>
-          <span className="ect-kpi-subtitle">avg days</span>
+      {/* Cycle Time Flow */}
+      <div className="ect-cycle-flow">
+        <div className="ect-cycle-segment seg-cyan">
+          <span className="ect-cycle-label">FNOL to Inspection</span>
+          <span className="ect-cycle-days">{kpis.fnolToInspection.avgDays}<small>d</small></span>
         </div>
-        <div className="ect-kpi-card accent-blue">
-          <span className="ect-kpi-label">Estimate to Conversion</span>
-          <span className="ect-kpi-value">{kpis.estimateToApproval.avgDays}d</span>
-          <span className="ect-kpi-subtitle">avg days</span>
+        <span className="ect-cycle-arrow" />
+        <div className="ect-cycle-segment seg-blue">
+          <span className="ect-cycle-label">Inspection to Estimate</span>
+          <span className="ect-cycle-days">{kpis.inspectionToEstimate.avgDays}<small>d</small></span>
         </div>
-        <div className="ect-kpi-card accent-purple">
-          <span className="ect-kpi-label">Total Estimate Cycle Time</span>
-          <span className="ect-kpi-value">{kpis.totalCycleTime.avgDays}d</span>
-          <span className="ect-kpi-subtitle">FNOL to Conversion</span>
+        <span className="ect-cycle-arrow" />
+        <div className="ect-cycle-segment seg-indigo">
+          <span className="ect-cycle-label">Estimate to Close</span>
+          <span className="ect-cycle-days">{kpis.estimateToClose.avgDays}<small>d</small></span>
+        </div>
+        <span className="ect-cycle-arrow" />
+        <div className="ect-cycle-segment seg-total">
+          <span className="ect-cycle-label">Total Cycle</span>
+          <span className="ect-cycle-days">{kpis.totalCycleTime.avgDays}<small>d</small></span>
         </div>
       </div>
+
+      {/* ---- Estimate Aging ---- */}
+      <section className="ect-section-card">
+        <h2 className="ect-section-title">Estimate Aging</h2>
+        <div className="ect-aging">
+          {aging.map((bucket) => (
+            <div key={bucket.label} className={`ect-aging-bucket ${bucket.cls}`}>
+              <span className="ect-aging-count">{bucket.count}</span>
+              <span className="ect-aging-label">{bucket.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* ---- Pipeline Funnel ---- */}
       <section className="ect-section-card">
@@ -150,10 +167,8 @@ function EstimateControlTower() {
         </div>
       </section>
 
-      {/* ---- Bottom grid: Leaderboard + Heatmap ---- */}
-      <div className="ect-bottom-grid">
-        {/* Estimator Leaderboard */}
-        <section className="ect-section-card">
+      {/* ---- Estimator Leaderboard ---- */}
+      <section className="ect-section-card">
           <h2 className="ect-section-title">Estimator Leaderboard</h2>
           <div className="ect-leaderboard-wrap">
             <table className="ect-leaderboard">
@@ -192,20 +207,6 @@ function EstimateControlTower() {
             </table>
           </div>
         </section>
-
-        {/* Aging Heatmap */}
-        <section className="ect-section-card">
-          <h2 className="ect-section-title">Estimate Aging</h2>
-          <div className="ect-aging">
-            {aging.map((bucket) => (
-              <div key={bucket.label} className={`ect-aging-bucket ${bucket.cls}`}>
-                <span className="ect-aging-count">{bucket.count}</span>
-                <span className="ect-aging-label">{bucket.label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
     </div>
   );
 }

@@ -12,136 +12,56 @@ function daysFromNow(days) {
 
 export const estimateTasks = [
   // --- Pending, no estimate yet ---
-  {
-    id: 'ect-001', jobNumber: 'MIT-24091', customerName: 'Anderson Residence',
-    status: 'Pending', hasEstimate: false, estimateValue: 0, owner: 'Leo Champion', lineOfBusiness: 'HB: MIT',
-    fnolDate: daysAgo(5), estimateCreatedDate: null, estimateSentDate: null,
-    approvedDate: null, nextFollowUpDate: null,
-  },
-  {
-    id: 'ect-002', jobNumber: 'MIT-24095', customerName: 'Franklin Office Park',
-    status: 'Pending', hasEstimate: false, estimateValue: 0, owner: 'Aaron Kacel', lineOfBusiness: 'HB: MIT',
-    fnolDate: daysAgo(3), estimateCreatedDate: null, estimateSentDate: null,
-    approvedDate: null, nextFollowUpDate: daysFromNow(1),
-  },
-  {
-    id: 'ect-003', jobNumber: 'REC-11803', customerName: 'Baker Family',
-    status: 'Pending', hasEstimate: false, estimateValue: 0, owner: 'Kevin Shell', lineOfBusiness: 'HB: RECON',
-    fnolDate: daysAgo(2), estimateCreatedDate: null, estimateSentDate: null,
-    approvedDate: null, nextFollowUpDate: null,
-  },
+  { id: 'ect-001', jobNumber: 'MIT-24091', customerName: 'Anderson Residence', status: 'Pending', hasEstimate: false, estimateValue: 0, owner: 'Leo Champion', lineOfBusiness: 'HB: MIT',
+    fnolDate: daysAgo(5), inspectionDate: null, estimateCreatedDate: null, estimateSentDate: null, approvedDate: null, nextFollowUpDate: null },
+  { id: 'ect-002', jobNumber: 'MIT-24095', customerName: 'Franklin Office Park', status: 'Pending', hasEstimate: false, estimateValue: 0, owner: 'Aaron Kacel', lineOfBusiness: 'HB: MIT',
+    fnolDate: daysAgo(3), inspectionDate: null, estimateCreatedDate: null, estimateSentDate: null, approvedDate: null, nextFollowUpDate: daysFromNow(1) },
+  { id: 'ect-003', jobNumber: 'REC-11803', customerName: 'Baker Family', status: 'Pending', hasEstimate: false, estimateValue: 0, owner: 'Kevin Shell', lineOfBusiness: 'HB: RECON',
+    fnolDate: daysAgo(2), inspectionDate: null, estimateCreatedDate: null, estimateSentDate: null, approvedDate: null, nextFollowUpDate: null },
 
   // --- Drafting ---
-  {
-    id: 'ect-004', jobNumber: 'MIT-24102', customerName: 'Summit Dental',
-    status: 'Drafting', hasEstimate: true, estimateValue: 14250, owner: 'Leo Champion', lineOfBusiness: 'HB: MIT',
-    fnolDate: daysAgo(8), estimateCreatedDate: daysAgo(6), estimateSentDate: null,
-    approvedDate: null, nextFollowUpDate: daysFromNow(2),
-  },
-  {
-    id: 'ect-005', jobNumber: 'MIT-24110', customerName: 'Carter Residence',
-    status: 'Drafting', hasEstimate: true, estimateValue: 8700, owner: 'Roger Hill', lineOfBusiness: 'LL',
-    fnolDate: daysAgo(6), estimateCreatedDate: daysAgo(4), estimateSentDate: null,
-    approvedDate: null, nextFollowUpDate: null,
-  },
-  {
-    id: 'ect-018', jobNumber: 'MIT-24125', customerName: 'Bellevue Storage Co',
-    status: 'Drafting', hasEstimate: true, estimateValue: 17300, owner: 'Kevin Shell', lineOfBusiness: 'HB: MIT',
-    fnolDate: daysAgo(4), estimateCreatedDate: daysAgo(2), estimateSentDate: null,
-    approvedDate: null, nextFollowUpDate: daysFromNow(2),
-  },
+  { id: 'ect-004', jobNumber: 'MIT-24102', customerName: 'Summit Dental', status: 'Drafting', hasEstimate: true, estimateValue: 14250, owner: 'Leo Champion', lineOfBusiness: 'HB: MIT',
+    fnolDate: daysAgo(8), inspectionDate: daysAgo(7), estimateCreatedDate: daysAgo(6), estimateSentDate: null, approvedDate: null, nextFollowUpDate: daysFromNow(2) },
+  { id: 'ect-005', jobNumber: 'MIT-24110', customerName: 'Carter Residence', status: 'Drafting', hasEstimate: true, estimateValue: 8700, owner: 'Roger Hill', lineOfBusiness: 'LL',
+    fnolDate: daysAgo(6), inspectionDate: daysAgo(5), estimateCreatedDate: daysAgo(4), estimateSentDate: null, approvedDate: null, nextFollowUpDate: null },
+  { id: 'ect-018', jobNumber: 'MIT-24125', customerName: 'Bellevue Storage Co', status: 'Drafting', hasEstimate: true, estimateValue: 17300, owner: 'Kevin Shell', lineOfBusiness: 'HB: MIT',
+    fnolDate: daysAgo(4), inspectionDate: daysAgo(3), estimateCreatedDate: daysAgo(2), estimateSentDate: null, approvedDate: null, nextFollowUpDate: daysFromNow(2) },
 
-  // --- Sent (waiting for approval) ---
-  {
-    id: 'ect-006', jobNumber: 'REC-11811', customerName: 'Lakeside Apartments',
-    status: 'Sent', hasEstimate: true, estimateValue: 32400, owner: 'Aaron Kacel', lineOfBusiness: 'HB: RECON',
-    fnolDate: daysAgo(14), estimateCreatedDate: daysAgo(10), estimateSentDate: daysAgo(7),
-    approvedDate: null, nextFollowUpDate: daysFromNow(1),
-  },
-  {
-    id: 'ect-007', jobNumber: 'REC-11820', customerName: 'Pine Valley HOA',
-    status: 'Sent', hasEstimate: true, estimateValue: 19800, owner: 'Ramon Torres', lineOfBusiness: 'LL',
-    fnolDate: daysAgo(12), estimateCreatedDate: daysAgo(9), estimateSentDate: daysAgo(5),
-    approvedDate: null, nextFollowUpDate: null,
-  },
-  {
-    id: 'ect-008', jobNumber: 'MIT-24118', customerName: 'Greenfield Church',
-    status: 'Sent', hasEstimate: true, estimateValue: 45000, owner: 'Leo Champion', lineOfBusiness: 'HB: MIT',
-    fnolDate: daysAgo(20), estimateCreatedDate: daysAgo(16), estimateSentDate: daysAgo(12),
-    approvedDate: null, nextFollowUpDate: null,
-  },
-  {
-    id: 'ect-009', jobNumber: 'REC-11835', customerName: 'Elm Street Condos',
-    status: 'Sent', hasEstimate: true, estimateValue: 11500, owner: 'Kevin Shell', lineOfBusiness: 'HB: RECON',
-    fnolDate: daysAgo(10), estimateCreatedDate: daysAgo(7), estimateSentDate: daysAgo(4),
-    approvedDate: null, nextFollowUpDate: daysFromNow(3),
-  },
+  // --- Sent ---
+  { id: 'ect-006', jobNumber: 'REC-11811', customerName: 'Lakeside Apartments', status: 'Sent', hasEstimate: true, estimateValue: 32400, owner: 'Aaron Kacel', lineOfBusiness: 'HB: RECON',
+    fnolDate: daysAgo(14), inspectionDate: daysAgo(12), estimateCreatedDate: daysAgo(10), estimateSentDate: daysAgo(7), approvedDate: null, nextFollowUpDate: daysFromNow(1) },
+  { id: 'ect-007', jobNumber: 'REC-11820', customerName: 'Pine Valley HOA', status: 'Sent', hasEstimate: true, estimateValue: 19800, owner: 'Ramon Torres', lineOfBusiness: 'LL',
+    fnolDate: daysAgo(12), inspectionDate: daysAgo(11), estimateCreatedDate: daysAgo(9), estimateSentDate: daysAgo(5), approvedDate: null, nextFollowUpDate: null },
+  { id: 'ect-008', jobNumber: 'MIT-24118', customerName: 'Greenfield Church', status: 'Sent', hasEstimate: true, estimateValue: 45000, owner: 'Leo Champion', lineOfBusiness: 'HB: MIT',
+    fnolDate: daysAgo(20), inspectionDate: daysAgo(18), estimateCreatedDate: daysAgo(16), estimateSentDate: daysAgo(12), approvedDate: null, nextFollowUpDate: null },
+  { id: 'ect-009', jobNumber: 'REC-11835', customerName: 'Elm Street Condos', status: 'Sent', hasEstimate: true, estimateValue: 11500, owner: 'Kevin Shell', lineOfBusiness: 'HB: RECON',
+    fnolDate: daysAgo(10), inspectionDate: daysAgo(8), estimateCreatedDate: daysAgo(7), estimateSentDate: daysAgo(4), approvedDate: null, nextFollowUpDate: daysFromNow(3) },
 
-  // --- Sent (expired — 30+ days without decision) ---
-  {
-    id: 'ect-019', jobNumber: 'MIT-24055', customerName: 'Meridian Partners',
-    status: 'Sent', hasEstimate: true, estimateValue: 28500, owner: 'Leo Champion', lineOfBusiness: 'LL',
-    fnolDate: daysAgo(48), estimateCreatedDate: daysAgo(42), estimateSentDate: daysAgo(35),
-    approvedDate: null, nextFollowUpDate: null,
-  },
-  {
-    id: 'ect-020', jobNumber: 'REC-11728', customerName: 'Valley View Apts',
-    status: 'Sent', hasEstimate: true, estimateValue: 15200, owner: 'Ramon Torres', lineOfBusiness: 'HB: RECON',
-    fnolDate: daysAgo(55), estimateCreatedDate: daysAgo(50), estimateSentDate: daysAgo(42),
-    approvedDate: null, nextFollowUpDate: null,
-  },
+  // --- Sent (expired — 30+ days) ---
+  { id: 'ect-019', jobNumber: 'MIT-24055', customerName: 'Meridian Partners', status: 'Sent', hasEstimate: true, estimateValue: 28500, owner: 'Leo Champion', lineOfBusiness: 'LL',
+    fnolDate: daysAgo(48), inspectionDate: daysAgo(45), estimateCreatedDate: daysAgo(42), estimateSentDate: daysAgo(35), approvedDate: null, nextFollowUpDate: null },
+  { id: 'ect-020', jobNumber: 'REC-11728', customerName: 'Valley View Apts', status: 'Sent', hasEstimate: true, estimateValue: 15200, owner: 'Ramon Torres', lineOfBusiness: 'HB: RECON',
+    fnolDate: daysAgo(55), inspectionDate: daysAgo(52), estimateCreatedDate: daysAgo(50), estimateSentDate: daysAgo(42), approvedDate: null, nextFollowUpDate: null },
 
-  // --- Approved (within last 30 days) ---
-  {
-    id: 'ect-010', jobNumber: 'MIT-24080', customerName: 'Morrison Residence',
-    status: 'Approved', hasEstimate: true, estimateValue: 22100, owner: 'Roger Hill', lineOfBusiness: 'HB: MIT',
-    fnolDate: daysAgo(25), estimateCreatedDate: daysAgo(22), estimateSentDate: daysAgo(18),
-    approvedDate: daysAgo(10), nextFollowUpDate: null,
-  },
-  {
-    id: 'ect-011', jobNumber: 'REC-11790', customerName: 'Westwood Clinic',
-    status: 'Approved', hasEstimate: true, estimateValue: 37500, owner: 'Aaron Kacel', lineOfBusiness: 'HB: RECON',
-    fnolDate: daysAgo(28), estimateCreatedDate: daysAgo(24), estimateSentDate: daysAgo(20),
-    approvedDate: daysAgo(14), nextFollowUpDate: null,
-  },
-  {
-    id: 'ect-012', jobNumber: 'MIT-24065', customerName: 'Oakridge Elementary',
-    status: 'Approved', hasEstimate: true, estimateValue: 58000, owner: 'Leo Champion', lineOfBusiness: 'LL',
-    fnolDate: daysAgo(40), estimateCreatedDate: daysAgo(36), estimateSentDate: daysAgo(30),
-    approvedDate: daysAgo(22), nextFollowUpDate: null,
-  },
-  {
-    id: 'ect-013', jobNumber: 'REC-11760', customerName: 'Riverbend Mall',
-    status: 'Approved', hasEstimate: true, estimateValue: 85000, owner: 'Ramon Torres', lineOfBusiness: 'HB: RECON',
-    fnolDate: daysAgo(55), estimateCreatedDate: daysAgo(50), estimateSentDate: daysAgo(45),
-    approvedDate: daysAgo(38), nextFollowUpDate: null,
-  },
-  {
-    id: 'ect-016', jobNumber: 'MIT-24040', customerName: 'Hendersonville Fire Dept',
-    status: 'Approved', hasEstimate: true, estimateValue: 120000, owner: 'Ramon Torres', lineOfBusiness: 'HB: MIT',
-    fnolDate: daysAgo(85), estimateCreatedDate: daysAgo(80), estimateSentDate: daysAgo(75),
-    approvedDate: daysAgo(65), nextFollowUpDate: null,
-  },
+  // --- Approved ---
+  { id: 'ect-010', jobNumber: 'MIT-24080', customerName: 'Morrison Residence', status: 'Approved', hasEstimate: true, estimateValue: 22100, owner: 'Roger Hill', lineOfBusiness: 'HB: MIT',
+    fnolDate: daysAgo(25), inspectionDate: daysAgo(23), estimateCreatedDate: daysAgo(22), estimateSentDate: daysAgo(18), approvedDate: daysAgo(10), nextFollowUpDate: null },
+  { id: 'ect-011', jobNumber: 'REC-11790', customerName: 'Westwood Clinic', status: 'Approved', hasEstimate: true, estimateValue: 37500, owner: 'Aaron Kacel', lineOfBusiness: 'HB: RECON',
+    fnolDate: daysAgo(28), inspectionDate: daysAgo(26), estimateCreatedDate: daysAgo(24), estimateSentDate: daysAgo(20), approvedDate: daysAgo(14), nextFollowUpDate: null },
+  { id: 'ect-012', jobNumber: 'MIT-24065', customerName: 'Oakridge Elementary', status: 'Approved', hasEstimate: true, estimateValue: 58000, owner: 'Leo Champion', lineOfBusiness: 'LL',
+    fnolDate: daysAgo(40), inspectionDate: daysAgo(38), estimateCreatedDate: daysAgo(36), estimateSentDate: daysAgo(30), approvedDate: daysAgo(22), nextFollowUpDate: null },
+  { id: 'ect-013', jobNumber: 'REC-11760', customerName: 'Riverbend Mall', status: 'Approved', hasEstimate: true, estimateValue: 85000, owner: 'Ramon Torres', lineOfBusiness: 'HB: RECON',
+    fnolDate: daysAgo(55), inspectionDate: daysAgo(52), estimateCreatedDate: daysAgo(50), estimateSentDate: daysAgo(45), approvedDate: daysAgo(38), nextFollowUpDate: null },
+  { id: 'ect-016', jobNumber: 'MIT-24040', customerName: 'Hendersonville Fire Dept', status: 'Approved', hasEstimate: true, estimateValue: 120000, owner: 'Ramon Torres', lineOfBusiness: 'HB: MIT',
+    fnolDate: daysAgo(85), inspectionDate: daysAgo(82), estimateCreatedDate: daysAgo(80), estimateSentDate: daysAgo(75), approvedDate: daysAgo(65), nextFollowUpDate: null },
 
   // --- Declined ---
-  {
-    id: 'ect-014', jobNumber: 'MIT-24088', customerName: 'Harper Residence',
-    status: 'Declined', hasEstimate: true, estimateValue: 6200, owner: 'Kevin Shell', lineOfBusiness: 'LL',
-    fnolDate: daysAgo(18), estimateCreatedDate: daysAgo(15), estimateSentDate: daysAgo(12),
-    approvedDate: null, nextFollowUpDate: null,
-  },
-  {
-    id: 'ect-015', jobNumber: 'REC-11755', customerName: 'Downtown Lofts LLC',
-    status: 'Declined', hasEstimate: true, estimateValue: 9400, owner: 'Roger Hill', lineOfBusiness: 'HB: RECON',
-    fnolDate: daysAgo(70), estimateCreatedDate: daysAgo(65), estimateSentDate: daysAgo(60),
-    approvedDate: null, nextFollowUpDate: null,
-  },
-  {
-    id: 'ect-017', jobNumber: 'REC-11740', customerName: 'Sylvan Park Bistro',
-    status: 'Declined', hasEstimate: true, estimateValue: 4800, owner: 'Aaron Kacel', lineOfBusiness: 'LL',
-    fnolDate: daysAgo(82), estimateCreatedDate: daysAgo(78), estimateSentDate: daysAgo(74),
-    approvedDate: null, nextFollowUpDate: null,
-  },
+  { id: 'ect-014', jobNumber: 'MIT-24088', customerName: 'Harper Residence', status: 'Declined', hasEstimate: true, estimateValue: 6200, owner: 'Kevin Shell', lineOfBusiness: 'LL',
+    fnolDate: daysAgo(18), inspectionDate: daysAgo(16), estimateCreatedDate: daysAgo(15), estimateSentDate: daysAgo(12), approvedDate: null, nextFollowUpDate: null },
+  { id: 'ect-015', jobNumber: 'REC-11755', customerName: 'Downtown Lofts LLC', status: 'Declined', hasEstimate: true, estimateValue: 9400, owner: 'Roger Hill', lineOfBusiness: 'HB: RECON',
+    fnolDate: daysAgo(70), inspectionDate: daysAgo(67), estimateCreatedDate: daysAgo(65), estimateSentDate: daysAgo(60), approvedDate: null, nextFollowUpDate: null },
+  { id: 'ect-017', jobNumber: 'REC-11740', customerName: 'Sylvan Park Bistro', status: 'Declined', hasEstimate: true, estimateValue: 4800, owner: 'Aaron Kacel', lineOfBusiness: 'LL',
+    fnolDate: daysAgo(82), inspectionDate: daysAgo(79), estimateCreatedDate: daysAgo(78), estimateSentDate: daysAgo(74), approvedDate: null, nextFollowUpDate: null },
 ];
 
 /* ================================================================== */
@@ -183,11 +103,15 @@ export function getEstimateKPIs(tasks) {
   );
   const openDollarValue = openTasks.reduce((s, t) => s + (t.estimateValue || 0), 0);
 
-  const fnolToEstDays = tasks
-    .filter((t) => t.fnolDate && t.estimateCreatedDate)
-    .map((t) => daysBetween(t.fnolDate, t.estimateCreatedDate));
+  const fnolToInspDays = tasks
+    .filter((t) => t.fnolDate && t.inspectionDate)
+    .map((t) => daysBetween(t.fnolDate, t.inspectionDate));
 
-  const estToApprovalDays = tasks
+  const inspToEstDays = tasks
+    .filter((t) => t.inspectionDate && t.estimateCreatedDate)
+    .map((t) => daysBetween(t.inspectionDate, t.estimateCreatedDate));
+
+  const estToCloseDays = tasks
     .filter((t) => t.estimateSentDate && t.approvedDate)
     .map((t) => daysBetween(t.estimateSentDate, t.approvedDate));
 
@@ -237,8 +161,9 @@ export function getEstimateKPIs(tasks) {
       dollarValue: openDollarValue,
       dollarFormatted: formatDollars(openDollarValue),
     },
-    fnolToEstimate: { avgDays: Math.round(avg(fnolToEstDays) * 10) / 10 },
-    estimateToApproval: { avgDays: Math.round(avg(estToApprovalDays) * 10) / 10 },
+    fnolToInspection: { avgDays: Math.round(avg(fnolToInspDays) * 10) / 10 },
+    inspectionToEstimate: { avgDays: Math.round(avg(inspToEstDays) * 10) / 10 },
+    estimateToClose: { avgDays: Math.round(avg(estToCloseDays) * 10) / 10 },
     totalCycleTime: { avgDays: Math.round(avg(fullCycleDays) * 10) / 10 },
     avgEstimateDollar: {
       value: Math.round(avg(estimateValues)),

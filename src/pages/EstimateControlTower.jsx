@@ -2,26 +2,16 @@ import React, { useMemo, useState } from 'react';
 import {
   estimateTasks,
   getEstimateKPIs,
-  getPipelineFunnel,
   getEstimatorLeaderboard,
   getAgingHeatmap,
+  getConversionCenter,
 } from '../data/estimateControlTowerMockData';
 import './Page.css';
 import './EstimateControlTower.css';
 
-const FUNNEL_COLORS = {
-  Draft: '#3b82f6',
-  Sent: '#60a5fa',
-  'Follow-Up Needed': '#f59e0b',
-  Approved: '#22c55e',
-  Declined: '#ef4444',
-  Expired: '#64748b',
-};
-
 function EstimateControlTower() {
   const [activeLineOfBusiness, setActiveLineOfBusiness] = useState('HB: MIT');
   const [approvalWindow, setApprovalWindow] = useState('30d');
-  const [activeFunnelStage, setActiveFunnelStage] = useState(null);
   const [activeEstimator, setActiveEstimator] = useState(null);
 
   const filteredTasks = useMemo(
@@ -29,9 +19,9 @@ function EstimateControlTower() {
     [activeLineOfBusiness]
   );
   const kpis = useMemo(() => getEstimateKPIs(filteredTasks), [filteredTasks]);
-  const funnel = useMemo(() => getPipelineFunnel(filteredTasks), [filteredTasks]);
   const leaderboard = useMemo(() => getEstimatorLeaderboard(filteredTasks), [filteredTasks]);
   const aging = useMemo(() => getAgingHeatmap(filteredTasks), [filteredTasks]);
+  const conversionCenter = useMemo(() => getConversionCenter(filteredTasks), [filteredTasks]);
 
   const approvalRateValue =
     approvalWindow === '60d'
@@ -39,8 +29,6 @@ function EstimateControlTower() {
       : approvalWindow === 'YTD'
         ? kpis.approvalRate.rateYTD
         : kpis.approvalRate.rate30;
-
-  const maxFunnelCount = Math.max(...funnel.map((s) => s.count), 1);
 
   return (
     <div className="page-container ect-page">
@@ -64,8 +52,10 @@ function EstimateControlTower() {
         </div>
       </div>
 
-      {/* KPI Ribbon — Row 1 */}
-      <div className="ect-kpi-row ect-kpi-row-5">
+      {/* Headline KPIs */}
+      <section className="ect-section-card">
+        <h2 className="ect-section-title">Headline KPIs</h2>
+        <div className="ect-kpi-row ect-kpi-row-5">
         <div className="ect-kpi-card accent-red">
           <span className="ect-kpi-label">Pending Jobs w/o Estimates</span>
           <span className="ect-kpi-value">{kpis.pendingNoEstimate.count}</span>
@@ -100,9 +90,12 @@ function EstimateControlTower() {
           <span className="ect-kpi-value">{kpis.noFollowUp.count}</span>
         </div>
       </div>
+      </section>
 
-      {/* Cycle Time Flow */}
-      <div className="ect-cycle-flow">
+      {/* Estimate Cycle Time */}
+      <section className="ect-section-card">
+        <h2 className="ect-section-title">Estimate Cycle Time</h2>
+        <div className="ect-cycle-flow">
         <div className="ect-cycle-segment seg-cyan">
           <span className="ect-cycle-label">FNOL to Inspection</span>
           <span className="ect-cycle-days">{kpis.fnolToInspection.avgDays}<small>d</small></span>
@@ -123,10 +116,11 @@ function EstimateControlTower() {
           <span className="ect-cycle-days">{kpis.totalCycleTime.avgDays}<small>d</small></span>
         </div>
       </div>
+      </section>
 
       {/* ---- Estimate Aging ---- */}
       <section className="ect-section-card">
-        <h2 className="ect-section-title">Estimate Aging</h2>
+        <h2 className="ect-section-title">Estimate Aging <span className="ect-section-subtitle">(Job Count)</span></h2>
         <div className="ect-aging">
           {aging.map((bucket) => (
             <div key={bucket.label} className={`ect-aging-bucket ${bucket.cls}`}>
@@ -134,36 +128,6 @@ function EstimateControlTower() {
               <span className="ect-aging-label">{bucket.label}</span>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* ---- Pipeline Funnel ---- */}
-      <section className="ect-section-card">
-        <h2 className="ect-section-title">Pipeline Funnel</h2>
-        <div className="ect-funnel">
-          {funnel.map((stage) => {
-            const pct = maxFunnelCount > 0 ? (stage.count / maxFunnelCount) * 100 : 0;
-            const color = FUNNEL_COLORS[stage.stage] || '#64748b';
-            const isActive = activeFunnelStage === stage.stage;
-            return (
-              <button
-                key={stage.stage}
-                type="button"
-                className={`ect-funnel-row ${isActive ? 'active' : ''}`}
-                onClick={() => setActiveFunnelStage(isActive ? null : stage.stage)}
-              >
-                <span className="ect-funnel-label">{stage.stage}</span>
-                <div className="ect-funnel-bar-track">
-                  <div
-                    className="ect-funnel-bar-fill"
-                    style={{ width: `${Math.max(pct, 6)}%`, background: color }}
-                  />
-                </div>
-                <span className="ect-funnel-count">{stage.count}</span>
-                <span className="ect-funnel-dollar">{stage.dollarFormatted}</span>
-              </button>
-            );
-          })}
         </div>
       </section>
 
@@ -179,8 +143,9 @@ function EstimateControlTower() {
                   <th>Total $</th>
                   <th>Avg $</th>
                   <th>Conv %</th>
-                  <th>FNOL to Est</th>
-                  <th>Est to Conv</th>
+                  <th>FNOL to Insp</th>
+                  <th>Insp to Est</th>
+                  <th>Est to Close</th>
                   <th>Total Cycle</th>
                 </tr>
               </thead>
@@ -198,8 +163,9 @@ function EstimateControlTower() {
                     <td>{row.totalValueFormatted}</td>
                     <td>{row.avgValueFormatted}</td>
                     <td>{row.conversionRate != null ? `${row.conversionRate}%` : '—'}</td>
-                    <td>{row.avgFnolToEstimate != null ? `${row.avgFnolToEstimate}d` : '—'}</td>
-                    <td>{row.avgEstToConversion != null ? `${row.avgEstToConversion}d` : '—'}</td>
+                    <td>{row.avgFnolToInsp != null ? `${row.avgFnolToInsp}d` : '—'}</td>
+                    <td>{row.avgInspToEst != null ? `${row.avgInspToEst}d` : '—'}</td>
+                    <td>{row.avgEstToClose != null ? `${row.avgEstToClose}d` : '—'}</td>
                     <td>{row.avgTotalCycle != null ? `${row.avgTotalCycle}d` : '—'}</td>
                   </tr>
                 ))}
@@ -207,6 +173,65 @@ function EstimateControlTower() {
             </table>
           </div>
         </section>
+
+      {/* ---- Conversion Center ---- */}
+      <section className="ect-section-card">
+        <h2 className="ect-section-title">Conversion Center</h2>
+        <div className="ect-leaderboard-wrap">
+          <table className="ect-leaderboard ect-conversion-table">
+            <thead>
+              <tr className="ect-thead-group">
+                <th />
+                <th />
+                <th />
+                <th colSpan="3" className="ect-col-group-header">Key Dates</th>
+                <th />
+                <th />
+                <th />
+                <th colSpan="2" className="ect-col-group-header">Customer Contact</th>
+              </tr>
+              <tr>
+                <th>Job ID</th>
+                <th>Customer</th>
+                <th>Estimator</th>
+                <th>FNOL</th>
+                <th>Inspection</th>
+                <th>Est. Sent</th>
+                <th>Est. Amount</th>
+                <th>Aging</th>
+                <th>Follow-Up Owner</th>
+                <th>Phone</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              {conversionCenter.map((row) => (
+                <tr key={row.id}>
+                  <td className="ect-lb-name">{row.jobNumber}</td>
+                  <td>{row.customerName}</td>
+                  <td>{row.owner}</td>
+                  <td>{row.fnolFormatted}</td>
+                  <td>{row.inspectionFormatted}</td>
+                  <td>{row.sentFormatted}</td>
+                  <td>{row.estimateValueFormatted}</td>
+                  <td className={row.agingCls}>{row.agingDays}d</td>
+                  <td>{row.followUpOwner}</td>
+                  <td>
+                    <a href={`tel:${row.customerPhone}`} className="ect-contact-btn ect-contact-phone" title={row.customerPhone}>
+                      {row.customerPhone}
+                    </a>
+                  </td>
+                  <td>
+                    <a href={`mailto:${row.customerEmail}`} className="ect-contact-btn ect-contact-email" title={row.customerEmail}>
+                      {row.customerEmail}
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }

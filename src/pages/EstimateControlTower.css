@@ -71,7 +71,6 @@
 .ect-kpi-row {
   display: grid;
   gap: 0.75rem;
-  margin-bottom: 0.75rem;
 }
 
 .ect-kpi-row-5 {
@@ -85,11 +84,6 @@
   display: flex;
   align-items: center;
   gap: 0;
-  margin-bottom: 0.75rem;
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 12px;
-  padding: 0.85rem 1rem;
 }
 
 .ect-cycle-segment {
@@ -268,77 +262,14 @@
   color: #f1f5f9;
 }
 
-/* ================================================================== */
-/*  Pipeline Funnel                                                    */
-/* ================================================================== */
-.ect-funnel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.ect-funnel-row {
-  display: grid;
-  grid-template-columns: 140px 1fr 42px 100px;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.65rem;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-  text-align: left;
-  font: inherit;
-}
-
-.ect-funnel-row:hover {
-  background: rgba(148, 163, 184, 0.06);
-  border-color: rgba(148, 163, 184, 0.15);
-}
-
-.ect-funnel-row.active {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.3);
-}
-
-.ect-funnel-label {
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: #cbd5e1;
-  white-space: nowrap;
-}
-
-.ect-funnel-bar-track {
-  height: 22px;
-  background: rgba(148, 163, 184, 0.08);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.ect-funnel-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.4s ease;
-}
-
-.ect-funnel-count {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #f1f5f9;
-  text-align: right;
-}
-
-.ect-funnel-dollar {
-  font-size: 0.78rem;
+.ect-section-subtitle {
+  font-size: 0.75rem;
+  font-weight: 400;
   color: #64748b;
-  text-align: right;
-  white-space: nowrap;
 }
 
 /* ================================================================== */
-/*  Estimator Leaderboard                                              */
+/*  Estimator Leaderboard / Conversion Center                          */
 /* ================================================================== */
 .ect-leaderboard-wrap {
   overflow-x: auto;
@@ -383,6 +314,50 @@
   font-weight: 600;
   color: #f1f5f9;
   white-space: nowrap;
+}
+
+/* Grouped column header row */
+.ect-thead-group th {
+  border-bottom: none !important;
+  padding-bottom: 0.15rem !important;
+}
+
+.ect-thead-group th.ect-col-group-header {
+  text-align: center !important;
+  color: #e2e8f0 !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  padding-bottom: 0.4rem !important;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.5) !important;
+}
+
+/* Contact buttons */
+.ect-contact-btn {
+  display: inline-block;
+  padding: 0.2rem 0.45rem;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ect-contact-phone {
+  color: #60a5fa;
+}
+
+.ect-contact-phone:hover {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+}
+
+.ect-contact-email {
+  color: #a78bfa;
+}
+
+.ect-contact-email:hover {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c4b5fd;
 }
 
 /* ================================================================== */
@@ -450,15 +425,17 @@
 .ect-aging-bucket.aging-red .ect-aging-count { color: #f87171; }
 .ect-aging-bucket.aging-red .ect-aging-label { color: rgba(239, 68, 68, 0.7); }
 
+/* Aging text colors (used in Conversion Center table) */
+.ect-aging-text-yellow { color: #facc15; font-weight: 600; }
+.ect-aging-text-orange { color: #fb923c; font-weight: 600; }
+.ect-aging-text-red    { color: #f87171; font-weight: 600; }
+
 /* ================================================================== */
 /*  Responsive                                                         */
 /* ================================================================== */
 @media (max-width: 1200px) {
   .ect-kpi-row-5 {
     grid-template-columns: repeat(3, 1fr);
-  }
-  .ect-funnel-row {
-    grid-template-columns: 120px 1fr 36px 80px;
   }
 }
 
@@ -483,14 +460,6 @@
   .ect-cycle-arrow {
     display: none;
   }
-  .ect-funnel-row {
-    grid-template-columns: 100px 1fr 32px 72px;
-    gap: 0.5rem;
-    padding: 0.4rem 0.5rem;
-  }
-  .ect-funnel-label {
-    font-size: 0.75rem;
-  }
 }
 
 @media (max-width: 520px) {
@@ -499,12 +468,6 @@
   }
   .ect-cycle-segment {
     flex: 1 1 100%;
-  }
-  .ect-funnel-row {
-    grid-template-columns: 1fr 32px 72px;
-  }
-  .ect-funnel-bar-track {
-    display: none;
   }
   .ect-aging {
     grid-template-columns: repeat(4, 1fr);

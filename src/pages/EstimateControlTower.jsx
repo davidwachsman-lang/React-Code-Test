@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   estimateTasks,
   getEstimateKPIs,
@@ -8,6 +8,43 @@ import {
 } from '../data/estimateControlTowerMockData';
 import './Page.css';
 import './EstimateControlTower.css';
+
+/* ---- CSV export helper ---- */
+function downloadCSV(filename, headers, rows) {
+  const escape = (v) => {
+    const s = String(v ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n')
+      ? `"${s.replace(/"/g, '""')}"`
+      : s;
+  };
+  const csv = [headers.map(escape).join(','), ...rows.map((r) => r.map(escape).join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ---- Follow-up mailto builder ---- */
+function buildFollowUpMailto(row) {
+  const subject = encodeURIComponent(
+    `Follow-Up Needed: ${row.jobNumber} — ${row.customerName} (${row.agingDays}d)`
+  );
+  const body = encodeURIComponent(
+    `Hi,\n\nPlease follow up on the estimate below:\n\n` +
+    `Job: ${row.jobNumber}\n` +
+    `Customer: ${row.customerName}\n` +
+    `Estimate Amount: ${row.estimateValueFormatted}\n` +
+    `Estimate Sent: ${row.sentFormatted}\n` +
+    `Aging: ${row.agingDays} days\n\n` +
+    `Customer Phone: ${row.customerPhone}\n` +
+    `Customer Email: ${row.customerEmail}\n\n` +
+    `Please reach out and update the status.\n\nThank you`
+  );
+  return `mailto:?subject=${subject}&body=${body}`;
+}
 
 function EstimateControlTower() {
   const [activeLineOfBusiness, setActiveLineOfBusiness] = useState('HB: MIT');
@@ -29,6 +66,29 @@ function EstimateControlTower() {
       : approvalWindow === 'YTD'
         ? kpis.approvalRate.rateYTD
         : kpis.approvalRate.rate30;
+
+  const exportLeaderboard = useCallback(() => {
+    const headers = ['Estimator', 'Open', 'Total $', 'Avg $', 'Conv %', 'FNOL to Insp', 'Insp to Est', 'Est to Close', 'Total Cycle'];
+    const rows = leaderboard.map((r) => [
+      r.name, r.openCount, r.totalValueFormatted, r.avgValueFormatted,
+      r.conversionRate != null ? `${r.conversionRate}%` : '',
+      r.avgFnolToInsp != null ? `${r.avgFnolToInsp}d` : '',
+      r.avgInspToEst != null ? `${r.avgInspToEst}d` : '',
+      r.avgEstToClose != null ? `${r.avgEstToClose}d` : '',
+      r.avgTotalCycle != null ? `${r.avgTotalCycle}d` : '',
+    ]);
+    downloadCSV(`estimator-leaderboard-${activeLineOfBusiness.replace(/[: ]/g, '')}.csv`, headers, rows);
+  }, [leaderboard, activeLineOfBusiness]);
+
+  const exportConversionCenter = useCallback(() => {
+    const headers = ['Job ID', 'Customer', 'Estimator', 'FNOL', 'Inspection', 'Est. Sent', 'Est. Amount', 'Aging (days)', 'Follow-Up Owner', 'Phone', 'Email'];
+    const rows = conversionCenter.map((r) => [
+      r.jobNumber, r.customerName, r.owner, r.fnolFormatted, r.inspectionFormatted,
+      r.sentFormatted, r.estimateValueFormatted, r.agingDays, r.followUpOwner,
+      r.customerPhone, r.customerEmail,
+    ]);
+    downloadCSV(`conversion-center-${activeLineOfBusiness.replace(/[: ]/g, '')}.csv`, headers, rows);
+  }, [conversionCenter, activeLineOfBusiness]);
 
   return (
     <div className="page-container ect-page">
@@ -133,7 +193,10 @@ function EstimateControlTower() {
 
       {/* ---- Estimator Leaderboard ---- */}
       <section className="ect-section-card">
-          <h2 className="ect-section-title">Estimator Leaderboard</h2>
+          <div className="ect-section-header">
+            <h2 className="ect-section-title">Estimator Leaderboard</h2>
+            <button type="button" className="ect-export-btn" onClick={exportLeaderboard}>Export CSV</button>
+          </div>
           <div className="ect-leaderboard-wrap">
             <table className="ect-leaderboard">
               <thead>
@@ -176,7 +239,10 @@ function EstimateControlTower() {
 
       {/* ---- Conversion Center ---- */}
       <section className="ect-section-card">
-        <h2 className="ect-section-title">Conversion Center</h2>
+        <div className="ect-section-header">
+          <h2 className="ect-section-title">Conversion Center</h2>
+          <button type="button" className="ect-export-btn" onClick={exportConversionCenter}>Export CSV</button>
+        </div>
         <div className="ect-leaderboard-wrap">
           <table className="ect-leaderboard ect-conversion-table">
             <thead>
@@ -189,6 +255,7 @@ function EstimateControlTower() {
                 <th />
                 <th />
                 <th colSpan="2" className="ect-col-group-header">Customer Contact</th>
+                <th />
               </tr>
               <tr>
                 <th>Job ID</th>
@@ -202,6 +269,7 @@ function EstimateControlTower() {
                 <th>Follow-Up Owner</th>
                 <th>Phone</th>
                 <th>Email</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -224,6 +292,11 @@ function EstimateControlTower() {
                   <td>
                     <a href={`mailto:${row.customerEmail}`} className="ect-contact-btn ect-contact-email" title={row.customerEmail}>
                       {row.customerEmail}
+                    </a>
+                  </td>
+                  <td>
+                    <a href={buildFollowUpMailto(row)} className="ect-remind-btn" title="Send follow-up reminder email">
+                      Remind
                     </a>
                   </td>
                 </tr>

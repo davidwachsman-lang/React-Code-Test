@@ -89,6 +89,7 @@ function JobFiles() {
       const searchLower = debouncedSearchTerm.toLowerCase();
       const matchesSearch = !debouncedSearchTerm ||
         job.job_number?.toLowerCase().includes(searchLower) ||
+        job.external_job_number?.toLowerCase().includes(searchLower) ||
         job.customer_name?.toLowerCase().includes(searchLower) ||
         job.property_address?.toLowerCase().includes(searchLower) ||
         job.scope_summary?.toLowerCase().includes(searchLower);
@@ -151,9 +152,16 @@ function JobFiles() {
   // TanStack Table columns
   const columns = useMemo(() => [
     {
-      accessorKey: 'job_number',
+      id: 'job_number',
       header: 'Job ID',
-      cell: ({ getValue }) => <span className="job-number">{getValue() || 'N/A'}</span>,
+      accessorFn: (row) => row.job_number || row.external_job_number || '',
+      cell: ({ row }) => {
+        const jn = row.original.job_number;
+        const ext = row.original.external_job_number;
+        if (jn) return <span className="job-number">{jn}</span>;
+        if (ext) return <span className="job-number ext-job-number">{ext}</span>;
+        return <span className="job-number">N/A</span>;
+      },
     },
     {
       accessorKey: 'customer_name',

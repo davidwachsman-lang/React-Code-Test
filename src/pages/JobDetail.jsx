@@ -234,7 +234,9 @@ export default function JobDetail() {
         )}
         {activeTab === 'documentation' && (
           <DocumentationTab
+            job={job}
             localState={localState}
+            onSupabaseChange={handleSupabaseChange}
             onLocalChange={handleLocalChange}
           />
         )}

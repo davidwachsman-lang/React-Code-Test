@@ -471,6 +471,10 @@ const jobService = {
               customer_id: customer.id,
               name: 'Imported Property',
               address1: '',
+              city: '',
+              state: '',
+              postal_code: '',
+              country: 'USA',
             }])
             .select()
             .single();
@@ -512,6 +516,36 @@ const jobService = {
       .eq('external_job_number', externalJobNumber)
       .maybeSingle();
     return handleSupabaseResult(response);
+  },
+
+  // Batch lookup jobs by job_number or external_job_number
+  // Returns a map of jobNumber → { chk_* fields } for merging into UI
+  async lookupChecksByJobNumbers(jobNumbers) {
+    if (!jobNumbers.length) return {};
+
+    // Query by job_number
+    const { data: byInternal } = await supabase
+      .from(TABLE)
+      .select('job_number, external_job_number, chk_job_locked, chk_dbmx_file_created, chk_start_date_entered, chk_atp_signed, chk_customer_info_form_signed, chk_equipment_resp_form_signed, chk_cause_of_loss_photo, chk_front_of_structure_photo, chk_pre_mitigation_photos, chk_daily_departure_photos, chk_docusketch_uploaded, chk_initial_scope_sheet_entered, chk_equipment_placed_and_logged, chk_initial_atmospheric_readings, chk_day_1_note_entered, chk_initial_inspection_questions, pm, crew_chief, days_active')
+      .in('job_number', jobNumbers);
+
+    // Query by external_job_number
+    const { data: byExternal } = await supabase
+      .from(TABLE)
+      .select('job_number, external_job_number, chk_job_locked, chk_dbmx_file_created, chk_start_date_entered, chk_atp_signed, chk_customer_info_form_signed, chk_equipment_resp_form_signed, chk_cause_of_loss_photo, chk_front_of_structure_photo, chk_pre_mitigation_photos, chk_daily_departure_photos, chk_docusketch_uploaded, chk_initial_scope_sheet_entered, chk_equipment_placed_and_logged, chk_initial_atmospheric_readings, chk_day_1_note_entered, chk_initial_inspection_questions, pm, crew_chief, days_active')
+      .in('external_job_number', jobNumbers);
+
+    // Build map keyed by the job number the caller used
+    const map = {};
+    for (const row of (byInternal || [])) {
+      map[row.job_number] = row;
+    }
+    for (const row of (byExternal || [])) {
+      if (row.external_job_number && !map[row.external_job_number]) {
+        map[row.external_job_number] = row;
+      }
+    }
+    return map;
   },
 
   // Generate property reference for a storm event job

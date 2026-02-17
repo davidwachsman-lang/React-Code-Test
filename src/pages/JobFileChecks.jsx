@@ -194,15 +194,54 @@ function JobFileChecks() {
     return sortDir === 'asc' ? ' \u2191' : ' \u2193';
   };
 
+  const [enriching, setEnriching] = useState(false);
+
+  const enrichWithSupabase = async (parsed) => {
+    try {
+      setEnriching(true);
+      const jobNumbers = parsed.map((r) => r.jobNumber).filter(Boolean);
+      const existing = await jobService.lookupChecksByJobNumbers(jobNumbers);
+
+      const dbColOrder = FILE_CHECK_HEADERS.map((h) => h.dbCol);
+
+      return parsed.map((row) => {
+        const match = existing[row.jobNumber];
+        if (!match) return row;
+
+        // Merge Supabase checks: if Excel says false but Supabase says true, use Supabase value
+        const mergedChecks = row.checks.map((excelVal, i) => {
+          const dbVal = match[dbColOrder[i]];
+          return excelVal || !!dbVal;
+        });
+
+        // Merge info fields (PM, Crew Chief, Days Active) if Excel is empty
+        const mergedInfo = [...row.info];
+        if (!mergedInfo[PM_INDEX] && match.pm) mergedInfo[PM_INDEX] = match.pm;
+        if (!mergedInfo[CREW_INDEX] && match.crew_chief) mergedInfo[CREW_INDEX] = match.crew_chief;
+        if (!mergedInfo[3] && match.days_active) mergedInfo[3] = String(match.days_active);
+
+        return { ...row, checks: mergedChecks, info: mergedInfo };
+      });
+    } catch (err) {
+      console.warn('Could not enrich with Supabase data:', err);
+      return parsed; // fall back to Excel-only data
+    } finally {
+      setEnriching(false);
+    }
+  };
+
   const handleFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       try {
         const wb = XLSX.read(evt.target.result, { type: 'array' });
         const parsed = parseFileChecks(wb);
-        if (parsed.length) setRows(parsed);
+        if (parsed.length) {
+          const enriched = await enrichWithSupabase(parsed);
+          setRows(enriched);
+        }
       } catch { /* ignore bad files */ }
     };
     reader.readAsArrayBuffer(file);
@@ -234,6 +273,9 @@ function JobFileChecks() {
           FILE_CHECK_HEADERS.map((h, i) => [h.dbCol, row.checks[i] || false])
         ),
       })));
+      if (results.errors?.length > 0) {
+        console.error('Save errors:', results.errors);
+      }
       setSaveStatus(results);
     } catch (err) {
       setSaveError(err.message || 'Failed to save to Supabase');
@@ -346,7 +388,7 @@ function JobFileChecks() {
         {saveStatus && saveStatus !== 'saving' && (
           <div style={{ padding: '8px 16px', background: '#f0fdf4', borderBottom: '1px solid #bbf7d0', fontSize: '13px', color: '#059669' }}>
             Supabase: {saveStatus.created} created, {saveStatus.updated} updated
-            {saveStatus.errors?.length > 0 && `, ${saveStatus.errors.length} errors`}
+            {saveStatus.errors?.length > 0 && `, ${saveStatus.errors.length} errors — check browser console (F12) for details`}
           </div>
         )}
         {saveError && (
@@ -404,6 +446,11 @@ function JobFileChecks() {
 
         {!rows ? (
           <div className="jfc-upload-area">
+            {enriching && (
+              <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
+                Loading existing check data from Supabase...
+              </div>
+            )}
             <div className="jfc-upload-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>

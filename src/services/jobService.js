@@ -396,6 +396,110 @@ const jobService = {
     return results;
   },
 
+  // Save job file check data from Excel upload
+  // Matches existing jobs by external_job_number or job_number; creates new if not found
+  async saveFileChecks(rows) {
+    const results = { created: 0, updated: 0, errors: [] };
+
+    for (const row of rows) {
+      try {
+        const jobNumber = row.externalJobNumber;
+        if (!jobNumber) {
+          results.errors.push({ externalJobNumber: '(empty)', error: 'No job number' });
+          continue;
+        }
+
+        // Try to find existing job by job_number first, then external_job_number
+        let existing = null;
+        let matchedByInternal = false;
+        const { data: byJobNumber } = await supabase
+          .from(TABLE)
+          .select('id, job_number, external_job_number')
+          .eq('job_number', jobNumber)
+          .maybeSingle();
+
+        if (byJobNumber) {
+          existing = byJobNumber;
+          matchedByInternal = true;
+        } else {
+          const { data: byExternal } = await supabase
+            .from(TABLE)
+            .select('id, job_number, external_job_number')
+            .eq('external_job_number', jobNumber)
+            .maybeSingle();
+          if (byExternal) existing = byExternal;
+        }
+
+        // Build update payload with checks + info
+        const checkData = {
+          ...row.checks,
+          pm: row.pm || undefined,
+          crew_chief: row.crewChief || undefined,
+          days_active: row.daysActive || undefined,
+          source_system: 'job-file-checks-import',
+        };
+        // Remove undefined keys
+        Object.keys(checkData).forEach(k => checkData[k] === undefined && delete checkData[k]);
+
+        if (existing) {
+          // If matched by internal job_number but external_job_number is empty,
+          // and the incoming number doesn't match our internal format, set it as external too
+          if (matchedByInternal && !existing.external_job_number) {
+            checkData.external_job_number = jobNumber;
+          }
+          // If not matched by internal, ensure external_job_number is set
+          if (!matchedByInternal && !existing.external_job_number) {
+            checkData.external_job_number = jobNumber;
+          }
+
+          await supabase
+            .from(TABLE)
+            .update(checkData)
+            .eq('id', existing.id);
+          results.updated++;
+        } else {
+          // Create new job with customer, property, and check data
+          const { data: customer } = await supabase
+            .from('customers')
+            .insert([{ name: row.customerName || 'Unknown (Import)' }])
+            .select()
+            .single();
+
+          const { data: property } = await supabase
+            .from('properties')
+            .insert([{
+              customer_id: customer.id,
+              name: 'Imported Property',
+              address1: '',
+            }])
+            .select()
+            .single();
+
+          await supabase
+            .from(TABLE)
+            .insert([{
+              external_job_number: jobNumber,
+              customer_id: customer.id,
+              property_id: property.id,
+              status: 'pending',
+              date_opened: new Date().toISOString().split('T')[0],
+              ...checkData,
+            }])
+            .select()
+            .single();
+          results.created++;
+        }
+      } catch (err) {
+        results.errors.push({
+          externalJobNumber: row.externalJobNumber,
+          error: err.message,
+        });
+      }
+    }
+
+    return results;
+  },
+
   // Find job by external job number
   async findByExternalJobNumber(externalJobNumber) {
     const response = await supabase

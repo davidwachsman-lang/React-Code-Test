@@ -9,26 +9,26 @@ const CREW_INDEX = 2;
 
 const FILE_CHECK_HEADERS = [
   // Setup (3)
-  { label: 'JOB LOCKED',      fullName: 'Job Locked' },
-  { label: 'DBMX FILE',       fullName: 'DBMX File Created' },
-  { label: 'START DATE',      fullName: 'Start Date Entered' },
+  { label: 'JOB LOCKED',      fullName: 'Job Locked',                          dbCol: 'chk_job_locked' },
+  { label: 'DBMX FILE',       fullName: 'DBMX File Created',                   dbCol: 'chk_dbmx_file_created' },
+  { label: 'START DATE',      fullName: 'Start Date Entered',                  dbCol: 'chk_start_date_entered' },
   // Agreements (3)
-  { label: 'ATP',              fullName: 'ATP Signed' },
-  { label: 'CUST INFO FORM',  fullName: 'Customer Information Form Signed' },
-  { label: 'EQUIP RESP FORM', fullName: 'Equipment Responsibility Form Signed' },
+  { label: 'ATP',              fullName: 'ATP Signed',                          dbCol: 'chk_atp_signed' },
+  { label: 'CUST INFO FORM',  fullName: 'Customer Information Form Signed',    dbCol: 'chk_customer_info_form_signed' },
+  { label: 'EQUIP RESP FORM', fullName: 'Equipment Responsibility Form Signed', dbCol: 'chk_equipment_resp_form_signed' },
   // Photos (4)
-  { label: 'COL PHOTO',       fullName: 'Cause of Loss Photo' },
-  { label: 'FRONT PHOTO',     fullName: 'Front of Structure Photo' },
-  { label: 'PRE-MIT PHOTOS',  fullName: 'Pre-Mitigation Photos' },
-  { label: 'DAILY PHOTOS',    fullName: 'Daily Departure Photos' },
+  { label: 'COL PHOTO',       fullName: 'Cause of Loss Photo',                 dbCol: 'chk_cause_of_loss_photo' },
+  { label: 'FRONT PHOTO',     fullName: 'Front of Structure Photo',            dbCol: 'chk_front_of_structure_photo' },
+  { label: 'PRE-MIT PHOTOS',  fullName: 'Pre-Mitigation Photos',               dbCol: 'chk_pre_mitigation_photos' },
+  { label: 'DAILY PHOTOS',    fullName: 'Daily Departure Photos',              dbCol: 'chk_daily_departure_photos' },
   // Field Work (4)
-  { label: 'DOCUSKETCH',      fullName: 'DocuSketch Uploaded' },
-  { label: 'SCOPE SHEET',     fullName: 'Initial Scope Sheet Entered' },
-  { label: 'EQUIP LOGGED',    fullName: 'Equipment Placed and Logged' },
-  { label: 'ATMO READINGS',   fullName: 'Initial Atmospheric Readings Taken' },
+  { label: 'DOCUSKETCH',      fullName: 'DocuSketch Uploaded',                  dbCol: 'chk_docusketch_uploaded' },
+  { label: 'SCOPE SHEET',     fullName: 'Initial Scope Sheet Entered',         dbCol: 'chk_initial_scope_sheet_entered' },
+  { label: 'EQUIP LOGGED',    fullName: 'Equipment Placed and Logged',         dbCol: 'chk_equipment_placed_and_logged' },
+  { label: 'ATMO READINGS',   fullName: 'Initial Atmospheric Readings Taken',  dbCol: 'chk_initial_atmospheric_readings' },
   // Notes (2)
-  { label: 'DAY 1 NOTE',      fullName: 'Day 1 Note Entered' },
-  { label: 'INSP QUESTIONS',  fullName: 'Initial Inspection Questions Answered' },
+  { label: 'DAY 1 NOTE',      fullName: 'Day 1 Note Entered',                  dbCol: 'chk_day_1_note_entered' },
+  { label: 'INSP QUESTIONS',  fullName: 'Initial Inspection Questions Answered', dbCol: 'chk_initial_inspection_questions' },
 ];
 
 const CHECK_GROUPS = [
@@ -224,17 +224,16 @@ function JobFileChecks() {
     setSaveStatus('saving');
     setSaveError(null);
     try {
-      const importRows = rows.map((row) => ({
+      const results = await jobService.saveFileChecks(rows.map((row) => ({
         externalJobNumber: row.jobNumber || null,
-        customerName: row.info[0] || 'Unknown', // Customer column
-        address: '',
-        notes: [
-          row.info[1] ? `PM: ${row.info[1]}` : null,
-          row.info[2] ? `Crew Chief: ${row.info[2]}` : null,
-        ].filter(Boolean).join(', ') || null,
-        status: 'pending',
-      }));
-      const results = await jobService.bulkImportExternal(importRows, 'job-file-checks-import');
+        customerName: row.info[0] || 'Unknown',
+        pm: row.info[1] || null,
+        crewChief: row.info[2] || null,
+        daysActive: row.info[3] ? parseInt(row.info[3], 10) || null : null,
+        checks: Object.fromEntries(
+          FILE_CHECK_HEADERS.map((h, i) => [h.dbCol, row.checks[i] || false])
+        ),
+      })));
       setSaveStatus(results);
     } catch (err) {
       setSaveError(err.message || 'Failed to save to Supabase');
@@ -346,7 +345,7 @@ function JobFileChecks() {
 
         {saveStatus && saveStatus !== 'saving' && (
           <div style={{ padding: '8px 16px', background: '#f0fdf4', borderBottom: '1px solid #bbf7d0', fontSize: '13px', color: '#059669' }}>
-            Supabase: {saveStatus.created} created, {saveStatus.skipped} skipped (already exist)
+            Supabase: {saveStatus.created} created, {saveStatus.updated} updated
             {saveStatus.errors?.length > 0 && `, ${saveStatus.errors.length} errors`}
           </div>
         )}

@@ -31,9 +31,6 @@ export default function PersonnelTab({ job, localState, onSupabaseChange, onLoca
 
   return (
     <div className="personnel-tab">
-      <div className="doc-preview-banner">
-        Some fields are in preview mode and won't persist between sessions.
-      </div>
       <div className="detail-section">
         <h3>Personnel Assignments</h3>
         <div className="personnel-grid">

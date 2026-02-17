@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   useReactTable,
   getCoreRowModel,
@@ -25,25 +25,43 @@ import {
 import './Page.css';
 import './JobFiles.css';
 
+const INITIAL_FILTERS = {
+  status: 'all', division: 'all', group: 'all', jobType: 'all',
+  propertyType: 'all', pm: 'all', cc: 'all', jfc: 'all', bdr: 'all',
+};
+
 function JobFiles() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [divisionFilter, setDivisionFilter] = useState('all');
-  const [groupFilter, setGroupFilter] = useState('all');
-  const [jobTypeFilter, setJobTypeFilter] = useState('all');
-  const [propertyTypeFilter, setPropertyTypeFilter] = useState('all');
-  const [pmFilter, setPmFilter] = useState('all');
-  const [ccFilter, setCcFilter] = useState('all');
-  const [jfcFilter, setJfcFilter] = useState('all');
-  const [bdrFilter, setBdrFilter] = useState('all');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  // #1: Consolidated filter state
+  const [filters, setFilters] = useState(() => {
+    const initial = { ...INITIAL_FILTERS };
+    for (const key of Object.keys(INITIAL_FILTERS)) {
+      const param = searchParams.get(key);
+      if (param) initial[key] = param;
+    }
+    return initial;
+  });
+
+  const setFilter = useCallback((key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  }, []);
 
   const [sorting, setSorting] = useState([]);
 
   const { getLocalState } = useJobLocalState();
+
+  // #2: Search debounce (300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   useEffect(() => {
     loadJobs();
@@ -68,34 +86,34 @@ function JobFiles() {
 
   const filteredJobs = useMemo(() => {
     return jobs.filter(job => {
-      const searchLower = searchTerm.toLowerCase();
-      const matchesSearch = !searchTerm ||
+      const searchLower = debouncedSearchTerm.toLowerCase();
+      const matchesSearch = !debouncedSearchTerm ||
         job.job_number?.toLowerCase().includes(searchLower) ||
         job.customer_name?.toLowerCase().includes(searchLower) ||
         job.property_address?.toLowerCase().includes(searchLower) ||
         job.scope_summary?.toLowerCase().includes(searchLower);
 
-      const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
-      const matchesDivision = divisionFilter === 'all' || job.division === divisionFilter;
+      const matchesStatus = filters.status === 'all' || job.status === filters.status;
+      const matchesDivision = filters.division === 'all' || job.division === filters.division;
 
       const local = getLocalState(job.id);
-      const matchesGroup = groupFilter === 'all' || local.group === groupFilter;
-      const matchesJobType = jobTypeFilter === 'all' ||
-        job.loss_type?.toUpperCase() === jobTypeFilter ||
-        local.department === jobTypeFilter;
+      const matchesGroup = filters.group === 'all' || local.group === filters.group;
+      const matchesJobType = filters.jobType === 'all' ||
+        job.loss_type?.toUpperCase() === filters.jobType ||
+        local.department === filters.jobType;
 
       const propType = (job.property_type || local.fnol_property_type || '').toUpperCase();
-      const matchesPropertyType = propertyTypeFilter === 'all' || propType === propertyTypeFilter;
+      const matchesPropertyType = filters.propertyType === 'all' || propType === filters.propertyType;
 
-      const matchesPm = pmFilter === 'all' || (job.pm && job.pm.toUpperCase() === pmFilter);
-      const matchesCc = ccFilter === 'all' || (local.crew_chief && local.crew_chief.toUpperCase() === ccFilter);
-      const matchesJfc = jfcFilter === 'all' || (job.jfc && job.jfc.toUpperCase() === jfcFilter);
-      const matchesBdr = bdrFilter === 'all' || (local.business_dev_rep && local.business_dev_rep.toUpperCase() === bdrFilter);
+      const matchesPm = filters.pm === 'all' || (job.pm && job.pm.toUpperCase() === filters.pm);
+      const matchesCc = filters.cc === 'all' || (local.crew_chief && local.crew_chief.toUpperCase() === filters.cc);
+      const matchesJfc = filters.jfc === 'all' || (job.jfc && job.jfc.toUpperCase() === filters.jfc);
+      const matchesBdr = filters.bdr === 'all' || (local.business_dev_rep && local.business_dev_rep.toUpperCase() === filters.bdr);
 
       return matchesSearch && matchesStatus && matchesDivision && matchesGroup && matchesJobType &&
         matchesPropertyType && matchesPm && matchesCc && matchesJfc && matchesBdr;
     });
-  }, [jobs, searchTerm, statusFilter, divisionFilter, groupFilter, jobTypeFilter, propertyTypeFilter, pmFilter, ccFilter, jfcFilter, bdrFilter, getLocalState]);
+  }, [jobs, debouncedSearchTerm, filters, getLocalState]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -110,16 +128,25 @@ function JobFiles() {
 
   const clearFilters = () => {
     setSearchTerm('');
-    setStatusFilter('all');
-    setDivisionFilter('all');
-    setGroupFilter('all');
-    setJobTypeFilter('all');
-    setPropertyTypeFilter('all');
-    setPmFilter('all');
-    setCcFilter('all');
-    setJfcFilter('all');
-    setBdrFilter('all');
+    setFilters({ ...INITIAL_FILTERS });
   };
+
+  // #8: Build filter query string for back-nav preservation
+  const buildFilterParams = () => {
+    const params = new URLSearchParams();
+    if (searchTerm) params.set('search', searchTerm);
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== 'all') params.set(key, value);
+    }
+    const qs = params.toString();
+    return qs ? `?${qs}` : '';
+  };
+
+  // #8: Initialize search term from URL on mount
+  useEffect(() => {
+    const s = searchParams.get('search');
+    if (s) setSearchTerm(s);
+  }, []);
 
   // TanStack Table columns
   const columns = useMemo(() => [
@@ -268,6 +295,8 @@ function JobFiles() {
     },
   });
 
+  const hasActiveFilters = searchTerm || Object.values(filters).some(v => v !== 'all');
+
   if (loading) {
     return (
       <div className="page-container">
@@ -320,18 +349,18 @@ function JobFiles() {
           <div className="filters-grid">
             <div className="filter-group">
               <label>Status</label>
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="filter-select">
+              <select value={filters.status} onChange={(e) => setFilter('status', e.target.value)} className="filter-select">
                 <option value="all">All Statuses</option>
                 {STATUS_OPTIONS.map(s => (
                   <option key={s} value={STATUS_DB_MAP[s]}>{s}</option>
                 ))}
-                <option value="complete">COMPLETE</option>
-                <option value="closed">CLOSED</option>
+                <option value="complete">Complete</option>
+                <option value="closed">Closed</option>
               </select>
             </div>
             <div className="filter-group">
               <label>Division</label>
-              <select value={divisionFilter} onChange={(e) => setDivisionFilter(e.target.value)} className="filter-select">
+              <select value={filters.division} onChange={(e) => setFilter('division', e.target.value)} className="filter-select">
                 <option value="all">All Divisions</option>
                 {DIVISION_OPTIONS.map(d => (
                   <option key={d} value={d}>{d}</option>
@@ -340,7 +369,7 @@ function JobFiles() {
             </div>
             <div className="filter-group">
               <label>Group</label>
-              <select value={groupFilter} onChange={(e) => setGroupFilter(e.target.value)} className="filter-select">
+              <select value={filters.group} onChange={(e) => setFilter('group', e.target.value)} className="filter-select">
                 <option value="all">All Groups</option>
                 {GROUP_OPTIONS.map(g => (
                   <option key={g} value={g}>{g}</option>
@@ -349,7 +378,7 @@ function JobFiles() {
             </div>
             <div className="filter-group">
               <label>Job Type</label>
-              <select value={jobTypeFilter} onChange={(e) => setJobTypeFilter(e.target.value)} className="filter-select">
+              <select value={filters.jobType} onChange={(e) => setFilter('jobType', e.target.value)} className="filter-select">
                 <option value="all">All Job Types</option>
                 {DEPARTMENT_OPTIONS.map(d => (
                   <option key={d} value={d}>{d}</option>
@@ -358,7 +387,7 @@ function JobFiles() {
             </div>
             <div className="filter-group">
               <label>Property Type</label>
-              <select value={propertyTypeFilter} onChange={(e) => setPropertyTypeFilter(e.target.value)} className="filter-select">
+              <select value={filters.propertyType} onChange={(e) => setFilter('propertyType', e.target.value)} className="filter-select">
                 <option value="all">All Property Types</option>
                 <option value="RESIDENTIAL">RESIDENTIAL</option>
                 <option value="COMMERCIAL">COMMERCIAL</option>
@@ -371,7 +400,7 @@ function JobFiles() {
           <div className="filters-grid">
             <div className="filter-group">
               <label>PM</label>
-              <select value={pmFilter} onChange={(e) => setPmFilter(e.target.value)} className="filter-select">
+              <select value={filters.pm} onChange={(e) => setFilter('pm', e.target.value)} className="filter-select">
                 <option value="all">All PMs</option>
                 {PM_OPTIONS.map(p => (
                   <option key={p} value={p}>{p}</option>
@@ -380,7 +409,7 @@ function JobFiles() {
             </div>
             <div className="filter-group">
               <label>CC</label>
-              <select value={ccFilter} onChange={(e) => setCcFilter(e.target.value)} className="filter-select">
+              <select value={filters.cc} onChange={(e) => setFilter('cc', e.target.value)} className="filter-select">
                 <option value="all">All CCs</option>
                 {CREW_CHIEF_OPTIONS.map(c => (
                   <option key={c} value={c}>{c}</option>
@@ -389,7 +418,7 @@ function JobFiles() {
             </div>
             <div className="filter-group">
               <label>JFC</label>
-              <select value={jfcFilter} onChange={(e) => setJfcFilter(e.target.value)} className="filter-select">
+              <select value={filters.jfc} onChange={(e) => setFilter('jfc', e.target.value)} className="filter-select">
                 <option value="all">All JFCs</option>
                 {JFC_OPTIONS.map(j => (
                   <option key={j} value={j}>{j}</option>
@@ -398,7 +427,7 @@ function JobFiles() {
             </div>
             <div className="filter-group">
               <label>BDR</label>
-              <select value={bdrFilter} onChange={(e) => setBdrFilter(e.target.value)} className="filter-select">
+              <select value={filters.bdr} onChange={(e) => setFilter('bdr', e.target.value)} className="filter-select">
                 <option value="all">All BDRs</option>
                 {BIZ_DEV_OPTIONS.map(b => (
                   <option key={b} value={b}>{b}</option>
@@ -413,11 +442,65 @@ function JobFiles() {
         Showing {filteredJobs.length} of {jobs.length} jobs
       </div>
 
-      {/* TanStack Table */}
+      {/* #16: Mobile card view */}
+      <div className="mobile-card-list">
+        {filteredJobs.length === 0 ? (
+          <div className="empty-state-container">
+            <svg className="empty-state-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="28" cy="28" r="20" stroke="#64748b" strokeWidth="3" />
+              <line x1="42" y1="42" x2="56" y2="56" stroke="#64748b" strokeWidth="3" strokeLinecap="round" />
+              <line x1="20" y1="28" x2="36" y2="28" stroke="#64748b" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <p className="empty-state-message">No jobs match your filters</p>
+            {hasActiveFilters && (
+              <button onClick={clearFilters} className="btn-primary">Clear Filters</button>
+            )}
+          </div>
+        ) : (
+          table.getRowModel().rows.map(row => {
+            const job = row.original;
+            const local = getLocalState(job.id);
+            const aging = row.getValue('aging');
+            const estimate = job.estimate_value
+              ? '$' + parseFloat(job.estimate_value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+              : '-';
+            return (
+              <div
+                key={row.id}
+                className="mobile-job-card"
+                onClick={() => navigate(`/job-files/${job.id}${buildFilterParams()}`)}
+              >
+                <div className="mobile-card-top">
+                  <span className="job-number">{job.job_number || 'N/A'}</span>
+                  <span className={`status-badge status-${job.status}`}>
+                    {formatStatus(job.status)}
+                  </span>
+                </div>
+                <div className="mobile-card-customer">{job.customer_name || 'N/A'}</div>
+                <div className="mobile-card-details">
+                  <span>PM: {job.pm || '-'}</span>
+                  <span>Aging: {aging != null ? `${aging}d` : '-'}</span>
+                  <span>Est: {estimate}</span>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* TanStack Table (desktop) */}
       <div className="jobs-table-container">
         {filteredJobs.length === 0 ? (
-          <div className="empty-state">
-            <p>No jobs found matching your filters</p>
+          <div className="empty-state-container">
+            <svg className="empty-state-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="28" cy="28" r="20" stroke="#64748b" strokeWidth="3" />
+              <line x1="42" y1="42" x2="56" y2="56" stroke="#64748b" strokeWidth="3" strokeLinecap="round" />
+              <line x1="20" y1="28" x2="36" y2="28" stroke="#64748b" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <p className="empty-state-message">No jobs match your filters</p>
+            {hasActiveFilters && (
+              <button onClick={clearFilters} className="btn-primary">Clear Filters</button>
+            )}
           </div>
         ) : (
           <>
@@ -453,7 +536,11 @@ function JobFiles() {
                   <tr
                     key={row.id}
                     className="job-row"
-                    onClick={() => navigate(`/job-files/${row.original.id}`)}
+                    tabIndex={0}
+                    onClick={() => navigate(`/job-files/${row.original.id}${buildFilterParams()}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') navigate(`/job-files/${row.original.id}${buildFilterParams()}`);
+                    }}
                   >
                     {row.getVisibleCells().map(cell => (
                       <td key={cell.id}>

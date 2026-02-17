@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import jobService from '../services/jobService';
 import useJobLocalState from '../hooks/useJobLocalState';
+import { STATUS_DISPLAY_MAP } from '../constants/jobFileConstants';
 import OverviewTab from '../components/job-files/tabs/OverviewTab';
 import FNOLTab from '../components/job-files/tabs/FNOLTab';
 import PersonnelTab from '../components/job-files/tabs/PersonnelTab';
@@ -9,10 +10,10 @@ import DatesTab from '../components/job-files/tabs/DatesTab';
 import FinancialsTab from '../components/job-files/tabs/FinancialsTab';
 import DocumentationTab from '../components/job-files/tabs/DocumentationTab';
 import CommunicationsTab from '../components/job-files/tabs/CommunicationsTab';
-import FilesTab from '../components/job-files/tabs/FilesTab';
 import './Page.css';
 import './JobFiles.css';
 
+// #13: Files tab removed from TABS array
 const TABS = [
   { key: 'overview', label: 'Overview' },
   { key: 'fnol', label: 'FNOL' },
@@ -21,16 +22,40 @@ const TABS = [
   { key: 'financials', label: 'Financials' },
   { key: 'documentation', label: 'Documentation' },
   { key: 'communications', label: 'Communications' },
-  { key: 'files', label: 'Files' },
 ];
 
 export default function JobDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+
+  // #6: Tab scroll indicators
+  const tabsRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkTabScroll = useCallback(() => {
+    const el = tabsRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    checkTabScroll();
+    const el = tabsRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', checkTabScroll);
+    window.addEventListener('resize', checkTabScroll);
+    return () => {
+      el.removeEventListener('scroll', checkTabScroll);
+      window.removeEventListener('resize', checkTabScroll);
+    };
+  }, [checkTabScroll, loading]);
 
   const { getLocalState, updateLocalField } = useJobLocalState();
 
@@ -47,7 +72,6 @@ export default function JobDetail() {
         setError('Job not found');
         return;
       }
-      // Flatten customer/property like getAll does
       setJob({
         ...data,
         status: data.status || 'pending',
@@ -89,15 +113,24 @@ export default function JobDetail() {
   const handleAddNote = async (noteText) => {
     if (!noteText.trim() || !job) return;
     try {
+      const timestamp = new Date().toLocaleString();
+      const newEntry = `[${timestamp}]\n${noteText}`;
       const updatedNotes = job.internal_notes
-        ? `${job.internal_notes}\n\n[${new Date().toLocaleString()}]\n${noteText}`
-        : `[${new Date().toLocaleString()}]\n${noteText}`;
+        ? `${newEntry}\n\n${job.internal_notes}`
+        : newEntry;
 
       await jobService.update(job.id, { internal_notes: updatedNotes });
       setJob(prev => ({ ...prev, internal_notes: updatedNotes }));
     } catch (err) {
       alert('Failed to add note: ' + err.message);
     }
+  };
+
+  // #8: Build back link preserving filters from the URL we arrived with
+  const backLink = '/job-files' + (location.search || '');
+
+  const formatStatus = (status) => {
+    return STATUS_DISPLAY_MAP[status] || status?.replace(/_/g, ' ').toUpperCase() || 'UNKNOWN';
   };
 
   if (loading) {
@@ -117,7 +150,7 @@ export default function JobDetail() {
         <div className="error-state">
           <h2>Error</h2>
           <p>{error}</p>
-          <button onClick={() => navigate('/job-files')} className="btn-primary">
+          <button onClick={() => navigate(backLink)} className="btn-primary">
             Back to Jobs
           </button>
         </div>
@@ -132,27 +165,36 @@ export default function JobDetail() {
   return (
     <div className="page-container">
       <div className="job-detail-header">
-        <button className="btn-back" onClick={() => navigate('/job-files')}>
+        <button className="btn-back" onClick={() => navigate(backLink)}>
           &#8592; Back to Jobs
         </button>
         <div className="job-detail-title">
           <h1>Job: {job.job_number || 'N/A'}</h1>
           <span className={`status-badge status-${job.status}`}>
-            {job.status?.replace(/_/g, ' ').toUpperCase() || 'UNKNOWN'}
+            {formatStatus(job.status)}
           </span>
         </div>
       </div>
 
-      <div className="job-detail-tabs">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            className={`tab-button ${activeTab === tab.key ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.key)}
-          >
-            {tab.label}
-          </button>
-        ))}
+      {/* #7: Single preview banner above tabs */}
+      <div className="preview-banner-global">
+        Some fields in this job are in preview mode and won't persist between sessions.
+        These are marked with a <span className="preview-tag">Preview</span> tag.
+      </div>
+
+      {/* #6: Tab scroll indicators */}
+      <div className={`tabs-scroll-wrapper${canScrollLeft ? ' can-scroll-left' : ''}${canScrollRight ? ' can-scroll-right' : ''}`}>
+        <div className="job-detail-tabs" ref={tabsRef}>
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              className={`tab-button ${activeTab === tab.key ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab.key)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="job-detail-body">
@@ -166,7 +208,9 @@ export default function JobDetail() {
         )}
         {activeTab === 'fnol' && (
           <FNOLTab
+            job={job}
             localState={localState}
+            onSupabaseChange={handleSupabaseChange}
             onLocalChange={handleLocalChange}
           />
         )}
@@ -209,7 +253,6 @@ export default function JobDetail() {
             onAddNote={handleAddNote}
           />
         )}
-        {activeTab === 'files' && <FilesTab />}
       </div>
     </div>
   );

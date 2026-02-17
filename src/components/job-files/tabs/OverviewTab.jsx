@@ -14,10 +14,12 @@ function formatCurrency(val) {
   return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function daysOpen(createdAt) {
-  if (!createdAt) return '-';
-  const diff = Date.now() - new Date(createdAt).getTime();
-  return Math.max(0, Math.floor(diff / 86400000));
+function computeAging(job, localState) {
+  const dateStr = localState.fnol_date || job.date_of_loss || job.date_received || job.created_at;
+  if (!dateStr) return '-';
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return '-';
+  return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000));
 }
 
 export default function OverviewTab({ job, localState, onSupabaseChange, onLocalChange }) {
@@ -44,6 +46,9 @@ export default function OverviewTab({ job, localState, onSupabaseChange, onLocal
                 <option key={s} value={STATUS_DB_MAP[s]}>{s}</option>
               ))}
             </select>
+            <span className={`status-badge status-${job.status}`} style={{ marginTop: '0.35rem', alignSelf: 'flex-start' }}>
+              {statusDisplay}
+            </span>
           </div>
           <div className="snapshot-item">
             <span className="snapshot-label">Stage</span>
@@ -90,7 +95,7 @@ export default function OverviewTab({ job, localState, onSupabaseChange, onLocal
             <span className="preview-tag">Preview</span>
           </div>
           <div className="snapshot-item">
-            <span className="snapshot-label">Department</span>
+            <span className="snapshot-label">Job Type</span>
             <select
               className="form-input snapshot-select"
               value={localState.department || ''}
@@ -138,8 +143,8 @@ export default function OverviewTab({ job, localState, onSupabaseChange, onLocal
             <span className="qv-value">{formatCurrency(job.estimate_value)}</span>
           </div>
           <div className="quick-view-card">
-            <span className="qv-label">Days Open</span>
-            <span className="qv-value">{daysOpen(job.created_at)}</span>
+            <span className="qv-label">Aging</span>
+            <span className="qv-value">{computeAging(job, localState)}d</span>
           </div>
         </div>
       </div>

@@ -10,98 +10,125 @@ const COMM_TYPES = [
 ];
 
 export default function CommunicationsTab({ job, localState, onSupabaseChange, onLocalChange, onAddNote }) {
-  const [activeCommType, setActiveCommType] = useState('internal');
-  const [newEntry, setNewEntry] = useState('');
+  // #11: Track which sections are open (multiple can be open at once)
+  const [openSections, setOpenSections] = useState({ internal: true });
+  const [newEntries, setNewEntries] = useState({});
   const [severity, setSeverity] = useState('Medium');
 
-  const currentType = COMM_TYPES.find(t => t.key === activeCommType);
-
-  const getCurrentLog = () => {
-    if (currentType.supabase) return job[currentType.dbField] || '';
-    return localState[currentType.localField] || '';
+  const toggleSection = (key) => {
+    setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleAdd = () => {
-    if (!newEntry.trim()) return;
+  const getLog = (type) => {
+    if (type.supabase) return job[type.dbField] || '';
+    return localState[type.localField] || '';
+  };
+
+  const handleAdd = (type) => {
+    const text = (newEntries[type.key] || '').trim();
+    if (!text) return;
 
     const timestamp = `[${new Date().toLocaleString()}]`;
-    const prefix = currentType.hasServerity ? `[${severity}] ` : '';
-    const entry = `${timestamp}\n${prefix}${newEntry}`;
+    const prefix = type.hasServerity ? `[${severity}] ` : '';
+    const entry = `${timestamp}\n${prefix}${text}`;
 
-    if (currentType.supabase) {
-      onAddNote(newEntry);
+    if (type.supabase) {
+      onAddNote(text);
     } else {
-      const existing = localState[currentType.localField] || '';
+      const existing = localState[type.localField] || '';
       const updated = existing ? `${existing}\n\n${entry}` : entry;
-      onLocalChange(currentType.localField, updated);
+      onLocalChange(type.localField, updated);
     }
-    setNewEntry('');
+    setNewEntries(prev => ({ ...prev, [type.key]: '' }));
+  };
+
+  const sectionColors = {
+    internal: '#3b82f6',
+    customer: '#22c55e',
+    adjuster: '#f59e0b',
+    escalations: '#ef4444',
+    timeline: '#8b5cf6',
   };
 
   return (
     <div className="communications-tab">
-      <div className="comm-subtabs">
-        {COMM_TYPES.map((type) => (
-          <button
+      {COMM_TYPES.map((type) => {
+        const isOpen = openSections[type.key];
+        const log = getLog(type);
+        const borderColor = sectionColors[type.key] || '#3b82f6';
+
+        return (
+          <div
             key={type.key}
-            className={`comm-subtab ${activeCommType === type.key ? 'active' : ''}`}
-            onClick={() => setActiveCommType(type.key)}
+            className="fnol-section"
+            style={{ borderLeftColor: borderColor }}
           >
-            {type.label}
-          </button>
-        ))}
-      </div>
-
-      {!currentType.supabase && (
-        <div className="doc-preview-banner">
-          This communication log is in preview mode and won't persist between sessions.
-        </div>
-      )}
-
-      {!currentType.readOnly && (
-        <div className="detail-section">
-          <h3>Add Entry</h3>
-          {currentType.hasServerity && (
-            <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-              <label>Severity</label>
-              <select
-                className="form-input"
-                value={severity}
-                onChange={(e) => setSeverity(e.target.value)}
-              >
-                {ESCALATION_SEVERITIES.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+            <div
+              className="fnol-section-header"
+              onClick={() => toggleSection(type.key)}
+            >
+              <h4>{type.label}</h4>
+              <span className="fnol-collapse-icon">{isOpen ? '-' : '+'}</span>
             </div>
-          )}
-          <textarea
-            className="note-textarea"
-            placeholder={`Enter ${currentType.label.toLowerCase()}...`}
-            value={newEntry}
-            onChange={(e) => setNewEntry(e.target.value)}
-            rows={4}
-          />
-          <button
-            className="btn-primary"
-            onClick={handleAdd}
-            disabled={!newEntry.trim()}
-          >
-            Add Entry
-          </button>
-        </div>
-      )}
 
-      <div className="detail-section">
-        <h3>History</h3>
-        {currentType.readOnly ? (
-          <p className="no-notes">Job timeline events will be auto-populated in a future update.</p>
-        ) : getCurrentLog() ? (
-          <div className="notes-history">{getCurrentLog()}</div>
-        ) : (
-          <p className="no-notes">No entries yet.</p>
-        )}
-      </div>
+            {isOpen && (
+              <div style={{ padding: '0 1.25rem 1.25rem' }}>
+                {!type.readOnly && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    {type.hasServerity && (
+                      <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                        <label>Severity</label>
+                        <select
+                          className="form-input"
+                          value={severity}
+                          onChange={(e) => setSeverity(e.target.value)}
+                        >
+                          {ESCALATION_SEVERITIES.map((s) => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                    <textarea
+                      className="note-textarea"
+                      placeholder={`Enter ${type.label.toLowerCase()}...`}
+                      value={newEntries[type.key] || ''}
+                      onChange={(e) => setNewEntries(prev => ({ ...prev, [type.key]: e.target.value }))}
+                      rows={4}
+                      maxLength={2000}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <button
+                        className="btn-primary"
+                        onClick={() => handleAdd(type)}
+                        disabled={!(newEntries[type.key] || '').trim()}
+                      >
+                        Add Entry
+                      </button>
+                      <span style={{ color: '#64748b', fontSize: '0.8rem' }}>
+                        {(newEntries[type.key] || '').length}/2000
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <h4 style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>
+                    History
+                  </h4>
+                  {type.readOnly ? (
+                    <p className="no-notes">Job timeline events will be auto-populated in a future update.</p>
+                  ) : log ? (
+                    <div className="notes-history">{log}</div>
+                  ) : (
+                    <p className="no-notes">No entries yet.</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

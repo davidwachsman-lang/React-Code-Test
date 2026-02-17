@@ -27,10 +27,6 @@ export default function DatesTab({ job, localState, onSupabaseChange, onLocalCha
 
   return (
     <div className="dates-tab-content">
-      <div className="doc-preview-banner">
-        Some fields are in preview mode and won't persist between sessions.
-      </div>
-
       <div className="detail-section">
         <h3>Key Dates</h3>
         <div className="dates-grid-3col">

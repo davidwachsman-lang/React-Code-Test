@@ -26,9 +26,7 @@ export default function DocumentationTab({ localState, onLocalChange }) {
         </div>
       </div>
 
-      <div className="doc-preview-banner">
-        Some fields are in preview mode and won't persist between sessions.
-      </div>
+      {/* #10: Preview banner removed per #7 — now at JobDetail level */}
 
       {DOC_CHECK_GROUPS.map((group) => (
         <div key={group.label} className="doc-group">

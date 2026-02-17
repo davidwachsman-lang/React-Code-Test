@@ -126,7 +126,12 @@ const intakeService = {
         internal_notes: this._buildInternalNotes(intakeData),
         referral_source: intakeData.callerType,
         is_emergency: intakeData.urgency === 'Emergency',
-        division: intakeData.division
+        division: intakeData.division,
+        // Insurance fields — saved to dedicated columns (not just internal_notes)
+        insurance_company: intakeData.carrier || null,
+        insurance_adjuster_name: intakeData.adjName || null,
+        insurance_adjuster_phone: intakeData.adjPhone || null,
+        insurance_adjuster_email: intakeData.adjEmail || null,
       };
 
       const job = await jobService.create(jobData);
@@ -159,6 +164,11 @@ const intakeService = {
     }
     if (data.sqft) parts.push(`Est. SF: ${data.sqft}`);
     if (data.activeLeak) parts.push(`Active Leak: ${data.activeLeak}`);
+    if (data.roomsAffected) parts.push(`Rooms: ${data.roomsAffected}`);
+    if (data.floorsAffected) parts.push(`Floors: ${data.floorsAffected}`);
+    if (data.unitsAffected) parts.push(`Units: ${data.unitsAffected}`);
+    if (data.affectedMaterials) parts.push(`Materials: ${data.affectedMaterials}`);
+    if (data.tempRepairs) parts.push(`Temp Repairs: ${data.tempRepairs}`);
 
     return parts.join(' | ');
   },
@@ -171,18 +181,28 @@ const intakeService = {
 
     notes.push(`=== INTAKE INFORMATION ===`);
     notes.push(`Division: ${data.division}`);
+    notes.push(`Caller Type: ${data.callerType || 'N/A'}`);
+    notes.push(`Relationship: ${data.relationship || 'N/A'}`);
     notes.push(`Urgency: ${data.urgency || 'Not specified'}`);
     notes.push(`Arrival Window: ${data.arrival || 'Not specified'}`);
 
-    if (data.carrier || data.claim) {
-      notes.push(`\n=== INSURANCE ===`);
-      if (data.carrier) notes.push(`Carrier: ${data.carrier}`);
+    // Property details not stored in dedicated columns
+    const propParts = [];
+    if (data.propertyStatus) propParts.push(`Status: ${data.propertyStatus}`);
+    if (data.powerStatus) propParts.push(`Power: ${data.powerStatus}`);
+    if (data.yearBuilt) propParts.push(`Year Built: ${data.yearBuilt}`);
+    if (data.foundationType) propParts.push(`Foundation: ${data.foundationType}`);
+    if (propParts.length) {
+      notes.push(`\n=== PROPERTY DETAILS ===`);
+      propParts.forEach(p => notes.push(p));
+    }
+
+    // Insurance supplementary info (carrier/adjuster now in dedicated columns)
+    if (data.claim || data.deductible || data.coverage) {
+      notes.push(`\n=== INSURANCE (SUPPLEMENTARY) ===`);
       if (data.claim) notes.push(`Claim #: ${data.claim}`);
-      if (data.adjName) notes.push(`Adjuster: ${data.adjName}`);
-      if (data.adjEmail) notes.push(`Adjuster Email: ${data.adjEmail}`);
-      if (data.adjPhone) notes.push(`Adjuster Phone: ${data.adjPhone}`);
-      if (data.deductible) notes.push(`Deductible: ${data.deductible}`);
-      if (data.coverage) notes.push(`Coverage: ${data.coverage}`);
+      if (data.deductible) notes.push(`Deductible: $${data.deductible}`);
+      if (data.coverage) notes.push(`Coverage Confirmed: ${data.coverage}`);
     }
 
     if (data.authReq || data.payMethod) {

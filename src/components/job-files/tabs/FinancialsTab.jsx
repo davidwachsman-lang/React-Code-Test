@@ -3,6 +3,7 @@ const FINANCIAL_FIELDS = [
   { key: 'invoiced_amount', label: 'Invoiced Amount', supabase: false },
   { key: 'subcontractor_cost', label: 'Subcontractor Cost', supabase: false },
   { key: 'labor_cost', label: 'Labor Cost', supabase: false },
+  { key: 'ar_balance', label: 'AR Balance', supabase: false },
   { key: '_outstanding_balance', label: 'Outstanding Balance', derived: true },
   { key: '_gp_pct', label: 'GP%', derived: true },
 ];
@@ -39,40 +40,37 @@ export default function FinancialsTab({ job, localState, onSupabaseChange, onLoc
 
   return (
     <div className="financials-tab-content">
-      <div className="doc-preview-banner">
-        Some fields are in preview mode and won't persist between sessions.
-      </div>
-
       <div className="detail-section">
         <h3>Financials</h3>
         <div className="financials-grid">
           {FINANCIAL_FIELDS.map((f) => {
+            // #12: Derived fields with distinct visual style
             if (f.key === '_outstanding_balance') {
               return (
-                <div key={f.key} className="form-group">
-                  <label>
+                <div key={f.key} className="derived-field-card">
+                  <span className="derived-field-label">
                     {f.label}
                     <span className="derived-tag" title="Invoiced - Payments">Derived</span>
-                  </label>
-                  <div className="derived-value financial-derived">
+                  </span>
+                  <span className="derived-field-value">
                     {formatCurrency(outstandingBalance)}
-                  </div>
+                  </span>
                 </div>
               );
             }
             if (f.key === '_gp_pct') {
               return (
-                <div key={f.key} className="form-group">
-                  <label>
+                <div key={f.key} className="derived-field-card">
+                  <span className="derived-field-label">
                     {f.label}
                     <span className="derived-tag" title="(Estimate - Sub - Labor) / Estimate x 100">Derived</span>
-                  </label>
-                  <div
-                    className="derived-value financial-derived gp-value"
-                    style={{ color: gpColor(gpPct) }}
+                  </span>
+                  <span
+                    className="derived-field-value"
+                    style={{ color: gpColor(gpPct), fontSize: '1.5rem' }}
                   >
                     {estimate > 0 ? `${gpPct.toFixed(1)}%` : '-'}
-                  </div>
+                  </span>
                 </div>
               );
             }

@@ -133,6 +133,7 @@ export const DEFAULT_LOCAL_STATE = {
   invoiced_amount: '',
   subcontractor_cost: '',
   labor_cost: '',
+  ar_balance: '',
   // Personnel
   crew_chief: '',
   estimate_owner: '',

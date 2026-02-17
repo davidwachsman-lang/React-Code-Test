@@ -176,12 +176,6 @@ export default function JobDetail() {
         </div>
       </div>
 
-      {/* #7: Single preview banner above tabs */}
-      <div className="preview-banner-global">
-        Some fields in this job are in preview mode and won't persist between sessions.
-        These are marked with a <span className="preview-tag">Preview</span> tag.
-      </div>
-
       {/* #6: Tab scroll indicators */}
       <div className={`tabs-scroll-wrapper${canScrollLeft ? ' can-scroll-left' : ''}${canScrollRight ? ' can-scroll-right' : ''}`}>
         <div className="job-detail-tabs" ref={tabsRef}>

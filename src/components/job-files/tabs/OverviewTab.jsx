@@ -54,15 +54,14 @@ export default function OverviewTab({ job, localState, onSupabaseChange, onLocal
             <span className="snapshot-label">Stage</span>
             <select
               className="form-input snapshot-select"
-              value={localState.stage || ''}
-              onChange={(e) => onLocalChange('stage', e.target.value)}
+              value={job.stage || ''}
+              onChange={(e) => onSupabaseChange('stage', e.target.value)}
             >
               <option value="">Select...</option>
               {STAGE_OPTIONS.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
-            <span className="preview-tag">Preview</span>
           </div>
         </div>
 
@@ -84,29 +83,27 @@ export default function OverviewTab({ job, localState, onSupabaseChange, onLocal
             <span className="snapshot-label">Group</span>
             <select
               className="form-input snapshot-select"
-              value={localState.group || ''}
-              onChange={(e) => onLocalChange('group', e.target.value)}
+              value={job.job_group || ''}
+              onChange={(e) => onSupabaseChange('job_group', e.target.value)}
             >
               <option value="">Select...</option>
               {GROUP_OPTIONS.map((g) => (
                 <option key={g} value={g}>{g}</option>
               ))}
             </select>
-            <span className="preview-tag">Preview</span>
           </div>
           <div className="snapshot-item">
             <span className="snapshot-label">Job Type</span>
             <select
               className="form-input snapshot-select"
-              value={localState.department || ''}
-              onChange={(e) => onLocalChange('department', e.target.value)}
+              value={job.department || ''}
+              onChange={(e) => onSupabaseChange('department', e.target.value)}
             >
               <option value="">Select...</option>
               {DEPARTMENT_OPTIONS.map((d) => (
                 <option key={d} value={d}>{d}</option>
               ))}
             </select>
-            <span className="preview-tag">Preview</span>
           </div>
         </div>
       </div>

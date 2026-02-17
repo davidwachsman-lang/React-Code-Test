@@ -1,9 +1,9 @@
 const FINANCIAL_FIELDS = [
-  { key: 'estimate_value', label: 'Estimate Amount', supabase: true },
-  { key: 'invoiced_amount', label: 'Invoiced Amount', supabase: false },
-  { key: 'subcontractor_cost', label: 'Subcontractor Cost', supabase: false },
-  { key: 'labor_cost', label: 'Labor Cost', supabase: false },
-  { key: 'ar_balance', label: 'AR Balance', supabase: false },
+  { key: 'estimate_value', label: 'Estimate Amount' },
+  { key: 'invoiced_amount', label: 'Invoiced Amount' },
+  { key: 'subcontractor_cost', label: 'Subcontractor Cost' },
+  { key: 'labor_cost', label: 'Labor Cost' },
+  { key: 'ar_balance', label: 'AR Balance' },
   { key: '_outstanding_balance', label: 'Outstanding Balance', derived: true },
   { key: '_gp_pct', label: 'GP%', derived: true },
 ];
@@ -20,21 +20,11 @@ function gpColor(pct) {
   return '#ef4444';
 }
 
-export default function FinancialsTab({ job, localState, onSupabaseChange, onLocalChange }) {
-  const getFinValue = (f) => {
-    if (f.supabase) return job[f.key] || '';
-    return localState[f.key] || '';
-  };
-
-  const handleFinChange = (f, value) => {
-    if (f.supabase) onSupabaseChange(f.key, value);
-    else onLocalChange(f.key, value);
-  };
-
+export default function FinancialsTab({ job, onSupabaseChange }) {
   const estimate = parseFloat(job.estimate_value) || 0;
-  const invoiced = parseFloat(localState.invoiced_amount) || 0;
-  const subCost = parseFloat(localState.subcontractor_cost) || 0;
-  const laborCost = parseFloat(localState.labor_cost) || 0;
+  const invoiced = parseFloat(job.invoiced_amount) || 0;
+  const subCost = parseFloat(job.subcontractor_cost) || 0;
+  const laborCost = parseFloat(job.labor_cost) || 0;
   const outstandingBalance = invoiced > 0 ? invoiced - (parseFloat(job.date_paid ? invoiced : 0)) : 0;
   const gpPct = estimate > 0 ? ((estimate - subCost - laborCost) / estimate) * 100 : 0;
 
@@ -44,7 +34,6 @@ export default function FinancialsTab({ job, localState, onSupabaseChange, onLoc
         <h3>Financials</h3>
         <div className="financials-grid">
           {FINANCIAL_FIELDS.map((f) => {
-            // #12: Derived fields with distinct visual style
             if (f.key === '_outstanding_balance') {
               return (
                 <div key={f.key} className="derived-field-card">
@@ -76,15 +65,12 @@ export default function FinancialsTab({ job, localState, onSupabaseChange, onLoc
             }
             return (
               <div key={f.key} className="form-group">
-                <label>
-                  {f.label}
-                  {!f.supabase && <span className="preview-tag">Preview</span>}
-                </label>
+                <label>{f.label}</label>
                 <input
                   type="number"
                   className="form-input"
-                  value={getFinValue(f)}
-                  onChange={(e) => handleFinChange(f, e.target.value)}
+                  value={job[f.key] || ''}
+                  onChange={(e) => onSupabaseChange(f.key, e.target.value)}
                   placeholder="0.00"
                   min="0"
                   step="0.01"

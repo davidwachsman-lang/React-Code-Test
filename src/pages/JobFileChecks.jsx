@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import * as XLSX from 'xlsx';
+import jobService from '../services/jobService';
 import './Page.css';
 import './JobFileChecks.css';
 
@@ -137,6 +138,8 @@ function JobFileChecks() {
   const [filterPM, setFilterPM] = useState('');
   const [filterCrew, setFilterCrew] = useState('');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [saveStatus, setSaveStatus] = useState(null);
+  const [saveError, setSaveError] = useState(null);
   const fileRef = useRef(null);
 
   const pmOptions = useMemo(() => {
@@ -214,6 +217,29 @@ function JobFileChecks() {
     setFilterPM('');
     setFilterCrew('');
     if (fileRef.current) fileRef.current.value = '';
+  };
+
+  const handleSaveToSupabase = async () => {
+    if (!rows) return;
+    setSaveStatus('saving');
+    setSaveError(null);
+    try {
+      const importRows = rows.map((row) => ({
+        externalJobNumber: row.jobNumber || null,
+        customerName: row.info[0] || 'Unknown', // Customer column
+        address: '',
+        notes: [
+          row.info[1] ? `PM: ${row.info[1]}` : null,
+          row.info[2] ? `Crew Chief: ${row.info[2]}` : null,
+        ].filter(Boolean).join(', ') || null,
+        status: 'pending',
+      }));
+      const results = await jobService.bulkImportExternal(importRows, 'job-file-checks-import');
+      setSaveStatus(results);
+    } catch (err) {
+      setSaveError(err.message || 'Failed to save to Supabase');
+      setSaveStatus(null);
+    }
   };
 
   const leaderboard = useMemo(() => {
@@ -303,12 +329,32 @@ function JobFileChecks() {
                 >
                   Leaderboard
                 </button>
+                <button
+                  className="jfc-export-btn"
+                  onClick={handleSaveToSupabase}
+                  disabled={saveStatus === 'saving'}
+                  title="Save imported jobs to Supabase with external job numbers"
+                >
+                  {saveStatus === 'saving' ? 'Saving...' : 'Save to Supabase'}
+                </button>
                 <button className="jfc-export-btn" onClick={exportToExcel}>Export Excel</button>
                 <button className="jfc-clear-btn" onClick={clear}>Clear</button>
               </>
             ) : null}
           </div>
         </div>
+
+        {saveStatus && saveStatus !== 'saving' && (
+          <div style={{ padding: '8px 16px', background: '#f0fdf4', borderBottom: '1px solid #bbf7d0', fontSize: '13px', color: '#059669' }}>
+            Supabase: {saveStatus.created} created, {saveStatus.skipped} skipped (already exist)
+            {saveStatus.errors?.length > 0 && `, ${saveStatus.errors.length} errors`}
+          </div>
+        )}
+        {saveError && (
+          <div style={{ padding: '8px 16px', background: '#fef2f2', borderBottom: '1px solid #fecaca', fontSize: '13px', color: '#dc2626' }}>
+            {saveError}
+          </div>
+        )}
 
         {rows && showLeaderboard && (
           <div className="jfc-leaderboard">

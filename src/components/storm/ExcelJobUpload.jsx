@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import * as XLSX from 'xlsx';
 import { batchGeocode } from '../../services/geocodingService';
+import jobService from '../../services/jobService';
 import './ExcelJobUpload.css';
 
 // Color palette for dynamic color coding
@@ -42,6 +43,8 @@ function ExcelJobUpload({ onJobsLoaded, onCancel }) {
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [error, setError] = useState(null);
   const [colorMapping, setColorMapping] = useState({}); // Maps unique values to colors
+  const [saveStatus, setSaveStatus] = useState(null); // null | 'saving' | { created, skipped, errors }
+  const [saveError, setSaveError] = useState(null);
 
   // Get unique values from the selected color column
   const uniqueColorValues = useMemo(() => {
@@ -382,6 +385,30 @@ function ExcelJobUpload({ onJobsLoaded, onCancel }) {
     }
   };
 
+  const handleSaveToSupabase = async () => {
+    setSaveStatus('saving');
+    setSaveError(null);
+    try {
+      const rows = processedJobs.map((job) => ({
+        externalJobNumber: job.job_number || null,
+        customerName: job.customer_name || 'Unknown',
+        address: job.property_address || job.address || '',
+        city: '',
+        state: '',
+        zip: '',
+        latitude: job.latitude || null,
+        longitude: job.longitude || null,
+        notes: job.notes || null,
+        status: 'pending',
+      }));
+      const results = await jobService.bulkImportExternal(rows, 'storm-excel-import');
+      setSaveStatus(results);
+    } catch (err) {
+      setSaveError(err.message || 'Failed to save to Supabase');
+      setSaveStatus(null);
+    }
+  };
+
   const handleConfirm = () => {
     // Pass jobs, color mapping, color column, and all available columns to parent
     onJobsLoaded(processedJobs, colorMapping, colorColumn, columns);
@@ -716,6 +743,34 @@ function ExcelJobUpload({ onJobsLoaded, onCancel }) {
               Some addresses could not be converted to coordinates and will not appear on the map.
             </p>
           )}
+
+          <div className="save-to-supabase-section" style={{ margin: '12px 0', padding: '12px', background: '#f0f9ff', borderRadius: '8px', border: '1px solid #bae6fd' }}>
+            <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#0369a1' }}>
+              Save imported jobs to Supabase? External job numbers will be preserved for enrichment.
+            </p>
+            {saveStatus === 'saving' && (
+              <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>Saving to Supabase...</p>
+            )}
+            {saveStatus && saveStatus !== 'saving' && (
+              <p style={{ margin: 0, fontSize: '13px', color: '#059669' }}>
+                Saved: {saveStatus.created} created, {saveStatus.skipped} skipped (already exist)
+                {saveStatus.errors?.length > 0 && `, ${saveStatus.errors.length} errors`}
+              </p>
+            )}
+            {saveError && (
+              <p style={{ margin: 0, fontSize: '13px', color: '#dc2626' }}>{saveError}</p>
+            )}
+            {!saveStatus || saveStatus === 'saving' ? (
+              <button
+                className="secondary-btn"
+                onClick={handleSaveToSupabase}
+                disabled={saveStatus === 'saving'}
+                style={{ marginTop: '8px' }}
+              >
+                {saveStatus === 'saving' ? 'Saving...' : 'Save to Supabase'}
+              </button>
+            ) : null}
+          </div>
 
           <div className="complete-actions">
             <button className="secondary-btn" onClick={handleReset}>

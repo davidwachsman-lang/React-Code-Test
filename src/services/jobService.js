@@ -323,6 +323,93 @@ const jobService = {
     };
   },
 
+  // Import jobs from external system (Excel upload)
+  // Creates customer, property, and job records in one batch
+  async bulkImportExternal(rows, sourceSystem = 'excel-import') {
+    const results = { created: 0, skipped: 0, errors: [] };
+
+    for (const row of rows) {
+      try {
+        // Skip if this external job number already exists
+        if (row.externalJobNumber) {
+          const { data: existing } = await supabase
+            .from(TABLE)
+            .select('id')
+            .eq('external_job_number', row.externalJobNumber)
+            .maybeSingle();
+
+          if (existing) {
+            results.skipped++;
+            continue;
+          }
+        }
+
+        // Create customer
+        const { data: customer } = await supabase
+          .from('customers')
+          .insert([{ name: row.customerName || 'Unknown (Import)' }])
+          .select()
+          .single();
+
+        // Create property
+        const { data: property } = await supabase
+          .from('properties')
+          .insert([{
+            customer_id: customer.id,
+            name: row.address || 'Imported Property',
+            address1: row.address || '',
+            city: row.city || '',
+            state: row.state || '',
+            postal_code: row.zip || '',
+            latitude: row.latitude || null,
+            longitude: row.longitude || null,
+          }])
+          .select()
+          .single();
+
+        // Create job with external_job_number
+        await supabase
+          .from(TABLE)
+          .insert([{
+            external_job_number: row.externalJobNumber || null,
+            source_system: sourceSystem,
+            customer_id: customer.id,
+            property_id: property.id,
+            status: row.status || 'pending',
+            date_opened: new Date().toISOString().split('T')[0],
+            division: row.division || null,
+            internal_notes: row.notes || null,
+            loss_type: row.lossType || null,
+          }])
+          .select()
+          .single();
+
+        results.created++;
+      } catch (err) {
+        results.errors.push({
+          externalJobNumber: row.externalJobNumber,
+          error: err.message,
+        });
+      }
+    }
+
+    return results;
+  },
+
+  // Find job by external job number
+  async findByExternalJobNumber(externalJobNumber) {
+    const response = await supabase
+      .from(TABLE)
+      .select(`
+        *,
+        customers(name, phone, email),
+        properties(address1, address2, city, state, postal_code)
+      `)
+      .eq('external_job_number', externalJobNumber)
+      .maybeSingle();
+    return handleSupabaseResult(response);
+  },
+
   // Generate property reference for a storm event job
   async generatePropertyReference(stormEventId) {
     // Get the count of existing jobs for this storm event

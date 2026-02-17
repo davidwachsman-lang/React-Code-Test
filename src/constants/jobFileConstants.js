@@ -158,22 +158,16 @@ export const FNOL_SECTIONS = [
   },
 ];
 
-// Default local state shape for new fields not yet in Supabase
+// Default local state shape for fields not yet in Supabase
+// Note: stage, job_group, department, crew_chief, estimate_owner, sales_person,
+// target_completion_date, date_of_loss, date_of_cos, invoiced_amount,
+// subcontractor_cost, labor_cost, ar_balance are now persisted in Supabase.
+// Legacy local keys kept for fallback compatibility.
 export const DEFAULT_LOCAL_STATE = {
-  // Macro
+  // Legacy fallbacks (now in Supabase — kept for backward compat with existing local data)
   stage: '',
   group: '',
   department: '',
-  // Dates
-  target_completion_date: '',
-  date_of_loss: '',
-  date_of_cos: '',
-  // Financials
-  invoiced_amount: '',
-  subcontractor_cost: '',
-  labor_cost: '',
-  ar_balance: '',
-  // Personnel
   crew_chief: '',
   estimate_owner: '',
   business_dev_rep: '',

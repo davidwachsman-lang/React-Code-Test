@@ -97,18 +97,18 @@ function JobFiles() {
       const matchesDivision = filters.division === 'all' || job.division === filters.division;
 
       const local = getLocalState(job.id);
-      const matchesGroup = filters.group === 'all' || local.group === filters.group;
+      const matchesGroup = filters.group === 'all' || (job.job_group || local.group) === filters.group;
       const matchesJobType = filters.jobType === 'all' ||
         job.loss_type?.toUpperCase() === filters.jobType ||
-        local.department === filters.jobType;
+        (job.department || local.department) === filters.jobType;
 
       const propType = (job.property_type || local.fnol_property_type || '').toUpperCase();
       const matchesPropertyType = filters.propertyType === 'all' || propType === filters.propertyType;
 
       const matchesPm = filters.pm === 'all' || (job.pm && job.pm.toUpperCase() === filters.pm);
-      const matchesCc = filters.cc === 'all' || (local.crew_chief && local.crew_chief.toUpperCase() === filters.cc);
+      const matchesCc = filters.cc === 'all' || ((job.crew_chief || local.crew_chief || '').toUpperCase() === filters.cc);
       const matchesJfc = filters.jfc === 'all' || (job.jfc && job.jfc.toUpperCase() === filters.jfc);
-      const matchesBdr = filters.bdr === 'all' || (local.business_dev_rep && local.business_dev_rep.toUpperCase() === filters.bdr);
+      const matchesBdr = filters.bdr === 'all' || ((job.sales_person || local.business_dev_rep || '').toUpperCase() === filters.bdr);
 
       return matchesSearch && matchesStatus && matchesDivision && matchesGroup && matchesJobType &&
         matchesPropertyType && matchesPm && matchesCc && matchesJfc && matchesBdr;
@@ -196,9 +196,8 @@ function JobFiles() {
     {
       id: 'stage',
       header: 'Stage',
-      accessorFn: (row) => getLocalState(row.id).stage || '',
+      accessorFn: (row) => row.stage || getLocalState(row.id).stage || '',
       cell: ({ getValue }) => getValue() || '-',
-      enableSorting: false,
     },
     {
       accessorKey: 'division',
@@ -208,19 +207,14 @@ function JobFiles() {
     {
       id: 'group',
       header: 'Group',
-      accessorFn: (row) => getLocalState(row.id).group || '',
+      accessorFn: (row) => row.job_group || getLocalState(row.id).group || '',
       cell: ({ getValue }) => getValue() || '-',
-      enableSorting: false,
     },
     {
       id: 'job_type',
       header: 'Job Type',
-      accessorFn: (row) => {
-        const local = getLocalState(row.id);
-        return local.department || row.loss_type?.toUpperCase() || '';
-      },
+      accessorFn: (row) => row.department || row.loss_type?.toUpperCase() || '',
       cell: ({ getValue }) => getValue() || '-',
-      enableSorting: false,
     },
     {
       accessorKey: 'pm',
@@ -230,9 +224,8 @@ function JobFiles() {
     {
       id: 'crew_chief',
       header: 'CC',
-      accessorFn: (row) => getLocalState(row.id).crew_chief || '',
+      accessorFn: (row) => row.crew_chief || getLocalState(row.id).crew_chief || '',
       cell: ({ getValue }) => getValue() || '-',
-      enableSorting: false,
     },
     {
       accessorKey: 'jfc',
@@ -242,9 +235,8 @@ function JobFiles() {
     {
       id: 'business_dev_rep',
       header: 'BDR',
-      accessorFn: (row) => getLocalState(row.id).business_dev_rep || '',
+      accessorFn: (row) => row.sales_person || getLocalState(row.id).business_dev_rep || '',
       cell: ({ getValue }) => getValue() || '-',
-      enableSorting: false,
     },
     {
       accessorKey: 'estimate_value',
@@ -264,8 +256,7 @@ function JobFiles() {
       id: 'ar_balance',
       header: 'AR Balance',
       accessorFn: (row) => {
-        const local = getLocalState(row.id);
-        const val = row.ar_balance ?? local.ar_balance;
+        const val = row.ar_balance;
         const n = parseFloat(val);
         return Number.isFinite(n) ? n : null;
       },

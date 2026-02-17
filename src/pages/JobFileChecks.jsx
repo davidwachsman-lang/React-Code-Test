@@ -1,16 +1,48 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import * as XLSX from 'xlsx';
 import './Page.css';
 import './JobFileChecks.css';
 
+const PM_INDEX = 1;
+const CREW_INDEX = 2;
+
 const FILE_CHECK_HEADERS = [
-  'ATP', 'SKETCH', 'VALIDATION', 'SCOPES', 'NOTES', 'PHOTOS', 'VERBAL BRIEF', 'MONITORING',
+  // Setup (3)
+  { label: 'JOB LOCKED',      fullName: 'Job Locked' },
+  { label: 'DBMX FILE',       fullName: 'DBMX File Created' },
+  { label: 'START DATE',      fullName: 'Start Date Entered' },
+  // Agreements (3)
+  { label: 'ATP',              fullName: 'ATP Signed' },
+  { label: 'CUST INFO FORM',  fullName: 'Customer Information Form Signed' },
+  { label: 'EQUIP RESP FORM', fullName: 'Equipment Responsibility Form Signed' },
+  // Photos (4)
+  { label: 'COL PHOTO',       fullName: 'Cause of Loss Photo' },
+  { label: 'FRONT PHOTO',     fullName: 'Front of Structure Photo' },
+  { label: 'PRE-MIT PHOTOS',  fullName: 'Pre-Mitigation Photos' },
+  { label: 'DAILY PHOTOS',    fullName: 'Daily Departure Photos' },
+  // Field Work (4)
+  { label: 'DOCUSKETCH',      fullName: 'DocuSketch Uploaded' },
+  { label: 'SCOPE SHEET',     fullName: 'Initial Scope Sheet Entered' },
+  { label: 'EQUIP LOGGED',    fullName: 'Equipment Placed and Logged' },
+  { label: 'ATMO READINGS',   fullName: 'Initial Atmospheric Readings Taken' },
+  // Notes (2)
+  { label: 'DAY 1 NOTE',      fullName: 'Day 1 Note Entered' },
+  { label: 'INSP QUESTIONS',  fullName: 'Initial Inspection Questions Answered' },
+];
+
+const CHECK_GROUPS = [
+  { label: 'Setup',        count: 3 },  // Job Locked, DBMX File, Start Date
+  { label: 'Agreements',   count: 3 },  // ATP, Cust Info Form, Equip Resp Form
+  { label: 'Photos',       count: 4 },  // COL, Front, Pre-Mit, Daily
+  { label: 'Field Work',   count: 4 },  // DocuSketch, Scope Sheet, Equip Logged, Atmo Readings
+  { label: 'Notes',        count: 2 },  // Day 1 Note, Insp Questions
 ];
 
 const INFO_COLUMNS = [
-  { label: 'Customer', aliases: ['customer', 'client', 'customername'] },
+  { label: 'Customer', aliases: ['customer', 'client', 'customername', 'customerjobname'] },
   { label: 'PM', aliases: ['pm', 'projectmanager'] },
   { label: 'Crew Chief', aliases: ['crewchief', 'crew'] },
+  { label: 'Days Active', aliases: ['daysactive', 'ofdaysactive', 'numberdays', 'daycount'] },
 ];
 
 function fuzzyMatch(colName, target) {
@@ -28,7 +60,7 @@ function findKey(keys, aliases) {
 
 function parseFileChecks(workbook) {
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const json = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+  const json = XLSX.utils.sheet_to_json(sheet, { defval: '', blankrows: false });
   if (!json.length) return [];
 
   const keys = Object.keys(json[0]);
@@ -41,23 +73,43 @@ function parseFileChecks(workbook) {
   const infoKeys = INFO_COLUMNS.map((col) => findKey(keys, col.aliases));
 
   const checkKeys = FILE_CHECK_HEADERS.map((h) =>
-    keys.find((k) => fuzzyMatch(k, h)) || null
+    keys.find((k) => fuzzyMatch(k, h.fullName)) || null
   );
 
+  const isYes = (v) => {
+    if (v === true || v === 1) return true;
+    const s = String(v).trim().toLowerCase();
+    return s === 'y' || s === 'yes' || s === '1' || s === 'true';
+  };
+
+  // Filter to rows that have a real job number and at least one other non-empty cell
+  const seen = new Set();
   return json
-    .filter((row) => jobKey && String(row[jobKey]).trim())
+    .filter((row) => {
+      if (!jobKey) return false;
+      const jn = String(row[jobKey]).trim();
+      if (!jn) return false;
+      // Skip rows where job number matches a column header (repeated header rows)
+      const jnLower = jn.toLowerCase();
+      if (jnLower === 'job number' || jnLower === 'job #' || jnLower === 'job no') return false;
+      // Skip duplicate job numbers
+      if (seen.has(jn)) return false;
+      seen.add(jn);
+      // Ensure at least one other cell has a value (not a fully empty row with just a job number artifact)
+      const hasData = keys.some((k) => k !== jobKey && row[k] !== '' && row[k] !== null && row[k] !== undefined);
+      return hasData;
+    })
     .map((row) => ({
       jobNumber: String(row[jobKey]).trim(),
       info: infoKeys.map((ik) => (ik ? String(row[ik] ?? '').trim() : '')),
       checks: checkKeys.map((ck) => {
         if (!ck) return false;
-        const v = row[ck];
-        return v !== '' && v !== null && v !== undefined;
+        return isYes(row[ck]);
       }),
     }));
 }
 
-// sort key types: 'job' | 'info-0'..'info-2' | 'check-0'..'check-7'
+// sort key types: 'job' | 'info-0'..'info-4' | 'check-0'..'check-15'
 function compareFn(a, b, key, dir) {
   let av, bv;
   if (key === 'job') {
@@ -80,15 +132,39 @@ function JobFileChecks() {
   const [rows, setRows] = useState(null);
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('asc');
+  // Stores the row display order as indices; only recalculated on explicit sort clicks
+  const [sortOrder, setSortOrder] = useState(null);
+  const [filterPM, setFilterPM] = useState('');
+  const [filterCrew, setFilterCrew] = useState('');
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const fileRef = useRef(null);
 
+  const pmOptions = useMemo(() => {
+    if (!rows) return [];
+    const vals = [...new Set(rows.map((r) => r.info[PM_INDEX]).filter(Boolean))];
+    vals.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    return vals;
+  }, [rows]);
+
+  const crewOptions = useMemo(() => {
+    if (!rows) return [];
+    const vals = [...new Set(rows.map((r) => r.info[CREW_INDEX]).filter(Boolean))];
+    vals.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    return vals;
+  }, [rows]);
+
+  const recomputeOrder = useCallback((data, key, dir) => {
+    if (!data || !key) { setSortOrder(null); return; }
+    const indices = data.map((_, i) => i);
+    indices.sort((ai, bi) => compareFn(data[ai], data[bi], key, dir));
+    setSortOrder(indices);
+  }, []);
+
   const handleSort = (key) => {
-    if (sortKey === key) {
-      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKey(key);
-      setSortDir('asc');
-    }
+    const newDir = sortKey === key ? (sortDir === 'asc' ? 'desc' : 'asc') : 'asc';
+    setSortKey(key);
+    setSortDir(newDir);
+    recomputeOrder(rows, key, newDir);
   };
 
   const toggleCheck = (rowIndex, checkIndex) => {
@@ -99,11 +175,16 @@ function JobFileChecks() {
     ));
   };
 
-  // Keep original indices so toggles target the right row after sorting
-  const indexedRows = rows ? rows.map((row, i) => ({ ...row, _i: i })) : null;
-  const sortedRows = indexedRows && sortKey
-    ? [...indexedRows].sort((a, b) => compareFn(a, b, sortKey, sortDir))
-    : indexedRows;
+  // Use frozen sort order so toggling a check doesn't shuffle rows, then apply filters
+  const displayRows = useMemo(() => {
+    if (!rows) return null;
+    const ordered = (sortOrder || rows.map((_, i) => i)).map((i) => ({ ...rows[i], _i: i }));
+    return ordered.filter((row) => {
+      if (filterPM && row.info[PM_INDEX] !== filterPM) return false;
+      if (filterCrew && row.info[CREW_INDEX] !== filterCrew) return false;
+      return true;
+    });
+  }, [rows, sortOrder, filterPM, filterCrew]);
 
   const sortIndicator = (key) => {
     if (sortKey !== key) return ' \u2195';
@@ -129,37 +210,152 @@ function JobFileChecks() {
     setRows(null);
     setSortKey(null);
     setSortDir('asc');
+    setSortOrder(null);
+    setFilterPM('');
+    setFilterCrew('');
     if (fileRef.current) fileRef.current.value = '';
   };
 
-  const presentCount = rows
-    ? rows.reduce((sum, r) => sum + r.checks.filter(Boolean).length, 0)
+  const leaderboard = useMemo(() => {
+    if (!rows) return { crews: [], pms: [] };
+    const totalChecks = FILE_CHECK_HEADERS.length;
+
+    const buildRankings = (infoIndex) => {
+      const map = {};
+      rows.forEach((row) => {
+        const name = row.info[infoIndex];
+        if (!name) return;
+        if (!map[name]) map[name] = { name, passed: 0, total: 0, jobs: 0 };
+        map[name].jobs += 1;
+        map[name].total += totalChecks;
+        map[name].passed += row.checks.filter(Boolean).length;
+      });
+      return Object.values(map)
+        .map((e) => ({ ...e, pct: e.total > 0 ? Math.round((e.passed / e.total) * 100) : 0 }))
+        .sort((a, b) => b.pct - a.pct || a.name.localeCompare(b.name));
+    };
+
+    return { crews: buildRankings(CREW_INDEX), pms: buildRankings(PM_INDEX) };
+  }, [rows]);
+
+  const exportToExcel = () => {
+    if (!displayRows) return;
+    const data = displayRows.map((row) => {
+      const obj = { 'Job Number': row.jobNumber };
+      INFO_COLUMNS.forEach((col, i) => { obj[col.label] = row.info[i] || ''; });
+      FILE_CHECK_HEADERS.forEach((h, i) => { obj[h.fullName] = row.checks[i] ? 'Y' : 'N'; });
+      return obj;
+    });
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Job File Checks');
+    XLSX.writeFile(wb, 'Job_File_Checks.xlsx');
+  };
+
+  const presentCount = displayRows
+    ? displayRows.reduce((sum, r) => sum + r.checks.filter(Boolean).length, 0)
     : 0;
-  const totalCount = rows ? rows.length * FILE_CHECK_HEADERS.length : 0;
+  const totalCount = displayRows ? displayRows.length * FILE_CHECK_HEADERS.length : 0;
 
   return (
     <div className="page-container">
       <h1>Job File Checks</h1>
       <p className="jfc-subtitle">
-        Upload an Excel file to verify job file statuses across the 8 compliance checks.
+        Upload an Excel file to verify job file statuses across the 16 compliance checks.
       </p>
 
       <div className="jfc-card">
         <div className="jfc-card-header">
           <span className="jfc-card-title">
-            {rows ? `${rows.length} Jobs Loaded` : 'Upload File'}
+            {rows
+              ? `${displayRows.length}${displayRows.length !== rows.length ? ` / ${rows.length}` : ''} Jobs`
+              : 'Upload File'}
           </span>
           <div className="jfc-card-actions">
             {rows && (
-              <span className="jfc-summary">
-                {presentCount}/{totalCount} present
-              </span>
+              <>
+                <select
+                  className="jfc-filter-select"
+                  value={filterPM}
+                  onChange={(e) => setFilterPM(e.target.value)}
+                >
+                  <option value="">All PMs</option>
+                  {pmOptions.map((v) => <option key={v} value={v}>{v}</option>)}
+                </select>
+                <select
+                  className="jfc-filter-select"
+                  value={filterCrew}
+                  onChange={(e) => setFilterCrew(e.target.value)}
+                >
+                  <option value="">All Crew Chiefs</option>
+                  {crewOptions.map((v) => <option key={v} value={v}>{v}</option>)}
+                </select>
+                <span className="jfc-summary">
+                  {presentCount}/{totalCount} present
+                </span>
+              </>
             )}
             {rows ? (
-              <button className="jfc-clear-btn" onClick={clear}>Clear</button>
+              <>
+                <button
+                  className={`jfc-leaderboard-btn${showLeaderboard ? ' active' : ''}`}
+                  onClick={() => setShowLeaderboard((v) => !v)}
+                >
+                  Leaderboard
+                </button>
+                <button className="jfc-export-btn" onClick={exportToExcel}>Export Excel</button>
+                <button className="jfc-clear-btn" onClick={clear}>Clear</button>
+              </>
             ) : null}
           </div>
         </div>
+
+        {rows && showLeaderboard && (
+          <div className="jfc-leaderboard">
+            <div className="jfc-lb-section">
+              <h3 className="jfc-lb-title">Crew Chief Rankings</h3>
+              {leaderboard.crews.length === 0 ? (
+                <p className="jfc-lb-empty">No crew chief data</p>
+              ) : (
+                <div className="jfc-lb-list">
+                  {leaderboard.crews.map((e, i) => (
+                    <div key={e.name} className="jfc-lb-row">
+                      <span className={`jfc-lb-rank${i < 3 ? ` jfc-lb-top${i + 1}` : ''}`}>#{i + 1}</span>
+                      <span className="jfc-lb-name">{e.name}</span>
+                      <span className="jfc-lb-jobs">{e.jobs} job{e.jobs !== 1 ? 's' : ''}</span>
+                      <span className="jfc-lb-score">{e.passed}/{e.total}</span>
+                      <div className="jfc-lb-bar-wrap">
+                        <div className="jfc-lb-bar" style={{ width: `${e.pct}%`, background: e.pct >= 80 ? '#22c55e' : e.pct >= 50 ? '#fbbf24' : '#ef4444' }} />
+                      </div>
+                      <span className={`jfc-lb-pct${e.pct >= 80 ? ' high' : e.pct >= 50 ? ' mid' : ' low'}`}>{e.pct}%</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="jfc-lb-section">
+              <h3 className="jfc-lb-title">PM Rankings</h3>
+              {leaderboard.pms.length === 0 ? (
+                <p className="jfc-lb-empty">No PM data</p>
+              ) : (
+                <div className="jfc-lb-list">
+                  {leaderboard.pms.map((e, i) => (
+                    <div key={e.name} className="jfc-lb-row">
+                      <span className={`jfc-lb-rank${i < 3 ? ` jfc-lb-top${i + 1}` : ''}`}>#{i + 1}</span>
+                      <span className="jfc-lb-name">{e.name}</span>
+                      <span className="jfc-lb-jobs">{e.jobs} job{e.jobs !== 1 ? 's' : ''}</span>
+                      <span className="jfc-lb-score">{e.passed}/{e.total}</span>
+                      <div className="jfc-lb-bar-wrap">
+                        <div className="jfc-lb-bar" style={{ width: `${e.pct}%`, background: e.pct >= 80 ? '#22c55e' : e.pct >= 50 ? '#fbbf24' : '#ef4444' }} />
+                      </div>
+                      <span className={`jfc-lb-pct${e.pct >= 80 ? ' high' : e.pct >= 50 ? ' mid' : ' low'}`}>{e.pct}%</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {!rows ? (
           <div className="jfc-upload-area">
@@ -172,11 +368,11 @@ function JobFileChecks() {
             </div>
             <p className="jfc-upload-text">
               Upload an Excel file (.xlsx, .xls, .csv) with a <strong>Job Number</strong> column
-              and any of the 8 file check columns.
+              and any of the 16 file check columns.
             </p>
             <div className="jfc-upload-checks">
               {FILE_CHECK_HEADERS.map((h, i) => (
-                <span key={i} className="jfc-upload-check-tag">{h}</span>
+                <span key={i} className="jfc-upload-check-tag" title={h.fullName}>{h.label}</span>
               ))}
             </div>
             <input
@@ -197,6 +393,14 @@ function JobFileChecks() {
           <div className="jfc-table-wrap">
             <table className="jfc-table">
               <thead>
+                <tr className="jfc-group-row">
+                  <th colSpan={1 + INFO_COLUMNS.length} className="jfc-th-group-spacer" />
+                  {CHECK_GROUPS.map((g, i) => (
+                    <th key={i} colSpan={g.count} className={`jfc-th-group jfc-group-${i}`}>
+                      {g.label}
+                    </th>
+                  ))}
+                </tr>
                 <tr>
                   <th className="jfc-th-job jfc-th-sortable" onClick={() => handleSort('job')}>
                     Job #{sortIndicator('job')}
@@ -207,14 +411,15 @@ function JobFileChecks() {
                     </th>
                   ))}
                   {FILE_CHECK_HEADERS.map((h, i) => (
-                    <th key={i} className="jfc-th-check jfc-th-sortable" onClick={() => handleSort(`check-${i}`)}>
-                      {h}{sortIndicator(`check-${i}`)}
+                    <th key={i} className="jfc-th-check jfc-th-sortable" title={h.fullName} onClick={() => handleSort(`check-${i}`)}>
+                      <span className="jfc-th-check-label">{h.label}</span>
+                      <span className="jfc-th-sort-icon">{sortIndicator(`check-${i}`)}</span>
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {sortedRows.map((row, ri) => (
+                {displayRows.map((row, ri) => (
                   <tr key={ri} className="jfc-row">
                     <td className="jfc-td-job" title={row.jobNumber}>{row.jobNumber}</td>
                     {row.info.map((val, ii) => (
@@ -224,7 +429,7 @@ function JobFileChecks() {
                       <td
                         key={ci}
                         className={`jfc-td-check jfc-td-toggle ${ok ? 'present' : 'missing'}`}
-                        title={`${FILE_CHECK_HEADERS[ci]}: ${ok ? 'Present' : 'Missing'} (click to toggle)`}
+                        title={`${FILE_CHECK_HEADERS[ci].fullName}: ${ok ? 'Present' : 'Missing'} (click to toggle)`}
                         onClick={() => toggleCheck(row._i, ci)}
                       >
                         {ok ? '\u2713' : '\u00d7'}

@@ -142,6 +142,11 @@ export default function DispatchTimeGrid({
                           onDragOver={handleCellDragOver} onDragLeave={handleCellDragLeave} onDrop={handleCellDrop(col)}
                         >
                           <div className="dispatch-job-cell-inner">
+                            {preDriveMin > 0 && (
+                              <div className="grid-drive-indicator">
+                                <span className="grid-drive-icon">🚗</span> {preDriveMin} min drive
+                              </div>
+                            )}
                             <div className="grid-job-block" draggable onDragStart={(e) => {
                               e.dataTransfer.setData('application/json', JSON.stringify({ type: 'job', source: 'lane', laneId: col.id, jobIndex, job }));
                               e.dataTransfer.effectAllowed = 'move';

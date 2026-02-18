@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react';
 import {
   DAY_START, DAY_END, SLOT_INTERVAL, TIME_SLOTS,
   hourToLabel, formatDriveTime, getDriveTotal, getDriveLegs,
@@ -67,6 +67,50 @@ export default function DispatchTimeGrid({
     return { crewJobPlacements: placements, overflowJobs: overflow };
   }, [schedule, driveTimeByCrew, scheduleColumns]);
 
+  // ── Drag-to-resize state ──
+  const ROW_HEIGHT = 40; // 2.5rem = 40px
+  const [resizeState, setResizeState] = useState(null); // { crewId, jobIndex, originalHours, startY, previewHours }
+  const resizeRef = useRef(null);
+
+  const handleResizeMouseDown = useCallback((e, crewId, jobIndex, currentHours) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const state = { crewId, jobIndex, originalHours: currentHours, startY: e.clientY, previewHours: currentHours };
+    resizeRef.current = state;
+    setResizeState(state);
+  }, []);
+
+  useEffect(() => {
+    if (!resizeState) return;
+
+    const handleMouseMove = (e) => {
+      const s = resizeRef.current;
+      if (!s) return;
+      const deltaRows = Math.round((e.clientY - s.startY) / ROW_HEIGHT);
+      const newHours = Math.max(0.5, s.originalHours + deltaRows * SLOT_INTERVAL);
+      if (newHours !== resizeRef.current.previewHours) {
+        resizeRef.current = { ...resizeRef.current, previewHours: newHours };
+        setResizeState((prev) => ({ ...prev, previewHours: newHours }));
+      }
+    };
+
+    const handleMouseUp = () => {
+      const s = resizeRef.current;
+      if (s && s.previewHours !== s.originalHours) {
+        updateJob(s.crewId, s.jobIndex, 'hours', s.previewHours);
+      }
+      resizeRef.current = null;
+      setResizeState(null);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [resizeState, updateJob]);
+
   return (
     <>
       <div className="dispatch-time-grid-wrap">
@@ -115,7 +159,19 @@ export default function DispatchTimeGrid({
           <tbody>
             {TIME_SLOTS.map((slotHour, rowIndex) => {
               const placeAtRow = (crewId) => (crewJobPlacements[crewId] || []).find((p) => p.startRowIndex === rowIndex);
-              const inSpan = (crewId) => (crewJobPlacements[crewId] || []).some((p) => rowIndex > p.startRowIndex && rowIndex < p.startRowIndex + p.rowSpan);
+              const getEffectiveRowSpan = (crewId, p) => {
+                if (resizeState && resizeState.crewId === crewId) {
+                  const ji = (schedule[crewId] || []).findIndex((j) => j.id === p.job.id);
+                  if (ji === resizeState.jobIndex) {
+                    return Math.max(1, Math.ceil(resizeState.previewHours / SLOT_INTERVAL));
+                  }
+                }
+                return p.rowSpan;
+              };
+              const inSpan = (crewId) => (crewJobPlacements[crewId] || []).some((p) => {
+                const span = getEffectiveRowSpan(crewId, p);
+                return rowIndex > p.startRowIndex && rowIndex < p.startRowIndex + span;
+              });
 
               // Shared drop handler for body cells — copies job to PM lanes
               const handleCellDragOver = (e) => { e.preventDefault(); e.currentTarget.classList.add('dispatch-drag-over'); };
@@ -137,27 +193,34 @@ export default function DispatchTimeGrid({
                 <tr key={rowIndex}>
                   <td className="dispatch-time-col time-slot-label">{hourToLabel(slotHour)}</td>
                   {scheduleColumns.map((col) => {
+                    if (inSpan(col.id)) return null;
                     const place = placeAtRow(col.id);
                     if (place) {
                       const { job, startHour, endHour, rowSpan, preDriveMin } = place;
                       const jobIndex = (schedule[col.id] || []).findIndex((j) => j.id === job.id);
+                      const isResizing = resizeState && resizeState.crewId === col.id && resizeState.jobIndex === jobIndex;
+                      const displayRowSpan = isResizing
+                        ? Math.max(1, Math.ceil(resizeState.previewHours / SLOT_INTERVAL))
+                        : rowSpan;
+                      const displayHours = isResizing ? resizeState.previewHours : (Number(job.hours) || 0);
                       return (
                         <td
-                          key={col.id} rowSpan={rowSpan} className="dispatch-job-cell" style={{ borderLeftColor: col.color }}
+                          key={col.id} rowSpan={displayRowSpan} className="dispatch-job-cell" style={{ borderLeftColor: col.color }}
                           onDragOver={handleCellDragOver} onDragLeave={handleCellDragLeave} onDrop={handleCellDrop(col)}
                         >
                           <div className="dispatch-job-cell-inner">
                             <div className={`grid-drive-indicator${preDriveMin > 0 ? '' : ' grid-drive-na'}`}>
                               <span className="grid-drive-icon">🚗</span> {preDriveMin > 0 ? `${preDriveMin} min drive` : 'No route'}
                             </div>
-                            <div className="grid-job-block" draggable onDragStart={(e) => {
+                            <div className={`grid-job-block${isResizing ? ' resizing' : ''}`} draggable={!isResizing} onDragStart={(e) => {
+                              if (isResizing) { e.preventDefault(); return; }
                               e.dataTransfer.setData('application/json', JSON.stringify({ type: 'job', source: 'lane', laneId: col.id, jobIndex, job, startHour }));
                               e.dataTransfer.effectAllowed = 'move';
                             }}>
                               <div className="grid-job-number">{job.jobNumber || '—'}</div>
                               <div className="grid-job-detail-row">
                                 <span className="grid-job-status">{job.jobType || '—'}</span>
-                                <span className="grid-job-hours">{Number(job.hours) || 0}h</span>
+                                <span className="grid-job-hours">{displayHours}h</span>
                                 {job.preScheduledTime && (
                                   <span className="grid-job-scheduled-time">Appt {(() => {
                                     const [h, m] = job.preScheduledTime.split(':');
@@ -172,12 +235,16 @@ export default function DispatchTimeGrid({
                               {jobIndex >= 0 && (
                                 <button type="button" className="grid-remove-job" onClick={() => removeJob(col.id, jobIndex)} aria-label="Remove job">&times;</button>
                               )}
+                              {/* Resize handle */}
+                              <div
+                                className="grid-resize-handle"
+                                onMouseDown={(e) => handleResizeMouseDown(e, col.id, jobIndex, Number(job.hours) || 0.5)}
+                              />
                             </div>
                           </div>
                         </td>
                       );
                     }
-                    if (inSpan(col.id)) return null;
                     return (
                       <td
                         key={col.id} className="dispatch-job-cell empty-cell"

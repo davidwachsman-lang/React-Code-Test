@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import JobBulkUpload from '../components/job-files/JobBulkUpload';
 import {
   useReactTable,
   getCoreRowModel,
@@ -54,6 +55,7 @@ function JobFiles() {
   }, []);
 
   const [sorting, setSorting] = useState([]);
+  const [showUpload, setShowUpload] = useState(false);
 
   const { getLocalState } = useJobLocalState();
 
@@ -326,10 +328,19 @@ function JobFiles() {
           <h1>Job Files</h1>
           <p>Access and manage all project files and information</p>
         </div>
-        <button onClick={loadJobs} className="btn-secondary">
-          <span className="refresh-icon">&#8635;</span> Refresh
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button onClick={() => setShowUpload(true)} className="btn-primary">
+            Upload Excel
+          </button>
+          <button onClick={loadJobs} className="btn-secondary">
+            <span className="refresh-icon">&#8635;</span> Refresh
+          </button>
+        </div>
       </div>
+
+      {showUpload && (
+        <JobBulkUpload onComplete={() => { setShowUpload(false); loadJobs(); }} />
+      )}
 
       {/* Search */}
       <div className="search-box-full">

@@ -3,6 +3,18 @@ import { supabase, handleSupabaseResult } from './supabaseClient';
 
 const TABLE = 'jobs';
 
+// "Last, First" → "First Last"
+function flipName(name) {
+  if (!name || typeof name !== 'string') return name;
+  const parts = name.split(',');
+  if (parts.length === 2) {
+    const last = parts[0].trim();
+    const first = parts[1].trim();
+    if (first && last) return `${first} ${last}`;
+  }
+  return name.trim();
+}
+
 const jobService = {
   // Get all jobs with customer and property info
   async getAll() {
@@ -19,7 +31,7 @@ const jobService = {
     if (response.data) {
       response.data = response.data.map(job => ({
         ...job,
-        customer_name: job.customers?.name || 'Unknown',
+        customer_name: flipName(job.customers?.name) || 'Unknown',
         property_address: job.properties
           ? [
               job.properties.address1,
@@ -182,7 +194,7 @@ const jobService = {
     if (response.data) {
       response.data = response.data.map(job => ({
         ...job,
-        customer_name: job.customers?.name || 'Unknown',
+        customer_name: flipName(job.customers?.name) || 'Unknown',
         customer_phone: job.customers?.phone || '',
         customer_email: job.customers?.email || '',
         property_address: job.properties
@@ -237,7 +249,7 @@ const jobService = {
     if (response.data) {
       response.data = response.data.map(job => ({
         ...job,
-        customer_name: job.customers?.name || 'Unknown',
+        customer_name: flipName(job.customers?.name) || 'Unknown',
         property_address: job.properties
           ? [
               job.properties.address1,
@@ -321,6 +333,137 @@ const jobService = {
       assignments: result,
       jobsUpdated: response.data || []
     };
+  },
+
+  // Bulk import/update jobs from Job Files Excel upload
+  // Matches by job_number or external_job_number; updates if found, creates if not
+  async bulkImportJobs(rows) {
+    const results = { created: 0, updated: 0, skipped: 0, errors: [] };
+
+    for (const row of rows) {
+      try {
+        const jobNumber = row.job_number;
+        if (!jobNumber) {
+          results.skipped++;
+          continue;
+        }
+
+        // Try to find existing job by job_number, then external_job_number
+        let existing = null;
+        const { data: byJobNumber } = await supabase
+          .from(TABLE)
+          .select('id, job_number, external_job_number, customer_id, property_id')
+          .eq('job_number', jobNumber)
+          .maybeSingle();
+
+        if (byJobNumber) {
+          existing = byJobNumber;
+        } else {
+          const { data: byExternal } = await supabase
+            .from(TABLE)
+            .select('id, job_number, external_job_number, customer_id, property_id')
+            .eq('external_job_number', jobNumber)
+            .maybeSingle();
+          if (byExternal) existing = byExternal;
+        }
+
+        // Build job update payload (only non-null fields)
+        const jobFields = {};
+        const directFields = [
+          'status', 'stage', 'division', 'job_group', 'department', 'property_type',
+          'pm', 'crew_chief', 'jfc', 'estimator', 'estimate_owner', 'sales_person',
+          'estimate_value', 'invoiced_amount', 'subcontractor_cost', 'labor_cost', 'ar_balance',
+          'date_of_loss', 'date_received', 'date_started', 'target_completion_date', 'date_invoiced',
+          'insurance_company', 'insurance_adjuster_name',
+          'days_active', 'internal_notes',
+        ];
+        directFields.forEach(f => {
+          if (row[f] !== null && row[f] !== undefined) jobFields[f] = row[f];
+        });
+
+        if (existing) {
+          // Update existing job
+          if (!existing.external_job_number && !existing.job_number) {
+            jobFields.external_job_number = jobNumber;
+          }
+
+          if (Object.keys(jobFields).length > 0) {
+            await supabase
+              .from(TABLE)
+              .update(jobFields)
+              .eq('id', existing.id);
+          }
+
+          // Update customer name if provided and customer exists
+          if (row.customer_name && existing.customer_id) {
+            await supabase
+              .from('customers')
+              .update({ name: row.customer_name })
+              .eq('id', existing.customer_id);
+          }
+
+          // Update property address if provided and property exists
+          if (existing.property_id && (row.property_address || row.city || row.state || row.zip)) {
+            const propUpdate = {};
+            if (row.property_address) propUpdate.address1 = row.property_address;
+            if (row.city) propUpdate.city = row.city;
+            if (row.state) propUpdate.state = row.state;
+            if (row.zip) propUpdate.postal_code = row.zip;
+            if (Object.keys(propUpdate).length > 0) {
+              await supabase
+                .from('properties')
+                .update(propUpdate)
+                .eq('id', existing.property_id);
+            }
+          }
+
+          results.updated++;
+        } else {
+          // Create new: customer → property → job
+          const { data: customer } = await supabase
+            .from('customers')
+            .insert([{ name: row.customer_name || 'Unknown (Import)' }])
+            .select()
+            .single();
+
+          const { data: property } = await supabase
+            .from('properties')
+            .insert([{
+              customer_id: customer.id,
+              name: row.property_address || 'Imported Property',
+              address1: row.property_address || '',
+              city: row.city || '',
+              state: row.state || '',
+              postal_code: row.zip || '',
+              country: 'USA',
+            }])
+            .select()
+            .single();
+
+          await supabase
+            .from(TABLE)
+            .insert([{
+              external_job_number: jobNumber,
+              source_system: 'job-files-import',
+              customer_id: customer.id,
+              property_id: property.id,
+              date_opened: new Date().toISOString().split('T')[0],
+              ...jobFields,
+            }])
+            .select()
+            .single();
+
+          results.created++;
+        }
+      } catch (err) {
+        results.errors.push({
+          jobNumber: row.job_number,
+          error: err.message,
+        });
+      }
+    }
+
+    return results;
   },
 
   // Import jobs from external system (Excel upload)

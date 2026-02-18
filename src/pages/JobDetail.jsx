@@ -1,6 +1,18 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import jobService from '../services/jobService';
+
+// "Last, First" → "First Last"
+function flipName(name) {
+  if (!name || typeof name !== 'string') return name;
+  const parts = name.split(',');
+  if (parts.length === 2) {
+    const last = parts[0].trim();
+    const first = parts[1].trim();
+    if (first && last) return `${first} ${last}`;
+  }
+  return name.trim();
+}
 import useJobLocalState from '../hooks/useJobLocalState';
 import { STATUS_DISPLAY_MAP } from '../constants/jobFileConstants';
 import OverviewTab from '../components/job-files/tabs/OverviewTab';
@@ -75,7 +87,7 @@ export default function JobDetail() {
       setJob({
         ...data,
         status: data.status || 'pending',
-        customer_name: data.customers?.name || 'Unknown',
+        customer_name: flipName(data.customers?.name) || 'Unknown',
         property_address: data.properties
           ? [
               data.properties.address1,

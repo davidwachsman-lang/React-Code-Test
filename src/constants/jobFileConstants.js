@@ -13,6 +13,13 @@ export const STATUS_DISPLAY_MAP = Object.fromEntries(
 );
 
 export const STAGE_OPTIONS = ['INTAKE', 'MITIGATION', 'RECONSTRUCTION', 'CLOSEOUT'];
+export const PENDING_STAGE_OPTIONS = [
+  'Inspection Scheduled', 'Estimating', 'Estimate Submitted', 'Awaiting Approval',
+];
+export const WIP_STAGE_OPTIONS = [
+  'Dry', 'Monitoring', 'Stabilization', 'Walkthrough', 'New Start',
+  'Continue Service', 'Demo', 'Packout', 'Equipment Pickup', 'Emergency',
+];
 export const DIVISION_OPTIONS = ['HB', 'LL', 'REFERRAL'];
 export const GROUP_OPTIONS = ['MIT', 'RECON'];
 export const DEPARTMENT_OPTIONS = ['WATER', 'FIRE', 'MOLD', 'BIO', 'CONTENTS'];

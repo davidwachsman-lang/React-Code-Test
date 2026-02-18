@@ -1,3 +1,144 @@
+/* ===== Bulk Upload Panel ===== */
+.bulk-upload-panel {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.bulk-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  gap: 0.75rem;
+}
+
+.bulk-upload-icon svg {
+  width: 48px;
+  height: 48px;
+  color: #3b82f6;
+}
+
+.bulk-upload-text {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  text-align: center;
+  max-width: 500px;
+  margin: 0;
+}
+
+.bulk-upload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #334155;
+}
+
+.bulk-upload-header h3 {
+  margin: 0;
+  color: #f1f5f9;
+  font-size: 1rem;
+}
+
+.bulk-upload-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.bulk-preview-scroll {
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.bulk-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.bulk-preview-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.bulk-preview-table th {
+  background: #0f172a;
+  color: #94a3b8;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  border-bottom: 1px solid #334155;
+}
+
+.bulk-preview-table td {
+  padding: 0.4rem 0.75rem;
+  color: #e2e8f0;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bulk-preview-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.bulk-row-num {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+/* Bulk upload result */
+.bulk-upload-result {
+  padding: 2rem;
+  text-align: center;
+}
+
+.bulk-upload-result h3 {
+  color: #f1f5f9;
+  margin: 0 0 1.25rem;
+}
+
+.bulk-result-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.bulk-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.bulk-stat-num {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #22c55e;
+}
+
+.bulk-stat-error .bulk-stat-num {
+  color: #ef4444;
+}
+
+.bulk-stat-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* ===== Job Files Header ===== */
 .job-files-header {
   display: flex;
@@ -948,28 +1089,25 @@
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.05) 100%);
   border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .snapshot-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-bottom: 1rem;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.75rem;
 }
-
-.snapshot-row:last-child { margin-bottom: 0; }
 
 .snapshot-item {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.25rem;
 }
 
 .snapshot-label {
   color: #94a3b8;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -984,6 +1122,125 @@
 .snapshot-select {
   padding: 0.5rem 0.75rem !important;
   font-size: 0.95rem !important;
+}
+
+/* Close Job button */
+.btn-close-job {
+  background: none;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-close-job:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+}
+
+.btn-reopen-job {
+  background: none;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-reopen-job:hover {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: #22c55e;
+}
+
+.btn-cancel {
+  background: none;
+  border: 1px solid #475569;
+  color: #94a3b8;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-cancel:hover {
+  background: rgba(148, 163, 184, 0.1);
+}
+
+/* Close Job Modal */
+.close-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.close-modal {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.close-modal h3 {
+  margin: 0 0 0.25rem;
+  color: #f1f5f9;
+  font-size: 1.1rem;
+}
+
+.close-modal-subtitle {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  margin: 0 0 1.25rem;
+}
+
+.close-modal-field {
+  margin-bottom: 1rem;
+}
+
+.close-modal-field label {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.35rem;
+}
+
+.close-modal-field textarea.form-input {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.close-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.close-modal-actions .btn-danger {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.85rem;
+}
+
+.status-badge.status-closed {
+  background: rgba(100, 116, 139, 0.2);
+  color: #94a3b8;
+  border: 1px solid rgba(100, 116, 139, 0.3);
 }
 
 .quick-view-row {
@@ -1396,7 +1653,7 @@
 
 /* ===== Responsive ===== */
 @media (max-width: 1024px) {
-  .snapshot-row { grid-template-columns: repeat(2, 1fr); }
+  .snapshot-row { grid-template-columns: repeat(3, 1fr); }
   .quick-view-row { grid-template-columns: repeat(2, 1fr); }
   .dates-grid-3col { grid-template-columns: repeat(2, 1fr); }
 }
@@ -1430,7 +1687,7 @@
     padding: 1.5rem 1rem;
   }
 
-  .snapshot-row { grid-template-columns: 1fr; }
+  .snapshot-row { grid-template-columns: repeat(2, 1fr); }
   .quick-view-row { grid-template-columns: 1fr 1fr; }
   .fnol-fields-grid { grid-template-columns: 1fr; }
   .personnel-grid { grid-template-columns: 1fr; }

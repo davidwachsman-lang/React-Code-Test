@@ -34,10 +34,16 @@ export default function DispatchTimeGrid({
         const hours = Number(job.hours) || 0;
         if (hours <= 0) { jobIdx++; return; }
 
+        const hasPinnedTime = job.fixedStartHour != null;
         const legSec = legs[jobIdx] || 0;
-        const driveHours = legSec / 3600;
         const preDriveMin = Math.round(legSec / 60);
-        cursor += driveHours;
+
+        if (hasPinnedTime) {
+          // Pinned job — jump cursor to exact start, don't offset by drive time
+          cursor = job.fixedStartHour;
+        } else {
+          cursor += legSec / 3600;
+        }
 
         const startHour = cursor;
         const endHour = cursor + hours;
@@ -93,9 +99,8 @@ export default function DispatchTimeGrid({
                       const data = JSON.parse(e.dataTransfer.getData('application/json'));
                       if (data.source === 'unassigned' && data.job) {
                         moveJobToLane(col.id, data.job);
-                      } else if (data.source === 'lane' && data.job && col.type === 'pm') {
-                        // Copy job to PM lane (keeps original in crew lane)
-                        copyJobToLane(col.id, data.job);
+                      } else if (data.source === 'lane' && data.job && col.type === 'pm' && data.laneId !== col.id) {
+                        copyJobToLane(col.id, data.job, data.startHour);
                       }
                     } catch (_) {}
                   }}
@@ -122,8 +127,8 @@ export default function DispatchTimeGrid({
                   const data = JSON.parse(e.dataTransfer.getData('application/json'));
                   if (data.source === 'unassigned' && data.job) {
                     moveJobToLane(col.id, data.job);
-                  } else if (data.source === 'lane' && data.job && col.type === 'pm') {
-                    copyJobToLane(col.id, data.job);
+                  } else if (data.source === 'lane' && data.job && col.type === 'pm' && data.laneId !== col.id) {
+                    copyJobToLane(col.id, data.job, data.startHour);
                   }
                 } catch (_) {}
               };
@@ -142,18 +147,28 @@ export default function DispatchTimeGrid({
                           onDragOver={handleCellDragOver} onDragLeave={handleCellDragLeave} onDrop={handleCellDrop(col)}
                         >
                           <div className="dispatch-job-cell-inner">
-                            {preDriveMin > 0 && (
-                              <div className="grid-drive-indicator">
-                                <span className="grid-drive-icon">🚗</span> {preDriveMin} min drive
-                              </div>
-                            )}
+                            <div className={`grid-drive-indicator${preDriveMin > 0 ? '' : ' grid-drive-na'}`}>
+                              <span className="grid-drive-icon">🚗</span> {preDriveMin > 0 ? `${preDriveMin} min drive` : 'No route'}
+                            </div>
                             <div className="grid-job-block" draggable onDragStart={(e) => {
-                              e.dataTransfer.setData('application/json', JSON.stringify({ type: 'job', source: 'lane', laneId: col.id, jobIndex, job }));
+                              e.dataTransfer.setData('application/json', JSON.stringify({ type: 'job', source: 'lane', laneId: col.id, jobIndex, job, startHour }));
                               e.dataTransfer.effectAllowed = 'move';
                             }}>
                               <div className="grid-job-number">{job.jobNumber || '—'}</div>
+                              <div className="grid-job-detail-row">
+                                <span className="grid-job-status">{job.jobType || '—'}</span>
+                                <span className="grid-job-hours">{Number(job.hours) || 0}h</span>
+                                {job.preScheduledTime && (
+                                  <span className="grid-job-scheduled-time">Appt {(() => {
+                                    const [h, m] = job.preScheduledTime.split(':');
+                                    const hr = parseInt(h, 10);
+                                    const ampm = hr >= 12 ? 'PM' : 'AM';
+                                    return `${hr % 12 || 12}:${m} ${ampm}`;
+                                  })()}</span>
+                                )}
+                              </div>
                               <div className="grid-job-customer">{job.customer || '—'}</div>
-                              <div className="grid-job-status">{job.jobType || '—'}</div>
+                              {job.address && <div className="grid-job-address">{job.address}</div>}
                               {jobIndex >= 0 && (
                                 <button type="button" className="grid-remove-job" onClick={() => removeJob(col.id, jobIndex)} aria-label="Remove job">&times;</button>
                               )}

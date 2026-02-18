@@ -1085,6 +1085,144 @@
 .upload-icon { font-size: 3rem; display: block; }
 
 /* ===== Overview Tab ===== */
+/* Schedule section */
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.section-header-row h3 {
+  margin: 0;
+}
+
+.btn-schedule {
+  background: none;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #3b82f6;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-schedule:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.schedule-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+}
+
+.schedule-item.past {
+  opacity: 0.5;
+}
+
+.schedule-item.completed {
+  border-color: rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.schedule-item-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+}
+
+.schedule-date {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.schedule-time {
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.schedule-duration {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.schedule-assignee {
+  color: #e2e8f0;
+  background: rgba(148, 163, 184, 0.1);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.schedule-notes {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.schedule-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.schedule-status {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.schedule-status-scheduled {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.schedule-status-confirmed {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.schedule-status-in_progress {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.schedule-status-completed {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.btn-cancel-schedule {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+}
+.btn-cancel-schedule:hover {
+  color: #ef4444;
+}
+
 .overview-snapshot {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.05) 100%);
   border: 1px solid rgba(59, 130, 246, 0.2);

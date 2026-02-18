@@ -241,6 +241,9 @@ export default function useDispatchSchedule(userId = null) {
   scheduleRef.current = schedule;
   lanesRef.current = lanes;
 
+  // Track which job_schedule IDs have already been merged for the current date
+  const mergedScheduleIdsRef = useRef(new Set());
+
   const dateKey = useMemo(() => dateToKey(date), [date]);
 
   // ─── Load teams from DB on mount ──────────────────────────────────────────
@@ -338,6 +341,113 @@ export default function useDispatchSchedule(userId = null) {
 
     return () => { cancelled = true; };
   }, [dateKey, teamsLoaded]);
+
+  // ─── Merge pre-scheduled items (e.g., inspections from Job Files) ─────────
+  // Reset merged IDs when date changes so items load fresh for each day
+  useEffect(() => {
+    mergedScheduleIdsRef.current = new Set();
+  }, [dateKey]);
+
+  useEffect(() => {
+    if (!teamsLoaded || lanes.length === 0) return;
+    let cancelled = false;
+
+    const mergePreScheduled = async () => {
+      try {
+        const dateStr = dateToString(date);
+        const { data: preScheduled, error } = await supabase
+          .from('job_schedules')
+          .select(`
+            *,
+            jobs(id, job_number, status,
+              customers(name),
+              properties(address1, city, state)
+            )
+          `)
+          .eq('scheduled_date', dateStr)
+          .in('status', ['scheduled', 'confirmed']);
+
+        if (cancelled || error || !preScheduled?.length) return;
+
+        // Filter out any items we've already merged this session
+        const brandNew = preScheduled.filter(ps => !mergedScheduleIdsRef.current.has(ps.id));
+        if (brandNew.length === 0) return;
+
+        // Mark all as merged BEFORE updating state (no ref mutation inside updater)
+        brandNew.forEach(ps => mergedScheduleIdsRef.current.add(ps.id));
+
+        // Also check current board state for items loaded from a saved schedule
+        const currentSchedule = scheduleRef.current;
+        const existingJobIds = new Set();
+        const existingJobNumbers = new Set();
+        Object.values(currentSchedule).forEach(jobs => {
+          if (!Array.isArray(jobs)) return;
+          jobs.forEach(j => {
+            if (j.dbJobId) existingJobIds.add(j.dbJobId);
+            if (j.jobNumber) existingJobNumbers.add(j.jobNumber.trim().toLowerCase());
+          });
+        });
+
+        const newItems = brandNew.filter(ps => {
+          if (ps.job_id && existingJobIds.has(ps.job_id)) return false;
+          const jn = ps.jobs?.job_number?.trim().toLowerCase();
+          if (jn && existingJobNumbers.has(jn)) return false;
+          return true;
+        });
+
+        if (newItems.length === 0) return;
+
+        // Build the dispatch job objects outside the updater
+        const itemsToAdd = newItems.map(ps => {
+          const jobData = ps.jobs;
+          const customerName = jobData?.customers?.name || '';
+          const addr = jobData?.properties
+            ? [jobData.properties.address1, jobData.properties.city, jobData.properties.state].filter(Boolean).join(', ')
+            : '';
+
+          const techName = (ps.technician_name || '').trim().toUpperCase();
+          const matchedLane = lanes.find(l =>
+            l.name.trim().toUpperCase() === techName
+          );
+
+          return {
+            laneId: matchedLane?.id || 'unassigned',
+            job: {
+              id: crypto.randomUUID(),
+              jobType: 'walkthrough',
+              hours: (ps.duration_minutes || 60) / 60,
+              jobNumber: jobData?.job_number || '',
+              customer: customerName,
+              address: addr,
+              dbJobId: ps.job_id || null,
+              preScheduled: true,
+              preScheduledId: ps.id,
+              preScheduledTime: ps.scheduled_time,
+              preScheduledNotes: ps.notes,
+            },
+          };
+        });
+
+        setSchedule(prev => {
+          const next = { ...prev };
+          Object.keys(next).forEach(k => { next[k] = [...(next[k] || [])]; });
+
+          itemsToAdd.forEach(({ laneId, job }) => {
+            if (!next[laneId]) next[laneId] = [];
+            next[laneId].push(job);
+          });
+
+          return next;
+        });
+      } catch (err) {
+        console.warn('Failed to merge pre-scheduled items:', err);
+      }
+    };
+
+    // Small delay to let the main schedule load first
+    const t = setTimeout(mergePreScheduled, 500);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [dateKey, teamsLoaded, lanes]);
 
   // ─── Auto-save to Supabase (debounced) ────────────────────────────────────
   useEffect(() => {
@@ -496,14 +606,22 @@ export default function useDispatchSchedule(userId = null) {
     });
   }, [pushUndo]);
 
-  /** Copy a job to a PM lane (keeps original in source lane, adds copy with new ID to target). */
-  const copyJobToLane = useCallback((targetLaneId, job) => {
+  /** Copy a job to a PM lane (keeps original in source lane, adds copy with new ID to target).
+   *  If startHour is provided, pin the copy to that time so PM and crew are at the same slot. */
+  const copyJobToLane = useCallback((targetLaneId, job, startHour) => {
     pushUndo();
     const copy = { ...job, id: crypto.randomUUID() };
-    setSchedule((prev) => ({
-      ...prev,
-      [targetLaneId]: [...(prev[targetLaneId] || []), copy],
-    }));
+    if (startHour != null) copy.fixedStartHour = startHour;
+    setSchedule((prev) => {
+      const existing = prev[targetLaneId] || [];
+      // Insert in sorted order by fixedStartHour so the grid lays them out chronologically
+      const updated = [...existing, copy].sort((a, b) => {
+        const aTime = a.fixedStartHour ?? -1;
+        const bTime = b.fixedStartHour ?? -1;
+        return aTime - bTime;
+      });
+      return { ...prev, [targetLaneId]: updated };
+    });
   }, [pushUndo]);
 
   const totalHours = useCallback((crewId) => {

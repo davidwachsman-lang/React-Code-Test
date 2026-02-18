@@ -29,6 +29,7 @@ export const PM_OPTIONS = ['KEVIN', 'LEO', 'AARON'];
 export const CREW_CHIEF_OPTIONS = ['GABRIEL', 'PEDRO', 'JUAN'];
 export const JFC_OPTIONS = ['KELSEY', 'BRANDIE', 'CARMINE'];
 export const ESTIMATOR_OPTIONS = ['KEVIN', 'BRYAN', 'TRAVIS', 'JOSH'];
+export const INSPECTOR_OPTIONS = ['KEVIN', 'BRYAN', 'TRAVIS', 'JOSH'];
 export const BIZ_DEV_OPTIONS = ['TONY', 'BRI', 'PAIGE', 'AINSLEY', 'JOE'];
 
 // === FNOL / INTAKE DROPDOWNS (title case — matches Intake form values saved to Supabase) ===

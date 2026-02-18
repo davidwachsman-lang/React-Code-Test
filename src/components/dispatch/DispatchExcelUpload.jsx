@@ -256,12 +256,18 @@ function DispatchExcelUpload({ onApply, onCancel }) {
     setSaveStatus('saving');
     setSaveError(null);
     try {
+      // Map dispatch status value to a display label for the stage field
+      const stageLabel = (val) => {
+        const match = STATUS_OPTIONS.find((o) => o.value === val);
+        return match ? match.label : val || '';
+      };
       const importRows = rows.map((r) => ({
         externalJobNumber: r.jobNumber || null,
         customerName: r.customer || 'Unknown',
         address: r.address || '',
         notes: r.pm ? `PM: ${r.pm}` : null,
         status: 'pending',
+        stage: stageLabel(r.status),
       }));
       const results = await jobService.bulkImportExternal(importRows, 'dispatch-excel-import');
       setSaveStatus(results);
@@ -271,7 +277,8 @@ function DispatchExcelUpload({ onApply, onCancel }) {
     }
   };
 
-  const applyToSchedule = () => {
+  const applyToSchedule = (andSaveToSupabase = false) => {
+    if (andSaveToSupabase) handleSaveToSupabase();
     // Build PM groups from the data (if PM column was mapped)
     // Each crew chief belongs to ONE PM only (first occurrence wins)
     const PM_GROUP_COLORS = ['#3b82f6', '#8b5cf6', '#22c55e', '#f97316', '#ef4444', '#06b6d4', '#ec4899', '#84cc16'];
@@ -503,42 +510,25 @@ function DispatchExcelUpload({ onApply, onCancel }) {
               </tbody>
             </table>
           </div>
-          <div style={{ margin: '12px 0', padding: '12px', background: '#f0f9ff', borderRadius: '8px', border: '1px solid #bae6fd' }}>
-            <p style={{ margin: '0 0 8px', fontSize: '13px', color: '#0369a1' }}>
-              Save imported jobs to Supabase? External job numbers will be preserved for enrichment.
-            </p>
-            {saveStatus === 'saving' && (
-              <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>Saving to Supabase...</p>
-            )}
-            {saveStatus && saveStatus !== 'saving' && (
-              <p style={{ margin: 0, fontSize: '13px', color: '#059669' }}>
-                Saved: {saveStatus.created} created, {saveStatus.skipped} skipped (already exist)
-                {saveStatus.errors?.length > 0 && `, ${saveStatus.errors.length} errors`}
-              </p>
-            )}
-            {saveError && (
-              <p style={{ margin: 0, fontSize: '13px', color: '#dc2626' }}>{saveError}</p>
-            )}
-            {!saveStatus || saveStatus === 'saving' ? (
-              <button
-                type="button"
-                className="secondary-btn"
-                onClick={handleSaveToSupabase}
-                disabled={saveStatus === 'saving'}
-                style={{ marginTop: '8px' }}
-              >
-                {saveStatus === 'saving' ? 'Saving...' : 'Save to Supabase'}
-              </button>
-            ) : null}
-          </div>
-
           <div className="preview-footer">
-            <button type="button" className="primary-btn" onClick={applyToSchedule}>
-              Apply to schedule
+            <button type="button" className="primary-btn" onClick={() => applyToSchedule(false)}>
+              Apply to Schedule
+            </button>
+            <button type="button" className="secondary-btn" onClick={() => applyToSchedule(true)} disabled={saveStatus === 'saving'}>
+              {saveStatus === 'saving' ? 'Saving...' : 'Apply & Save to Supabase'}
             </button>
             <button type="button" className="cancel-btn" onClick={() => setStep('mapping')}>Back</button>
             {onCancel && <button type="button" className="cancel-btn" onClick={onCancel}>Cancel</button>}
           </div>
+          {saveStatus && saveStatus !== 'saving' && (
+            <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#059669' }}>
+              Saved: {saveStatus.created} created{saveStatus.updated ? `, ${saveStatus.updated} updated` : ''}, {saveStatus.skipped} unchanged
+              {saveStatus.errors?.length > 0 && `, ${saveStatus.errors.length} errors`}
+            </p>
+          )}
+          {saveError && (
+            <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#dc2626' }}>{saveError}</p>
+          )}
         </div>
       )}
     </div>

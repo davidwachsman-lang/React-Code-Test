@@ -469,11 +469,11 @@ const jobService = {
   // Import jobs from external system (Excel upload)
   // Creates customer, property, and job records in one batch
   async bulkImportExternal(rows, sourceSystem = 'excel-import') {
-    const results = { created: 0, skipped: 0, errors: [] };
+    const results = { created: 0, updated: 0, skipped: 0, errors: [] };
 
     for (const row of rows) {
       try {
-        // Skip if this external job number already exists
+        // Check if this external job number already exists
         if (row.externalJobNumber) {
           const { data: existing } = await supabase
             .from(TABLE)
@@ -482,7 +482,16 @@ const jobService = {
             .maybeSingle();
 
           if (existing) {
-            results.skipped++;
+            // Update stage if a dispatch status was provided
+            const updates = {};
+            if (row.stage) updates.stage = row.stage;
+            if (row.address) updates.property_address = row.address;
+            if (Object.keys(updates).length > 0) {
+              await supabase.from(TABLE).update(updates).eq('id', existing.id);
+              results.updated++;
+            } else {
+              results.skipped++;
+            }
             continue;
           }
         }

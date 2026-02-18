@@ -643,6 +643,126 @@
   gap: 1rem;
 }
 
+/* Crew filter toggle */
+.dispatch-crew-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dispatch-crew-filter-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dispatch-crew-filter-toggle {
+  display: flex;
+  gap: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.dispatch-crew-filter-toggle button {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  background: rgba(30, 41, 59, 0.8);
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.dispatch-crew-filter-toggle button:hover {
+  color: #e2e8f0;
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.dispatch-crew-filter-toggle button.active {
+  background: rgba(59, 130, 246, 0.25);
+  color: #93c5fd;
+}
+
+/* Ensure Google Places dropdown renders above the modal overlay */
+.pac-container {
+  z-index: 10100 !important;
+}
+
+/* Schedule Estimate/Inspection modal — compact fit */
+.dispatch-sched-modal {
+  max-height: 90vh;
+  overflow-y: auto;
+  max-width: 400px;
+  padding: 1.25rem;
+}
+
+.dispatch-sched-modal .close-modal-field {
+  margin-bottom: 0.6rem;
+}
+
+.dispatch-sched-modal .close-modal-field label {
+  margin-bottom: 0.2rem;
+  font-size: 0.75rem;
+}
+
+.dispatch-sched-modal .form-input {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.82rem;
+}
+
+.dispatch-sched-modal textarea.form-input {
+  min-height: 40px;
+}
+
+.dispatch-sched-modal .close-modal-actions {
+  margin-top: 0.75rem;
+}
+
+.dispatch-schedule-direct-btn {
+  margin-left: auto;
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 8px;
+  color: #93c5fd;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.dispatch-schedule-direct-btn:hover {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.dispatch-schedule-pdf-btn {
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  border-radius: 8px;
+  color: #c4b5fd;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.dispatch-schedule-pdf-btn:hover {
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.dispatch-schedule-pdf-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Unassigned pool */
 .dispatch-unassigned-pool {
   padding: 1rem;

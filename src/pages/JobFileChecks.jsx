@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
 import jobService from '../services/jobService';
 import './Page.css';
 import './JobFileChecks.css';
@@ -319,6 +320,114 @@ function JobFileChecks() {
     XLSX.writeFile(wb, 'Job_File_Checks.xlsx');
   };
 
+  const exportPunchlistPdf = () => {
+    if (!rows) return;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 36;
+    const lineH = 13;
+    let y = 0;
+
+    const ensureSpace = (needed) => {
+      if (y + needed > pageH - margin) {
+        doc.addPage();
+        y = margin + 10;
+      }
+    };
+
+    // Title
+    y = margin + 4;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('Job File Check Punchlist', margin, y);
+    y += 16;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(100);
+    doc.text(`Generated: ${new Date().toLocaleString('en-US')}`, margin, y);
+    doc.setTextColor(0);
+    y += 20;
+
+    // Group rows: PM → Crew Chief → jobs with missing checks
+    const pmMap = {};
+    rows.forEach((row) => {
+      const missingItems = FILE_CHECK_HEADERS
+        .map((h, i) => (!row.checks[i] ? h.fullName : null))
+        .filter(Boolean);
+      if (missingItems.length === 0) return; // skip jobs with no missing items
+
+      const pm = row.info[PM_INDEX] || 'Unassigned PM';
+      const crew = row.info[CREW_INDEX] || 'Unassigned Crew Chief';
+      if (!pmMap[pm]) pmMap[pm] = {};
+      if (!pmMap[pm][crew]) pmMap[pm][crew] = [];
+      pmMap[pm][crew].push({ jobNumber: row.jobNumber, customer: row.info[0], missing: missingItems });
+    });
+
+    const pmNames = Object.keys(pmMap).sort((a, b) => a.localeCompare(b));
+
+    if (pmNames.length === 0) {
+      doc.setFontSize(11);
+      doc.text('No missing items found — all checks are passing.', margin, y);
+      doc.save('Job_File_Check_Punchlist.pdf');
+      return;
+    }
+
+    pmNames.forEach((pm) => {
+      // PM header
+      ensureSpace(lineH * 3);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(30, 64, 175); // blue
+      doc.text(pm, margin, y);
+      y += 4;
+      doc.setDrawColor(30, 64, 175);
+      doc.setLineWidth(0.75);
+      doc.line(margin, y, pageW - margin, y);
+      y += lineH + 2;
+      doc.setTextColor(0);
+
+      const crewNames = Object.keys(pmMap[pm]).sort((a, b) => a.localeCompare(b));
+      crewNames.forEach((crew) => {
+        // Crew Chief header
+        ensureSpace(lineH * 2);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(80);
+        doc.text(crew, margin + 12, y);
+        y += lineH + 2;
+        doc.setTextColor(0);
+
+        const jobs = pmMap[pm][crew];
+        jobs.forEach((job) => {
+          // Job line
+          ensureSpace(lineH * 2 + job.missing.length * lineH);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          const jobLabel = `${job.jobNumber}${job.customer ? '  —  ' + job.customer : ''}`;
+          doc.text(jobLabel, margin + 24, y);
+          y += lineH;
+
+          // Missing items
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+          doc.setTextColor(200, 30, 30); // red
+          job.missing.forEach((item) => {
+            ensureSpace(lineH);
+            doc.text('\u2717  ' + item, margin + 36, y);
+            y += lineH;
+          });
+          doc.setTextColor(0);
+          y += 4;
+        });
+        y += 4;
+      });
+      y += 6;
+    });
+
+    doc.save('Job_File_Check_Punchlist.pdf');
+  };
+
   const presentCount = displayRows
     ? displayRows.reduce((sum, r) => sum + r.checks.filter(Boolean).length, 0)
     : 0;
@@ -378,6 +487,7 @@ function JobFileChecks() {
                 >
                   {saveStatus === 'saving' ? 'Saving...' : 'Save to Supabase'}
                 </button>
+                <button className="jfc-export-btn" onClick={exportPunchlistPdf}>Punchlist PDF</button>
                 <button className="jfc-export-btn" onClick={exportToExcel}>Export Excel</button>
                 <button className="jfc-clear-btn" onClick={clear}>Clear</button>
               </>

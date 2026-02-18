@@ -5,15 +5,6 @@ import {
   JOB_TYPES,
 } from '../../hooks/useDispatchSchedule';
 
-const COLOR_TEAM_NAMES = {
-  '#3b82f6': 'Blue', '#8b5cf6': 'Purple', '#22c55e': 'Green', '#f97316': 'Orange',
-  '#ef4444': 'Red', '#06b6d4': 'Teal', '#ec4899': 'Pink', '#84cc16': 'Lime',
-};
-
-function teamNameFromColor(hex) {
-  return COLOR_TEAM_NAMES[hex] || 'Team';
-}
-
 export default function DispatchTimeGrid({
   schedule, scheduleColumns, pmHeaderGroups,
   driveTimeByCrew,
@@ -116,19 +107,9 @@ export default function DispatchTimeGrid({
       <div className="dispatch-time-grid-wrap">
         <table className="dispatch-time-grid">
           <thead>
-            {/* Team spanning row */}
-            <tr className="dispatch-pm-header-row">
-              <th className="dispatch-time-col" rowSpan={2}>Time</th>
-              {pmHeaderGroups.map((g, i) => (
-                <th key={i} colSpan={g.colSpan} className={`dispatch-pm-col${g.pm ? '' : ' dispatch-pm-col-empty'}`} style={{ borderBottomColor: g.color }}>
-                  {g.pm && (
-                    <span className="pm-header-name">{teamNameFromColor(g.color)} Team</span>
-                  )}
-                </th>
-              ))}
-            </tr>
             {/* Crew / PM lane header row */}
             <tr>
+              <th className="dispatch-time-col">Time</th>
               {scheduleColumns.map((col) => (
                 <th
                   key={col.id}
@@ -281,12 +262,6 @@ export default function DispatchTimeGrid({
           </div>
         )}
 
-        {/* Add job buttons */}
-        <div className="dispatch-grid-actions">
-          {scheduleColumns.map((col) => (
-            <button key={col.id} type="button" className="add-job-btn" onClick={() => addJob(col.id)}>+ Add job to {col.name}</button>
-          ))}
-        </div>
       </div>
     </>
   );

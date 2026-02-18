@@ -25,6 +25,8 @@ export const JOB_TYPES = [
   { value: 'packout', label: 'Packout', hours: hoursForJobType('packout') },
   { value: 'equipment-pickup', label: 'Equipment Pickup', hours: hoursForJobType('equipment-pickup') },
   { value: 'emergency', label: 'Emergency', hours: hoursForJobType('emergency') },
+  { value: 'estimate', label: 'Estimate', hours: hoursForJobType('estimate') },
+  { value: 'inspection', label: 'Inspection', hours: hoursForJobType('inspection') },
 ];
 
 export const DAY_START = 8.5;
@@ -469,45 +471,28 @@ export default function useDispatchSchedule(userId = null) {
     setConflicts(detectConflicts(schedule, lanes, driveTimeByCrew));
   }, [schedule, lanes, driveTimeByCrew]);
 
-  // ─── Sorted columns (crews grouped by PM) ────────────────────────────────
+  // ─── Sorted columns: all PMs first (in order), then all Crew Chiefs (in order) ─
   const scheduleColumns = useMemo(() => {
-    return [...lanes].sort((a, b) => {
-      const pmA = findPmForCrew(a.name, pmGroups);
-      const pmB = findPmForCrew(b.name, pmGroups);
-      const pmIdxA = pmA ? pmGroups.indexOf(pmA) : pmGroups.length;
-      const pmIdxB = pmB ? pmGroups.indexOf(pmB) : pmGroups.length;
-      if (pmIdxA !== pmIdxB) return pmIdxA - pmIdxB;
-      if (pmA && pmA === pmB) {
-        // PM-type lanes sort first within their group
-        const isPmA = a.type === 'pm' ? 1 : 0;
-        const isPmB = b.type === 'pm' ? 1 : 0;
-        if (isPmA !== isPmB) return isPmB - isPmA; // pm lanes first
-        const crewIdxA = pmA.crews.findIndex((c) => c.toLowerCase() === (a.name || '').toLowerCase().trim());
-        const crewIdxB = pmA.crews.findIndex((c) => c.toLowerCase() === (b.name || '').toLowerCase().trim());
-        return crewIdxA - crewIdxB;
-      }
-      return 0;
+    const pmLanes = [];
+    const crewLanes = [];
+    // Walk pmGroups in order to preserve PM ordering
+    pmGroups.forEach((group, pmIdx) => {
+      const pmLane = lanes.find((l) => l.type === 'pm' && l.name.toLowerCase() === group.pm.toLowerCase());
+      if (pmLane) pmLanes.push(pmLane);
+      group.crews.forEach((crewName) => {
+        const crewLane = lanes.find((l) => l.type === 'crew' && l.name.toLowerCase() === crewName.toLowerCase());
+        if (crewLane) crewLanes.push(crewLane);
+      });
     });
+    // Any remaining lanes not matched above
+    const used = new Set([...pmLanes, ...crewLanes].map((l) => l.id));
+    const rest = lanes.filter((l) => !used.has(l.id));
+    return [...pmLanes, ...crewLanes, ...rest];
   }, [lanes, pmGroups]);
 
   const pmHeaderGroups = useMemo(() => {
-    const groups = [];
-    scheduleColumns.forEach((col) => {
-      const pm = findPmForCrew(col.name, pmGroups);
-      const pmKey = pm?.pm || null;
-      if (groups.length > 0 && groups[groups.length - 1].pmKey === pmKey) {
-        groups[groups.length - 1].colSpan += 1;
-      } else {
-        groups.push({
-          pmKey,
-          pm: pm?.pm || null,
-          title: pm?.title || '',
-          color: pm?.color || '#64748b',
-          colSpan: 1,
-        });
-      }
-    });
-    return groups;
+    // No team grouping — return a single flat span across all columns
+    return [];
   }, [scheduleColumns, pmGroups]);
 
   // ─── Undo/Redo ────────────────────────────────────────────────────────────

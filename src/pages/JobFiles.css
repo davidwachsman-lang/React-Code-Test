@@ -159,7 +159,8 @@
 /* ===== Buttons ===== */
 .btn-primary,
 .btn-secondary,
-.btn-clear {
+.btn-clear,
+.btn-new-job {
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   font-weight: 600;
@@ -167,6 +168,22 @@
   transition: all 0.3s ease;
   border: none;
   font-size: 1rem;
+}
+
+.btn-new-job {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+}
+
+.btn-new-job:hover:not(:disabled) {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.btn-new-job:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-primary {
@@ -526,10 +543,11 @@
 }
 
 .jobs-table tbody tr:nth-child(even) {
-  background: rgba(30, 41, 59, 0.25);
+  background: #1a2540;
 }
 
 .jobs-table tbody tr {
+  background: #0f172a;
   border-bottom: 1px solid rgba(59, 130, 246, 0.1);
   border-left: 3px solid transparent;
   transition: background 0.2s ease, border-left-color 0.2s ease;
@@ -1111,6 +1129,66 @@
 .btn-schedule:hover {
   background: rgba(59, 130, 246, 0.1);
   border-color: #3b82f6;
+}
+
+/* Edit button for section headers */
+.btn-edit-section {
+  background: none;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #3b82f6;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-edit-section:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+/* Customer & Property edit form */
+.cust-prop-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.cust-prop-edit-grid .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cust-prop-edit-grid .form-group-full {
+  grid-column: 1 / -1;
+}
+
+.cust-prop-edit-grid label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.cust-prop-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .cust-prop-edit-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .schedule-list {
@@ -1787,6 +1865,77 @@
   color: #94a3b8;
   font-size: 0.8rem;
   font-weight: 500;
+}
+
+/* ===== New Job Modal ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.new-job-modal {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 1.75rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.new-job-modal h2 {
+  margin: 0 0 1.25rem;
+  color: #f1f5f9;
+  font-size: 1.15rem;
+}
+
+.new-job-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.new-job-form .filter-group label {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+.new-job-form .filter-select {
+  width: 100%;
+}
+
+.new-job-preview {
+  color: #60a5fa;
+  font-size: 0.85rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+}
+
+.new-job-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.new-job-actions .btn-new-job {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.85rem;
 }
 
 /* ===== Responsive ===== */

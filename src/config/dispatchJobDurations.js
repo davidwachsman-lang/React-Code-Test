@@ -15,7 +15,7 @@ export const JOB_TYPE_HOURS = {
   packout: 8,
   emergency: 0.5,
   estimate: 1.5,
-  inspection: 1,
+  'site-visit': 1,
 };
 
 export function hoursForJobType(value) {

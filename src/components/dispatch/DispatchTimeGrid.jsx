@@ -200,7 +200,7 @@ export default function DispatchTimeGrid({
                             }}>
                               <div className="grid-job-number">{job.jobNumber || '—'}</div>
                               <div className="grid-job-detail-row">
-                                <span className="grid-job-status">{job.jobType || '—'}</span>
+                                <span className={`grid-job-status${job.jobType ? ` type-${job.jobType}` : ''}`}>{job.jobType || '—'}</span>
                                 <span className="grid-job-hours">{displayHours}h</span>
                                 {job.preScheduledTime && (
                                   <span className="grid-job-scheduled-time">Appt {(() => {

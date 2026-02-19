@@ -637,9 +637,9 @@ const jobService = {
               external_job_number: jobNumber,
               customer_id: customer.id,
               property_id: property.id,
-              status: 'pending',
               date_opened: new Date().toISOString().split('T')[0],
               ...checkData,
+              status: 'wip',
             }])
             .select()
             .single();

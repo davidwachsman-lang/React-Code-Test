@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { supabase } from '../../../services/supabaseClient';
 import {
   STATUS_OPTIONS,
   PENDING_STAGE_OPTIONS,
@@ -45,8 +46,129 @@ function formatTime(timeStr) {
   return `${hr12}:${m} ${ampm}`;
 }
 
-export default function OverviewTab({ job, localState, onSupabaseChange, onLocalChange }) {
+export default function OverviewTab({ job, localState, onSupabaseChange, onLocalChange, onJobReload }) {
   const statusDisplay = STATUS_DISPLAY_MAP[job.status] || job.status?.toUpperCase() || 'UNKNOWN';
+
+  // Editable customer & property fields
+  const [editingCustProp, setEditingCustProp] = useState(false);
+  const [custName, setCustName] = useState('');
+  const [custPhone, setCustPhone] = useState('');
+  const [custEmail, setCustEmail] = useState('');
+  const [propAddress, setPropAddress] = useState('');
+  const [propCity, setPropCity] = useState('');
+  const [propState, setPropState] = useState('');
+  const [propZip, setPropZip] = useState('');
+  const [propLat, setPropLat] = useState(null);
+  const [propLng, setPropLng] = useState(null);
+  const [jobNumber, setJobNumber] = useState('');
+  const [savingCustProp, setSavingCustProp] = useState(false);
+
+  // Google Places Autocomplete
+  const addressInputRef = useRef(null);
+  const autocompleteInstanceRef = useRef(null);
+
+  useEffect(() => {
+    if (!editingCustProp) return;
+    let retryCount = 0;
+
+    const initAutocomplete = () => {
+      if (!addressInputRef.current || !document.contains(addressInputRef.current)) {
+        retryCount++;
+        if (retryCount < 30) setTimeout(initAutocomplete, 100);
+        return;
+      }
+      if (!window.google?.maps?.places?.Autocomplete) {
+        retryCount++;
+        if (retryCount < 30) setTimeout(initAutocomplete, 100);
+        return;
+      }
+
+      const ac = new window.google.maps.places.Autocomplete(
+        addressInputRef.current,
+        { types: ['address'], componentRestrictions: { country: 'us' }, fields: ['formatted_address', 'address_components', 'geometry'] }
+      );
+      autocompleteInstanceRef.current = ac;
+
+      ac.addListener('place_changed', () => {
+        const place = ac.getPlace();
+        if (!place?.geometry) return;
+
+        const addr = place.formatted_address || '';
+        let city = '', state = '', zip = '';
+        (place.address_components || []).forEach(c => {
+          if (c.types.includes('locality')) city = c.long_name;
+          if (c.types.includes('administrative_area_level_1')) state = c.short_name;
+          if (c.types.includes('postal_code')) zip = c.long_name;
+        });
+
+        setPropAddress(addr);
+        setPropCity(city);
+        setPropState(state);
+        setPropZip(zip);
+        if (place.geometry.location) {
+          setPropLat(place.geometry.location.lat());
+          setPropLng(place.geometry.location.lng());
+        }
+      });
+    };
+
+    initAutocomplete();
+    return () => { autocompleteInstanceRef.current = null; };
+  }, [editingCustProp]);
+
+  const startEditCustProp = useCallback(() => {
+    setCustName(job.customers?.name || job.customer_name || '');
+    setCustPhone(job.customers?.phone || '');
+    setCustEmail(job.customers?.email || '');
+    const fullAddr = job.property_address || '';
+    setPropAddress(fullAddr);
+    setPropCity(job.properties?.city || '');
+    setPropState(job.properties?.state || '');
+    setPropZip(job.properties?.postal_code || '');
+    setPropLat(job.properties?.latitude || null);
+    setPropLng(job.properties?.longitude || null);
+    setJobNumber(job.job_number || '');
+    setEditingCustProp(true);
+  }, [job]);
+
+  const saveCustProp = async () => {
+    setSavingCustProp(true);
+    try {
+      // Update customer
+      if (job.customer_id) {
+        await supabase
+          .from('customers')
+          .update({ name: custName, phone: custPhone || null, email: custEmail || null })
+          .eq('id', job.customer_id);
+      }
+      // Update property — store full formatted address + parsed components + coords
+      if (job.property_id) {
+        const propUpdate = {
+          address1: propAddress,
+          city: propCity,
+          state: propState,
+          postal_code: propZip,
+        };
+        if (propLat != null) propUpdate.latitude = propLat;
+        if (propLng != null) propUpdate.longitude = propLng;
+        await supabase
+          .from('properties')
+          .update(propUpdate)
+          .eq('id', job.property_id);
+      }
+      // Update job number if changed
+      if (jobNumber !== (job.job_number || '')) {
+        await onSupabaseChange('job_number', jobNumber || null);
+      }
+      setEditingCustProp(false);
+      if (onJobReload) onJobReload();
+    } catch (err) {
+      console.error('Failed to save customer/property:', err);
+      alert('Failed to save: ' + (err.message || 'Unknown error'));
+    } finally {
+      setSavingCustProp(false);
+    }
+  };
 
   // Close Job state
   const [showCloseModal, setShowCloseModal] = useState(false);
@@ -234,17 +356,59 @@ export default function OverviewTab({ job, localState, onSupabaseChange, onLocal
 
       {/* Customer & Property Summary */}
       <div className="detail-section">
-        <h3>Customer & Property</h3>
-        <div className="detail-grid">
-          <div className="detail-item">
-            <strong>Customer</strong>
-            <span>{job.customer_name || 'N/A'}</span>
-          </div>
-          <div className="detail-item">
-            <strong>Property Address</strong>
-            <span>{job.property_address || 'N/A'}</span>
-          </div>
+        <div className="section-header-row">
+          <h3>Customer & Property</h3>
+          {!editingCustProp && (
+            <button className="btn-edit-section" onClick={startEditCustProp}>Edit</button>
+          )}
         </div>
+        {editingCustProp ? (
+          <div className="cust-prop-edit-grid">
+            <div className="form-group">
+              <label>Job Number</label>
+              <input className="form-input" value={jobNumber} onChange={(e) => setJobNumber(e.target.value)} placeholder="e.g. 24-1234" />
+            </div>
+            <div className="form-group">
+              <label>Customer Name</label>
+              <input className="form-input" value={custName} onChange={(e) => setCustName(e.target.value)} placeholder="Customer name" autoFocus />
+            </div>
+            <div className="form-group">
+              <label>Phone</label>
+              <input className="form-input" type="tel" value={custPhone} onChange={(e) => setCustPhone(e.target.value)} placeholder="Phone number" />
+            </div>
+            <div className="form-group">
+              <label>Email</label>
+              <input className="form-input" type="email" value={custEmail} onChange={(e) => setCustEmail(e.target.value)} placeholder="Email address" />
+            </div>
+            <div className="form-group form-group-full">
+              <label>Property Address</label>
+              <input
+                ref={addressInputRef}
+                className="form-input"
+                value={propAddress}
+                onChange={(e) => setPropAddress(e.target.value)}
+                placeholder="Start typing an address..."
+              />
+            </div>
+            <div className="form-group form-group-full cust-prop-edit-actions">
+              <button className="btn-cancel" onClick={() => setEditingCustProp(false)}>Cancel</button>
+              <button className="btn-primary" onClick={saveCustProp} disabled={savingCustProp}>
+                {savingCustProp ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="detail-grid">
+            <div className="detail-item">
+              <strong>Customer</strong>
+              <span>{job.customer_name || 'N/A'}</span>
+            </div>
+            <div className="detail-item">
+              <strong>Property Address</strong>
+              <span>{job.property_address || 'N/A'}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Quick-View Row */}

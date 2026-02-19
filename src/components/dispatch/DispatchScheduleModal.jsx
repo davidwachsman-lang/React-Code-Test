@@ -6,7 +6,7 @@ const SCHEDULE_ASSIGNEE_OPTIONS = ['KEVIN', 'LEO', 'AARON', 'JOSH', 'KENNY'];
 
 const TYPES = [
   { value: 'estimate', label: 'Estimate' },
-  { value: 'inspection', label: 'Inspection' },
+  { value: 'site-visit', label: 'Site Visit' },
 ];
 
 const DURATION_OPTIONS = [
@@ -125,7 +125,7 @@ export default function DispatchScheduleModal({ lanes, dispatchDate, onSchedule,
         scheduledDate: schedDate,
         scheduledTime: time || null,
         durationMinutes: Math.round(hours * 60),
-        notes: [type === 'estimate' ? 'Estimate' : 'Inspection', jobNumber, customer, notes].filter(Boolean).join(' — '),
+        notes: [type === 'estimate' ? 'Estimate' : 'Site Visit', jobNumber, customer, notes].filter(Boolean).join(' — '),
         status: 'scheduled',
       });
 
@@ -171,7 +171,7 @@ export default function DispatchScheduleModal({ lanes, dispatchDate, onSchedule,
   return (
     <div className="close-modal-overlay" onClick={onClose}>
       <div className="close-modal dispatch-sched-modal" onClick={(e) => e.stopPropagation()}>
-        <h3 style={{ fontSize: '1rem', marginBottom: '0.15rem' }}>Schedule {type === 'estimate' ? 'Estimate' : 'Inspection'}</h3>
+        <h3 style={{ fontSize: '1rem', marginBottom: '0.15rem' }}>Schedule {type === 'estimate' ? 'Estimate' : 'Site Visit'}</h3>
         <p className="close-modal-subtitle" style={{ marginBottom: '0.75rem' }}>Saves to Supabase{isToday ? ' and adds to today\u2019s dispatch grid' : ''}</p>
 
         {/* Type toggle */}

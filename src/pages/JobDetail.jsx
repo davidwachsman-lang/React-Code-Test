@@ -210,6 +210,7 @@ export default function JobDetail() {
             localState={localState}
             onSupabaseChange={handleSupabaseChange}
             onLocalChange={handleLocalChange}
+            onJobReload={loadJob}
           />
         )}
         {activeTab === 'fnol' && (

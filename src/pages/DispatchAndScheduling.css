@@ -891,12 +891,12 @@
   outline-offset: -2px;
 }
 
-/* Time grid */
+/* Time grid — Outlook-style clean layout */
 .dispatch-time-grid-wrap {
   overflow-x: auto;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 12px;
-  background: rgba(30, 41, 59, 0.4);
+  background: rgba(241, 245, 249, 0.06);
   position: relative;
 }
 
@@ -908,7 +908,7 @@
 
 .dispatch-time-grid th,
 .dispatch-time-grid td {
-  border: 1px solid rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.1);
   padding: 0.5rem 0.75rem;
   vertical-align: top;
 }
@@ -933,12 +933,13 @@
 .dispatch-time-col {
   width: 90px;
   min-width: 90px;
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(30, 41, 59, 0.5);
   color: #94a3b8;
   font-weight: 500;
   position: sticky;
   left: 0;
   z-index: 2;
+  border-right: 2px solid rgba(148, 163, 184, 0.12) !important;
 }
 
 .dispatch-time-col.time-slot-label {
@@ -984,6 +985,8 @@
   min-width: 140px;
   text-align: center;
   border-top-width: 3px !important;
+  background: rgba(30, 41, 59, 0.35);
+  border-bottom: 2px solid rgba(148, 163, 184, 0.12) !important;
 }
 
 .dispatch-crew-col-pm {
@@ -1029,17 +1032,27 @@
   color: #67e8f9;
 }
 
-/* Job cells */
+/* Job cells — Outlook card containers */
 .dispatch-job-cell {
   min-width: 240px;
-  background: rgba(15, 23, 42, 0.5);
-  border-left-width: 3px !important;
+  background: rgba(241, 245, 249, 0.03);
+  border-left-width: 4px !important;
   position: relative;
   overflow: hidden;
+  transition: background 0.15s;
+}
+
+.dispatch-job-cell:hover {
+  background: rgba(241, 245, 249, 0.06);
 }
 
 .dispatch-job-cell.empty-cell {
-  background: rgba(15, 23, 42, 0.2);
+  background: transparent;
+  border-left-color: transparent !important;
+}
+
+.dispatch-job-cell.empty-cell:hover {
+  background: rgba(59, 130, 246, 0.04);
 }
 
 .dispatch-job-cell-inner {
@@ -1079,21 +1092,23 @@
 
 .grid-job-block {
   position: relative;
-  padding: 0.3rem 0.5rem;
-  padding-right: 1.5rem;
-  border-radius: 5px;
-  background: rgba(30, 41, 59, 0.85);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 0.35rem 0.6rem;
+  padding-right: 1.6rem;
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.1);
   cursor: grab;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
   flex: 1;
   min-height: 0;
   overflow: hidden;
 }
 
 .grid-job-block:hover {
-  border-color: rgba(59, 130, 246, 0.45);
-  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(148, 163, 184, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
 }
 
 .grid-job-block:active {
@@ -1122,10 +1137,41 @@
   font-weight: 700;
   color: #e2e8f0;
   background: rgba(59, 130, 246, 0.25);
-  border-radius: 3px;
+  border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   white-space: nowrap;
+}
+
+/* Color-coded job type badges */
+.grid-job-status.type-estimate {
+  background: rgba(249, 115, 22, 0.25);
+  color: #fb923c;
+}
+
+.grid-job-status.type-site-visit {
+  background: rgba(34, 197, 94, 0.25);
+  color: #4ade80;
+}
+
+.grid-job-status.type-emergency {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.grid-job-status.type-new-start {
+  background: rgba(168, 85, 247, 0.25);
+  color: #c084fc;
+}
+
+.grid-job-status.type-demo {
+  background: rgba(236, 72, 153, 0.25);
+  color: #f472b6;
+}
+
+.grid-job-status.type-packout {
+  background: rgba(6, 182, 212, 0.25);
+  color: #22d3ee;
 }
 
 .grid-job-hours {
@@ -1474,6 +1520,375 @@
   outline: none;
   border-color: rgba(59, 130, 246, 0.6);
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+/* ═══ Outlook-style Week View ═══════════════════════════════════════════════ */
+
+.outlook-week-view {
+  background: rgba(30, 41, 59, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.outlook-week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 400px;
+}
+
+.outlook-day-column {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(148, 163, 184, 0.1);
+  min-width: 0;
+}
+
+.outlook-day-column:last-child {
+  border-right: none;
+}
+
+/* Today highlight */
+.outlook-day-column.outlook-today {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.outlook-day-column.outlook-today .outlook-day-header {
+  background: rgba(59, 130, 246, 0.15);
+  border-bottom-color: rgba(59, 130, 246, 0.3);
+}
+
+.outlook-day-column.outlook-today .outlook-day-name {
+  color: #60a5fa;
+}
+
+.outlook-day-column.outlook-today .outlook-day-date {
+  color: #93c5fd;
+}
+
+/* Day header (clickable) */
+.outlook-day-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.6rem 0.5rem;
+  background: rgba(30, 41, 59, 0.5);
+  border: none;
+  border-bottom: 2px solid rgba(148, 163, 184, 0.12);
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+}
+
+.outlook-day-header:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.outlook-day-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.outlook-day-date {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 0.1rem;
+}
+
+/* Day body — scrollable job list */
+.outlook-day-body {
+  flex: 1;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  overflow-y: auto;
+  min-height: 300px;
+}
+
+/* Empty state */
+.outlook-day-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  font-size: 0.8rem;
+  color: #475569;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem 0.5rem;
+}
+
+/* Outlook-style job card */
+.outlook-job-card {
+  background: rgba(30, 41, 59, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-left: 4px solid #3b82f6;
+  border-radius: 6px;
+  padding: 0.4rem 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.15s, transform 0.1s;
+  cursor: default;
+}
+
+.outlook-job-card:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Card accent colors by type */
+.outlook-job-card.outlook-card-estimate {
+  border-left-color: #f97316;
+}
+
+.outlook-job-card.outlook-card-site-visit {
+  border-left-color: #22c55e;
+}
+
+.outlook-job-card.outlook-card-emergency {
+  border-left-color: #ef4444;
+}
+
+.outlook-job-card.outlook-card-new-start {
+  border-left-color: #8b5cf6;
+}
+
+.outlook-job-card.outlook-card-demo {
+  border-left-color: #ec4899;
+}
+
+.outlook-job-card .outlook-job-time {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fbbf24;
+  margin-bottom: 0.15rem;
+}
+
+.outlook-job-card .outlook-job-header {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.15rem;
+}
+
+.outlook-job-card .outlook-job-number {
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #f1f5f9;
+}
+
+.outlook-job-card .outlook-job-type {
+  display: inline-block;
+  padding: 0.05rem 0.3rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-radius: 3px;
+  white-space: nowrap;
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+.outlook-job-card .outlook-job-type.outlook-type-estimate {
+  background: rgba(249, 115, 22, 0.2);
+  color: #fb923c;
+}
+
+.outlook-job-card .outlook-job-type.outlook-type-site-visit {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+}
+
+.outlook-job-card .outlook-job-type.outlook-type-emergency {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.outlook-job-card .outlook-job-customer {
+  font-size: 0.75rem;
+  color: #cbd5e1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.outlook-job-card .outlook-job-assignee {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.outlook-job-card .outlook-job-hours {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #67e8f9;
+  margin-top: 0.1rem;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 900px) {
+  .outlook-week-grid {
+    grid-template-columns: repeat(3, 1fr);
+    min-height: unset;
+  }
+}
+
+@media (max-width: 600px) {
+  .outlook-week-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ═══ Outlook-style Month View ══════════════════════════════════════════════ */
+
+.outlook-month-view {
+  background: rgba(30, 41, 59, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.outlook-month-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  margin-bottom: 0;
+}
+
+.outlook-month-dayname {
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+  padding: 0.5rem 0;
+  background: rgba(30, 41, 59, 0.5);
+  border-bottom: 2px solid rgba(148, 163, 184, 0.12);
+}
+
+.outlook-month-dayname:not(:last-child) {
+  border-right: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.outlook-month-grid {
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 0 0 10px 10px;
+  overflow: hidden;
+}
+
+.outlook-month-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+}
+
+.outlook-month-row:not(:last-child) {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.outlook-month-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 90px;
+  padding: 0.3rem;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(148, 163, 184, 0.08);
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: left;
+  font-family: inherit;
+}
+
+.outlook-month-cell:last-child {
+  border-right: none;
+}
+
+.outlook-month-cell:hover {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+/* Today */
+.outlook-month-cell.outlook-month-today {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.outlook-month-cell.outlook-month-today .outlook-month-date {
+  background: #3b82f6;
+  color: #fff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Days outside current month */
+.outlook-month-cell.outlook-month-outside {
+  opacity: 0.35;
+}
+
+.outlook-month-date {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 0.25rem;
+  line-height: 1;
+}
+
+.outlook-month-jobs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Compact job bar */
+.outlook-month-job {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.3rem;
+  background: rgba(30, 41, 59, 0.6);
+  border-left: 3px solid #3b82f6;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  line-height: 1.3;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.outlook-month-job-id {
+  font-weight: 700;
+  color: #f1f5f9;
+  flex-shrink: 0;
+}
+
+.outlook-month-job-cust {
+  color: #94a3b8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.outlook-month-more {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #60a5fa;
+  padding: 0.1rem 0.3rem;
 }
 
 /* ─── Save error ──────────────────────────────────────────────────────────── */

@@ -3,7 +3,7 @@ import React from 'react';
 export default function DispatchHeader({
   rangeMode, setRangeMode,
   viewMode, setViewMode,
-  date, weekLabel,
+  date, weekLabel, threeDayLabel, monthLabel,
   goPrev, goNext, goToday, formatDate,
   showExcelUpload, setShowExcelUpload,
   exportPdf, openEmailDraft,
@@ -22,12 +22,19 @@ export default function DispatchHeader({
           <button type="button" onClick={goPrev} aria-label="Previous day">&larr;</button>
           <button type="button" onClick={goToday} className="today-btn">Today</button>
           <button type="button" onClick={goNext} aria-label="Next day">&rarr;</button>
-          <span className="dispatch-date-label">{rangeMode === 'week' ? weekLabel : formatDate(date)}</span>
+          <span className="dispatch-date-label">{
+            rangeMode === 'day' ? formatDate(date) :
+            rangeMode === '3day' ? threeDayLabel :
+            rangeMode === 'month' ? monthLabel :
+            weekLabel
+          }</span>
         </div>
 
         <div className="dispatch-range-toggle" role="tablist" aria-label="Range">
           <button type="button" className={rangeMode === 'day' ? 'active' : ''} onClick={() => setRangeMode('day')}>Day</button>
+          <button type="button" className={rangeMode === '3day' ? 'active' : ''} onClick={() => setRangeMode('3day')}>3-Day</button>
           <button type="button" className={rangeMode === 'week' ? 'active' : ''} onClick={() => setRangeMode('week')}>Week</button>
+          <button type="button" className={rangeMode === 'month' ? 'active' : ''} onClick={() => setRangeMode('month')}>Month</button>
         </div>
 
         {/* Undo / Redo */}
@@ -41,13 +48,13 @@ export default function DispatchHeader({
         </button>
         <button
           type="button" className="dispatch-export-pdf-btn" onClick={exportPdf}
-          disabled={rangeMode === 'week'}
-          title={rangeMode === 'week' ? 'Switch to Day view to export' : 'Export PDF'}
+          disabled={rangeMode !== 'day'}
+          title={rangeMode !== 'day' ? 'Switch to Day view to export' : 'Export PDF'}
         >Export PDF</button>
         <button
           type="button" className="dispatch-email-schedule-btn" onClick={openEmailDraft}
-          disabled={rangeMode === 'week'}
-          title={rangeMode === 'week' ? 'Switch to Day view to email' : 'Open email draft'}
+          disabled={rangeMode !== 'day'}
+          title={rangeMode !== 'day' ? 'Switch to Day view to email' : 'Open email draft'}
         >Email Schedule</button>
 
         {/* Finalize button */}
@@ -72,7 +79,7 @@ export default function DispatchHeader({
           <button type="button" className={viewMode === 'table' ? 'active' : ''} onClick={() => setViewMode('table')}>
             Table{overflowCount > 0 && <span className="dispatch-overflow-badge">{overflowCount}</span>}
           </button>
-          <button type="button" className={viewMode === 'map' ? 'active' : ''} onClick={() => setViewMode('map')} disabled={rangeMode === 'week'}>Map</button>
+          <button type="button" className={viewMode === 'map' ? 'active' : ''} onClick={() => setViewMode('map')} disabled={rangeMode !== 'day'}>Map</button>
         </div>
       </div>
 

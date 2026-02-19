@@ -1,126 +1,194 @@
-import React, { useMemo } from 'react';
-import { formatDriveTime, getDriveTotal } from '../../hooks/useDispatchSchedule';
+import React, { useMemo, useEffect, useState } from 'react';
+import { supabase } from '../../services/supabaseClient';
+
+function dateToString(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function formatTime12(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':');
+  const hr = parseInt(h, 10);
+  const ampm = hr >= 12 ? 'PM' : 'AM';
+  return `${hr % 12 || 12}:${m} ${ampm}`;
+}
+
+function cardAccentClass(jobType) {
+  switch (jobType) {
+    case 'estimate': return ' outlook-card-estimate';
+    case 'site-visit': return ' outlook-card-site-visit';
+    case 'emergency': return ' outlook-card-emergency';
+    case 'new-start': return ' outlook-card-new-start';
+    case 'demo': return ' outlook-card-demo';
+    default: return '';
+  }
+}
+
+function typeBadgeClass(jobType) {
+  switch (jobType) {
+    case 'estimate': return 'outlook-type-estimate';
+    case 'site-visit': return 'outlook-type-site-visit';
+    case 'emergency': return 'outlook-type-emergency';
+    default: return 'outlook-type-default';
+  }
+}
 
 export default function DispatchWeekView({
   weekSnapshots, weekDates, setDate, setRangeMode, setViewMode,
   formatDayShort, formatMd,
+  columnCount,
 }) {
-  // Compute crew rows across the week (with alias resolution)
-  const weekCrewRows = useMemo(() => {
-    const allNamesSet = new Set();
-    weekSnapshots.forEach((s) => {
-      Object.keys(s.jobsByCrewName || {}).forEach((name) => {
-        const n = String(name || '').replace(/\s+/g, ' ').trim();
-        if (n) allNamesSet.add(n);
+  // Load pre-scheduled items (estimates, site visits) from job_schedules for the week
+  const [preScheduledByDate, setPreScheduledByDate] = useState({});
+
+  useEffect(() => {
+    if (!weekDates || weekDates.length === 0) return;
+    let cancelled = false;
+
+    const loadPreScheduled = async () => {
+      try {
+        const startStr = dateToString(weekDates[0]);
+        const endStr = dateToString(weekDates[6]);
+
+        const { data, error } = await supabase
+          .from('job_schedules')
+          .select(`
+            *,
+            jobs(id, job_number, customers(name), properties(address1, city, state))
+          `)
+          .gte('scheduled_date', startStr)
+          .lte('scheduled_date', endStr)
+          .in('status', ['scheduled', 'confirmed']);
+
+        if (cancelled || error) return;
+
+        const byDate = {};
+        (data || []).forEach((ps) => {
+          if (!byDate[ps.scheduled_date]) byDate[ps.scheduled_date] = [];
+          byDate[ps.scheduled_date].push(ps);
+        });
+        setPreScheduledByDate(byDate);
+      } catch (_) {}
+    };
+
+    loadPreScheduled();
+    return () => { cancelled = true; };
+  }, [weekDates]);
+
+  // Build day columns: one per weekDate, always all 7
+  const dayColumns = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return weekDates.map((d, i) => {
+      const snap = weekSnapshots[i];
+      const dateStr = dateToString(d);
+      const dNorm = new Date(d);
+      dNorm.setHours(0, 0, 0, 0);
+      const isToday = dNorm.getTime() === today.getTime();
+
+      // Collect all jobs from saved dispatch snapshot
+      const allJobs = [];
+      const seenJobNumbers = new Set();
+
+      if (snap?.jobsByCrewName) {
+        Object.entries(snap.jobsByCrewName).forEach(([crewName, data]) => {
+          (data.jobs || []).forEach((job) => {
+            allJobs.push({ ...job, assignedTo: crewName });
+            if (job.jobNumber) seenJobNumbers.add(job.jobNumber.trim().toLowerCase());
+          });
+        });
+      }
+
+      if (snap?.unassignedJobs) {
+        snap.unassignedJobs.forEach((job) => {
+          allJobs.push({ ...job, assignedTo: 'Unassigned' });
+          if (job.jobNumber) seenJobNumbers.add(job.jobNumber.trim().toLowerCase());
+        });
+      }
+
+      // Merge pre-scheduled items that aren't already in the snapshot
+      if (preScheduledByDate[dateStr]) {
+        preScheduledByDate[dateStr].forEach((ps) => {
+          const jn = (ps.jobs?.job_number || '').trim().toLowerCase();
+          if (jn && seenJobNumbers.has(jn)) return;
+
+          const jobData = ps.jobs;
+          const customer = jobData?.customers?.name || '';
+          const addr = jobData?.properties
+            ? [jobData.properties.address1, jobData.properties.city, jobData.properties.state].filter(Boolean).join(', ')
+            : '';
+
+          const notesLower = (ps.notes || '').toLowerCase();
+          let jobType = 'walkthrough';
+          if (notesLower.startsWith('estimate')) jobType = 'estimate';
+          else if (notesLower.startsWith('site visit') || notesLower.startsWith('inspection')) jobType = 'site-visit';
+
+          const notesParts = (ps.notes || '').split(' \u2014 ');
+
+          allJobs.push({
+            id: ps.id,
+            jobType,
+            hours: (ps.duration_minutes || 60) / 60,
+            jobNumber: jobData?.job_number || notesParts[1] || '',
+            customer: customer || notesParts[2] || '',
+            address: addr,
+            assignedTo: ps.technician_name || 'Unassigned',
+            preScheduledTime: ps.scheduled_time,
+            preScheduled: true,
+          });
+        });
+      }
+
+      // Sort by scheduled time, then by assignedTo
+      allJobs.sort((a, b) => {
+        const tA = a.preScheduledTime || '';
+        const tB = b.preScheduledTime || '';
+        if (tA !== tB) return tA.localeCompare(tB);
+        return (a.assignedTo || '').localeCompare(b.assignedTo || '');
       });
-    });
-    const allNames = Array.from(allNamesSet);
 
-    const alias = new Map();
-    allNames.forEach((n) => alias.set(n, n));
-    allNames.forEach((n) => {
-      const trimmed = n.trim();
-      if (!trimmed || /\s/.test(trimmed)) return;
-      const lower = trimmed.toLowerCase();
-      const candidates = allNames.filter((m) => m.toLowerCase().startsWith(lower + ' ') && /\s/.test(m));
-      if (candidates.length === 0) return;
-      const best = [...candidates].sort((a, b) => b.length - a.length)[0];
-      alias.set(n, best);
+      return { date: d, dateStr, isToday, jobs: allJobs };
     });
-
-    const canonicalToSources = new Map();
-    allNames.forEach((n) => {
-      const canonical = alias.get(n) || n;
-      if (!canonicalToSources.has(canonical)) canonicalToSources.set(canonical, []);
-      canonicalToSources.get(canonical).push(n);
-    });
-
-    return Array.from(canonicalToSources.entries())
-      .map(([canonical, sources]) => ({
-        canonical,
-        sources: sources.sort((a, b) => a.localeCompare(b)),
-      }))
-      .sort((a, b) => a.canonical.localeCompare(b.canonical));
-  }, [weekSnapshots]);
+  }, [weekDates, weekSnapshots, preScheduledByDate]);
 
   return (
-    <div className="dispatch-week-view">
-      <div className="dispatch-week-hint">Click a day header to open that day's schedule.</div>
-      <div className="dispatch-week-table-wrap">
-        <table className="dispatch-week-table">
-          <thead>
-            <tr>
-              <th className="dispatch-week-crew-col">Crew</th>
-              {weekSnapshots.map((snap) => (
-                <th key={snap.key} className="dispatch-week-day-col">
-                  <button
-                    type="button"
-                    className="dispatch-week-daybtn"
-                    onClick={() => { setDate(new Date(snap.date)); setRangeMode('day'); setViewMode('table'); }}
-                    title="Open day view"
-                  >
-                    <div className="dispatch-week-dayname">{formatDayShort(snap.date)}</div>
-                    <div className="dispatch-week-daydate">{formatMd(snap.date)}</div>
-                  </button>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {weekCrewRows.length === 0 && (
-              <tr>
-                <td className="dispatch-week-empty" colSpan={1 + weekSnapshots.length}>
-                  No saved schedules found for this week yet.
-                </td>
-              </tr>
-            )}
-            {weekCrewRows.map((row) => (
-              <tr key={row.canonical}>
-                <td className="dispatch-week-crew">{row.canonical}</td>
-                {weekSnapshots.map((snap) => {
-                  let jobs = [];
-                  let drive = null;
-                  row.sources.forEach((name) => {
-                    const entry = snap.jobsByCrewName?.[name];
-                    if (Array.isArray(entry?.jobs) && entry.jobs.length) jobs = jobs.concat(entry.jobs);
-                    if (!drive && entry?.drive) drive = entry.drive;
-                  });
-                  const hours = jobs.reduce((sum, j) => sum + (Number(j?.hours) || 0), 0);
-                  const driveLabel = drive ? formatDriveTime(getDriveTotal(drive)) : '';
-                  return (
-                    <td key={snap.key + row.canonical} className="dispatch-week-cell">
-                      {jobs.length > 0 ? (
-                        <>
-                          <div className="dispatch-week-main">{jobs.length} job{jobs.length !== 1 ? 's' : ''} &middot; {hours.toFixed(1)}h</div>
-                          {driveLabel && <div className="dispatch-week-sub">Drive: {driveLabel}</div>}
-                        </>
-                      ) : (
-                        <div className="dispatch-week-dash">&mdash;</div>
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-            {/* Unassigned row */}
-            <tr className="dispatch-week-unassigned-row">
-              <td className="dispatch-week-crew">Unassigned</td>
-              {weekSnapshots.map((snap) => {
-                const jobs = Array.isArray(snap.unassignedJobs) ? snap.unassignedJobs : [];
-                const hours = jobs.reduce((sum, j) => sum + (Number(j?.hours) || 0), 0);
-                return (
-                  <td key={snap.key + '-unassigned'} className="dispatch-week-cell">
-                    {jobs.length > 0 ? (
-                      <div className="dispatch-week-main">{jobs.length} job{jobs.length !== 1 ? 's' : ''} &middot; {hours.toFixed(1)}h</div>
-                    ) : (
-                      <div className="dispatch-week-dash">&mdash;</div>
+    <div className="outlook-week-view">
+      <div className="outlook-week-grid" style={columnCount ? { gridTemplateColumns: `repeat(${columnCount}, 1fr)` } : undefined}>
+        {dayColumns.map((col) => (
+          <div key={col.dateStr} className={`outlook-day-column${col.isToday ? ' outlook-today' : ''}`}>
+            <button
+              type="button"
+              className="outlook-day-header"
+              onClick={() => { setDate(col.date); setRangeMode('day'); setViewMode('table'); }}
+              title="Open day view"
+            >
+              <div className="outlook-day-name">{formatDayShort(col.date)}</div>
+              <div className="outlook-day-date">{formatMd(col.date)}</div>
+            </button>
+            <div className="outlook-day-body">
+              {col.jobs.length === 0 ? (
+                <div className="outlook-day-empty">No jobs scheduled</div>
+              ) : (
+                col.jobs.map((job, idx) => (
+                  <div key={job.id || idx} className={`outlook-job-card${cardAccentClass(job.jobType)}`}>
+                    {job.preScheduledTime && (
+                      <div className="outlook-job-time">{formatTime12(job.preScheduledTime)}</div>
                     )}
-                  </td>
-                );
-              })}
-            </tr>
-          </tbody>
-        </table>
+                    <div className="outlook-job-header">
+                      <span className="outlook-job-number">{job.jobNumber || '\u2014'}</span>
+                      <span className={`outlook-job-type ${typeBadgeClass(job.jobType)}`}>
+                        {job.jobType || '\u2014'}
+                      </span>
+                    </div>
+                    <div className="outlook-job-customer">{job.customer || '\u2014'}</div>
+                    <div className="outlook-job-assignee">{job.assignedTo}</div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

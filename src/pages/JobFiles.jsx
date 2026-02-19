@@ -10,6 +10,8 @@ import {
   flexRender,
 } from '@tanstack/react-table';
 import jobService from '../services/jobService';
+import intakeService from '../services/intakeService';
+import { supabase } from '../services/supabaseClient';
 import useJobLocalState from '../hooks/useJobLocalState';
 import {
   STATUS_OPTIONS,
@@ -56,8 +58,92 @@ function JobFiles() {
 
   const [sorting, setSorting] = useState([]);
   const [showUpload, setShowUpload] = useState(false);
+  const [showNewJobModal, setShowNewJobModal] = useState(false);
+  const [newJobDiv, setNewJobDiv] = useState('');
+  const [newJobDept, setNewJobDept] = useState('');
+  const [creatingJob, setCreatingJob] = useState(false);
 
   const { getLocalState } = useJobLocalState();
+
+  // Abbreviation maps (3 chars max)
+  const DIV_ABBREV = { HB: 'HB', LL: 'LL', REFERRAL: 'REF' };
+  const DEPT_ABBREV = { WATER: 'WTR', FIRE: 'FIR', MOLD: 'MLD', BIO: 'BIO', CONTENTS: 'CON' };
+
+  const generateJobNumber = async (div, dept) => {
+    const yy = new Date().getFullYear().toString().slice(-2);
+    const divCode = DIV_ABBREV[div] || div.slice(0, 3).toUpperCase();
+    const deptCode = DEPT_ABBREV[dept] || dept.slice(0, 3).toUpperCase();
+    const prefix = `${yy}-${divCode}-${deptCode}-`;
+
+    // Find highest existing sequence for this prefix
+    const { data } = await supabase
+      .from('jobs')
+      .select('job_number')
+      .like('job_number', `${prefix}%`)
+      .order('job_number', { ascending: false })
+      .limit(1);
+
+    let seq = 1;
+    if (data && data.length > 0) {
+      const last = data[0].job_number;
+      const lastSeq = parseInt(last.split('-').pop(), 10);
+      if (!isNaN(lastSeq)) seq = lastSeq + 1;
+    }
+
+    return `${prefix}${String(seq).padStart(4, '0')}`;
+  };
+
+  const handleCreateNewJob = async () => {
+    if (!newJobDiv || !newJobDept) return;
+    setCreatingJob(true);
+    try {
+      // Create placeholder customer
+      const { data: customer, error: custErr } = await supabase
+        .from('customers')
+        .insert([{ name: '' }])
+        .select()
+        .single();
+      if (custErr) throw custErr;
+
+      // Create placeholder property
+      const { data: property, error: propErr } = await supabase
+        .from('properties')
+        .insert([{
+          customer_id: customer.id,
+          name: '',
+          address1: '',
+          city: '',
+          state: '',
+          postal_code: '',
+          country: 'USA',
+        }])
+        .select()
+        .single();
+      if (propErr) throw propErr;
+
+      // Auto-generate job number
+      const jobNumber = await generateJobNumber(newJobDiv, newJobDept);
+
+      // Create the job
+      const job = await jobService.create({
+        job_number: jobNumber,
+        customer_id: customer.id,
+        property_id: property.id,
+        status: 'pending',
+        division: newJobDiv,
+        department: newJobDept,
+        date_opened: new Date().toISOString().split('T')[0],
+      });
+
+      setShowNewJobModal(false);
+      navigate(`/job-files/${job.id}`);
+    } catch (err) {
+      console.error('Failed to create new job:', err);
+      setError('Failed to create new job: ' + (err.message || 'Unknown error'));
+    } finally {
+      setCreatingJob(false);
+    }
+  };
 
   // #2: Search debounce (300ms)
   useEffect(() => {
@@ -329,6 +415,9 @@ function JobFiles() {
           <p>Access and manage all project files and information</p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button onClick={() => { setNewJobDiv(''); setNewJobDept(''); setShowNewJobModal(true); }} className="btn-new-job" disabled={creatingJob}>
+            {creatingJob ? 'Creating...' : '+ New Job'}
+          </button>
           <button onClick={() => setShowUpload(true)} className="btn-primary">
             Upload Excel
           </button>
@@ -644,6 +733,50 @@ function JobFiles() {
           </>
         )}
       </div>
+
+      {/* New Job Modal */}
+      {showNewJobModal && (
+        <div className="modal-overlay" onClick={() => setShowNewJobModal(false)}>
+          <div className="new-job-modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Create New Job</h2>
+            <div className="new-job-form">
+              <div className="filter-group">
+                <label>Division</label>
+                <select value={newJobDiv} onChange={(e) => setNewJobDiv(e.target.value)} className="filter-select">
+                  <option value="">Select Division</option>
+                  {DIVISION_OPTIONS.map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="filter-group">
+                <label>Job Type</label>
+                <select value={newJobDept} onChange={(e) => setNewJobDept(e.target.value)} className="filter-select">
+                  <option value="">Select Job Type</option>
+                  {DEPARTMENT_OPTIONS.map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+              {newJobDiv && newJobDept && (
+                <p className="new-job-preview">
+                  Job ID format: {new Date().getFullYear().toString().slice(-2)}-{DIV_ABBREV[newJobDiv] || newJobDiv.slice(0,3)}-{DEPT_ABBREV[newJobDept] || newJobDept.slice(0,3)}-XXXX
+                </p>
+              )}
+            </div>
+            <div className="new-job-actions">
+              <button onClick={() => setShowNewJobModal(false)} className="btn-secondary">Cancel</button>
+              <button
+                onClick={handleCreateNewJob}
+                className="btn-new-job"
+                disabled={!newJobDiv || !newJobDept || creatingJob}
+              >
+                {creatingJob ? 'Creating...' : 'Create Job'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

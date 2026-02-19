@@ -15,6 +15,7 @@ import DispatchTimeGrid from '../components/dispatch/DispatchTimeGrid';
 import DispatchScheduleModal from '../components/dispatch/DispatchScheduleModal';
 import DispatchMapView from '../components/dispatch/DispatchMapView';
 import DispatchWeekView from '../components/dispatch/DispatchWeekView';
+import DispatchMonthView from '../components/dispatch/DispatchMonthView';
 import './Page.css';
 import './DispatchAndScheduling.css';
 
@@ -30,6 +31,8 @@ function DispatchAndScheduling() {
     schedule, setSchedule, driveTimeByCrew, setDriveTimeByCrew,
     scheduleColumns, pmHeaderGroups,
     weekDates, weekLabel, weekSnapshots,
+    threeDayDates, threeDayLabel, threeDaySnapshots,
+    monthDates, monthLabel, monthSnapshots,
     scheduleRef, lanesRef,
     goPrev, goNext, goToday,
     updateJob, addJob, removeJob, moveJobToUnassigned, copyJobToLane,
@@ -66,7 +69,7 @@ function DispatchAndScheduling() {
   const [emailSuccess, setEmailSuccess] = useState('');
 
   useEffect(() => {
-    if (rangeMode === 'week' && viewMode === 'map') setViewMode('table');
+    if (rangeMode !== 'day' && viewMode === 'map') setViewMode('table');
   }, [rangeMode, viewMode]);
 
   // ─── Filtered columns based on crew filter toggle ──────────────────────────
@@ -301,7 +304,7 @@ function DispatchAndScheduling() {
       end.setDate(end.getDate() + 30);
       const endStr = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`;
 
-      // Query job_schedules for next 30 days where notes contain Estimate or Inspection
+      // Query job_schedules for next 30 days where notes contain Estimate or Site Visit
       const { data, error } = await supabase
         .from('job_schedules')
         .select('*')
@@ -317,7 +320,7 @@ function DispatchAndScheduling() {
       // Filter to only estimate/inspection entries
       const items = (data || []).filter((row) => {
         const n = (row.notes || '').toLowerCase();
-        return n.startsWith('estimate') || n.startsWith('inspection');
+        return n.startsWith('estimate') || n.startsWith('site visit') || n.startsWith('inspection');
       });
 
       if (items.length === 0) {
@@ -391,7 +394,7 @@ function DispatchAndScheduling() {
       // Title
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(16);
-      doc.text('Upcoming Estimates & Inspections', margin, y);
+      doc.text('Upcoming Estimates & Site Visits', margin, y);
       y += 16;
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
@@ -446,7 +449,7 @@ function DispatchAndScheduling() {
         y += 8;
       });
 
-      doc.save('Upcoming_Estimates_Inspections.pdf');
+      doc.save('Upcoming_Estimates_Site_Visits.pdf');
     } catch (err) {
       console.error('Failed to export upcoming PDF:', err);
       alert('Failed to generate PDF: ' + (err?.message || 'Unknown error'));
@@ -489,7 +492,7 @@ function DispatchAndScheduling() {
       <DispatchHeader
         rangeMode={rangeMode} setRangeMode={setRangeMode}
         viewMode={viewMode} setViewMode={setViewMode}
-        date={date} weekLabel={weekLabel}
+        date={date} weekLabel={weekLabel} threeDayLabel={threeDayLabel} monthLabel={monthLabel}
         goPrev={goPrev} goNext={goNext} goToday={goToday} formatDate={formatDate}
         showExcelUpload={showExcelUpload} setShowExcelUpload={setShowExcelUpload}
         exportPdf={exportPdf} openEmailDraft={openEmailDraft}
@@ -513,6 +516,23 @@ function DispatchAndScheduling() {
         />
       )}
 
+      {rangeMode === '3day' && (
+        <DispatchWeekView
+          weekSnapshots={threeDaySnapshots} weekDates={threeDayDates}
+          setDate={setDate} setRangeMode={setRangeMode} setViewMode={setViewMode}
+          formatDayShort={formatDayShort} formatMd={formatMd}
+          columnCount={3}
+        />
+      )}
+
+      {rangeMode === 'month' && (
+        <DispatchMonthView
+          monthSnapshots={monthSnapshots} monthDates={monthDates}
+          currentDate={date}
+          setDate={setDate} setRangeMode={setRangeMode} setViewMode={setViewMode}
+        />
+      )}
+
       {rangeMode === 'day' && viewMode === 'map' && (
         <DispatchMapView
           schedule={schedule} scheduleColumns={scheduleColumns}
@@ -530,7 +550,7 @@ function DispatchAndScheduling() {
               <button className={crewFilter === 'pm' ? 'active' : ''} onClick={() => setCrewFilter('pm')}>PMs Only</button>
               <button className={crewFilter === 'crew' ? 'active' : ''} onClick={() => setCrewFilter('crew')}>Crew Chiefs Only</button>
             </div>
-            <button className="dispatch-schedule-direct-btn" onClick={() => setShowScheduleModal(true)}>+ Schedule Estimate / Inspection</button>
+            <button className="dispatch-schedule-direct-btn" onClick={() => setShowScheduleModal(true)}>+ Schedule Estimate / Site Visit</button>
             <button className="dispatch-schedule-pdf-btn" onClick={exportUpcomingPdf} disabled={exportingUpcoming}>
               {exportingUpcoming ? 'Generating...' : 'Upcoming PDF'}
             </button>

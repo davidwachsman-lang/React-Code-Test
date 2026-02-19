@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { hoursForJobType } from '../../config/dispatchJobDurations';
 import { generateColorFamily } from '../../hooks/useDispatchSchedule';
+import jobService from '../../services/jobService';
 import './DispatchExcelUpload.css';
 
 // Status/type options for dispatch → hours
@@ -47,6 +48,8 @@ function DispatchExcelUpload({ onApply, onCancel }) {
   });
   const [rows, setRows] = useState([]);
   const [error, setError] = useState(null);
+  const [saveStatus, setSaveStatus] = useState(null);
+  const [saveError, setSaveError] = useState(null);
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -249,7 +252,33 @@ function DispatchExcelUpload({ onApply, onCancel }) {
     setRows((prev) => prev.map((r) => ({ ...r, status, hours: opt.hours })));
   };
 
-  const applyToSchedule = () => {
+  const handleSaveToSupabase = async () => {
+    setSaveStatus('saving');
+    setSaveError(null);
+    try {
+      // Map dispatch status value to a display label for the stage field
+      const stageLabel = (val) => {
+        const match = STATUS_OPTIONS.find((o) => o.value === val);
+        return match ? match.label : val || '';
+      };
+      const importRows = rows.map((r) => ({
+        externalJobNumber: r.jobNumber || null,
+        customerName: r.customer || 'Unknown',
+        address: r.address || '',
+        notes: r.pm ? `PM: ${r.pm}` : null,
+        status: 'pending',
+        stage: stageLabel(r.status),
+      }));
+      const results = await jobService.bulkImportExternal(importRows, 'dispatch-excel-import');
+      setSaveStatus(results);
+    } catch (err) {
+      setSaveError(err.message || 'Failed to save to Supabase');
+      setSaveStatus(null);
+    }
+  };
+
+  const applyToSchedule = (andSaveToSupabase = false) => {
+    if (andSaveToSupabase) handleSaveToSupabase();
     // Build PM groups from the data (if PM column was mapped)
     // Each crew chief belongs to ONE PM only (first occurrence wins)
     const PM_GROUP_COLORS = ['#3b82f6', '#8b5cf6', '#22c55e', '#f97316', '#ef4444', '#06b6d4', '#ec4899', '#84cc16'];
@@ -482,12 +511,24 @@ function DispatchExcelUpload({ onApply, onCancel }) {
             </table>
           </div>
           <div className="preview-footer">
-            <button type="button" className="primary-btn" onClick={applyToSchedule}>
-              Apply to schedule
+            <button type="button" className="primary-btn" onClick={() => applyToSchedule(false)}>
+              Apply to Schedule
+            </button>
+            <button type="button" className="secondary-btn" onClick={() => applyToSchedule(true)} disabled={saveStatus === 'saving'}>
+              {saveStatus === 'saving' ? 'Saving...' : 'Apply & Save to Supabase'}
             </button>
             <button type="button" className="cancel-btn" onClick={() => setStep('mapping')}>Back</button>
             {onCancel && <button type="button" className="cancel-btn" onClick={onCancel}>Cancel</button>}
           </div>
+          {saveStatus && saveStatus !== 'saving' && (
+            <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#059669' }}>
+              Saved: {saveStatus.created} created{saveStatus.updated ? `, ${saveStatus.updated} updated` : ''}, {saveStatus.skipped} unchanged
+              {saveStatus.errors?.length > 0 && `, ${saveStatus.errors.length} errors`}
+            </p>
+          )}
+          {saveError && (
+            <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#dc2626' }}>{saveError}</p>
+          )}
         </div>
       )}
     </div>

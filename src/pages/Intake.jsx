@@ -13,7 +13,9 @@ function Intake() {
     propertyType: '',
     callerType: '', callerName: '', callerPhone: '', callerEmail: '', relationship: '',
     address: '', city: '', state: '', zip: '', latitude: '', longitude: '', access: '', onsiteName: '', onsitePhone: '',
+    propertyStatus: '', powerStatus: '', yearBuilt: '', foundationType: '',
     lossType: '', source: '', lossDate: '', activeLeak: '', category: '', wclass: '', sqft: '',
+    roomsAffected: '', floorsAffected: '', unitsAffected: '', affectedMaterials: '', tempRepairs: '',
     carrier: '', claim: '', adjName: '', adjEmail: '', adjPhone: '', deductible: '', coverage: '',
     urgency: '', arrival: '', notes: '', branch: '', assigned: '',
     authReq: '', payMethod: '', authSigner: '', authPhone: '',
@@ -130,7 +132,9 @@ function Intake() {
       division: 'HB - Nashville',
       callerType: '', callerName: '', callerPhone: '', callerEmail: '', relationship: '',
       address: '', city: '', state: '', zip: '', latitude: '', longitude: '', access: '', onsiteName: '', onsitePhone: '',
+      propertyStatus: '', powerStatus: '', yearBuilt: '', foundationType: '',
       lossType: '', source: '', lossDate: '', activeLeak: '', category: '', wclass: '', sqft: '',
+      roomsAffected: '', floorsAffected: '', unitsAffected: '', affectedMaterials: '', tempRepairs: '',
       carrier: '', claim: '', adjName: '', adjEmail: '', adjPhone: '', deductible: '', coverage: '',
       urgency: '', arrival: '', notes: '', branch: '', assigned: '',
       authReq: '', payMethod: '', authSigner: '', authPhone: ''
@@ -532,6 +536,34 @@ function Intake() {
             <label htmlFor="onsitePhone">On-site Contact Phone</label>
             <input id="onsitePhone" value={formData.onsitePhone} onChange={handleInputChange} />
           </div>
+          <div className="col-3">
+            <label htmlFor="propertyStatus">Property Status</label>
+            <select id="propertyStatus" value={formData.propertyStatus} onChange={handleInputChange}>
+              <option value="">Select…</option>
+              <option>Vacant</option>
+              <option>Occupied</option>
+            </select>
+          </div>
+          <div className="col-3">
+            <label htmlFor="powerStatus">Power Status</label>
+            <select id="powerStatus" value={formData.powerStatus} onChange={handleInputChange}>
+              <option value="">Select…</option>
+              <option>Power</option>
+              <option>No Power</option>
+            </select>
+          </div>
+          <div className="col-3">
+            <label htmlFor="yearBuilt">Year Built</label>
+            <input id="yearBuilt" type="text" value={formData.yearBuilt} onChange={handleInputChange} placeholder="e.g., 1995" />
+          </div>
+          <div className="col-3">
+            <label htmlFor="foundationType">Foundation Type</label>
+            <select id="foundationType" value={formData.foundationType} onChange={handleInputChange}>
+              <option value="">Select…</option>
+              <option>Slab</option>
+              <option>Crawlspace</option>
+            </select>
+          </div>
         </div>
       </section>
 
@@ -614,6 +646,26 @@ function Intake() {
           <div className="col-3">
             <label htmlFor="sqft">Estimated Affected SF</label>
             <input id="sqft" type="number" min="0" step="1" value={formData.sqft} onChange={handleInputChange} />
+          </div>
+          <div className="col-3">
+            <label htmlFor="roomsAffected"># of Rooms Affected</label>
+            <input id="roomsAffected" type="number" min="0" step="1" value={formData.roomsAffected} onChange={handleInputChange} />
+          </div>
+          <div className="col-3">
+            <label htmlFor="floorsAffected"># of Floors Affected</label>
+            <input id="floorsAffected" type="number" min="0" step="1" value={formData.floorsAffected} onChange={handleInputChange} />
+          </div>
+          <div className="col-3">
+            <label htmlFor="unitsAffected"># of Units Affected</label>
+            <input id="unitsAffected" type="number" min="0" step="1" value={formData.unitsAffected} onChange={handleInputChange} />
+          </div>
+          <div className="col-6">
+            <label htmlFor="affectedMaterials">Affected Materials</label>
+            <input id="affectedMaterials" value={formData.affectedMaterials} onChange={handleInputChange} placeholder="e.g., drywall, carpet, hardwood" />
+          </div>
+          <div className="col-6">
+            <label htmlFor="tempRepairs">Temp Repairs</label>
+            <input id="tempRepairs" value={formData.tempRepairs} onChange={handleInputChange} placeholder="e.g., tarp on roof, shut off valve" />
           </div>
         </div>
       </section>

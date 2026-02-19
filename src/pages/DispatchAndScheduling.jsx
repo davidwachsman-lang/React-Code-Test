@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { jsPDF } from 'jspdf';
 import { useAuth } from '../contexts/AuthContext';
 import useDispatchSchedule, {
@@ -7,12 +7,15 @@ import useDispatchSchedule, {
 } from '../hooks/useDispatchSchedule';
 import useRouteOptimization from '../hooks/useRouteOptimization';
 import dispatchTeamService from '../services/dispatchTeamService';
+import { supabase } from '../services/supabaseClient';
 import DispatchExcelUpload from '../components/dispatch/DispatchExcelUpload';
 import DispatchHeader from '../components/dispatch/DispatchHeader';
 import DispatchUnassignedPool from '../components/dispatch/DispatchUnassignedPool';
 import DispatchTimeGrid from '../components/dispatch/DispatchTimeGrid';
+import DispatchScheduleModal from '../components/dispatch/DispatchScheduleModal';
 import DispatchMapView from '../components/dispatch/DispatchMapView';
 import DispatchWeekView from '../components/dispatch/DispatchWeekView';
+import DispatchMonthView from '../components/dispatch/DispatchMonthView';
 import './Page.css';
 import './DispatchAndScheduling.css';
 
@@ -28,6 +31,8 @@ function DispatchAndScheduling() {
     schedule, setSchedule, driveTimeByCrew, setDriveTimeByCrew,
     scheduleColumns, pmHeaderGroups,
     weekDates, weekLabel, weekSnapshots,
+    threeDayDates, threeDayLabel, threeDaySnapshots,
+    monthDates, monthLabel, monthSnapshots,
     scheduleRef, lanesRef,
     goPrev, goNext, goToday,
     updateJob, addJob, removeJob, moveJobToUnassigned, copyJobToLane,
@@ -58,12 +63,21 @@ function DispatchAndScheduling() {
   // ─── Local UI state ───────────────────────────────────────────────────────
   const [showExcelUpload, setShowExcelUpload] = useState(false);
   const [viewMode, setViewMode] = useState('table');
+  const [crewFilter, setCrewFilter] = useState('all'); // 'all' | 'pm' | 'crew'
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [emailSuccess, setEmailSuccess] = useState('');
 
   useEffect(() => {
-    if (rangeMode === 'week' && viewMode === 'map') setViewMode('table');
+    if (rangeMode !== 'day' && viewMode === 'map') setViewMode('table');
   }, [rangeMode, viewMode]);
+
+  // ─── Filtered columns based on crew filter toggle ──────────────────────────
+  const filteredColumns = useMemo(() => {
+    if (crewFilter === 'pm') return scheduleColumns.filter((c) => c.type === 'pm');
+    if (crewFilter === 'crew') return scheduleColumns.filter((c) => c.type !== 'pm');
+    return scheduleColumns;
+  }, [scheduleColumns, crewFilter]);
 
   // ─── PDF generation (multi-page) ─────────────────────────────────────────
 
@@ -278,6 +292,181 @@ function DispatchAndScheduling() {
     }
   };
 
+  // ─── Export upcoming estimates/inspections PDF ──────────────────────────
+  const [exportingUpcoming, setExportingUpcoming] = useState(false);
+
+  const exportUpcomingPdf = async () => {
+    setExportingUpcoming(true);
+    try {
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      const end = new Date(today);
+      end.setDate(end.getDate() + 30);
+      const endStr = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`;
+
+      // Query job_schedules for next 30 days where notes contain Estimate or Site Visit
+      const { data, error } = await supabase
+        .from('job_schedules')
+        .select('*')
+        .gte('scheduled_date', todayStr)
+        .lte('scheduled_date', endStr)
+        .in('status', ['scheduled', 'confirmed'])
+        .order('technician_name', { ascending: true })
+        .order('scheduled_date', { ascending: true })
+        .order('scheduled_time', { ascending: true });
+
+      if (error) throw error;
+
+      // Filter to only estimate/inspection entries
+      const items = (data || []).filter((row) => {
+        const n = (row.notes || '').toLowerCase();
+        return n.startsWith('estimate') || n.startsWith('site visit') || n.startsWith('inspection');
+      });
+
+      if (items.length === 0) {
+        alert('No estimates or inspections scheduled in the next 30 days.');
+        return;
+      }
+
+      // Group by date, then by person, with entries sorted by customer
+      const byDate = {};
+      items.forEach((row) => {
+        const dateKey = row.scheduled_date;
+        const person = row.technician_name || 'Unassigned';
+        if (!byDate[dateKey]) byDate[dateKey] = {};
+        if (!byDate[dateKey][person]) byDate[dateKey][person] = [];
+
+        // Parse notes: "Estimate — 24-1234 — Smith — extra notes"
+        const parts = (row.notes || '').split(' — ');
+        const itemType = parts[0] || '';
+        const jobNum = parts[1] || '';
+        const customerName = parts[2] || '';
+        const extraNotes = parts.slice(3).join(' — ');
+
+        byDate[dateKey][person].push({
+          type: itemType,
+          jobNumber: jobNum,
+          customer: customerName,
+          time: row.scheduled_time,
+          duration: row.duration_minutes,
+          notes: extraNotes,
+        });
+      });
+
+      // Sort entries within each person by customer name
+      Object.values(byDate).forEach((people) => {
+        Object.values(people).forEach((entries) => {
+          entries.sort((a, b) => (a.customer || '').localeCompare(b.customer || '', undefined, { sensitivity: 'base' }));
+        });
+      });
+
+      // Build PDF
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margin = 36;
+      const lineH = 14;
+      let y = margin + 4;
+
+      const ensureSpace = (needed) => {
+        if (y + needed > pageH - margin) {
+          doc.addPage();
+          y = margin + 10;
+        }
+      };
+
+      const formatDateLabel = (dateStr) => {
+        const [yr, mo, da] = dateStr.split('-');
+        const d = new Date(Number(yr), Number(mo) - 1, Number(da));
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
+      };
+
+      const formatTime12 = (t) => {
+        if (!t) return '';
+        const [h, m] = t.split(':');
+        const hr = parseInt(h, 10);
+        const ampm = hr >= 12 ? 'PM' : 'AM';
+        return ` at ${hr % 12 || 12}:${m} ${ampm}`;
+      };
+
+      // Title
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text('Upcoming Estimates & Site Visits', margin, y);
+      y += 16;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(100);
+      doc.text(`Next 30 days (${formatDateLabel(todayStr)} \u2013 ${formatDateLabel(endStr)})  \u00b7  Generated ${new Date().toLocaleString('en-US')}`, margin, y);
+      doc.setTextColor(0);
+      y += 22;
+
+      const dateKeys = Object.keys(byDate).sort();
+
+      dateKeys.forEach((dateStr) => {
+        const people = byDate[dateStr];
+        const personNames = Object.keys(people).sort((a, b) => a.localeCompare(b));
+
+        // Date header
+        ensureSpace(lineH * 3);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(30, 64, 175);
+        doc.text(formatDateLabel(dateStr), margin, y);
+        y += 4;
+        doc.setDrawColor(30, 64, 175);
+        doc.setLineWidth(0.75);
+        doc.line(margin, y, pageW - margin, y);
+        y += lineH + 2;
+        doc.setTextColor(0);
+
+        personNames.forEach((person) => {
+          const entries = people[person];
+
+          // Person subheader
+          ensureSpace(lineH * 2);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          doc.setTextColor(60);
+          doc.text(person, margin + 12, y);
+          doc.setTextColor(0);
+          y += lineH;
+
+          // Entries sorted by customer
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+          entries.forEach((entry) => {
+            ensureSpace(lineH);
+            const timePart = formatTime12(entry.time);
+            const line = `\u2022  ${entry.type}${timePart}${entry.customer ? '  \u2014  ' + entry.customer : ''}${entry.jobNumber ? '  (#' + entry.jobNumber + ')' : ''}`;
+            doc.text(line, margin + 24, y);
+            y += lineH;
+          });
+          y += 4;
+        });
+        y += 8;
+      });
+
+      doc.save('Upcoming_Estimates_Site_Visits.pdf');
+    } catch (err) {
+      console.error('Failed to export upcoming PDF:', err);
+      alert('Failed to generate PDF: ' + (err?.message || 'Unknown error'));
+    } finally {
+      setExportingUpcoming(false);
+    }
+  };
+
+  // ─── Schedule estimate/inspection directly onto dispatch ─────────────────
+  const handleScheduleDirect = ({ laneId, job }) => {
+    pushUndo();
+    setSchedule((prev) => ({
+      ...prev,
+      [laneId]: [...(prev[laneId] || []), job],
+    }));
+  };
+
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
@@ -303,7 +492,7 @@ function DispatchAndScheduling() {
       <DispatchHeader
         rangeMode={rangeMode} setRangeMode={setRangeMode}
         viewMode={viewMode} setViewMode={setViewMode}
-        date={date} weekLabel={weekLabel}
+        date={date} weekLabel={weekLabel} threeDayLabel={threeDayLabel} monthLabel={monthLabel}
         goPrev={goPrev} goNext={goNext} goToday={goToday} formatDate={formatDate}
         showExcelUpload={showExcelUpload} setShowExcelUpload={setShowExcelUpload}
         exportPdf={exportPdf} openEmailDraft={openEmailDraft}
@@ -327,6 +516,23 @@ function DispatchAndScheduling() {
         />
       )}
 
+      {rangeMode === '3day' && (
+        <DispatchWeekView
+          weekSnapshots={threeDaySnapshots} weekDates={threeDayDates}
+          setDate={setDate} setRangeMode={setRangeMode} setViewMode={setViewMode}
+          formatDayShort={formatDayShort} formatMd={formatMd}
+          columnCount={3}
+        />
+      )}
+
+      {rangeMode === 'month' && (
+        <DispatchMonthView
+          monthSnapshots={monthSnapshots} monthDates={monthDates}
+          currentDate={date}
+          setDate={setDate} setRangeMode={setRangeMode} setViewMode={setViewMode}
+        />
+      )}
+
       {rangeMode === 'day' && viewMode === 'map' && (
         <DispatchMapView
           schedule={schedule} scheduleColumns={scheduleColumns}
@@ -337,12 +543,26 @@ function DispatchAndScheduling() {
 
       {rangeMode === 'day' && viewMode === 'table' && (
         <div className="dispatch-table-view">
-          <DispatchUnassignedPool
-            schedule={schedule} addJob={addJob} removeJob={removeJob}
-            moveJobToUnassigned={moveJobToUnassigned}
-          />
+          <div className="dispatch-crew-filter">
+            <span className="dispatch-crew-filter-label">View:</span>
+            <div className="dispatch-crew-filter-toggle">
+              <button className={crewFilter === 'all' ? 'active' : ''} onClick={() => setCrewFilter('all')}>All</button>
+              <button className={crewFilter === 'pm' ? 'active' : ''} onClick={() => setCrewFilter('pm')}>PMs Only</button>
+              <button className={crewFilter === 'crew' ? 'active' : ''} onClick={() => setCrewFilter('crew')}>Crew Chiefs Only</button>
+            </div>
+            <button className="dispatch-schedule-direct-btn" onClick={() => setShowScheduleModal(true)}>+ Schedule Estimate / Site Visit</button>
+            <button className="dispatch-schedule-pdf-btn" onClick={exportUpcomingPdf} disabled={exportingUpcoming}>
+              {exportingUpcoming ? 'Generating...' : 'Upcoming PDF'}
+            </button>
+          </div>
+          {(schedule.unassigned || []).length > 0 && (
+            <DispatchUnassignedPool
+              schedule={schedule} addJob={addJob} removeJob={removeJob}
+              moveJobToUnassigned={moveJobToUnassigned}
+            />
+          )}
           <DispatchTimeGrid
-            schedule={schedule} scheduleColumns={scheduleColumns} pmHeaderGroups={pmHeaderGroups}
+            schedule={schedule} scheduleColumns={filteredColumns} pmHeaderGroups={pmHeaderGroups}
             driveTimeByCrew={driveTimeByCrew}
             totalHours={totalHours}
             addJob={addJob} removeJob={removeJob} updateJob={updateJob}
@@ -352,6 +572,15 @@ function DispatchAndScheduling() {
       )}
 
       {saveError && <div className="dispatch-save-error">{saveError}</div>}
+
+      {showScheduleModal && (
+        <DispatchScheduleModal
+          lanes={lanes}
+          dispatchDate={date}
+          onSchedule={handleScheduleDirect}
+          onClose={() => setShowScheduleModal(false)}
+        />
+      )}
     </div>
   );
 }

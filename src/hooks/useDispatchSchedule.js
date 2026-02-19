@@ -25,6 +25,8 @@ export const JOB_TYPES = [
   { value: 'packout', label: 'Packout', hours: hoursForJobType('packout') },
   { value: 'equipment-pickup', label: 'Equipment Pickup', hours: hoursForJobType('equipment-pickup') },
   { value: 'emergency', label: 'Emergency', hours: hoursForJobType('emergency') },
+  { value: 'estimate', label: 'Estimate', hours: hoursForJobType('estimate') },
+  { value: 'site-visit', label: 'Site Visit', hours: hoursForJobType('site-visit') },
 ];
 
 export const DAY_START = 8.5;
@@ -241,6 +243,9 @@ export default function useDispatchSchedule(userId = null) {
   scheduleRef.current = schedule;
   lanesRef.current = lanes;
 
+  // Track which job_schedule IDs have already been merged for the current date
+  const mergedScheduleIdsRef = useRef(new Set());
+
   const dateKey = useMemo(() => dateToKey(date), [date]);
 
   // ─── Load teams from DB on mount ──────────────────────────────────────────
@@ -339,6 +344,129 @@ export default function useDispatchSchedule(userId = null) {
     return () => { cancelled = true; };
   }, [dateKey, teamsLoaded]);
 
+  // ─── Merge pre-scheduled items (e.g., inspections from Job Files) ─────────
+  // Reset merged IDs when date changes so items load fresh for each day
+  useEffect(() => {
+    mergedScheduleIdsRef.current = new Set();
+  }, [dateKey]);
+
+  useEffect(() => {
+    if (!teamsLoaded || lanes.length === 0) return;
+    let cancelled = false;
+
+    const mergePreScheduled = async () => {
+      try {
+        const dateStr = dateToString(date);
+        const { data: preScheduled, error } = await supabase
+          .from('job_schedules')
+          .select(`
+            *,
+            jobs(id, job_number, status,
+              customers(name),
+              properties(address1, city, state)
+            )
+          `)
+          .eq('scheduled_date', dateStr)
+          .in('status', ['scheduled', 'confirmed']);
+
+        if (cancelled || error || !preScheduled?.length) return;
+
+        // Filter out any items we've already merged this session
+        const brandNew = preScheduled.filter(ps => !mergedScheduleIdsRef.current.has(ps.id));
+        if (brandNew.length === 0) return;
+
+        // Mark all as merged BEFORE updating state (no ref mutation inside updater)
+        brandNew.forEach(ps => mergedScheduleIdsRef.current.add(ps.id));
+
+        // Also check current board state for items already on the grid
+        const currentSchedule = scheduleRef.current;
+        const existingJobIds = new Set();
+        const existingJobNumbers = new Set();
+        const existingPreScheduledIds = new Set();
+        Object.values(currentSchedule).forEach(jobs => {
+          if (!Array.isArray(jobs)) return;
+          jobs.forEach(j => {
+            if (j.dbJobId) existingJobIds.add(j.dbJobId);
+            if (j.jobNumber) existingJobNumbers.add(j.jobNumber.trim().toLowerCase());
+            if (j.preScheduledId) existingPreScheduledIds.add(j.preScheduledId);
+          });
+        });
+
+        const newItems = brandNew.filter(ps => {
+          // Skip if this schedule ID is already on the board
+          if (existingPreScheduledIds.has(ps.id)) return false;
+          if (ps.job_id && existingJobIds.has(ps.job_id)) return false;
+          const jn = ps.jobs?.job_number?.trim().toLowerCase();
+          if (jn && existingJobNumbers.has(jn)) return false;
+          return true;
+        });
+
+        if (newItems.length === 0) return;
+
+        // Build the dispatch job objects outside the updater
+        const itemsToAdd = newItems.map(ps => {
+          const jobData = ps.jobs;
+          const customerName = jobData?.customers?.name || '';
+          const addr = jobData?.properties
+            ? [jobData.properties.address1, jobData.properties.city, jobData.properties.state].filter(Boolean).join(', ')
+            : '';
+
+          const techName = (ps.technician_name || '').trim().toUpperCase();
+          const matchedLane = lanes.find(l =>
+            l.name.trim().toUpperCase() === techName
+          );
+
+          // Parse job type from notes (e.g. "Estimate — ..." or "Site Visit — ...")
+          const notesLower = (ps.notes || '').toLowerCase();
+          let jobType = 'walkthrough';
+          if (notesLower.startsWith('estimate')) jobType = 'estimate';
+          else if (notesLower.startsWith('site visit')) jobType = 'site-visit';
+          else if (notesLower.startsWith('inspection')) jobType = 'site-visit';
+
+          // For standalone schedules (no linked job), parse customer/job# from notes
+          const notesParts = (ps.notes || '').split(' — ');
+          const parsedJobNumber = jobData?.job_number || notesParts[1] || '';
+          const parsedCustomer = customerName || notesParts[2] || '';
+
+          return {
+            laneId: matchedLane?.id || 'unassigned',
+            job: {
+              id: crypto.randomUUID(),
+              jobType,
+              hours: (ps.duration_minutes || 60) / 60,
+              jobNumber: parsedJobNumber,
+              customer: parsedCustomer,
+              address: addr,
+              dbJobId: ps.job_id || null,
+              preScheduled: true,
+              preScheduledId: ps.id,
+              preScheduledTime: ps.scheduled_time,
+              preScheduledNotes: ps.notes,
+            },
+          };
+        });
+
+        setSchedule(prev => {
+          const next = { ...prev };
+          Object.keys(next).forEach(k => { next[k] = [...(next[k] || [])]; });
+
+          itemsToAdd.forEach(({ laneId, job }) => {
+            if (!next[laneId]) next[laneId] = [];
+            next[laneId].push(job);
+          });
+
+          return next;
+        });
+      } catch (err) {
+        console.warn('Failed to merge pre-scheduled items:', err);
+      }
+    };
+
+    // Small delay to let the main schedule load first
+    const t = setTimeout(mergePreScheduled, 500);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [dateKey, teamsLoaded, lanes]);
+
   // ─── Auto-save to Supabase (debounced) ────────────────────────────────────
   useEffect(() => {
     if (!teamsLoaded || lanes.length === 0) return;
@@ -359,45 +487,28 @@ export default function useDispatchSchedule(userId = null) {
     setConflicts(detectConflicts(schedule, lanes, driveTimeByCrew));
   }, [schedule, lanes, driveTimeByCrew]);
 
-  // ─── Sorted columns (crews grouped by PM) ────────────────────────────────
+  // ─── Sorted columns: all PMs first (in order), then all Crew Chiefs (in order) ─
   const scheduleColumns = useMemo(() => {
-    return [...lanes].sort((a, b) => {
-      const pmA = findPmForCrew(a.name, pmGroups);
-      const pmB = findPmForCrew(b.name, pmGroups);
-      const pmIdxA = pmA ? pmGroups.indexOf(pmA) : pmGroups.length;
-      const pmIdxB = pmB ? pmGroups.indexOf(pmB) : pmGroups.length;
-      if (pmIdxA !== pmIdxB) return pmIdxA - pmIdxB;
-      if (pmA && pmA === pmB) {
-        // PM-type lanes sort first within their group
-        const isPmA = a.type === 'pm' ? 1 : 0;
-        const isPmB = b.type === 'pm' ? 1 : 0;
-        if (isPmA !== isPmB) return isPmB - isPmA; // pm lanes first
-        const crewIdxA = pmA.crews.findIndex((c) => c.toLowerCase() === (a.name || '').toLowerCase().trim());
-        const crewIdxB = pmA.crews.findIndex((c) => c.toLowerCase() === (b.name || '').toLowerCase().trim());
-        return crewIdxA - crewIdxB;
-      }
-      return 0;
+    const pmLanes = [];
+    const crewLanes = [];
+    // Walk pmGroups in order to preserve PM ordering
+    pmGroups.forEach((group, pmIdx) => {
+      const pmLane = lanes.find((l) => l.type === 'pm' && l.name.toLowerCase() === group.pm.toLowerCase());
+      if (pmLane) pmLanes.push(pmLane);
+      group.crews.forEach((crewName) => {
+        const crewLane = lanes.find((l) => l.type === 'crew' && l.name.toLowerCase() === crewName.toLowerCase());
+        if (crewLane) crewLanes.push(crewLane);
+      });
     });
+    // Any remaining lanes not matched above
+    const used = new Set([...pmLanes, ...crewLanes].map((l) => l.id));
+    const rest = lanes.filter((l) => !used.has(l.id));
+    return [...pmLanes, ...crewLanes, ...rest];
   }, [lanes, pmGroups]);
 
   const pmHeaderGroups = useMemo(() => {
-    const groups = [];
-    scheduleColumns.forEach((col) => {
-      const pm = findPmForCrew(col.name, pmGroups);
-      const pmKey = pm?.pm || null;
-      if (groups.length > 0 && groups[groups.length - 1].pmKey === pmKey) {
-        groups[groups.length - 1].colSpan += 1;
-      } else {
-        groups.push({
-          pmKey,
-          pm: pm?.pm || null,
-          title: pm?.title || '',
-          color: pm?.color || '#64748b',
-          colSpan: 1,
-        });
-      }
-    });
-    return groups;
+    // No team grouping — return a single flat span across all columns
+    return [];
   }, [scheduleColumns, pmGroups]);
 
   // ─── Undo/Redo ────────────────────────────────────────────────────────────
@@ -496,14 +607,22 @@ export default function useDispatchSchedule(userId = null) {
     });
   }, [pushUndo]);
 
-  /** Copy a job to a PM lane (keeps original in source lane, adds copy with new ID to target). */
-  const copyJobToLane = useCallback((targetLaneId, job) => {
+  /** Copy a job to a PM lane (keeps original in source lane, adds copy with new ID to target).
+   *  If startHour is provided, pin the copy to that time so PM and crew are at the same slot. */
+  const copyJobToLane = useCallback((targetLaneId, job, startHour) => {
     pushUndo();
     const copy = { ...job, id: crypto.randomUUID() };
-    setSchedule((prev) => ({
-      ...prev,
-      [targetLaneId]: [...(prev[targetLaneId] || []), copy],
-    }));
+    if (startHour != null) copy.fixedStartHour = startHour;
+    setSchedule((prev) => {
+      const existing = prev[targetLaneId] || [];
+      // Insert in sorted order by fixedStartHour so the grid lays them out chronologically
+      const updated = [...existing, copy].sort((a, b) => {
+        const aTime = a.fixedStartHour ?? -1;
+        const bTime = b.fixedStartHour ?? -1;
+        return aTime - bTime;
+      });
+      return { ...prev, [targetLaneId]: updated };
+    });
   }, [pushUndo]);
 
   const totalHours = useCallback((crewId) => {
@@ -554,8 +673,67 @@ export default function useDispatchSchedule(userId = null) {
     return `Week of ${formatMd(weekDates[0])} – ${formatMd(weekDates[6])}`;
   }, [weekDates]);
 
-  const goPrev = () => setDate((d) => { const n = new Date(d); n.setDate(n.getDate() - (rangeMode === 'week' ? 7 : 1)); return n; });
-  const goNext = () => setDate((d) => { const n = new Date(d); n.setDate(n.getDate() + (rangeMode === 'week' ? 7 : 1)); return n; });
+  // ─── 3-Day rolling dates (always yesterday, today, tomorrow) ───────────────
+  const threeDayDates = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return [-1, 0, 1].map((offset) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() + offset);
+      return d;
+    });
+  }, [dateKey]); // recalc if date changes (covers midnight rollover via goToday)
+
+  const threeDayLabel = useMemo(() => {
+    return `${formatMd(threeDayDates[0])} – ${formatMd(threeDayDates[2])}`;
+  }, [threeDayDates]);
+
+  // ─── Month calendar dates (full grid including padding from adjacent months) ──
+  const monthDates = useMemo(() => {
+    const y = date.getFullYear();
+    const m = date.getMonth();
+    const firstOfMonth = new Date(y, m, 1);
+    const lastOfMonth = new Date(y, m + 1, 0);
+
+    // Start from Monday of the week containing the 1st
+    const startDay = firstOfMonth.getDay(); // 0=Sun
+    const startOffset = startDay === 0 ? -6 : 1 - startDay;
+    const gridStart = new Date(y, m, 1 + startOffset);
+
+    // End on Sunday of the week containing the last day
+    const endDay = lastOfMonth.getDay();
+    const endOffset = endDay === 0 ? 0 : 7 - endDay;
+    const gridEnd = new Date(y, m + 1, endOffset);
+
+    const dates = [];
+    const cursor = new Date(gridStart);
+    while (cursor <= gridEnd) {
+      dates.push(new Date(cursor));
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return dates;
+  }, [date]);
+
+  const monthLabel = useMemo(() => {
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }, [date]);
+
+  const goPrev = () => setDate((d) => {
+    const n = new Date(d);
+    if (rangeMode === 'month') { n.setMonth(n.getMonth() - 1); }
+    else if (rangeMode === 'week') { n.setDate(n.getDate() - 7); }
+    else if (rangeMode === '3day') { n.setDate(n.getDate() - 3); }
+    else { n.setDate(n.getDate() - 1); }
+    return n;
+  });
+  const goNext = () => setDate((d) => {
+    const n = new Date(d);
+    if (rangeMode === 'month') { n.setMonth(n.getMonth() + 1); }
+    else if (rangeMode === 'week') { n.setDate(n.getDate() + 7); }
+    else if (rangeMode === '3day') { n.setDate(n.getDate() + 3); }
+    else { n.setDate(n.getDate() + 1); }
+    return n;
+  });
   const goToday = () => setDate(new Date());
 
   // ─── Week snapshots (from Supabase or localStorage) ───────────────────────
@@ -610,6 +788,109 @@ export default function useDispatchSchedule(userId = null) {
     return () => { cancelled = true; };
   }, [rangeMode, weekDates]);
 
+  // ─── 3-Day snapshots (from Supabase or localStorage) ──────────────────────
+  const [threeDaySnapshots, setThreeDaySnapshots] = useState([]);
+
+  useEffect(() => {
+    if (rangeMode !== '3day') return;
+    let cancelled = false;
+
+    const loadThreeDay = async () => {
+      const snapshots = [];
+      try {
+        const dbRows = await dispatchScheduleService.loadRange(threeDayDates[0], threeDayDates[2]);
+        const dbByDate = new Map(dbRows.map((r) => [r.schedule_date, r.schedule_data]));
+
+        for (const d of threeDayDates) {
+          const dStr = dateToString(d);
+          const key = dateToKey(d);
+          let payload = dbByDate.get(dStr) || null;
+
+          if (!payload) {
+            try {
+              const saved = localStorage.getItem(key);
+              if (saved) payload = JSON.parse(saved);
+            } catch (_) {}
+          }
+
+          const lanesForDay = Array.isArray(payload?.lanes) ? payload.lanes : [];
+          const scheduleForDay = payload?.schedule && typeof payload.schedule === 'object' ? payload.schedule : {};
+          const driveForDay = payload?.driveTimeByCrew && typeof payload.driveTimeByCrew === 'object' ? payload.driveTimeByCrew : {};
+          const jobsByCrewName = {};
+
+          lanesForDay.forEach((lane) => {
+            const crewName = String(lane?.name || '').replace(/\s+/g, ' ').trim();
+            if (!crewName) return;
+            const jobs = Array.isArray(scheduleForDay[lane.id]) ? scheduleForDay[lane.id] : [];
+            const drive = driveForDay[lane.id] ?? null;
+            jobsByCrewName[crewName] = { jobs, drive };
+          });
+
+          const unassignedJobs = Array.isArray(scheduleForDay.unassigned) ? scheduleForDay.unassigned : [];
+          snapshots.push({ date: d, key, jobsByCrewName, unassignedJobs });
+        }
+      } catch (err) {
+        console.error('Failed to load 3-day snapshots:', err);
+      }
+      if (!cancelled) setThreeDaySnapshots(snapshots);
+    };
+    loadThreeDay();
+
+    return () => { cancelled = true; };
+  }, [rangeMode, threeDayDates]);
+
+  // ─── Month snapshots (from Supabase or localStorage) ──────────────────────
+  const [monthSnapshots, setMonthSnapshots] = useState([]);
+
+  useEffect(() => {
+    if (rangeMode !== 'month') return;
+    if (monthDates.length === 0) return;
+    let cancelled = false;
+
+    const loadMonth = async () => {
+      const snapshots = [];
+      try {
+        const dbRows = await dispatchScheduleService.loadRange(monthDates[0], monthDates[monthDates.length - 1]);
+        const dbByDate = new Map(dbRows.map((r) => [r.schedule_date, r.schedule_data]));
+
+        for (const d of monthDates) {
+          const dStr = dateToString(d);
+          const key = dateToKey(d);
+          let payload = dbByDate.get(dStr) || null;
+
+          if (!payload) {
+            try {
+              const saved = localStorage.getItem(key);
+              if (saved) payload = JSON.parse(saved);
+            } catch (_) {}
+          }
+
+          const lanesForDay = Array.isArray(payload?.lanes) ? payload.lanes : [];
+          const scheduleForDay = payload?.schedule && typeof payload.schedule === 'object' ? payload.schedule : {};
+          const driveForDay = payload?.driveTimeByCrew && typeof payload.driveTimeByCrew === 'object' ? payload.driveTimeByCrew : {};
+          const jobsByCrewName = {};
+
+          lanesForDay.forEach((lane) => {
+            const crewName = String(lane?.name || '').replace(/\s+/g, ' ').trim();
+            if (!crewName) return;
+            const jobs = Array.isArray(scheduleForDay[lane.id]) ? scheduleForDay[lane.id] : [];
+            const drive = driveForDay[lane.id] ?? null;
+            jobsByCrewName[crewName] = { jobs, drive };
+          });
+
+          const unassignedJobs = Array.isArray(scheduleForDay.unassigned) ? scheduleForDay.unassigned : [];
+          snapshots.push({ date: d, key, jobsByCrewName, unassignedJobs });
+        }
+      } catch (err) {
+        console.error('Failed to load month snapshots:', err);
+      }
+      if (!cancelled) setMonthSnapshots(snapshots);
+    };
+    loadMonth();
+
+    return () => { cancelled = true; };
+  }, [rangeMode, monthDates]);
+
   return {
     // State
     date, setDate, rangeMode, setRangeMode,
@@ -618,7 +899,10 @@ export default function useDispatchSchedule(userId = null) {
     jobsDatabase, saving, saveError, finalized,
     conflicts,
     // Computed
-    scheduleColumns, pmHeaderGroups, dateKey, weekDates, weekLabel, weekSnapshots,
+    scheduleColumns, pmHeaderGroups, dateKey,
+    weekDates, weekLabel, weekSnapshots,
+    threeDayDates, threeDayLabel, threeDaySnapshots,
+    monthDates, monthLabel, monthSnapshots,
     scheduleRef, lanesRef,
     // Actions
     goPrev, goNext, goToday,

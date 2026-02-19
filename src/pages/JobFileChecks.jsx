@@ -1,5 +1,7 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
+import jobService from '../services/jobService';
 import './Page.css';
 import './JobFileChecks.css';
 
@@ -8,26 +10,26 @@ const CREW_INDEX = 2;
 
 const FILE_CHECK_HEADERS = [
   // Setup (3)
-  { label: 'JOB LOCKED',      fullName: 'Job Locked' },
-  { label: 'DBMX FILE',       fullName: 'DBMX File Created' },
-  { label: 'START DATE',      fullName: 'Start Date Entered' },
+  { label: 'JOB LOCKED',      fullName: 'Job Locked',                          dbCol: 'chk_job_locked' },
+  { label: 'DBMX FILE',       fullName: 'DBMX File Created',                   dbCol: 'chk_dbmx_file_created' },
+  { label: 'START DATE',      fullName: 'Start Date Entered',                  dbCol: 'chk_start_date_entered' },
   // Agreements (3)
-  { label: 'ATP',              fullName: 'ATP Signed' },
-  { label: 'CUST INFO FORM',  fullName: 'Customer Information Form Signed' },
-  { label: 'EQUIP RESP FORM', fullName: 'Equipment Responsibility Form Signed' },
+  { label: 'ATP',              fullName: 'ATP Signed',                          dbCol: 'chk_atp_signed' },
+  { label: 'CUST INFO FORM',  fullName: 'Customer Information Form Signed',    dbCol: 'chk_customer_info_form_signed' },
+  { label: 'EQUIP RESP FORM', fullName: 'Equipment Responsibility Form Signed', dbCol: 'chk_equipment_resp_form_signed' },
   // Photos (4)
-  { label: 'COL PHOTO',       fullName: 'Cause of Loss Photo' },
-  { label: 'FRONT PHOTO',     fullName: 'Front of Structure Photo' },
-  { label: 'PRE-MIT PHOTOS',  fullName: 'Pre-Mitigation Photos' },
-  { label: 'DAILY PHOTOS',    fullName: 'Daily Departure Photos' },
+  { label: 'COL PHOTO',       fullName: 'Cause of Loss Photo',                 dbCol: 'chk_cause_of_loss_photo' },
+  { label: 'FRONT PHOTO',     fullName: 'Front of Structure Photo',            dbCol: 'chk_front_of_structure_photo' },
+  { label: 'PRE-MIT PHOTOS',  fullName: 'Pre-Mitigation Photos',               dbCol: 'chk_pre_mitigation_photos' },
+  { label: 'DAILY PHOTOS',    fullName: 'Daily Departure Photos',              dbCol: 'chk_daily_departure_photos' },
   // Field Work (4)
-  { label: 'DOCUSKETCH',      fullName: 'DocuSketch Uploaded' },
-  { label: 'SCOPE SHEET',     fullName: 'Initial Scope Sheet Entered' },
-  { label: 'EQUIP LOGGED',    fullName: 'Equipment Placed and Logged' },
-  { label: 'ATMO READINGS',   fullName: 'Initial Atmospheric Readings Taken' },
+  { label: 'DOCUSKETCH',      fullName: 'DocuSketch Uploaded',                  dbCol: 'chk_docusketch_uploaded' },
+  { label: 'SCOPE SHEET',     fullName: 'Initial Scope Sheet Entered',         dbCol: 'chk_initial_scope_sheet_entered' },
+  { label: 'EQUIP LOGGED',    fullName: 'Equipment Placed and Logged',         dbCol: 'chk_equipment_placed_and_logged' },
+  { label: 'ATMO READINGS',   fullName: 'Initial Atmospheric Readings Taken',  dbCol: 'chk_initial_atmospheric_readings' },
   // Notes (2)
-  { label: 'DAY 1 NOTE',      fullName: 'Day 1 Note Entered' },
-  { label: 'INSP QUESTIONS',  fullName: 'Initial Inspection Questions Answered' },
+  { label: 'DAY 1 NOTE',      fullName: 'Day 1 Note Entered',                  dbCol: 'chk_day_1_note_entered' },
+  { label: 'INSP QUESTIONS',  fullName: 'Initial Inspection Questions Answered', dbCol: 'chk_initial_inspection_questions' },
 ];
 
 const CHECK_GROUPS = [
@@ -137,6 +139,8 @@ function JobFileChecks() {
   const [filterPM, setFilterPM] = useState('');
   const [filterCrew, setFilterCrew] = useState('');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [saveStatus, setSaveStatus] = useState(null);
+  const [saveError, setSaveError] = useState(null);
   const fileRef = useRef(null);
 
   const pmOptions = useMemo(() => {
@@ -191,15 +195,54 @@ function JobFileChecks() {
     return sortDir === 'asc' ? ' \u2191' : ' \u2193';
   };
 
+  const [enriching, setEnriching] = useState(false);
+
+  const enrichWithSupabase = async (parsed) => {
+    try {
+      setEnriching(true);
+      const jobNumbers = parsed.map((r) => r.jobNumber).filter(Boolean);
+      const existing = await jobService.lookupChecksByJobNumbers(jobNumbers);
+
+      const dbColOrder = FILE_CHECK_HEADERS.map((h) => h.dbCol);
+
+      return parsed.map((row) => {
+        const match = existing[row.jobNumber];
+        if (!match) return row;
+
+        // Merge Supabase checks: if Excel says false but Supabase says true, use Supabase value
+        const mergedChecks = row.checks.map((excelVal, i) => {
+          const dbVal = match[dbColOrder[i]];
+          return excelVal || !!dbVal;
+        });
+
+        // Merge info fields (PM, Crew Chief, Days Active) if Excel is empty
+        const mergedInfo = [...row.info];
+        if (!mergedInfo[PM_INDEX] && match.pm) mergedInfo[PM_INDEX] = match.pm;
+        if (!mergedInfo[CREW_INDEX] && match.crew_chief) mergedInfo[CREW_INDEX] = match.crew_chief;
+        if (!mergedInfo[3] && match.days_active) mergedInfo[3] = String(match.days_active);
+
+        return { ...row, checks: mergedChecks, info: mergedInfo };
+      });
+    } catch (err) {
+      console.warn('Could not enrich with Supabase data:', err);
+      return parsed; // fall back to Excel-only data
+    } finally {
+      setEnriching(false);
+    }
+  };
+
   const handleFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       try {
         const wb = XLSX.read(evt.target.result, { type: 'array' });
         const parsed = parseFileChecks(wb);
-        if (parsed.length) setRows(parsed);
+        if (parsed.length) {
+          const enriched = await enrichWithSupabase(parsed);
+          setRows(enriched);
+        }
       } catch { /* ignore bad files */ }
     };
     reader.readAsArrayBuffer(file);
@@ -214,6 +257,31 @@ function JobFileChecks() {
     setFilterPM('');
     setFilterCrew('');
     if (fileRef.current) fileRef.current.value = '';
+  };
+
+  const handleSaveToSupabase = async () => {
+    if (!rows) return;
+    setSaveStatus('saving');
+    setSaveError(null);
+    try {
+      const results = await jobService.saveFileChecks(rows.map((row) => ({
+        externalJobNumber: row.jobNumber || null,
+        customerName: row.info[0] || 'Unknown',
+        pm: row.info[1] || null,
+        crewChief: row.info[2] || null,
+        daysActive: row.info[3] ? parseInt(row.info[3], 10) || null : null,
+        checks: Object.fromEntries(
+          FILE_CHECK_HEADERS.map((h, i) => [h.dbCol, row.checks[i] || false])
+        ),
+      })));
+      if (results.errors?.length > 0) {
+        console.error('Save errors:', results.errors);
+      }
+      setSaveStatus(results);
+    } catch (err) {
+      setSaveError(err.message || 'Failed to save to Supabase');
+      setSaveStatus(null);
+    }
   };
 
   const leaderboard = useMemo(() => {
@@ -250,6 +318,114 @@ function JobFileChecks() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Job File Checks');
     XLSX.writeFile(wb, 'Job_File_Checks.xlsx');
+  };
+
+  const exportPunchlistPdf = () => {
+    if (!rows) return;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 36;
+    const lineH = 13;
+    let y = 0;
+
+    const ensureSpace = (needed) => {
+      if (y + needed > pageH - margin) {
+        doc.addPage();
+        y = margin + 10;
+      }
+    };
+
+    // Title
+    y = margin + 4;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('Job File Check Punchlist', margin, y);
+    y += 16;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(100);
+    doc.text(`Generated: ${new Date().toLocaleString('en-US')}`, margin, y);
+    doc.setTextColor(0);
+    y += 20;
+
+    // Group rows: PM → Crew Chief → jobs with missing checks
+    const pmMap = {};
+    rows.forEach((row) => {
+      const missingItems = FILE_CHECK_HEADERS
+        .map((h, i) => (!row.checks[i] ? h.fullName : null))
+        .filter(Boolean);
+      if (missingItems.length === 0) return; // skip jobs with no missing items
+
+      const pm = row.info[PM_INDEX] || 'Unassigned PM';
+      const crew = row.info[CREW_INDEX] || 'Unassigned Crew Chief';
+      if (!pmMap[pm]) pmMap[pm] = {};
+      if (!pmMap[pm][crew]) pmMap[pm][crew] = [];
+      pmMap[pm][crew].push({ jobNumber: row.jobNumber, customer: row.info[0], missing: missingItems });
+    });
+
+    const pmNames = Object.keys(pmMap).sort((a, b) => a.localeCompare(b));
+
+    if (pmNames.length === 0) {
+      doc.setFontSize(11);
+      doc.text('No missing items found — all checks are passing.', margin, y);
+      doc.save('Job_File_Check_Punchlist.pdf');
+      return;
+    }
+
+    pmNames.forEach((pm) => {
+      // PM header
+      ensureSpace(lineH * 3);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(30, 64, 175); // blue
+      doc.text(pm, margin, y);
+      y += 4;
+      doc.setDrawColor(30, 64, 175);
+      doc.setLineWidth(0.75);
+      doc.line(margin, y, pageW - margin, y);
+      y += lineH + 2;
+      doc.setTextColor(0);
+
+      const crewNames = Object.keys(pmMap[pm]).sort((a, b) => a.localeCompare(b));
+      crewNames.forEach((crew) => {
+        // Crew Chief header
+        ensureSpace(lineH * 2);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(80);
+        doc.text(crew, margin + 12, y);
+        y += lineH + 2;
+        doc.setTextColor(0);
+
+        const jobs = pmMap[pm][crew];
+        jobs.forEach((job) => {
+          // Job line
+          ensureSpace(lineH * 2 + job.missing.length * lineH);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          const jobLabel = `${job.jobNumber}${job.customer ? '  —  ' + job.customer : ''}`;
+          doc.text(jobLabel, margin + 24, y);
+          y += lineH;
+
+          // Missing items
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+          doc.setTextColor(200, 30, 30); // red
+          job.missing.forEach((item) => {
+            ensureSpace(lineH);
+            doc.text('\u2717  ' + item, margin + 36, y);
+            y += lineH;
+          });
+          doc.setTextColor(0);
+          y += 4;
+        });
+        y += 4;
+      });
+      y += 6;
+    });
+
+    doc.save('Job_File_Check_Punchlist.pdf');
   };
 
   const presentCount = displayRows
@@ -303,12 +479,33 @@ function JobFileChecks() {
                 >
                   Leaderboard
                 </button>
+                <button
+                  className="jfc-export-btn"
+                  onClick={handleSaveToSupabase}
+                  disabled={saveStatus === 'saving'}
+                  title="Save imported jobs to Supabase with external job numbers"
+                >
+                  {saveStatus === 'saving' ? 'Saving...' : 'Save to Supabase'}
+                </button>
+                <button className="jfc-export-btn" onClick={exportPunchlistPdf}>Punchlist PDF</button>
                 <button className="jfc-export-btn" onClick={exportToExcel}>Export Excel</button>
                 <button className="jfc-clear-btn" onClick={clear}>Clear</button>
               </>
             ) : null}
           </div>
         </div>
+
+        {saveStatus && saveStatus !== 'saving' && (
+          <div style={{ padding: '8px 16px', background: '#f0fdf4', borderBottom: '1px solid #bbf7d0', fontSize: '13px', color: '#059669' }}>
+            Supabase: {saveStatus.created} created, {saveStatus.updated} updated
+            {saveStatus.errors?.length > 0 && `, ${saveStatus.errors.length} errors — check browser console (F12) for details`}
+          </div>
+        )}
+        {saveError && (
+          <div style={{ padding: '8px 16px', background: '#fef2f2', borderBottom: '1px solid #fecaca', fontSize: '13px', color: '#dc2626' }}>
+            {saveError}
+          </div>
+        )}
 
         {rows && showLeaderboard && (
           <div className="jfc-leaderboard">
@@ -359,6 +556,11 @@ function JobFileChecks() {
 
         {!rows ? (
           <div className="jfc-upload-area">
+            {enriching && (
+              <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
+                Loading existing check data from Supabase...
+              </div>
+            )}
             <div className="jfc-upload-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>

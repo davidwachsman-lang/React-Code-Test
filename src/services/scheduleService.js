@@ -93,7 +93,59 @@ const scheduleService = {
       console.error('Error fetching today schedule:', error);
       throw error;
     }
-  }
+  },
+
+  /**
+   * Create a scheduled job (e.g., inspection)
+   */
+  async createSchedule({ jobId, technicianName, scheduledDate, scheduledTime, durationMinutes, notes, status }) {
+    const { data, error } = await supabase
+      .from('job_schedules')
+      .insert([{
+        job_id: jobId,
+        technician_name: technicianName,
+        scheduled_date: scheduledDate,
+        scheduled_time: scheduledTime || null,
+        duration_minutes: durationMinutes || 60,
+        notes: notes || null,
+        status: status || 'scheduled',
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Get all scheduled items for a job
+   */
+  async getByJobId(jobId) {
+    const { data, error } = await supabase
+      .from('job_schedules')
+      .select('*')
+      .eq('job_id', jobId)
+      .order('scheduled_date', { ascending: true })
+      .order('scheduled_time', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  /**
+   * Cancel a scheduled item
+   */
+  async cancelSchedule(scheduleId) {
+    const { data, error } = await supabase
+      .from('job_schedules')
+      .update({ status: 'cancelled' })
+      .eq('id', scheduleId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
 };
 
 export default scheduleService;

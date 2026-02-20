@@ -38,7 +38,9 @@ export default function DispatchWeekView({
   formatDayShort, formatMd,
   columnCount,
 }) {
-  // Load pre-scheduled items (estimates, site visits) from job_schedules for the week
+  const isCompact = !columnCount || columnCount === 7;
+
+  // Load pre-scheduled items (estimates, site visits) from job_schedules
   const [preScheduledByDate, setPreScheduledByDate] = useState({});
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export default function DispatchWeekView({
     const loadPreScheduled = async () => {
       try {
         const startStr = dateToString(weekDates[0]);
-        const endStr = dateToString(weekDates[6]);
+        const endStr = dateToString(weekDates[weekDates.length - 1]);
 
         const { data, error } = await supabase
           .from('job_schedules')
@@ -75,7 +77,7 @@ export default function DispatchWeekView({
     return () => { cancelled = true; };
   }, [weekDates]);
 
-  // Build day columns: one per weekDate, always all 7
+  // Build day columns with jobs grouped by crew
   const dayColumns = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -87,14 +89,14 @@ export default function DispatchWeekView({
       dNorm.setHours(0, 0, 0, 0);
       const isToday = dNorm.getTime() === today.getTime();
 
-      // Collect all jobs from saved dispatch snapshot
+      // Collect all jobs with crew assignment
       const allJobs = [];
       const seenJobNumbers = new Set();
 
       if (snap?.jobsByCrewName) {
         Object.entries(snap.jobsByCrewName).forEach(([crewName, data]) => {
           (data.jobs || []).forEach((job) => {
-            allJobs.push({ ...job, assignedTo: crewName });
+            allJobs.push({ ...job, assignedTo: crewName, _drive: data.drive });
             if (job.jobNumber) seenJobNumbers.add(job.jobNumber.trim().toLowerCase());
           });
         });
@@ -140,21 +142,43 @@ export default function DispatchWeekView({
         });
       }
 
-      // Sort by scheduled time, then by assignedTo
-      allJobs.sort((a, b) => {
-        const tA = a.preScheduledTime || '';
-        const tB = b.preScheduledTime || '';
-        if (tA !== tB) return tA.localeCompare(tB);
-        return (a.assignedTo || '').localeCompare(b.assignedTo || '');
+      // Group by crew/assignee
+      const crewMap = {};
+      allJobs.forEach((job) => {
+        const crew = job.assignedTo || 'Unassigned';
+        if (!crewMap[crew]) crewMap[crew] = { jobs: [], totalHours: 0, drive: job._drive || null };
+        crewMap[crew].jobs.push(job);
+        crewMap[crew].totalHours += Number(job.hours) || 0;
       });
 
-      return { date: d, dateStr, isToday, jobs: allJobs };
+      // Sort jobs within each crew by time
+      Object.values(crewMap).forEach((group) => {
+        group.jobs.sort((a, b) => {
+          const tA = a.preScheduledTime || '';
+          const tB = b.preScheduledTime || '';
+          return tA.localeCompare(tB);
+        });
+      });
+
+      // Sort crews: Unassigned last, then alphabetical
+      const crewGroups = Object.entries(crewMap)
+        .sort(([a], [b]) => {
+          if (a === 'Unassigned') return 1;
+          if (b === 'Unassigned') return -1;
+          return a.localeCompare(b);
+        })
+        .map(([name, data]) => ({ name, ...data }));
+
+      return { date: d, dateStr, isToday, crewGroups, totalJobs: allJobs.length };
     });
   }, [weekDates, weekSnapshots, preScheduledByDate]);
 
   return (
     <div className="outlook-week-view">
-      <div className="outlook-week-grid" style={columnCount ? { gridTemplateColumns: `repeat(${columnCount}, 1fr)` } : undefined}>
+      <div
+        className="outlook-week-grid"
+        style={columnCount ? { gridTemplateColumns: `repeat(${columnCount}, 1fr)` } : undefined}
+      >
         {dayColumns.map((col) => (
           <div key={col.dateStr} className={`outlook-day-column${col.isToday ? ' outlook-today' : ''}`}>
             <button
@@ -164,25 +188,64 @@ export default function DispatchWeekView({
               title="Open day view"
             >
               <div className="outlook-day-name">{formatDayShort(col.date)}</div>
-              <div className="outlook-day-date">{formatMd(col.date)}</div>
+              <div className="outlook-day-date">
+                {formatMd(col.date)}
+                {col.totalJobs > 0 && (
+                  <span className="outlook-day-count">{col.totalJobs}</span>
+                )}
+              </div>
             </button>
             <div className="outlook-day-body">
-              {col.jobs.length === 0 ? (
+              {col.crewGroups.length === 0 ? (
                 <div className="outlook-day-empty">No jobs scheduled</div>
               ) : (
-                col.jobs.map((job, idx) => (
-                  <div key={job.id || idx} className={`outlook-job-card${cardAccentClass(job.jobType)}`}>
-                    {job.preScheduledTime && (
-                      <div className="outlook-job-time">{formatTime12(job.preScheduledTime)}</div>
-                    )}
-                    <div className="outlook-job-header">
-                      <span className="outlook-job-number">{job.jobNumber || '\u2014'}</span>
-                      <span className={`outlook-job-type ${typeBadgeClass(job.jobType)}`}>
-                        {job.jobType || '\u2014'}
+                col.crewGroups.map((crew) => (
+                  <div key={crew.name} className="outlook-crew-group">
+                    <div className="outlook-crew-header">
+                      <span className="outlook-crew-name">{crew.name}</span>
+                      <span className="outlook-crew-summary">
+                        {crew.jobs.length}j &middot; {crew.totalHours.toFixed(1)}h
                       </span>
                     </div>
-                    <div className="outlook-job-customer">{job.customer || '\u2014'}</div>
-                    <div className="outlook-job-assignee">{job.assignedTo}</div>
+                    {crew.jobs.map((job, idx) => (
+                      isCompact ? (
+                        /* ── Compact card (7-day week view) ── */
+                        <div
+                          key={job.id || idx}
+                          className={`outlook-job-card outlook-job-compact${cardAccentClass(job.jobType)}`}
+                          title={[
+                            job.jobNumber,
+                            job.jobType,
+                            job.customer,
+                            job.preScheduledTime ? formatTime12(job.preScheduledTime) : '',
+                            job.address,
+                          ].filter(Boolean).join(' \u2014 ')}
+                        >
+                          <span className="outlook-compact-time">
+                            {job.preScheduledTime ? formatTime12(job.preScheduledTime) : ''}
+                          </span>
+                          <span className="outlook-compact-job">{job.jobNumber || '\u2014'}</span>
+                          <span className="outlook-compact-cust">{job.customer || ''}</span>
+                        </div>
+                      ) : (
+                        /* ── Rich card (3-day view) ── */
+                        <div key={job.id || idx} className={`outlook-job-card${cardAccentClass(job.jobType)}`}>
+                          <div className="outlook-job-row-top">
+                            {job.preScheduledTime && (
+                              <span className="outlook-job-time">{formatTime12(job.preScheduledTime)}</span>
+                            )}
+                            <span className="outlook-job-number">{job.jobNumber || '\u2014'}</span>
+                            <span className={`outlook-job-type ${typeBadgeClass(job.jobType)}`}>
+                              {job.jobType || '\u2014'}
+                            </span>
+                          </div>
+                          <div className="outlook-job-row-bottom">
+                            <span className="outlook-job-customer">{job.customer || '\u2014'}</span>
+                            <span className="outlook-job-hours">{Number(job.hours || 0).toFixed(1)}h</span>
+                          </div>
+                        </div>
+                      )
+                    ))}
                   </div>
                 ))
               )}

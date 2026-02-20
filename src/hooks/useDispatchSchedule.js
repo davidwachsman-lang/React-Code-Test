@@ -246,6 +246,9 @@ export default function useDispatchSchedule(userId = null) {
   // Track which job_schedule IDs have already been merged for the current date
   const mergedScheduleIdsRef = useRef(new Set());
 
+  // Snapshot version counter — incremented after auto-save so week/3day/month views reload
+  const [snapshotVersion, setSnapshotVersion] = useState(0);
+
   const dateKey = useMemo(() => dateToKey(date), [date]);
 
   // ─── Load teams from DB on mount ──────────────────────────────────────────
@@ -428,6 +431,13 @@ export default function useDispatchSchedule(userId = null) {
           const parsedJobNumber = jobData?.job_number || notesParts[1] || '';
           const parsedCustomer = customerName || notesParts[2] || '';
 
+          // Parse scheduled_time into fixedStartHour so the time grid pins to the correct slot
+          let fixedStartHour = null;
+          if (ps.scheduled_time) {
+            const [h, m] = ps.scheduled_time.split(':').map(Number);
+            if (!isNaN(h)) fixedStartHour = h + (m || 0) / 60;
+          }
+
           return {
             laneId: matchedLane?.id || 'unassigned',
             job: {
@@ -442,6 +452,7 @@ export default function useDispatchSchedule(userId = null) {
               preScheduledId: ps.id,
               preScheduledTime: ps.scheduled_time,
               preScheduledNotes: ps.notes,
+              ...(fixedStartHour != null ? { fixedStartHour } : {}),
             },
           };
         });
@@ -474,8 +485,10 @@ export default function useDispatchSchedule(userId = null) {
       const payload = { schedule, lanes, driveTimeByCrew, pmGroups };
       // Save to localStorage as cache
       try { localStorage.setItem(dateKey, JSON.stringify(payload)); } catch (_) {}
-      // Save to Supabase
-      dispatchScheduleService.save(date, payload, userId).catch((err) => {
+      // Save to Supabase, then bump snapshot version so views reload
+      dispatchScheduleService.save(date, payload, userId).then(() => {
+        setSnapshotVersion((v) => v + 1);
+      }).catch((err) => {
         console.warn('Auto-save to Supabase failed:', err.message);
       });
     }, 1500);
@@ -786,7 +799,7 @@ export default function useDispatchSchedule(userId = null) {
     loadWeek();
 
     return () => { cancelled = true; };
-  }, [rangeMode, weekDates]);
+  }, [rangeMode, weekDates, snapshotVersion]);
 
   // ─── 3-Day snapshots (from Supabase or localStorage) ──────────────────────
   const [threeDaySnapshots, setThreeDaySnapshots] = useState([]);
@@ -837,7 +850,7 @@ export default function useDispatchSchedule(userId = null) {
     loadThreeDay();
 
     return () => { cancelled = true; };
-  }, [rangeMode, threeDayDates]);
+  }, [rangeMode, threeDayDates, snapshotVersion]);
 
   // ─── Month snapshots (from Supabase or localStorage) ──────────────────────
   const [monthSnapshots, setMonthSnapshots] = useState([]);
@@ -889,7 +902,7 @@ export default function useDispatchSchedule(userId = null) {
     loadMonth();
 
     return () => { cancelled = true; };
-  }, [rangeMode, monthDates]);
+  }, [rangeMode, monthDates, snapshotVersion]);
 
   return {
     // State

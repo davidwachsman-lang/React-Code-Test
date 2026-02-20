@@ -40,6 +40,19 @@ const CHECK_GROUPS = [
   { label: 'Notes',        count: 2 },  // Day 1 Note, Insp Questions
 ];
 
+// Precompute group index and position for each check column
+const CHECK_COL_GROUP = (() => {
+  const arr = [];
+  let idx = 0;
+  CHECK_GROUPS.forEach((g, gi) => {
+    for (let c = 0; c < g.count; c++) {
+      arr.push({ group: gi, isFirst: c === 0, isLast: c === g.count - 1 });
+      idx++;
+    }
+  });
+  return arr;
+})();
+
 const INFO_COLUMNS = [
   { label: 'Customer', aliases: ['customer', 'client', 'customername', 'customerjobname'] },
   { label: 'PM', aliases: ['pm', 'projectmanager'] },
@@ -322,11 +335,11 @@ function JobFileChecks() {
 
   const exportPunchlistPdf = () => {
     if (!rows) return;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
     const margin = 36;
-    const lineH = 13;
+    const lineH = 14;
     let y = 0;
 
     const ensureSpace = (needed) => {
@@ -339,87 +352,127 @@ function JobFileChecks() {
     // Title
     y = margin + 4;
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
+    doc.setFontSize(14);
     doc.text('Job File Check Punchlist', margin, y);
-    y += 16;
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(100);
-    doc.text(`Generated: ${new Date().toLocaleString('en-US')}`, margin, y);
+    doc.setFontSize(8);
+    doc.setTextColor(120);
+    doc.text(new Date().toLocaleString('en-US'), pageW - margin, y, { align: 'right' });
     doc.setTextColor(0);
     y += 20;
+
+    // Summary stats
+    const totalJobs = rows.length;
+    const passedJobs = rows.filter((r) => r.checks.every(Boolean)).length;
+    const failedJobs = totalJobs - passedJobs;
+    doc.setFontSize(9);
+    doc.setTextColor(80);
+    doc.text(`${totalJobs} jobs total  |  ${passedJobs} fully compliant  |  ${failedJobs} with missing items`, margin, y);
+    doc.setTextColor(0);
+    y += 16;
 
     // Group rows: PM → Crew Chief → jobs with missing checks
     const pmMap = {};
     rows.forEach((row) => {
-      const missingItems = FILE_CHECK_HEADERS
-        .map((h, i) => (!row.checks[i] ? h.fullName : null))
+      const missingLabels = FILE_CHECK_HEADERS
+        .map((h, i) => (!row.checks[i] ? h.label : null))
         .filter(Boolean);
-      if (missingItems.length === 0) return; // skip jobs with no missing items
+      if (missingLabels.length === 0) return;
 
       const pm = row.info[PM_INDEX] || 'Unassigned PM';
       const crew = row.info[CREW_INDEX] || 'Unassigned Crew Chief';
       if (!pmMap[pm]) pmMap[pm] = {};
       if (!pmMap[pm][crew]) pmMap[pm][crew] = [];
-      pmMap[pm][crew].push({ jobNumber: row.jobNumber, customer: row.info[0], missing: missingItems });
+      const passed = FILE_CHECK_HEADERS.length - missingLabels.length;
+      pmMap[pm][crew].push({ jobNumber: row.jobNumber, customer: row.info[0], missingLabels, passed });
     });
 
     const pmNames = Object.keys(pmMap).sort((a, b) => a.localeCompare(b));
 
     if (pmNames.length === 0) {
       doc.setFontSize(11);
-      doc.text('No missing items found — all checks are passing.', margin, y);
+      doc.text('All checks passing — nothing to punch.', margin, y);
       doc.save('Job_File_Check_Punchlist.pdf');
       return;
     }
+
+    const jobColX = margin + 16;
+    const custColX = margin + 110;
+    const scoreColX = margin + 250;
+    const missingColX = margin + 290;
+    const missingMaxW = pageW - margin - missingColX;
 
     pmNames.forEach((pm) => {
       // PM header
       ensureSpace(lineH * 3);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(30, 64, 175); // blue
+      doc.setFontSize(11);
+      doc.setTextColor(30, 64, 175);
       doc.text(pm, margin, y);
-      y += 4;
+      y += 3;
       doc.setDrawColor(30, 64, 175);
       doc.setLineWidth(0.75);
       doc.line(margin, y, pageW - margin, y);
-      y += lineH + 2;
+      y += lineH;
       doc.setTextColor(0);
 
       const crewNames = Object.keys(pmMap[pm]).sort((a, b) => a.localeCompare(b));
       crewNames.forEach((crew) => {
-        // Crew Chief header
+        // Crew Chief sub-header
         ensureSpace(lineH * 2);
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(11);
+        doc.setFontSize(9);
         doc.setTextColor(80);
-        doc.text(crew, margin + 12, y);
-        y += lineH + 2;
+        doc.text(crew, margin + 8, y);
+        y += lineH;
         doc.setTextColor(0);
 
         const jobs = pmMap[pm][crew];
         jobs.forEach((job) => {
-          // Job line
-          ensureSpace(lineH * 2 + job.missing.length * lineH);
+          // One line per job: Job # | Customer | Score | Missing items
+          const missingStr = job.missingLabels.join(', ');
+          // Wrap missing text if needed
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          const missingLines = doc.splitTextToSize(missingStr, missingMaxW);
+          const rowH = Math.max(lineH, missingLines.length * 10 + 2);
+
+          ensureSpace(rowH + 2);
+
+          // Job number
           doc.setFont('helvetica', 'bold');
-          doc.setFontSize(10);
-          const jobLabel = `${job.jobNumber}${job.customer ? '  —  ' + job.customer : ''}`;
-          doc.text(jobLabel, margin + 24, y);
-          y += lineH;
+          doc.setFontSize(8.5);
+          doc.setTextColor(0);
+          doc.text(job.jobNumber, jobColX, y);
+
+          // Customer (truncated)
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(60);
+          const custText = job.customer ? job.customer.substring(0, 22) : '';
+          doc.text(custText, custColX, y);
+
+          // Score
+          const score = `${job.passed}/${FILE_CHECK_HEADERS.length}`;
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(8);
+          doc.setTextColor(job.passed >= 13 ? 34 : 200, job.passed >= 13 ? 150 : 30, job.passed >= 13 ? 60 : 30);
+          doc.text(score, scoreColX, y);
 
           // Missing items
           doc.setFont('helvetica', 'normal');
-          doc.setFontSize(9);
-          doc.setTextColor(200, 30, 30); // red
-          job.missing.forEach((item) => {
-            ensureSpace(lineH);
-            doc.text('\u2717  ' + item, margin + 36, y);
-            y += lineH;
-          });
+          doc.setFontSize(7.5);
+          doc.setTextColor(180, 30, 30);
+          doc.text(missingLines, missingColX, y);
           doc.setTextColor(0);
-          y += 4;
+
+          y += rowH;
         });
+
+        // Light separator after crew group
+        doc.setDrawColor(200);
+        doc.setLineWidth(0.25);
+        doc.line(margin + 8, y - 2, pageW - margin, y - 2);
         y += 4;
       });
       y += 6;
@@ -612,31 +665,37 @@ function JobFileChecks() {
                       {col.label}{sortIndicator(`info-${i}`)}
                     </th>
                   ))}
-                  {FILE_CHECK_HEADERS.map((h, i) => (
-                    <th key={i} className="jfc-th-check jfc-th-sortable" title={h.fullName} onClick={() => handleSort(`check-${i}`)}>
-                      <span className="jfc-th-check-label">{h.label}</span>
-                      <span className="jfc-th-sort-icon">{sortIndicator(`check-${i}`)}</span>
-                    </th>
-                  ))}
+                  {FILE_CHECK_HEADERS.map((h, i) => {
+                    const cg = CHECK_COL_GROUP[i];
+                    return (
+                      <th key={i} className={`jfc-th-check jfc-th-sortable jfc-col-group-${cg.group}${cg.isFirst ? ' jfc-col-group-first' : ''}${cg.isLast ? ' jfc-col-group-last' : ''}`} title={h.fullName} onClick={() => handleSort(`check-${i}`)}>
+                        <span className="jfc-th-check-label">{h.label}</span>
+                        <span className="jfc-th-sort-icon">{sortIndicator(`check-${i}`)}</span>
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>
                 {displayRows.map((row, ri) => (
-                  <tr key={ri} className="jfc-row">
+                  <tr key={ri} className={`jfc-row${row.checks.every(Boolean) ? ' jfc-row-all-passed' : ''}`}>
                     <td className="jfc-td-job" title={row.jobNumber}>{row.jobNumber}</td>
                     {row.info.map((val, ii) => (
                       <td key={`info-${ii}`} className="jfc-td-info" title={val}>{val || '\u2014'}</td>
                     ))}
-                    {row.checks.map((ok, ci) => (
-                      <td
-                        key={ci}
-                        className={`jfc-td-check jfc-td-toggle ${ok ? 'present' : 'missing'}`}
-                        title={`${FILE_CHECK_HEADERS[ci].fullName}: ${ok ? 'Present' : 'Missing'} (click to toggle)`}
-                        onClick={() => toggleCheck(row._i, ci)}
-                      >
-                        {ok ? '\u2713' : '\u00d7'}
-                      </td>
-                    ))}
+                    {row.checks.map((ok, ci) => {
+                      const cg = CHECK_COL_GROUP[ci];
+                      return (
+                        <td
+                          key={ci}
+                          className={`jfc-td-check jfc-td-toggle ${ok ? 'present' : 'missing'} jfc-col-group-${cg.group}${cg.isFirst ? ' jfc-col-group-first' : ''}${cg.isLast ? ' jfc-col-group-last' : ''}`}
+                          title={`${FILE_CHECK_HEADERS[ci].fullName}: ${ok ? 'Present' : 'Missing'} (click to toggle)`}
+                          onClick={() => toggleCheck(row._i, ci)}
+                        >
+                          {ok ? '\u2713' : '\u00d7'}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
               </tbody>

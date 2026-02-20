@@ -452,3 +452,31 @@
 .jfc-td-check.missing {
   color: #ef4444;
 }
+
+.jfc-row-all-passed .jfc-td-job,
+.jfc-row-all-passed .jfc-td-info {
+  color: #22c55e;
+}
+
+/* ─── Check column group borders & tints ─────────────────────────────────── */
+.jfc-col-group-first {
+  border-left: 2px solid rgba(148, 163, 184, 0.25) !important;
+}
+
+.jfc-col-group-last {
+  border-right: 2px solid rgba(148, 163, 184, 0.25) !important;
+}
+
+/* Subtle background tints per group */
+.jfc-col-group-0 { background: rgba(96, 165, 250, 0.04); }   /* Setup - blue */
+.jfc-col-group-1 { background: rgba(167, 139, 250, 0.04); }   /* Agreements - purple */
+.jfc-col-group-2 { background: rgba(244, 114, 182, 0.04); }   /* Photos - pink */
+.jfc-col-group-3 { background: rgba(52, 211, 153, 0.04); }    /* Field Work - green */
+.jfc-col-group-4 { background: rgba(251, 191, 36, 0.04); }    /* Notes - yellow */
+
+/* Header check cells – opaque so scrolling content doesn't bleed through */
+thead .jfc-col-group-0 { background: #0f1a2e !important; }
+thead .jfc-col-group-1 { background: #111028 !important; }
+thead .jfc-col-group-2 { background: #14101d !important; }
+thead .jfc-col-group-3 { background: #0d1720 !important; }
+thead .jfc-col-group-4 { background: #141210 !important; }

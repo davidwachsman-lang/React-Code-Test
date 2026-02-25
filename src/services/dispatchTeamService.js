@@ -168,6 +168,27 @@ const dispatchTeamService = {
   },
 
   /**
+   * Load email addresses for all active crew members.
+   * Returns a Map of crew_name → email.
+   */
+  async loadTeamEmails() {
+    try {
+      const { data, error } = await supabase
+        .from(TABLE)
+        .select('crew_name, email')
+        .eq('active', true);
+      if (error) throw error;
+      const map = new Map();
+      (data || []).forEach((r) => {
+        if (r.email) map.set(r.crew_name, r.email);
+      });
+      return map;
+    } catch (_) {
+      return new Map();
+    }
+  },
+
+  /**
    * Remove a crew member (deactivate)
    */
   async removeCrew(crewName) {

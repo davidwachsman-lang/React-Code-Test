@@ -133,6 +133,40 @@ const scheduleService = {
   },
 
   /**
+   * Update the status of a scheduled job
+   */
+  async updateStatus(scheduleId, status) {
+    const { data, error } = await supabase
+      .from('job_schedules')
+      .update({ status })
+      .eq('id', scheduleId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Get all scheduled jobs for a given date (for dispatcher status panel)
+   */
+  async getByDate(dateStr) {
+    const { data, error } = await supabase
+      .from('job_schedules')
+      .select(`
+        *,
+        jobs(id, job_number, customers(name), properties(address1, city, state))
+      `)
+      .eq('scheduled_date', dateStr)
+      .in('status', ['scheduled', 'confirmed', 'in_progress', 'completed'])
+      .order('technician_name', { ascending: true })
+      .order('scheduled_time', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  /**
    * Cancel a scheduled item
    */
   async cancelSchedule(scheduleId) {

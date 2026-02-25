@@ -127,7 +127,7 @@ const dispatchScheduleService = {
       if (error) console.error('Failed to write job_schedules:', error);
     }
 
-    return { finalized: true, jobScheduleCount: jobScheduleRows.length };
+    return { finalized: true, jobScheduleCount: jobScheduleRows.length, jobScheduleRows };
   },
 
   /**

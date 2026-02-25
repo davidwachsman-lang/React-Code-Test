@@ -93,6 +93,31 @@ function ScheduleView() {
     return statusMap[status] || 'status-scheduled';
   };
 
+  const STATUS_FLOW = ['scheduled', 'confirmed', 'in_progress', 'completed'];
+  const NEXT_ACTION = {
+    scheduled: 'Confirm',
+    confirmed: 'En Route',
+    in_progress: 'Complete',
+  };
+
+  const handleStatusAdvance = async (scheduleItem) => {
+    const idx = STATUS_FLOW.indexOf(scheduleItem.status);
+    if (idx < 0 || idx >= STATUS_FLOW.length - 1) return;
+    const nextStatus = STATUS_FLOW[idx + 1];
+    try {
+      await scheduleService.updateStatus(scheduleItem.id, nextStatus);
+      // Refresh
+      setTodaySchedule((prev) =>
+        prev.map((s) => (s.id === scheduleItem.id ? { ...s, status: nextStatus } : s))
+      );
+      setUpcomingSchedule((prev) =>
+        prev.map((s) => (s.id === scheduleItem.id ? { ...s, status: nextStatus } : s))
+      );
+    } catch (err) {
+      console.error('Failed to update status:', err);
+    }
+  };
+
   const renderScheduleCard = (schedule) => (
     <div key={schedule.id} className="schedule-card">
       <div className="schedule-card-header">
@@ -119,6 +144,17 @@ function ScheduleView() {
           </div>
         )}
       </div>
+
+      {NEXT_ACTION[schedule.status] && (
+        <div className="schedule-card-actions">
+          <button
+            className={`schedule-advance-btn status-advance-${schedule.status}`}
+            onClick={() => handleStatusAdvance(schedule)}
+          >
+            {NEXT_ACTION[schedule.status]}
+          </button>
+        </div>
+      )}
     </div>
   );
 

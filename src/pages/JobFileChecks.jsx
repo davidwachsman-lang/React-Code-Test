@@ -336,146 +336,272 @@ function JobFileChecks() {
   const exportPunchlistPdf = () => {
     if (!rows) return;
     const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
-    const pageW = doc.internal.pageSize.getWidth();
-    const pageH = doc.internal.pageSize.getHeight();
+    const pageW = doc.internal.pageSize.getWidth();   // 792
+    const pageH = doc.internal.pageSize.getHeight();   // 612
     const margin = 36;
-    const lineH = 14;
-    let y = 0;
 
-    const ensureSpace = (needed) => {
-      if (y + needed > pageH - margin) {
-        doc.addPage();
-        y = margin + 10;
+    // Column widths — total usable: 792 - 72 = 720
+    const colJobW = 60;
+    const colCustW = 80;
+    const colCrewW = 65;
+    const colDaysW = 35;
+    const colCheckW = 30;
+    const infoW = colJobW + colCustW + colCrewW + colDaysW; // 240
+    const checksW = 16 * colCheckW; // 480
+    const tableW = infoW + checksW; // 720
+
+    // Group header colors (RGB)
+    const groupColors = [
+      [37, 99, 235],    // Setup — blue
+      [22, 163, 74],    // Agreements — green
+      [147, 51, 234],   // Photos — purple
+      [217, 119, 6],    // Field Work — amber
+      [13, 148, 136],   // Notes — teal
+    ];
+
+    const rowH = 14;
+    const headerGroupH = 14;
+    const headerLabelH = 72; // tall enough for vertical rotated labels
+    const totalHeaderH = headerGroupH + headerLabelH;
+
+    // Gather distinct PMs sorted alphabetically
+    const pmMap = {};
+    rows.forEach((row) => {
+      const pm = row.info[PM_INDEX] || 'Unassigned PM';
+      if (!pmMap[pm]) pmMap[pm] = [];
+      pmMap[pm].push(row);
+    });
+    const pmNames = Object.keys(pmMap).sort((a, b) => a.localeCompare(b));
+
+    // Helper: truncate text to fit width
+    const truncate = (text, maxW, fontSize) => {
+      doc.setFontSize(fontSize);
+      if (doc.getTextWidth(text) <= maxW - 4) return text;
+      while (text.length > 0 && doc.getTextWidth(text + '…') > maxW - 4) {
+        text = text.slice(0, -1);
+      }
+      return text + '…';
+    };
+
+    // Helper: draw table headers (group row + column labels row)
+    const drawHeaders = (x0, y0) => {
+      let x = x0;
+
+      // --- Group row ---
+      // Spacer over info columns
+      doc.setFillColor(240, 240, 240);
+      doc.rect(x, y0, infoW, headerGroupH, 'F');
+      x += infoW;
+
+      // Group header cells
+      let checkIdx = 0;
+      CHECK_GROUPS.forEach((g, gi) => {
+        const w = g.count * colCheckW;
+        const [r, gv, b] = groupColors[gi];
+        doc.setFillColor(r, gv, b);
+        doc.rect(x, y0, w, headerGroupH, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(255, 255, 255);
+        doc.text(g.label, x + w / 2, y0 + 10, { align: 'center' });
+        checkIdx += g.count;
+        x += w;
+      });
+
+      // --- Column labels row ---
+      const y1 = y0 + headerGroupH;
+      x = x0;
+
+      // Info column headers
+      doc.setFillColor(230, 230, 230);
+      doc.rect(x, y1, infoW, headerLabelH, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(30, 30, 30);
+
+      const infoLabels = ['Job #', 'Customer', 'Crew Chief', 'Days'];
+      const infoWidths = [colJobW, colCustW, colCrewW, colDaysW];
+      infoLabels.forEach((lbl, i) => {
+        doc.text(lbl, x + 3, y1 + headerLabelH - 5);
+        x += infoWidths[i];
+      });
+
+      // Check column headers — vertical rotated text
+      FILE_CHECK_HEADERS.forEach((h, i) => {
+        const cg = CHECK_COL_GROUP[i];
+        const [r, gv, b] = groupColors[cg.group];
+        // Lighter tinted background
+        doc.setFillColor(
+          Math.min(255, r + Math.round((255 - r) * 0.75)),
+          Math.min(255, gv + Math.round((255 - gv) * 0.75)),
+          Math.min(255, b + Math.round((255 - b) * 0.75))
+        );
+        doc.rect(x, y1, colCheckW, headerLabelH, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(6.5);
+        doc.setTextColor(30, 30, 30);
+        // Rotate 90° — text reads bottom-to-top
+        doc.text(h.label, x + colCheckW / 2 + 2, y1 + headerLabelH - 5, { angle: 90 });
+        x += colCheckW;
+      });
+
+      // Grid lines for header
+      doc.setDrawColor(180, 180, 180);
+      doc.setLineWidth(0.5);
+      // Outer border
+      doc.rect(x0, y0, tableW, totalHeaderH);
+      // Horizontal line between group row and labels row
+      doc.line(x0, y1, x0 + tableW, y1);
+      // Vertical lines for info columns
+      x = x0;
+      infoWidths.forEach((w) => { x += w; doc.line(x, y0, x, y1 + headerLabelH); });
+      // Vertical lines for check columns
+      for (let i = 0; i < 16; i++) {
+        const cx = x0 + infoW + i * colCheckW;
+        doc.line(cx, y0, cx, y1 + headerLabelH);
+      }
+
+      return y1 + headerLabelH;
+    };
+
+    // Helper: draw one data row
+    const drawDataRow = (row, x0, yTop, isEven) => {
+      const allPassed = row.checks.every(Boolean);
+
+      // Row background
+      if (allPassed) {
+        doc.setFillColor(220, 252, 231); // light green
+      } else if (isEven) {
+        doc.setFillColor(249, 250, 251); // light gray
+      } else {
+        doc.setFillColor(255, 255, 255);
+      }
+      doc.rect(x0, yTop, tableW, rowH, 'F');
+
+      let x = x0;
+      const textY = yTop + 10;
+
+      // Job #
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(0);
+      doc.text(truncate(row.jobNumber, colJobW, 7), x + 3, textY);
+      x += colJobW;
+
+      // Customer
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6.5);
+      doc.setTextColor(50, 50, 50);
+      doc.text(truncate(row.info[0] || '', colCustW, 6.5), x + 3, textY);
+      x += colCustW;
+
+      // Crew Chief
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6.5);
+      doc.text(truncate(row.info[CREW_INDEX] || '', colCrewW, 6.5), x + 3, textY);
+      x += colCrewW;
+
+      // Days Active
+      doc.setFontSize(7);
+      doc.setTextColor(0);
+      const days = row.info[3] || '';
+      doc.text(days, x + colDaysW / 2, textY, { align: 'center' });
+      x += colDaysW;
+
+      // Check cells — full cell background color
+      row.checks.forEach((ok) => {
+        if (ok) {
+          doc.setFillColor(187, 247, 208); // green-200
+          doc.rect(x, yTop, colCheckW, rowH, 'F');
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(8);
+          doc.setTextColor(21, 128, 61); // green-700
+          doc.text('\u2713', x + colCheckW / 2, textY + 1, { align: 'center' });
+        } else {
+          doc.setFillColor(254, 202, 202); // red-200
+          doc.rect(x, yTop, colCheckW, rowH, 'F');
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(8);
+          doc.setTextColor(185, 28, 28); // red-700
+          doc.text('\u2717', x + colCheckW / 2, textY + 1, { align: 'center' });
+        }
+        x += colCheckW;
+      });
+
+      // Grid lines for row
+      doc.setDrawColor(210, 210, 210);
+      doc.setLineWidth(0.25);
+      // Bottom border
+      doc.line(x0, yTop + rowH, x0 + tableW, yTop + rowH);
+      // Left/right outer borders
+      doc.line(x0, yTop, x0, yTop + rowH);
+      doc.line(x0 + tableW, yTop, x0 + tableW, yTop + rowH);
+      // Vertical separators
+      x = x0;
+      const infoWidths = [colJobW, colCustW, colCrewW, colDaysW];
+      infoWidths.forEach((w) => { x += w; doc.line(x, yTop, x, yTop + rowH); });
+      for (let i = 1; i < 16; i++) {
+        const cx = x0 + infoW + i * colCheckW;
+        doc.line(cx, yTop, cx, yTop + rowH);
       }
     };
 
-    // Title
-    y = margin + 4;
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.text('Job File Check Punchlist', margin, y);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(120);
-    doc.text(new Date().toLocaleString('en-US'), pageW - margin, y, { align: 'right' });
-    doc.setTextColor(0);
-    y += 20;
-
-    // Summary stats
-    const totalJobs = rows.length;
-    const passedJobs = rows.filter((r) => r.checks.every(Boolean)).length;
-    const failedJobs = totalJobs - passedJobs;
-    doc.setFontSize(9);
-    doc.setTextColor(80);
-    doc.text(`${totalJobs} jobs total  |  ${passedJobs} fully compliant  |  ${failedJobs} with missing items`, margin, y);
-    doc.setTextColor(0);
-    y += 16;
-
-    // Group rows: PM → Crew Chief → jobs with missing checks
-    const pmMap = {};
-    rows.forEach((row) => {
-      const missingLabels = FILE_CHECK_HEADERS
-        .map((h, i) => (!row.checks[i] ? h.label : null))
-        .filter(Boolean);
-      if (missingLabels.length === 0) return;
-
-      const pm = row.info[PM_INDEX] || 'Unassigned PM';
-      const crew = row.info[CREW_INDEX] || 'Unassigned Crew Chief';
-      if (!pmMap[pm]) pmMap[pm] = {};
-      if (!pmMap[pm][crew]) pmMap[pm][crew] = [];
-      const passed = FILE_CHECK_HEADERS.length - missingLabels.length;
-      pmMap[pm][crew].push({ jobNumber: row.jobNumber, customer: row.info[0], missingLabels, passed });
-    });
-
-    const pmNames = Object.keys(pmMap).sort((a, b) => a.localeCompare(b));
-
-    if (pmNames.length === 0) {
-      doc.setFontSize(11);
-      doc.text('All checks passing — nothing to punch.', margin, y);
-      doc.save('Job_File_Check_Punchlist.pdf');
-      return;
-    }
-
-    const jobColX = margin + 16;
-    const custColX = margin + 110;
-    const scoreColX = margin + 250;
-    const missingColX = margin + 290;
-    const missingMaxW = pageW - margin - missingColX;
+    // --- Render pages ---
+    let isFirstPage = true;
 
     pmNames.forEach((pm) => {
-      // PM header
-      ensureSpace(lineH * 3);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(11);
-      doc.setTextColor(30, 64, 175);
-      doc.text(pm, margin, y);
-      y += 3;
-      doc.setDrawColor(30, 64, 175);
-      doc.setLineWidth(0.75);
-      doc.line(margin, y, pageW - margin, y);
-      y += lineH;
-      doc.setTextColor(0);
+      if (!isFirstPage) doc.addPage();
+      isFirstPage = false;
 
-      const crewNames = Object.keys(pmMap[pm]).sort((a, b) => a.localeCompare(b));
-      crewNames.forEach((crew) => {
-        // Crew Chief sub-header
-        ensureSpace(lineH * 2);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(9);
-        doc.setTextColor(80);
-        doc.text(crew, margin + 8, y);
-        y += lineH;
-        doc.setTextColor(0);
-
-        const jobs = pmMap[pm][crew];
-        jobs.forEach((job) => {
-          // One line per job: Job # | Customer | Score | Missing items
-          const missingStr = job.missingLabels.join(', ');
-          // Wrap missing text if needed
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(8);
-          const missingLines = doc.splitTextToSize(missingStr, missingMaxW);
-          const rowH = Math.max(lineH, missingLines.length * 10 + 2);
-
-          ensureSpace(rowH + 2);
-
-          // Job number
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(8.5);
-          doc.setTextColor(0);
-          doc.text(job.jobNumber, jobColX, y);
-
-          // Customer (truncated)
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(8);
-          doc.setTextColor(60);
-          const custText = job.customer ? job.customer.substring(0, 22) : '';
-          doc.text(custText, custColX, y);
-
-          // Score
-          const score = `${job.passed}/${FILE_CHECK_HEADERS.length}`;
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(8);
-          doc.setTextColor(job.passed >= 13 ? 34 : 200, job.passed >= 13 ? 150 : 30, job.passed >= 13 ? 60 : 30);
-          doc.text(score, scoreColX, y);
-
-          // Missing items
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(7.5);
-          doc.setTextColor(180, 30, 30);
-          doc.text(missingLines, missingColX, y);
-          doc.setTextColor(0);
-
-          y += rowH;
-        });
-
-        // Light separator after crew group
-        doc.setDrawColor(200);
-        doc.setLineWidth(0.25);
-        doc.line(margin + 8, y - 2, pageW - margin, y - 2);
-        y += 4;
+      const pmRows = pmMap[pm].slice().sort((a, b) => {
+        const crewCmp = (a.info[CREW_INDEX] || '').localeCompare(b.info[CREW_INDEX] || '', undefined, { sensitivity: 'base' });
+        if (crewCmp !== 0) return crewCmp;
+        return a.jobNumber.localeCompare(b.jobNumber, undefined, { sensitivity: 'base' });
       });
-      y += 6;
+
+      const pmTotal = pmRows.length;
+      const pmCompliant = pmRows.filter((r) => r.checks.every(Boolean)).length;
+      const pmMissing = pmTotal - pmCompliant;
+
+      let y = margin;
+      let rowIdx = 0;
+
+      const renderPageHeader = () => {
+        // Title
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(0);
+        doc.text(`${pm} \u2014 Job File Check Punchlist`, margin, y + 12);
+
+        // Timestamp
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(120);
+        doc.text(new Date().toLocaleString('en-US'), pageW - margin, y + 12, { align: 'right' });
+
+        // Summary
+        doc.setFontSize(8);
+        doc.setTextColor(80);
+        doc.text(`${pmTotal} jobs  |  ${pmCompliant} fully compliant  |  ${pmMissing} with missing items`, margin, y + 24);
+
+        y += 34;
+
+        // Draw table headers
+        y = drawHeaders(margin, y);
+      };
+
+      renderPageHeader();
+
+      pmRows.forEach((row, ri) => {
+        // Check if row fits on current page
+        if (y + rowH > pageH - margin) {
+          doc.addPage();
+          y = margin;
+          renderPageHeader();
+        }
+        drawDataRow(row, margin, y, ri % 2 === 0);
+        y += rowH;
+      });
     });
 
     doc.save('Job_File_Check_Punchlist.pdf');

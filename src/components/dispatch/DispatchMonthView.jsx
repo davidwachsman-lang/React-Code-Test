@@ -18,6 +18,7 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 export default function DispatchMonthView({
   monthSnapshots, monthDates, currentDate,
   setDate, setRangeMode, setViewMode,
+  crewFilter, setCrewFilter,
 }) {
   const currentMonth = currentDate.getMonth();
 
@@ -71,12 +72,24 @@ export default function DispatchMonthView({
       const isToday = dNorm.getTime() === today.getTime();
       const isCurrentMonth = d.getMonth() === currentMonth;
 
-      // Collect jobs
+      // Build crew name → lane type lookup
+      const crewLaneType = {};
+      if (snap?.jobsByCrewName) {
+        Object.entries(snap.jobsByCrewName).forEach(([crewName, data]) => {
+          crewLaneType[crewName] = data.laneType || 'crew';
+        });
+      }
+
+      // Collect jobs with filter applied
       const allJobs = [];
       const seenJobNumbers = new Set();
 
       if (snap?.jobsByCrewName) {
         Object.entries(snap.jobsByCrewName).forEach(([crewName, data]) => {
+          const lt = data.laneType || 'crew';
+          if (crewFilter === 'pm' && lt !== 'pm') return;
+          if (crewFilter === 'crew' && lt === 'pm') return;
+
           (data.jobs || []).forEach((job) => {
             allJobs.push({ ...job, assignedTo: crewName });
             if (job.jobNumber) seenJobNumbers.add(job.jobNumber.trim().toLowerCase());
@@ -84,7 +97,7 @@ export default function DispatchMonthView({
         });
       }
 
-      if (snap?.unassignedJobs) {
+      if (crewFilter === 'all' && snap?.unassignedJobs) {
         snap.unassignedJobs.forEach((job) => {
           allJobs.push({ ...job, assignedTo: 'Unassigned' });
           if (job.jobNumber) seenJobNumbers.add(job.jobNumber.trim().toLowerCase());
@@ -96,6 +109,11 @@ export default function DispatchMonthView({
         preScheduledByDate[dateStr].forEach((ps) => {
           const jn = (ps.jobs?.job_number || '').trim().toLowerCase();
           if (jn && seenJobNumbers.has(jn)) return;
+
+          const techName = (ps.technician_name || '').trim();
+          const lt = crewLaneType[techName] || 'crew';
+          if (crewFilter === 'pm' && lt !== 'pm') return;
+          if (crewFilter === 'crew' && lt === 'pm') return;
 
           const jobData = ps.jobs;
           const customer = jobData?.customers?.name || '';
@@ -127,7 +145,7 @@ export default function DispatchMonthView({
 
       return { date: d, dateStr, isToday, isCurrentMonth, jobs: allJobs };
     });
-  }, [monthDates, monthSnapshots, preScheduledByDate, currentMonth]);
+  }, [monthDates, monthSnapshots, preScheduledByDate, currentMonth, crewFilter]);
 
   // Split cells into weeks (rows of 7)
   const weeks = useMemo(() => {
@@ -157,6 +175,16 @@ export default function DispatchMonthView({
 
   return (
     <div className="outlook-month-view">
+      {/* Filter toggle */}
+      <div className="outlook-filter-bar">
+        <span className="outlook-filter-label">View:</span>
+        <div className="dispatch-crew-filter-toggle">
+          <button className={crewFilter === 'all' ? 'active' : ''} onClick={() => setCrewFilter('all')}>All</button>
+          <button className={crewFilter === 'pm' ? 'active' : ''} onClick={() => setCrewFilter('pm')}>PMs Only</button>
+          <button className={crewFilter === 'crew' ? 'active' : ''} onClick={() => setCrewFilter('crew')}>Crew Chiefs Only</button>
+        </div>
+      </div>
+
       {/* Day name headers */}
       <div className="outlook-month-header">
         {DAY_NAMES.map((name) => (

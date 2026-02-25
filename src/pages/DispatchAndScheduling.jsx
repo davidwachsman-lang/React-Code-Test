@@ -16,6 +16,8 @@ import DispatchScheduleModal from '../components/dispatch/DispatchScheduleModal'
 import DispatchMapView from '../components/dispatch/DispatchMapView';
 import DispatchWeekView from '../components/dispatch/DispatchWeekView';
 import DispatchMonthView from '../components/dispatch/DispatchMonthView';
+import BulkCrewSwapModal from '../components/dispatch/BulkCrewSwapModal';
+import TeamManagementModal from '../components/dispatch/TeamManagementModal';
 import './Page.css';
 import './DispatchAndScheduling.css';
 
@@ -35,9 +37,9 @@ function DispatchAndScheduling() {
     monthDates, monthLabel, monthSnapshots,
     scheduleRef, lanesRef,
     goPrev, goNext, goToday,
-    updateJob, addJob, removeJob, moveJobToUnassigned, copyJobToLane,
+    updateJob, addJob, removeJob, moveJobToUnassigned, copyJobToLane, bulkCrewSwap, copyFromDate, moveJobBetweenDays,
     totalHours, finalizeSchedule, pushUndo,
-    saving, saveError, finalized, conflicts,
+    saving, saveError, finalized, notifyResult, conflicts,
     undo, redo, canUndo, canRedo,
     formatDate, formatDayShort, formatMd,
   } = sched;
@@ -65,12 +67,27 @@ function DispatchAndScheduling() {
   const [viewMode, setViewMode] = useState('table');
   const [crewFilter, setCrewFilter] = useState('all'); // 'all' | 'pm' | 'crew'
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showSwapModal, setShowSwapModal] = useState(false);
+  const [showTeamModal, setShowTeamModal] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [emailSuccess, setEmailSuccess] = useState('');
 
   useEffect(() => {
     if (rangeMode !== 'day' && viewMode === 'map') setViewMode('table');
   }, [rangeMode, viewMode]);
+
+  // ─── Arrow key navigation ──────────────────────────────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Skip if user is typing in an input, select, or textarea
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable) return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goPrev(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); goNext(); }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [goPrev, goNext]);
 
   // ─── Filtered columns based on crew filter toggle ──────────────────────────
   const filteredColumns = useMemo(() => {
@@ -502,6 +519,8 @@ function DispatchAndScheduling() {
         finalized={finalized} onFinalize={finalizeSchedule} saving={saving}
         canUndo={canUndo} canRedo={canRedo} onUndo={undo} onRedo={redo}
         conflicts={conflicts}
+        onCopyFromDate={copyFromDate}
+        onManageTeams={() => setShowTeamModal(true)}
       />
 
       {showExcelUpload && (
@@ -513,6 +532,8 @@ function DispatchAndScheduling() {
           weekSnapshots={weekSnapshots} weekDates={weekDates}
           setDate={setDate} setRangeMode={setRangeMode} setViewMode={setViewMode}
           formatDayShort={formatDayShort} formatMd={formatMd}
+          crewFilter={crewFilter} setCrewFilter={setCrewFilter}
+          moveJobBetweenDays={moveJobBetweenDays}
         />
       )}
 
@@ -522,6 +543,8 @@ function DispatchAndScheduling() {
           setDate={setDate} setRangeMode={setRangeMode} setViewMode={setViewMode}
           formatDayShort={formatDayShort} formatMd={formatMd}
           columnCount={3}
+          crewFilter={crewFilter} setCrewFilter={setCrewFilter}
+          moveJobBetweenDays={moveJobBetweenDays}
         />
       )}
 
@@ -530,6 +553,7 @@ function DispatchAndScheduling() {
           monthSnapshots={monthSnapshots} monthDates={monthDates}
           currentDate={date}
           setDate={setDate} setRangeMode={setRangeMode} setViewMode={setViewMode}
+          crewFilter={crewFilter} setCrewFilter={setCrewFilter}
         />
       )}
 
@@ -551,6 +575,7 @@ function DispatchAndScheduling() {
               <button className={crewFilter === 'crew' ? 'active' : ''} onClick={() => setCrewFilter('crew')}>Crew Chiefs Only</button>
             </div>
             <button className="dispatch-schedule-direct-btn" onClick={() => setShowScheduleModal(true)}>+ Schedule Estimate / Site Visit</button>
+            <button className="dispatch-crew-swap-btn" onClick={() => setShowSwapModal(true)}>Crew Swap</button>
             <button className="dispatch-schedule-pdf-btn" onClick={exportUpcomingPdf} disabled={exportingUpcoming}>
               {exportingUpcoming ? 'Generating...' : 'Upcoming PDF'}
             </button>
@@ -573,12 +598,40 @@ function DispatchAndScheduling() {
 
       {saveError && <div className="dispatch-save-error">{saveError}</div>}
 
+      {notifyResult && (
+        <div className="dispatch-notify-toast">
+          {notifyResult.sent > 0 && <span>Notified {notifyResult.sent} technician{notifyResult.sent !== 1 ? 's' : ''}</span>}
+          {notifyResult.noEmail > 0 && <span className="dispatch-notify-warn">{notifyResult.noEmail} crew{notifyResult.noEmail !== 1 ? 's' : ''} have no email on file</span>}
+        </div>
+      )}
+
       {showScheduleModal && (
         <DispatchScheduleModal
           lanes={lanes}
           dispatchDate={date}
           onSchedule={handleScheduleDirect}
           onClose={() => setShowScheduleModal(false)}
+        />
+      )}
+
+      {showSwapModal && (
+        <BulkCrewSwapModal
+          lanes={lanes}
+          schedule={schedule}
+          driveTimeByCrew={driveTimeByCrew}
+          onApply={bulkCrewSwap}
+          onClose={() => setShowSwapModal(false)}
+        />
+      )}
+
+      {showTeamModal && (
+        <TeamManagementModal
+          pmGroups={pmGroups}
+          onSave={(result) => {
+            setLanes(result.lanes);
+            setPmGroups(result.pmGroups);
+          }}
+          onClose={() => setShowTeamModal(false)}
         />
       )}
     </div>

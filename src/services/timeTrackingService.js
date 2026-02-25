@@ -160,6 +160,104 @@ const timeTrackingService = {
       console.error('Error calculating total hours:', error);
       throw error;
     }
+  },
+
+  /**
+   * Get today's dispatched jobs for a crew chief from dispatch_schedules.
+   * Reads schedule_data JSON blob and computes scheduled start times.
+   * @param {string} crewChiefName - Name to match against lane names
+   * @returns {Array} Jobs in route order with scheduledTime, estimatedHours, driveTimeMinutes, routeOrder
+   */
+  async getTodayDispatchJobs(crewChiefName) {
+    try {
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      const { data, error } = await supabase
+        .from('dispatch_schedules')
+        .select('schedule_data')
+        .eq('schedule_date', dateStr)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data || !data.schedule_data) return [];
+
+      const { lanes, schedule, driveTimeByCrew } = data.schedule_data;
+      if (!lanes || !schedule) return [];
+
+      // Find matching lane (case-insensitive)
+      const lane = lanes.find(
+        (l) => l.name.toLowerCase() === crewChiefName.toLowerCase()
+      );
+      if (!lane) return [];
+
+      const jobs = schedule[lane.id] || [];
+      const legs = Array.isArray(driveTimeByCrew?.[lane.id]?.legs)
+        ? driveTimeByCrew[lane.id].legs
+        : [];
+
+      // Compute scheduled start times using same cursor logic as finalize()
+      const DAY_START = 8.5; // 8:30 AM
+      let cursor = DAY_START;
+      const result = [];
+
+      jobs.forEach((job, idx) => {
+        const hours = Number(job.hours) || 0;
+        const legSec = legs[idx] || 0;
+        const driveTimeMinutes = Math.round(legSec / 60);
+
+        // Add drive time to cursor
+        cursor += legSec / 3600;
+        const startHour = cursor;
+
+        // Build a Date object for the scheduled time
+        const h = Math.floor(startHour);
+        const m = Math.round((startHour - h) * 60);
+        const scheduledTime = new Date(today);
+        scheduledTime.setHours(h, m, 0, 0);
+
+        result.push({
+          ...job,
+          scheduledTime: scheduledTime.toISOString(),
+          estimatedHours: hours,
+          driveTimeMinutes,
+          routeOrder: idx + 1,
+        });
+
+        // Advance cursor past this job
+        cursor += hours;
+      });
+
+      return result;
+    } catch (error) {
+      console.error('Error fetching today dispatch jobs:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get all time entries for a technician from today (since midnight).
+   * @param {string} technicianName - Name of the technician
+   * @returns {Array} Today's time entries
+   */
+  async getTodayEntries(technicianName) {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const { data, error } = await supabase
+        .from('time_tracking')
+        .select('*')
+        .eq('technician_name', technicianName)
+        .gte('clock_in_time', today.toISOString())
+        .order('clock_in_time', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching today entries:', error);
+      throw error;
+    }
   }
 };
 

@@ -70,6 +70,21 @@
   line-height: 1.5;
 }
 
+.field-service-card-highlight {
+  border: 2px solid rgba(239, 68, 68, 0.6);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
+}
+
+.field-service-card-highlight:hover {
+  border-color: rgba(239, 68, 68, 0.8);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
+}
+
+.field-service-card-highlight .field-service-card-icon {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
 .field-service-detail {
   margin-top: 2rem;
 }

@@ -107,16 +107,11 @@ function FieldServices() {
 
   const sections = [
     {
-      id: 'schedule',
-      title: 'Schedule & Dispatch',
-      description: 'Assign technicians, schedule jobs, and manage routes',
-      icon: <CalendarIcon />
-    },
-    {
       id: 'time-tracking',
       title: 'Time Tracking',
       description: 'Clock in/out, track hours, and manage labor costs',
-      icon: <ClockIcon />
+      icon: <ClockIcon />,
+      highlight: true
     },
     {
       id: 'equipment',
@@ -152,7 +147,7 @@ function FieldServices() {
           {sections.map((section) => (
             <button
               key={section.id}
-              className="field-service-card"
+              className={`field-service-card${section.highlight ? ' field-service-card-highlight' : ''}`}
               onClick={() => setActiveSection(section.id)}
             >
               <div className="field-service-card-icon">
@@ -168,9 +163,7 @@ function FieldServices() {
 
         {activeSection && (
           <div className="field-service-detail">
-            {activeSection === 'schedule' ? (
-              <ScheduleView />
-            ) : activeSection === 'time-tracking' ? (
+            {activeSection === 'time-tracking' ? (
               <TimeTracking />
             ) : activeSection === 'pm-dashboard' ? (
               (() => {

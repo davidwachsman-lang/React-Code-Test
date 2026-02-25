@@ -37,8 +37,38 @@ export default function DispatchWeekView({
   weekSnapshots, weekDates, setDate, setRangeMode, setViewMode,
   formatDayShort, formatMd,
   columnCount,
+  crewFilter, setCrewFilter,
+  moveJobBetweenDays,
 }) {
   const isCompact = !columnCount || columnCount === 7;
+  const [dragOverDate, setDragOverDate] = useState(null);
+
+  const handleDragStart = (e, job, crewName, dateStr) => {
+    e.dataTransfer.setData('application/json', JSON.stringify({ job, crewName, sourceDate: dateStr }));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e, dateStr) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverDate !== dateStr) setDragOverDate(dateStr);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverDate(null);
+  };
+
+  const handleDrop = (e, targetDateStr) => {
+    e.preventDefault();
+    setDragOverDate(null);
+    try {
+      const payload = JSON.parse(e.dataTransfer.getData('application/json'));
+      if (!payload || payload.sourceDate === targetDateStr) return;
+      if (moveJobBetweenDays) {
+        moveJobBetweenDays(payload.sourceDate, targetDateStr, payload.job, payload.crewName);
+      }
+    } catch (_) {}
+  };
 
   // Load pre-scheduled items (estimates, site visits) from job_schedules
   const [preScheduledByDate, setPreScheduledByDate] = useState({});
@@ -89,22 +119,36 @@ export default function DispatchWeekView({
       dNorm.setHours(0, 0, 0, 0);
       const isToday = dNorm.getTime() === today.getTime();
 
+      // Build a lookup of crew name → lane type from the snapshot
+      const crewLaneType = {};
+      if (snap?.jobsByCrewName) {
+        Object.entries(snap.jobsByCrewName).forEach(([crewName, data]) => {
+          crewLaneType[crewName] = data.laneType || 'crew';
+        });
+      }
+
       // Collect all jobs with crew assignment
       const allJobs = [];
       const seenJobNumbers = new Set();
 
       if (snap?.jobsByCrewName) {
         Object.entries(snap.jobsByCrewName).forEach(([crewName, data]) => {
+          // Apply crew filter
+          const lt = data.laneType || 'crew';
+          if (crewFilter === 'pm' && lt !== 'pm') return;
+          if (crewFilter === 'crew' && lt === 'pm') return;
+
           (data.jobs || []).forEach((job) => {
-            allJobs.push({ ...job, assignedTo: crewName, _drive: data.drive });
+            allJobs.push({ ...job, assignedTo: crewName, _drive: data.drive, _laneType: lt });
             if (job.jobNumber) seenJobNumbers.add(job.jobNumber.trim().toLowerCase());
           });
         });
       }
 
-      if (snap?.unassignedJobs) {
+      // Only show unassigned when filter is 'all'
+      if (crewFilter === 'all' && snap?.unassignedJobs) {
         snap.unassignedJobs.forEach((job) => {
-          allJobs.push({ ...job, assignedTo: 'Unassigned' });
+          allJobs.push({ ...job, assignedTo: 'Unassigned', _laneType: 'unassigned' });
           if (job.jobNumber) seenJobNumbers.add(job.jobNumber.trim().toLowerCase());
         });
       }
@@ -114,6 +158,12 @@ export default function DispatchWeekView({
         preScheduledByDate[dateStr].forEach((ps) => {
           const jn = (ps.jobs?.job_number || '').trim().toLowerCase();
           if (jn && seenJobNumbers.has(jn)) return;
+
+          // Try to determine lane type for pre-scheduled item's technician
+          const techName = (ps.technician_name || '').trim();
+          const lt = crewLaneType[techName] || 'crew';
+          if (crewFilter === 'pm' && lt !== 'pm') return;
+          if (crewFilter === 'crew' && lt === 'pm') return;
 
           const jobData = ps.jobs;
           const customer = jobData?.customers?.name || '';
@@ -138,6 +188,7 @@ export default function DispatchWeekView({
             assignedTo: ps.technician_name || 'Unassigned',
             preScheduledTime: ps.scheduled_time,
             preScheduled: true,
+            _laneType: lt,
           });
         });
       }
@@ -146,7 +197,7 @@ export default function DispatchWeekView({
       const crewMap = {};
       allJobs.forEach((job) => {
         const crew = job.assignedTo || 'Unassigned';
-        if (!crewMap[crew]) crewMap[crew] = { jobs: [], totalHours: 0, drive: job._drive || null };
+        if (!crewMap[crew]) crewMap[crew] = { jobs: [], totalHours: 0, drive: job._drive || null, laneType: job._laneType || 'crew' };
         crewMap[crew].jobs.push(job);
         crewMap[crew].totalHours += Number(job.hours) || 0;
       });
@@ -171,16 +222,32 @@ export default function DispatchWeekView({
 
       return { date: d, dateStr, isToday, crewGroups, totalJobs: allJobs.length };
     });
-  }, [weekDates, weekSnapshots, preScheduledByDate]);
+  }, [weekDates, weekSnapshots, preScheduledByDate, crewFilter]);
 
   return (
     <div className="outlook-week-view">
+      {/* Filter toggle */}
+      <div className="outlook-filter-bar">
+        <span className="outlook-filter-label">View:</span>
+        <div className="dispatch-crew-filter-toggle">
+          <button className={crewFilter === 'all' ? 'active' : ''} onClick={() => setCrewFilter('all')}>All</button>
+          <button className={crewFilter === 'pm' ? 'active' : ''} onClick={() => setCrewFilter('pm')}>PMs Only</button>
+          <button className={crewFilter === 'crew' ? 'active' : ''} onClick={() => setCrewFilter('crew')}>Crew Chiefs Only</button>
+        </div>
+      </div>
+
       <div
         className="outlook-week-grid"
         style={columnCount ? { gridTemplateColumns: `repeat(${columnCount}, 1fr)` } : undefined}
       >
         {dayColumns.map((col) => (
-          <div key={col.dateStr} className={`outlook-day-column${col.isToday ? ' outlook-today' : ''}`}>
+          <div
+            key={col.dateStr}
+            className={`outlook-day-column${col.isToday ? ' outlook-today' : ''}${dragOverDate === col.dateStr ? ' outlook-day-column--drag-over' : ''}`}
+            onDragOver={(e) => handleDragOver(e, col.dateStr)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, col.dateStr)}
+          >
             <button
               type="button"
               className="outlook-day-header"
@@ -213,6 +280,8 @@ export default function DispatchWeekView({
                         <div
                           key={job.id || idx}
                           className={`outlook-job-card outlook-job-compact${cardAccentClass(job.jobType)}`}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, job, crew.name, col.dateStr)}
                           title={[
                             job.jobNumber,
                             job.jobType,
@@ -229,7 +298,12 @@ export default function DispatchWeekView({
                         </div>
                       ) : (
                         /* ── Rich card (3-day view) ── */
-                        <div key={job.id || idx} className={`outlook-job-card${cardAccentClass(job.jobType)}`}>
+                        <div
+                          key={job.id || idx}
+                          className={`outlook-job-card${cardAccentClass(job.jobType)}`}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, job, crew.name, col.dateStr)}
+                        >
                           <div className="outlook-job-row-top">
                             {job.preScheduledTime && (
                               <span className="outlook-job-time">{formatTime12(job.preScheduledTime)}</span>

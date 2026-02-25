@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { supabase } from '../services/supabaseClient';
 import dispatchScheduleService from '../services/dispatchScheduleService';
 import dispatchTeamService from '../services/dispatchTeamService';
+import { notifyTechnicians } from '../services/dispatchEmailService';
 import { hoursForJobType } from '../config/dispatchJobDurations';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -232,6 +233,7 @@ export default function useDispatchSchedule(userId = null) {
   const [saveError, setSaveError] = useState('');
   const [finalized, setFinalized] = useState(false);
   const [teamsLoaded, setTeamsLoaded] = useState(false);
+  const [scheduleLoading, setScheduleLoading] = useState(false);
   const [conflicts, setConflicts] = useState([]);
 
   // Undo/redo stacks
@@ -280,6 +282,7 @@ export default function useDispatchSchedule(userId = null) {
   useEffect(() => {
     if (!teamsLoaded) return;
     let cancelled = false;
+    setScheduleLoading(true);
 
     const load = async () => {
       try {
@@ -325,9 +328,10 @@ export default function useDispatchSchedule(userId = null) {
           } catch (_) {}
         }
 
-        // No saved data — reset to defaults
+        // No saved data — load teams from DB (not hardcoded defaults)
         if (!cancelled) {
-          const { pmGroups: pg, lanes: ln } = dispatchTeamService.getDefaults();
+          const { pmGroups: pg, lanes: ln } = await dispatchTeamService.loadTeams();
+          if (cancelled) return;
           setPmGroups(pg);
           setLanes(ln);
           const s = { unassigned: [] };
@@ -340,6 +344,8 @@ export default function useDispatchSchedule(userId = null) {
         }
       } catch (err) {
         console.error('Failed to load schedule:', err);
+      } finally {
+        if (!cancelled) setScheduleLoading(false);
       }
     };
     load();
@@ -480,7 +486,7 @@ export default function useDispatchSchedule(userId = null) {
 
   // ─── Auto-save to Supabase (debounced) ────────────────────────────────────
   useEffect(() => {
-    if (!teamsLoaded || lanes.length === 0) return;
+    if (!teamsLoaded || lanes.length === 0 || scheduleLoading) return;
     const t = setTimeout(() => {
       const payload = { schedule, lanes, driveTimeByCrew, pmGroups };
       // Save to localStorage as cache
@@ -638,19 +644,256 @@ export default function useDispatchSchedule(userId = null) {
     });
   }, [pushUndo]);
 
+  /** Bulk swap or move jobs between two crew lanes */
+  const bulkCrewSwap = useCallback((sourceId, targetId, mode = 'swap') => {
+    if (mode === 'redistribute') {
+      redistributeCrew(sourceId);
+      return;
+    }
+    pushUndo();
+    setSchedule((prev) => {
+      const sourceJobs = prev[sourceId] || [];
+      const targetJobs = prev[targetId] || [];
+      if (mode === 'swap') {
+        return { ...prev, [sourceId]: targetJobs, [targetId]: sourceJobs };
+      }
+      // move: one-way from source to target
+      return { ...prev, [sourceId]: [], [targetId]: [...targetJobs, ...sourceJobs] };
+    });
+    setDriveTimeByCrew((prev) => {
+      const sourceDrive = prev[sourceId];
+      const targetDrive = prev[targetId];
+      if (mode === 'swap') {
+        return { ...prev, [sourceId]: targetDrive, [targetId]: sourceDrive };
+      }
+      return { ...prev, [sourceId]: null, [targetId]: null };
+    });
+  }, [pushUndo]);
+
+  /** Redistribute: split one crew's jobs among all other crews by capacity + geography */
+  const redistributeCrew = useCallback((sourceId) => {
+    pushUndo();
+    setSchedule((prev) => {
+      const sourceJobs = [...(prev[sourceId] || [])];
+      if (sourceJobs.length === 0) return prev;
+
+      // Get target crew lanes (exclude PMs and source)
+      const targetLanes = lanesRef.current.filter(
+        (l) => l.type !== 'pm' && l.id !== sourceId
+      );
+      if (targetLanes.length === 0) return prev;
+
+      const next = { ...prev };
+      // Clone all target lanes
+      targetLanes.forEach((l) => { next[l.id] = [...(next[l.id] || [])]; });
+
+      const dayLength = DAY_END - DAY_START;
+
+      // Calculate remaining capacity for each target crew
+      const capacityMap = {};
+      targetLanes.forEach((l) => {
+        const jobs = next[l.id] || [];
+        const workHours = jobs.reduce((sum, j) => sum + (Number(j.hours) || 0), 0);
+        const driveHours = getDriveTotal(driveTimeByCrew[l.id]) / 3600;
+        capacityMap[l.id] = dayLength - workHours - driveHours;
+      });
+
+      // Average position of each target crew's existing jobs (for geographic scoring)
+      const crewCentroids = {};
+      targetLanes.forEach((l) => {
+        const jobs = next[l.id] || [];
+        const withCoords = jobs.filter((j) => j.latitude != null && j.longitude != null);
+        if (withCoords.length > 0) {
+          crewCentroids[l.id] = {
+            lat: withCoords.reduce((s, j) => s + j.latitude, 0) / withCoords.length,
+            lng: withCoords.reduce((s, j) => s + j.longitude, 0) / withCoords.length,
+          };
+        }
+      });
+
+      // Sort source jobs largest-first for bin-packing
+      sourceJobs.sort((a, b) => (Number(b.hours) || 0) - (Number(a.hours) || 0));
+
+      sourceJobs.forEach((job) => {
+        const jobHours = Number(job.hours) || 0;
+        const hasCoords = job.latitude != null && job.longitude != null;
+
+        let bestLaneId = null;
+        let bestScore = Infinity;
+
+        targetLanes.forEach((l) => {
+          const remaining = capacityMap[l.id];
+          // Skip crews that can't fit the job (unless no one can — handled below)
+          if (remaining < jobHours && remaining < 0) return;
+
+          let score = 0;
+
+          // Capacity score: prefer crews with more room (lower = better)
+          // Invert remaining so less capacity = higher score
+          const capacityScore = -remaining;
+
+          // Geographic score
+          let geoScore = 0;
+          if (hasCoords && crewCentroids[l.id]) {
+            const dLat = job.latitude - crewCentroids[l.id].lat;
+            const dLng = job.longitude - crewCentroids[l.id].lng;
+            geoScore = dLat * dLat + dLng * dLng;
+          }
+
+          // Combined: weight geography 60%, capacity 40% (normalize capacity to similar range)
+          if (hasCoords && crewCentroids[l.id]) {
+            score = geoScore * 0.6 + capacityScore * 0.0001 * 0.4;
+          } else {
+            score = capacityScore;
+          }
+
+          if (score < bestScore) {
+            bestScore = score;
+            bestLaneId = l.id;
+          }
+        });
+
+        // Fallback: if no crew selected, pick the one with most remaining capacity
+        if (!bestLaneId) {
+          let maxCap = -Infinity;
+          targetLanes.forEach((l) => {
+            if (capacityMap[l.id] > maxCap) {
+              maxCap = capacityMap[l.id];
+              bestLaneId = l.id;
+            }
+          });
+        }
+
+        if (bestLaneId) {
+          next[bestLaneId].push(job);
+          capacityMap[bestLaneId] -= jobHours;
+          // Update centroid incrementally
+          if (hasCoords) {
+            const jobs = next[bestLaneId];
+            const withCoords = jobs.filter((j) => j.latitude != null && j.longitude != null);
+            crewCentroids[bestLaneId] = {
+              lat: withCoords.reduce((s, j) => s + j.latitude, 0) / withCoords.length,
+              lng: withCoords.reduce((s, j) => s + j.longitude, 0) / withCoords.length,
+            };
+          }
+        }
+      });
+
+      // Clear source lane
+      next[sourceId] = [];
+      return next;
+    });
+
+    // Clear drive times for all affected lanes (will be recalculated by auto-estimate)
+    setDriveTimeByCrew((prev) => {
+      const next = { ...prev, [sourceId]: null };
+      lanesRef.current.forEach((l) => {
+        if (l.type !== 'pm' && l.id !== sourceId) {
+          next[l.id] = null;
+        }
+      });
+      return next;
+    });
+  }, [pushUndo, driveTimeByCrew, lanesRef]);
+
+  /** Copy schedule from another date into the current day */
+  const copyFromDate = useCallback(async (sourceDate) => {
+    const row = await dispatchScheduleService.load(sourceDate);
+    if (!row?.schedule_data) throw new Error('No schedule found for that date');
+    const src = row.schedule_data;
+    pushUndo();
+    // Deep clone schedule and regenerate all job IDs
+    const clonedSchedule = {};
+    Object.entries(src.schedule || {}).forEach(([laneId, jobs]) => {
+      clonedSchedule[laneId] = (jobs || []).map((j) => ({
+        ...j,
+        id: crypto.randomUUID(),
+      }));
+    });
+    setSchedule(clonedSchedule);
+    if (src.lanes) setLanes(src.lanes);
+    if (src.driveTimeByCrew) setDriveTimeByCrew(src.driveTimeByCrew);
+    if (src.pmGroups) setPmGroups(src.pmGroups);
+    setFinalized(false);
+  }, [pushUndo]);
+
+  /** Move a job from one date's schedule to another (async, writes to DB) */
+  const moveJobBetweenDays = useCallback(async (sourceDateStr, targetDateStr, job, crewName) => {
+    try {
+      // Parse dates
+      const parseDate = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+
+      // 1. Load source schedule
+      const sourceRow = await dispatchScheduleService.load(parseDate(sourceDateStr));
+      if (!sourceRow?.schedule_data) return;
+      const srcData = sourceRow.schedule_data;
+
+      // Find the lane for this crew in source
+      const srcLane = (srcData.lanes || []).find((l) => l.name === crewName);
+      const srcLaneId = srcLane?.id || 'unassigned';
+      const srcJobs = srcData.schedule?.[srcLaneId] || [];
+
+      // Remove the job from source
+      const jobIdx = srcJobs.findIndex((j) => j.id === job.id);
+      if (jobIdx === -1) return;
+      const [movedJob] = srcJobs.splice(jobIdx, 1);
+      srcData.schedule[srcLaneId] = srcJobs;
+
+      // Save source
+      await dispatchScheduleService.save(parseDate(sourceDateStr), srcData, userId);
+
+      // 2. Load target schedule
+      const targetRow = await dispatchScheduleService.load(parseDate(targetDateStr));
+      const tgtData = targetRow?.schedule_data || { lanes: srcData.lanes, schedule: {}, driveTimeByCrew: {}, pmGroups: srcData.pmGroups };
+
+      // Find matching lane in target, or use unassigned
+      const tgtLane = (tgtData.lanes || []).find((l) => l.name === crewName);
+      const tgtLaneId = tgtLane?.id || 'unassigned';
+      if (!tgtData.schedule[tgtLaneId]) tgtData.schedule[tgtLaneId] = [];
+
+      // Add job with new ID
+      tgtData.schedule[tgtLaneId].push({ ...movedJob, id: crypto.randomUUID() });
+
+      // Save target
+      await dispatchScheduleService.save(parseDate(targetDateStr), tgtData, userId);
+
+      // 3. Bump snapshot version to refresh views
+      setSnapshotVersion((v) => v + 1);
+    } catch (err) {
+      console.error('Failed to move job between days:', err);
+    }
+  }, [userId]);
+
   const totalHours = useCallback((crewId) => {
     return (schedule[crewId] || []).reduce((sum, j) => sum + (Number(j.hours) || 0), 0);
   }, [schedule]);
 
   // ─── Finalize ─────────────────────────────────────────────────────────────
 
+  const [notifyResult, setNotifyResult] = useState(null);
+
   const finalizeSchedule = useCallback(async () => {
     setSaving(true);
     setSaveError('');
+    setNotifyResult(null);
     try {
       const payload = { schedule, lanes, driveTimeByCrew, pmGroups };
-      await dispatchScheduleService.finalize(date, payload, userId);
+      const result = await dispatchScheduleService.finalize(date, payload, userId);
       setFinalized(true);
+
+      // Non-blocking: send technician notifications
+      if (result.jobScheduleRows?.length > 0) {
+        dispatchTeamService.loadTeamEmails().then((emailMap) => {
+          if (emailMap.size === 0) {
+            setNotifyResult({ sent: 0, noEmail: result.jobScheduleRows.length, errors: [] });
+            return;
+          }
+          const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+          notifyTechnicians(dateStr, result.jobScheduleRows, emailMap)
+            .then((nr) => setNotifyResult(nr))
+            .catch(() => {});
+        }).catch(() => {});
+      }
     } catch (err) {
       setSaveError(err?.message || 'Failed to finalize schedule');
     } finally {
@@ -686,16 +929,16 @@ export default function useDispatchSchedule(userId = null) {
     return `Week of ${formatMd(weekDates[0])} – ${formatMd(weekDates[6])}`;
   }, [weekDates]);
 
-  // ─── 3-Day rolling dates (always yesterday, today, tomorrow) ───────────────
+  // ─── 3-Day rolling dates (centered on selected date) ────────────────────────
   const threeDayDates = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const center = new Date(date);
+    center.setHours(0, 0, 0, 0);
     return [-1, 0, 1].map((offset) => {
-      const d = new Date(today);
-      d.setDate(today.getDate() + offset);
+      const d = new Date(center);
+      d.setDate(center.getDate() + offset);
       return d;
     });
-  }, [dateKey]); // recalc if date changes (covers midnight rollover via goToday)
+  }, [dateKey]);
 
   const threeDayLabel = useMemo(() => {
     return `${formatMd(threeDayDates[0])} – ${formatMd(threeDayDates[2])}`;
@@ -785,7 +1028,7 @@ export default function useDispatchSchedule(userId = null) {
             if (!crewName) return;
             const jobs = Array.isArray(scheduleForDay[lane.id]) ? scheduleForDay[lane.id] : [];
             const drive = driveForDay[lane.id] ?? null;
-            jobsByCrewName[crewName] = { jobs, drive };
+            jobsByCrewName[crewName] = { jobs, drive, laneType: lane.type || 'crew' };
           });
 
           const unassignedJobs = Array.isArray(scheduleForDay.unassigned) ? scheduleForDay.unassigned : [];
@@ -836,7 +1079,7 @@ export default function useDispatchSchedule(userId = null) {
             if (!crewName) return;
             const jobs = Array.isArray(scheduleForDay[lane.id]) ? scheduleForDay[lane.id] : [];
             const drive = driveForDay[lane.id] ?? null;
-            jobsByCrewName[crewName] = { jobs, drive };
+            jobsByCrewName[crewName] = { jobs, drive, laneType: lane.type || 'crew' };
           });
 
           const unassignedJobs = Array.isArray(scheduleForDay.unassigned) ? scheduleForDay.unassigned : [];
@@ -888,7 +1131,7 @@ export default function useDispatchSchedule(userId = null) {
             if (!crewName) return;
             const jobs = Array.isArray(scheduleForDay[lane.id]) ? scheduleForDay[lane.id] : [];
             const drive = driveForDay[lane.id] ?? null;
-            jobsByCrewName[crewName] = { jobs, drive };
+            jobsByCrewName[crewName] = { jobs, drive, laneType: lane.type || 'crew' };
           });
 
           const unassignedJobs = Array.isArray(scheduleForDay.unassigned) ? scheduleForDay.unassigned : [];
@@ -909,7 +1152,7 @@ export default function useDispatchSchedule(userId = null) {
     date, setDate, rangeMode, setRangeMode,
     lanes, setLanes, pmGroups, setPmGroups,
     schedule, setSchedule, driveTimeByCrew, setDriveTimeByCrew,
-    jobsDatabase, saving, saveError, finalized,
+    jobsDatabase, saving, saveError, finalized, notifyResult,
     conflicts,
     // Computed
     scheduleColumns, pmHeaderGroups, dateKey,
@@ -919,7 +1162,7 @@ export default function useDispatchSchedule(userId = null) {
     scheduleRef, lanesRef,
     // Actions
     goPrev, goNext, goToday,
-    updateJob, addJob, removeJob, moveJobToUnassigned, copyJobToLane,
+    updateJob, addJob, removeJob, moveJobToUnassigned, copyJobToLane, bulkCrewSwap, redistributeCrew, copyFromDate, moveJobBetweenDays,
     totalHours, finalizeSchedule, pushUndo,
     // Undo/Redo
     undo, redo, canUndo, canRedo,

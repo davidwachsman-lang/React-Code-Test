@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
 export default function DispatchHeader({
   rangeMode, setRangeMode,
@@ -13,11 +13,28 @@ export default function DispatchHeader({
   finalized, onFinalize, saving,
   canUndo, canRedo, onUndo, onRedo,
   conflicts,
+  onCopyFromDate,
+  onManageTeams,
 }) {
+  const copyDateRef = useRef(null);
+
+  const handleCopyClick = () => {
+    if (copyDateRef.current) copyDateRef.current.showPicker();
+  };
+
+  const handleCopyDateChange = (e) => {
+    const val = e.target.value;
+    if (!val) return;
+    const parts = val.split('-');
+    const picked = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+    if (onCopyFromDate) onCopyFromDate(picked);
+    e.target.value = '';
+  };
   return (
     <div className="dispatch-header">
       <h1>Dispatch & Scheduling</h1>
-      <div className="dispatch-header-actions">
+      {/* Row 1: nav, range toggle, undo/redo, view toggle */}
+      <div className="dispatch-header-row dispatch-header-nav-row">
         <div className="dispatch-date-nav">
           <button type="button" onClick={goPrev} aria-label="Previous day">&larr;</button>
           <button type="button" onClick={goToday} className="today-btn">Today</button>
@@ -43,9 +60,36 @@ export default function DispatchHeader({
           <button type="button" onClick={onRedo} disabled={!canRedo} title="Redo" className="dispatch-redo-btn">Redo &rarr;</button>
         </div>
 
+        <div className="dispatch-view-toggle">
+          <button type="button" className={viewMode === 'table' ? 'active' : ''} onClick={() => setViewMode('table')}>
+            Table{overflowCount > 0 && <span className="dispatch-overflow-badge">{overflowCount}</span>}
+          </button>
+          <button type="button" className={viewMode === 'map' ? 'active' : ''} onClick={() => setViewMode('map')} disabled={rangeMode !== 'day'}>Map</button>
+        </div>
+      </div>
+
+      {/* Row 2: action buttons */}
+      <div className="dispatch-header-row dispatch-header-actions-row">
         <button type="button" className="dispatch-upload-excel-btn" onClick={() => setShowExcelUpload((v) => !v)}>
           {showExcelUpload ? 'Hide upload' : 'Upload Excel'}
         </button>
+        <button type="button" className="dispatch-manage-teams-btn" onClick={onManageTeams}>
+          Manage Teams
+        </button>
+        {rangeMode === 'day' && (
+          <div className="dispatch-copy-from-wrap">
+            <button type="button" className="dispatch-copy-from-btn" onClick={handleCopyClick}>
+              Copy from...
+            </button>
+            <input
+              ref={copyDateRef}
+              type="date"
+              className="dispatch-copy-date-input"
+              onChange={handleCopyDateChange}
+              tabIndex={-1}
+            />
+          </div>
+        )}
         <button
           type="button" className="dispatch-export-pdf-btn" onClick={exportPdf}
           disabled={rangeMode !== 'day'}
@@ -74,13 +118,6 @@ export default function DispatchHeader({
           </span>
         )}
         {optimizeError && <span className="dispatch-optimize-error">{optimizeError}</span>}
-
-        <div className="dispatch-view-toggle">
-          <button type="button" className={viewMode === 'table' ? 'active' : ''} onClick={() => setViewMode('table')}>
-            Table{overflowCount > 0 && <span className="dispatch-overflow-badge">{overflowCount}</span>}
-          </button>
-          <button type="button" className={viewMode === 'map' ? 'active' : ''} onClick={() => setViewMode('map')} disabled={rangeMode !== 'day'}>Map</button>
-        </div>
       </div>
 
       {/* Conflict warnings */}

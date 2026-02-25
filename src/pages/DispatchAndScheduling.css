@@ -7,10 +7,8 @@
 
 .dispatch-header {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
 
@@ -21,11 +19,15 @@
   margin: 0;
 }
 
-.dispatch-header-actions {
+.dispatch-header-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
+}
+
+.dispatch-header-actions-row {
+  gap: 0.5rem;
 }
 
 .dispatch-range-toggle {
@@ -719,6 +721,108 @@
 
 .dispatch-sched-modal .close-modal-actions {
   margin-top: 0.75rem;
+}
+
+/* Job search results dropdown */
+.sched-job-results {
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 6px;
+  margin-top: 4px;
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.sched-job-result-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.sched-job-result-item:last-child {
+  border-bottom: none;
+}
+
+.sched-job-result-item:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.sched-job-result-number {
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+.sched-job-result-cust {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sched-job-result-status {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Selected job card */
+.sched-job-selected {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.6rem;
+  margin-top: 4px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 6px;
+}
+
+.sched-job-selected-num {
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #93c5fd;
+}
+
+.sched-job-selected-cust {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
+
+.sched-job-selected-addr {
+  font-size: 0.7rem;
+  color: #64748b;
+  width: 100%;
+}
+
+.sched-job-clear {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #60a5fa;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.sched-job-clear:hover {
+  color: #93c5fd;
 }
 
 .dispatch-schedule-direct-btn {
@@ -1531,6 +1635,22 @@
   padding: 1rem;
 }
 
+/* Filter bar for week/3-day/month views */
+.outlook-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.outlook-filter-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .outlook-week-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -2009,4 +2129,624 @@
   border-radius: 8px;
   color: #f87171;
   text-align: center;
+}
+
+/* ─── Bulk Crew Swap Modal ─────────────────────────────────────────────── */
+
+.dispatch-crew-swap-btn {
+  padding: 6px 14px;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 6px;
+  color: #a78bfa;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.dispatch-crew-swap-btn:hover {
+  background: rgba(139, 92, 246, 0.25);
+}
+
+.bulk-swap-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.bulk-swap-modal {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 420px;
+  max-width: 90vw;
+}
+
+.bulk-swap-title {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  color: #f1f5f9;
+}
+
+.bulk-swap-mode {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.25rem;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.bulk-swap-mode button {
+  flex: 1;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.bulk-swap-mode button.active {
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+}
+
+.bulk-swap-selectors {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.bulk-swap-field {
+  flex: 1;
+}
+.bulk-swap-field label {
+  display: block;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+.bulk-swap-field select {
+  width: 100%;
+  padding: 6px 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #f1f5f9;
+  font-size: 0.85rem;
+}
+
+.bulk-swap-arrow {
+  font-size: 1.25rem;
+  color: #64748b;
+  padding-bottom: 4px;
+}
+
+.bulk-swap-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
+}
+.bulk-swap-preview-col {
+  text-align: center;
+}
+.bulk-swap-preview-col strong {
+  display: block;
+  color: #f1f5f9;
+  font-size: 0.85rem;
+}
+.bulk-swap-preview-col span {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+.bulk-swap-preview-arrow {
+  font-size: 1.25rem;
+  color: #a78bfa;
+}
+
+.bulk-swap-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+.bulk-swap-cancel {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #94a3b8;
+  cursor: pointer;
+}
+.bulk-swap-apply {
+  padding: 6px 14px;
+  background: #8b5cf6;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.bulk-swap-apply:hover {
+  background: #7c3aed;
+}
+.bulk-swap-apply:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─── Copy From Date ───────────────────────────────────────────────────── */
+
+.dispatch-copy-from-wrap {
+  position: relative;
+  display: inline-block;
+}
+.dispatch-copy-from-btn {
+  padding: 6px 14px;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: 6px;
+  color: #4ade80;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.dispatch-copy-from-btn:hover {
+  background: rgba(34, 197, 94, 0.22);
+}
+.dispatch-copy-date-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ─── Live Status Panel Toggle ─────────────────────────────────────────── */
+
+.dispatch-status-panel-btn {
+  padding: 6px 14px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 6px;
+  color: #60a5fa;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.dispatch-status-panel-btn:hover,
+.dispatch-status-panel-btn.active {
+  background: rgba(59, 130, 246, 0.25);
+}
+
+/* ─── Dispatch Status Panel ────────────────────────────────────────────── */
+
+.status-panel {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.status-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.status-panel-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #f1f5f9;
+}
+
+.status-panel-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.status-panel-progress-bar {
+  width: 120px;
+  height: 6px;
+  background: #334155;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.status-panel-progress-fill {
+  height: 100%;
+  background: #22c55e;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+.status-panel-progress-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.status-panel-legend {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+.status-panel-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-panel-empty {
+  color: #64748b;
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
+
+.status-crew-group {
+  margin-bottom: 0.75rem;
+}
+.status-crew-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid #334155;
+  margin-bottom: 4px;
+}
+.status-crew-name {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #e2e8f0;
+}
+.status-crew-progress {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.status-crew-jobs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.status-job-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3px 6px;
+  font-size: 0.8rem;
+  border-radius: 4px;
+}
+.status-job-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.status-job-number {
+  color: #e2e8f0;
+  font-weight: 500;
+  min-width: 70px;
+}
+.status-job-customer {
+  color: #94a3b8;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.status-job-status {
+  font-size: 0.72rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ─── Notification Toast ───────────────────────────────────────────────── */
+
+.dispatch-notify-toast {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 8px;
+  color: #4ade80;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+.dispatch-notify-warn {
+  color: #fbbf24;
+}
+
+/* ─── Manage Teams Button ──────────────────────────────────────────────── */
+
+.dispatch-manage-teams-btn {
+  padding: 6px 14px;
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  border-radius: 6px;
+  color: #22d3ee;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.dispatch-manage-teams-btn:hover {
+  background: rgba(6, 182, 212, 0.22);
+}
+
+/* ─── Team Management Modal ────────────────────────────────────────────── */
+
+.team-mgmt-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.team-mgmt-modal {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 600px;
+  max-width: 95vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.team-mgmt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.team-mgmt-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #f1f5f9;
+}
+.team-mgmt-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.team-mgmt-error {
+  padding: 0.5rem 0.75rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 6px;
+  color: #f87171;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.team-mgmt-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.team-mgmt-pm-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.team-mgmt-pm-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.team-mgmt-color-picker {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+}
+
+.team-mgmt-pm-name {
+  flex: 1;
+  padding: 5px 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 5px;
+  color: #f1f5f9;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.team-mgmt-pm-title {
+  flex: 1;
+  padding: 5px 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 5px;
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.team-mgmt-remove-pm {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+}
+
+.team-mgmt-crew-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.team-mgmt-crew-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 3px 0;
+  cursor: grab;
+}
+.team-mgmt-crew-row:active {
+  cursor: grabbing;
+}
+
+.team-mgmt-drag-handle {
+  color: #475569;
+  font-size: 0.8rem;
+  cursor: grab;
+  user-select: none;
+}
+
+.team-mgmt-crew-name {
+  flex: 1;
+  padding: 4px 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 5px;
+  color: #f1f5f9;
+  font-size: 0.82rem;
+}
+
+.team-mgmt-crew-email {
+  flex: 1;
+  padding: 4px 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 5px;
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.team-mgmt-remove-crew {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+.team-mgmt-remove-crew:hover {
+  color: #ef4444;
+}
+
+.team-mgmt-add-crew {
+  margin-top: 0.4rem;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px dashed #475569;
+  border-radius: 5px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.team-mgmt-add-crew:hover {
+  border-color: #64748b;
+  color: #e2e8f0;
+}
+
+.team-mgmt-add-pm {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px dashed #475569;
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+.team-mgmt-add-pm:hover {
+  border-color: #64748b;
+  color: #e2e8f0;
+}
+
+.team-mgmt-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.team-mgmt-cancel {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.team-mgmt-save {
+  padding: 6px 14px;
+  background: #3b82f6;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.team-mgmt-save:hover {
+  background: #2563eb;
+}
+.team-mgmt-save:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─── Drag Between Days ────────────────────────────────────────────────── */
+
+.outlook-day-column--drag-over {
+  outline: 2px dashed #3b82f6;
+  outline-offset: -2px;
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.outlook-job-card[draggable="true"] {
+  cursor: grab;
+}
+.outlook-job-card[draggable="true"]:active {
+  cursor: grabbing;
+  opacity: 0.6;
 }

@@ -41,6 +41,47 @@ function ScrollToTop() {
   return null;
 }
 
+function OpsNav() {
+  const location = useLocation();
+  const tabs = [
+    { path: '/dispatch', label: 'Dispatch & Scheduling' },
+    { path: '/job-file-checks', label: 'Job File Checks' },
+    { path: '/job-files', label: 'Job Files' },
+  ];
+  return (
+    <nav style={{
+      display: 'flex',
+      gap: '0',
+      backgroundColor: '#1e293b',
+      padding: '0 16px',
+      position: 'sticky',
+      top: 0,
+      zIndex: 50,
+    }}>
+      {tabs.map(tab => {
+        const isActive = location.pathname === tab.path || (tab.path === '/dispatch' && location.pathname === '/');
+        return (
+          <a
+            key={tab.path}
+            href={tab.path}
+            style={{
+              padding: '12px 20px',
+              color: isActive ? '#fff' : '#94a3b8',
+              textDecoration: 'none',
+              fontSize: '14px',
+              fontWeight: isActive ? '600' : '400',
+              borderBottom: isActive ? '2px solid #3b82f6' : '2px solid transparent',
+              transition: 'all 0.15s',
+            }}
+          >
+            {tab.label}
+          </a>
+        );
+      })}
+    </nav>
+  );
+}
+
 function AppContent() {
   const location = useLocation();
   const isTestRoute = location.pathname === '/sales-test';
@@ -70,6 +111,12 @@ function AppContent() {
   const urlStormOnly = urlParams.has('storm-only') || urlParams.get('storm-only') === 'true';
   const storedStormOnly = localStorage.getItem('storm-only-mode') === 'true';
   const stormOnlyMode = envStormOnly || urlStormOnly || storedStormOnly;
+
+  // Check if we should only show Ops pages (Dispatch, Job File Checks, Job Files)
+  const envOpsOnly = import.meta.env.VITE_OPS_ONLY === 'true';
+  const urlOpsOnly = urlParams.has('ops-only') || urlParams.get('ops-only') === 'true';
+  const storedOpsOnly = localStorage.getItem('ops-only-mode') === 'true';
+  const opsOnlyMode = envOpsOnly || urlOpsOnly || storedOpsOnly;
   
   
   // If URL param is set, store it in localStorage for future visits
@@ -82,6 +129,9 @@ function AppContent() {
   if (urlStormOnly && !storedStormOnly) {
     localStorage.setItem('storm-only-mode', 'true');
   }
+  if (urlOpsOnly && !storedOpsOnly) {
+    localStorage.setItem('ops-only-mode', 'true');
+  }
   
   // Allow disabling via URL params
   if (urlParams.get('crm-only') === 'false') {
@@ -92,6 +142,9 @@ function AppContent() {
   }
   if (urlParams.get('storm-only') === 'false') {
     localStorage.removeItem('storm-only-mode');
+  }
+  if (urlParams.get('ops-only') === 'false') {
+    localStorage.removeItem('ops-only-mode');
   }
 
   // If Estimate-only mode, show only Estimating without navigation
@@ -165,6 +218,37 @@ function AppContent() {
                 <Routes>
                   <Route path="/" element={<Storm />} />
                   <Route path="/storm" element={<Storm />} />
+                  <Route path="/*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </div>
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </div>
+    );
+  }
+
+  // If Ops-only mode, show Dispatch, Job File Checks, and Job Files with tab navigation
+  if (opsOnlyMode) {
+    return (
+      <div className="App">
+        <ScrollToTop />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/set-password" element={<SetPassword />} />
+          <Route path="/*" element={
+            <ProtectedRoute>
+              <OpsNav />
+              <div className="app-content" style={{ marginLeft: 0 }}>
+                <Routes>
+                  <Route path="/" element={<DispatchAndScheduling />} />
+                  <Route path="/dispatch" element={<DispatchAndScheduling />} />
+                  <Route path="/job-file-checks" element={<JobFileChecks />} />
+                  <Route path="/job-files" element={<JobFiles />} />
+                  <Route path="/job-files/:id" element={<JobDetail />} />
                   <Route path="/*" element={<Navigate to="/" replace />} />
                 </Routes>
               </div>

@@ -241,16 +241,18 @@ function AppContent() {
           <Route path="/set-password" element={<SetPassword />} />
           <Route path="/*" element={
             <ProtectedRoute>
-              <OpsNav />
-              <div className="app-content" style={{ marginLeft: 0 }}>
-                <Routes>
-                  <Route path="/" element={<DispatchAndScheduling />} />
-                  <Route path="/dispatch" element={<DispatchAndScheduling />} />
-                  <Route path="/job-file-checks" element={<JobFileChecks />} />
-                  <Route path="/job-files" element={<JobFiles />} />
-                  <Route path="/job-files/:id" element={<JobDetail />} />
-                  <Route path="/*" element={<Navigate to="/" replace />} />
-                </Routes>
+              <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                <OpsNav />
+                <div className="app-content" style={{ marginLeft: 0 }}>
+                  <Routes>
+                    <Route path="/" element={<DispatchAndScheduling />} />
+                    <Route path="/dispatch" element={<DispatchAndScheduling />} />
+                    <Route path="/job-file-checks" element={<JobFileChecks />} />
+                    <Route path="/job-files" element={<JobFiles />} />
+                    <Route path="/job-files/:id" element={<JobDetail />} />
+                    <Route path="/*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </div>
               </div>
             </ProtectedRoute>
           } />

@@ -1,0 +1,631 @@
+/* ============================================================
+   PM Command Center — dark theme (matches FieldServices.css)
+   ============================================================ */
+
+.pmc-container {
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* --- Header / PM Selector --- */
+.pmc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.pmc-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.pmc-header h2 {
+  color: #e5e7eb;
+  font-size: 1.4rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.pmc-pm-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pmc-pm-selector label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.pmc-pm-selector select {
+  font-size: 0.8125rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(71, 85, 105, 0.8);
+  background: rgba(30, 41, 59, 0.8);
+  color: #e2e8f0;
+  min-width: 140px;
+}
+
+.pmc-pm-selector select:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+/* --- KPI Row --- */
+.pmc-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.pmc-kpi-card {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.pmc-kpi-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin-bottom: 0.25rem;
+}
+
+.pmc-kpi-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pmc-kpi-blue { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.pmc-kpi-amber { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.pmc-kpi-red { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.pmc-kpi-green { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+
+.pmc-kpi-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1;
+}
+
+.pmc-kpi-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* --- Tab Bar --- */
+.pmc-tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.4);
+  padding-bottom: 0;
+  overflow-x: auto;
+}
+
+.pmc-tab {
+  padding: 0.6rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.pmc-tab:hover {
+  color: #e2e8f0;
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.pmc-tab-active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+/* --- Tab Content --- */
+.pmc-tab-content {
+  min-height: 200px;
+}
+
+.pmc-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pmc-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* --- Tables (shared) --- */
+.pmc-table-wrap {
+  border-radius: 10px;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  overflow-x: auto;
+}
+
+.pmc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.pmc-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #94a3b8;
+  padding: 0.6rem 0.75rem;
+  background: rgba(30, 41, 59, 0.8);
+  border-bottom: 2px solid rgba(71, 85, 105, 0.6);
+  white-space: nowrap;
+}
+
+.pmc-table td {
+  padding: 0.55rem 0.75rem;
+  color: #e2e8f0;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+  vertical-align: middle;
+}
+
+.pmc-table-row:hover td {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.pmc-table tbody tr:nth-child(even) td {
+  background: rgba(30, 41, 59, 0.2);
+}
+
+.pmc-table tbody tr:nth-child(even):hover td {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.pmc-table-row-clickable {
+  cursor: pointer;
+}
+
+.pmc-td-bold {
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.pmc-empty {
+  text-align: center;
+  color: #64748b;
+  padding: 2rem !important;
+  font-style: italic;
+}
+
+/* --- Expanded Row (Job Overview) --- */
+.pmc-expanded-row td {
+  background: rgba(30, 41, 59, 0.6) !important;
+  padding: 0 !important;
+}
+
+.pmc-expanded-detail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem 1.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+}
+
+.pmc-expanded-detail strong {
+  color: #94a3b8;
+}
+
+/* --- Pills / Badges --- */
+.pmc-pill,
+.pmc-priority-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pmc-unassigned {
+  color: #f59e0b;
+  font-style: italic;
+  font-size: 0.75rem;
+}
+
+/* --- Task Items --- */
+.pmc-task-group {
+  margin-bottom: 0.5rem;
+}
+
+.pmc-task-group-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pmc-task-count {
+  font-size: 0.7rem;
+  background: rgba(51, 65, 85, 0.5);
+  padding: 0.1rem 0.45rem;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.pmc-task-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: rgba(30, 41, 59, 0.3);
+  border: 1px solid rgba(71, 85, 105, 0.3);
+  border-radius: 8px;
+  margin-bottom: 0.4rem;
+  transition: background 0.15s;
+}
+
+.pmc-task-item:hover {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.pmc-task-done {
+  opacity: 0.5;
+}
+
+.pmc-task-done .pmc-task-desc {
+  text-decoration: line-through;
+}
+
+.pmc-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #3b82f6;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.pmc-task-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.pmc-task-desc {
+  font-size: 0.8125rem;
+  color: #e2e8f0;
+}
+
+.pmc-task-meta {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+.pmc-task-empty {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+/* --- Add Task Form --- */
+.pmc-add-task-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.75rem;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  border-radius: 8px;
+}
+
+.pmc-add-task-form input,
+.pmc-add-task-form select {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(71, 85, 105, 0.7);
+  background: rgba(15, 23, 42, 0.6);
+  color: #e2e8f0;
+}
+
+.pmc-add-task-form input[type="text"] {
+  flex: 1;
+  min-width: 180px;
+}
+
+.pmc-add-task-form input:focus,
+.pmc-add-task-form select:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+/* --- Buttons --- */
+.pmc-btn {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid rgba(71, 85, 105, 0.6);
+  background: rgba(30, 41, 59, 0.6);
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.pmc-btn:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.pmc-btn-primary {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+  color: #3b82f6;
+}
+
+.pmc-btn-primary:hover {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+/* --- Filter Select --- */
+.pmc-filter-select {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(71, 85, 105, 0.8);
+  background: rgba(30, 41, 59, 0.8);
+  color: #e2e8f0;
+  min-width: 160px;
+}
+
+.pmc-filter-select:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+/* --- Crew Assignments --- */
+.pmc-crew-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.pmc-crew-card {
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.pmc-crew-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.pmc-crew-header h4 {
+  color: #f1f5f9;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.pmc-crew-hours {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  background: rgba(51, 65, 85, 0.5);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.pmc-crew-jobs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.pmc-job-chip {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+.pmc-job-chip-unassigned {
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #f59e0b;
+}
+
+.pmc-unassigned-section {
+  margin-top: 0.5rem;
+}
+
+/* --- Financials Colors --- */
+.pmc-fin-invoiced { color: #f59e0b; }
+.pmc-fin-collected { color: #22c55e; }
+.pmc-fin-outstanding { color: #ef4444; }
+
+.pmc-totals-row td {
+  border-top: 2px solid rgba(71, 85, 105, 0.6);
+  background: rgba(30, 41, 59, 0.5) !important;
+}
+
+/* --- Communication Timeline --- */
+.pmc-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 1rem;
+  border-left: 2px solid rgba(71, 85, 105, 0.4);
+}
+
+.pmc-timeline-entry {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  position: relative;
+}
+
+.pmc-timeline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #3b82f6;
+  flex-shrink: 0;
+  margin-top: 0.3rem;
+  margin-left: -1.35rem;
+}
+
+.pmc-timeline-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.pmc-timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pmc-comm-type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.pmc-comm-date {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+.pmc-comm-contact {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.pmc-comm-summary {
+  font-size: 0.8125rem;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+
+.pmc-comm-job {
+  font-size: 0.7rem;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+/* --- Document Status --- */
+.pmc-doc-done {
+  color: #22c55e;
+  font-weight: 600;
+  text-align: center;
+}
+
+.pmc-doc-missing {
+  color: #ef4444;
+  font-weight: 600;
+  text-align: center;
+}
+
+.pmc-doc-pending {
+  color: #f59e0b;
+  text-align: center;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .pmc-container {
+    padding: 1.25rem;
+  }
+
+  .pmc-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pmc-tab-bar {
+    gap: 0;
+  }
+
+  .pmc-tab {
+    padding: 0.5rem 0.65rem;
+    font-size: 0.75rem;
+  }
+
+  .pmc-crew-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pmc-add-task-form {
+    flex-direction: column;
+  }
+
+  .pmc-add-task-form input[type="text"] {
+    min-width: auto;
+  }
+
+  .pmc-expanded-detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .pmc-container {
+    padding: 0.75rem;
+  }
+
+  .pmc-kpi-row {
+    grid-template-columns: 1fr;
+  }
+
+  .pmc-header-left {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pmc-tab-bar {
+    flex-wrap: wrap;
+  }
+}

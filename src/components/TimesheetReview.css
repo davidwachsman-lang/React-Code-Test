@@ -1,0 +1,783 @@
+/* TimesheetReview — tsr- prefix, dark theme matching PMCommandCenter */
+
+.tsr-container {
+  padding: 1.5rem;
+  color: #f1f5f9;
+}
+
+/* Top Bar */
+.tsr-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.tsr-pm-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tsr-pm-selector label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.tsr-pm-select {
+  background: rgba(15, 23, 42, 0.8);
+  color: #f1f5f9;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.tsr-pm-select:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.6);
+}
+
+.tsr-week-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tsr-week-btn {
+  background: rgba(15, 23, 42, 0.8);
+  color: #94a3b8;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.15s;
+}
+
+.tsr-week-btn:hover {
+  color: #f1f5f9;
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.tsr-week-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  min-width: 200px;
+  text-align: center;
+}
+
+.tsr-submit-btn {
+  margin-left: auto;
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tsr-submit-btn:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.25);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+.tsr-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* KPI Row */
+.tsr-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tsr-kpi-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+.tsr-kpi-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.tsr-kpi-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.tsr-kpi-sub {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.15rem;
+}
+
+/* Tabs */
+.tsr-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+  margin-bottom: 1.25rem;
+}
+
+.tsr-tab {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.tsr-tab:hover {
+  color: #e5e7eb;
+}
+
+.tsr-tab.tsr-tab-active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+/* By Technician Tab — Accordion */
+.tsr-tech-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.tsr-tech-header {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1.25rem;
+  cursor: pointer;
+  gap: 1rem;
+  transition: background 0.15s;
+}
+
+.tsr-tech-header:hover {
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.tsr-tech-chevron {
+  color: #64748b;
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+  width: 16px;
+  flex-shrink: 0;
+}
+
+.tsr-tech-chevron.tsr-expanded {
+  transform: rotate(90deg);
+}
+
+.tsr-tech-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #f1f5f9;
+  flex: 1;
+}
+
+.tsr-tech-hours {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.tsr-tech-ot {
+  font-size: 0.75rem;
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.tsr-status-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.tsr-status-badge.tsr-status-pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.tsr-status-badge.tsr-status-approved {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.tsr-status-badge.tsr-status-rejected {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.tsr-status-badge.tsr-status-mixed {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.tsr-tech-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tsr-btn-approve {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 6px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tsr-btn-approve:hover {
+  background: rgba(34, 197, 94, 0.25);
+}
+
+.tsr-btn-reject {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 6px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tsr-btn-reject:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+/* Expanded entries table */
+.tsr-entries-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.tsr-entries-table th {
+  text-align: left;
+  padding: 0.5rem 1rem;
+  color: #64748b;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tsr-entries-table td {
+  padding: 0.5rem 1rem;
+  color: #e5e7eb;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.05);
+}
+
+.tsr-entry-status-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.tsr-entry-toggle {
+  background: none;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.65rem;
+  transition: all 0.15s;
+}
+
+.tsr-entry-toggle.tsr-toggle-approved {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+}
+
+.tsr-entry-toggle.tsr-toggle-rejected {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+
+.tsr-entry-toggle.tsr-toggle-pending {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+/* Daily View Tab */
+.tsr-daily-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.tsr-daily-grid th {
+  text-align: center;
+  padding: 0.6rem 0.5rem;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+}
+
+.tsr-daily-grid th:first-child {
+  text-align: left;
+}
+
+.tsr-daily-grid td {
+  text-align: center;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.05);
+}
+
+.tsr-daily-grid td:first-child {
+  text-align: left;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.tsr-daily-cell {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-weight: 500;
+  min-width: 36px;
+}
+
+.tsr-daily-cell-approved {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.tsr-daily-cell-pending {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+.tsr-daily-cell-rejected {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.tsr-daily-cell-empty {
+  color: #475569;
+}
+
+.tsr-daily-total {
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+/* Exceptions Tab */
+.tsr-flag-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 10px;
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tsr-flag-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+}
+
+.tsr-flag-icon-overtime {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.tsr-flag-icon-missing_clockout {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.tsr-flag-icon-no_lunch {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+}
+
+.tsr-flag-icon-weekend {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.tsr-flag-details {
+  flex: 1;
+}
+
+.tsr-flag-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 0.15rem;
+}
+
+.tsr-flag-meta {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.tsr-flag-desc {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  margin-top: 0.2rem;
+}
+
+.tsr-flag-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.tsr-flag-type-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.1);
+  color: #94a3b8;
+}
+
+/* Summary table — By Technician tab */
+.tsr-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.tsr-summary-table th {
+  text-align: center;
+  padding: 0.6rem 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+}
+
+.tsr-summary-th-name {
+  text-align: left !important;
+}
+
+.tsr-summary-table td {
+  text-align: center;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.06);
+}
+
+.tsr-summary-row {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tsr-summary-row:hover {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.tsr-summary-td-name {
+  text-align: left !important;
+  font-weight: 600;
+  color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tsr-summary-total-cell {
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+/* Job header row (expanded) */
+.tsr-job-header-row td {
+  padding: 0.5rem 0.75rem 0.35rem 2.25rem;
+  border-bottom: none;
+  background: rgba(59, 130, 246, 0.04);
+}
+
+.tsr-job-number {
+  font-weight: 700;
+  color: #3b82f6;
+  font-size: 0.8rem;
+  margin-right: 0.75rem;
+}
+
+.tsr-job-customer {
+  color: #94a3b8;
+  font-size: 0.78rem;
+  margin-right: 0.75rem;
+}
+
+.tsr-job-hours {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Detail entry rows (expanded) */
+.tsr-detail-row td {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.03);
+  background: rgba(15, 23, 42, 0.25);
+}
+
+.tsr-detail-date {
+  text-align: left !important;
+  padding-left: 2.75rem !important;
+  color: #94a3b8;
+}
+
+.tsr-detail-notes {
+  text-align: left !important;
+  color: #64748b;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Summary table group header */
+.tsr-summary-group-row th {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.tsr-summary-group-header {
+  font-size: 0.65rem !important;
+  color: #94a3b8 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.08) !important;
+  padding-bottom: 0.2rem !important;
+}
+
+/* Stat columns */
+.tsr-stat-header {
+  color: #94a3b8 !important;
+  font-size: 0.65rem !important;
+}
+
+.tsr-stat-cell {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Role badges */
+.tsr-role-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.tsr-role-crew-chief {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+.tsr-role-tech {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+
+/* Time type badges & pills */
+.tsr-type-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Type summary table (inside expanded technician) */
+.tsr-tech-expanded {
+  padding: 0 1.25rem 0.75rem;
+}
+
+.tsr-type-summary-table {
+  width: auto;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tsr-type-summary-table th {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.4rem 1.25rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.tsr-type-summary-table td {
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.4rem 1.25rem;
+}
+
+.tsr-type-summary-total {
+  color: #f1f5f9;
+  font-weight: 700;
+}
+
+.tsr-ot-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ef4444;
+}
+
+/* KPI type breakdown */
+.tsr-kpi-type-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-top: 0.35rem;
+}
+
+.tsr-kpi-type-item {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* Daily view — stacked type chips per cell */
+.tsr-daily-cell-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.tsr-daily-type-chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.05rem 0.4rem;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.tsr-daily-day-total {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-top: 1px;
+}
+
+/* Daily view legend */
+.tsr-daily-legend {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.tsr-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.tsr-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tsr-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tsr-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .tsr-submit-btn {
+    margin-left: 0;
+  }
+
+  .tsr-tech-header {
+    flex-wrap: wrap;
+  }
+
+  .tsr-flag-card {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .tsr-kpi-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tsr-daily-grid {
+    font-size: 0.7rem;
+  }
+}

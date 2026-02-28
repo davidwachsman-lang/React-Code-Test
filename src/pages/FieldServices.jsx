@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import TimeTracking from '../components/TimeTracking';
+import PMCommandCenter from '../components/PMCommandCenter';
+import TimesheetReview from '../components/TimesheetReview';
 import ScheduleView from '../components/ScheduleView';
 import { pmDashboardHeaders, pmDashboardRows } from '../data/pmDashboardData';
 import './Page.css';
@@ -101,6 +103,46 @@ const GridIcon = () => (
   </svg>
 );
 
+const PMCenterIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+);
+
+const CrewChiefIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+    <path d="M2 17l10 5 10-5"/>
+    <path d="M2 12l10 5 10-5"/>
+  </svg>
+);
+
+const MitigationIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+  </svg>
+);
+
+const ReconstructionIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 20h20"/>
+    <path d="M5 20V8l7-5 7 5v12"/>
+    <path d="M9 20v-6h6v6"/>
+    <path d="M9 12h6"/>
+  </svg>
+);
+
+const TimesheetReviewIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+    <rect x="9" y="3" width="6" height="4" rx="1"/>
+    <path d="M9 14l2 2 4-4"/>
+  </svg>
+);
+
 function FieldServices() {
   const [activeSection, setActiveSection] = useState(null);
   const [selectedPm, setSelectedPm] = useState('');
@@ -114,22 +156,34 @@ function FieldServices() {
       highlight: true
     },
     {
-      id: 'equipment',
-      title: 'Equipment & Inventory',
-      description: 'Manage equipment, tools, and material inventory',
-      icon: <PackageIcon />
+      id: 'timesheet-review',
+      title: 'Timesheet Review',
+      description: 'Review and approve weekly timesheets before payroll',
+      icon: <TimesheetReviewIcon />
     },
     {
-      id: 'documentation',
-      title: 'PM Job Checklist',
-      description: 'Job packet and field documentation checklist',
-      icon: <FileTextIcon />
+      id: 'pm-center',
+      title: 'PM Command Center',
+      description: 'Project manager hub for job oversight and task management',
+      icon: <PMCenterIcon />
     },
     {
-      id: 'pm-dashboard',
-      title: 'PM File Compliance',
-      description: 'Project manager file check and compliance status',
-      icon: <GridIcon />
+      id: 'crew-chief-center',
+      title: 'Crew Chief Command Center',
+      description: 'Crew chief hub for daily assignments and crew coordination',
+      icon: <CrewChiefIcon />
+    },
+    {
+      id: 'mitigation-center',
+      title: 'Mitigation Command Center',
+      description: 'Mitigation operations hub for water, fire, and mold response',
+      icon: <MitigationIcon />
+    },
+    {
+      id: 'reconstruction-center',
+      title: 'Reconstruction Command Center',
+      description: 'Reconstruction hub for rebuild scheduling and progress tracking',
+      icon: <ReconstructionIcon />
     }
   ];
 
@@ -165,6 +219,10 @@ function FieldServices() {
           <div className="field-service-detail">
             {activeSection === 'time-tracking' ? (
               <TimeTracking />
+            ) : activeSection === 'pm-center' ? (
+              <PMCommandCenter />
+            ) : activeSection === 'timesheet-review' ? (
+              <TimesheetReview />
             ) : activeSection === 'pm-dashboard' ? (
               (() => {
                 const { rows, headers } = getPmDashboardDisplayData();

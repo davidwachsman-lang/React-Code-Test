@@ -30,6 +30,34 @@ function Intake() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
+
+  const fieldLabel = {
+    jobName: 'Job Name',
+    customerName: 'Client Name',
+    customerPhone: 'Client Phone',
+    address: 'Address',
+    restorationCompany: 'Restoration Company',
+    restorationPhone: 'Restoration Phone',
+    callerType: 'Caller Type',
+    callerName: 'Caller Name',
+    callerPhone: 'Caller Phone',
+    lossType: 'Loss Type',
+    category: 'Water Category',
+    wclass: 'Water Class',
+  };
+
+  const fieldClassName = (id) => (validationErrors[id] ? 'field-invalid' : '');
+  const renderFieldError = (id) => (
+    validationErrors[id] ? <small className="field-error">{validationErrors[id]}</small> : null
+  );
+
+  const focusField = (fieldId) => {
+    const el = document.getElementById(fieldId);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    requestAnimationFrame(() => el.focus());
+  };
 
   // Map loss types to divisions
   const getLossTypeDivision = (lossType) => {
@@ -42,6 +70,17 @@ function Intake() {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
+
+    setValidationErrors((prev) => {
+      if (!prev[id] && !(id === 'lossType' && value !== 'Water' && (prev.category || prev.wclass))) return prev;
+      const next = { ...prev };
+      delete next[id];
+      if (id === 'lossType' && value !== 'Water') {
+        delete next.category;
+        delete next.wclass;
+      }
+      return next;
+    });
 
     // If loss type is changed, automatically update division
     if (id === 'lossType' && value) {
@@ -61,22 +100,22 @@ function Intake() {
   const validateRequired = () => {
     // Check if this is a Referral or Large Loss intake
     const isReferralOrLargeLoss = formData.division === 'Referral' || formData.division === 'Large Loss';
+    const errors = {};
 
     if (isReferralOrLargeLoss) {
       // Validation for Referral/Large Loss forms
       const required = ['jobName', 'customerName', 'customerPhone', 'address'];
       for (const field of required) {
         if (!formData[field]) {
-          alert(`Please complete required field: ${field}`);
-          return false;
+          errors[field] = `${fieldLabel[field]} is required`;
         }
       }
 
       // Referral-specific validation
       if (formData.division === 'Referral') {
         if (!formData.restorationCompany || !formData.restorationPhone) {
-          alert('Please complete Restoration Company information');
-          return false;
+          if (!formData.restorationCompany) errors.restorationCompany = `${fieldLabel.restorationCompany} is required`;
+          if (!formData.restorationPhone) errors.restorationPhone = `${fieldLabel.restorationPhone} is required`;
         }
       }
     } else {
@@ -84,18 +123,22 @@ function Intake() {
       const required = ['callerType', 'callerName', 'callerPhone', 'address', 'lossType'];
       for (const field of required) {
         if (!formData[field]) {
-          alert(`Please complete required field: ${field}`);
-          return false;
+          errors[field] = `${fieldLabel[field]} is required`;
         }
       }
       if (formData.lossType === 'Water') {
         if (!formData.category || !formData.wclass) {
-          alert('For Water losses, please specify Category and Class.');
-          return false;
+          if (!formData.category) errors.category = `${fieldLabel.category} is required for Water loss`;
+          if (!formData.wclass) errors.wclass = `${fieldLabel.wclass} is required for Water loss`;
         }
       }
     }
 
+    setValidationErrors(errors);
+    const firstErrorField = Object.keys(errors)[0];
+    if (firstErrorField) focusField(firstErrorField);
+
+    if (firstErrorField) return false;
     return true;
   };
 
@@ -105,6 +148,7 @@ function Intake() {
     setSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(null);
+    setValidationErrors({});
 
     try {
       const result = await intakeService.submitIntake({
@@ -130,6 +174,7 @@ function Intake() {
   const clearForm = () => {
     setFormData({
       division: 'HB - Nashville',
+      propertyType: '',
       callerType: '', callerName: '', callerPhone: '', callerEmail: '', relationship: '',
       address: '', city: '', state: '', zip: '', latitude: '', longitude: '', access: '', onsiteName: '', onsitePhone: '',
       propertyStatus: '', powerStatus: '', yearBuilt: '', foundationType: '',
@@ -137,10 +182,14 @@ function Intake() {
       roomsAffected: '', floorsAffected: '', unitsAffected: '', affectedMaterials: '', tempRepairs: '',
       carrier: '', claim: '', adjName: '', adjEmail: '', adjPhone: '', deductible: '', coverage: '',
       urgency: '', arrival: '', notes: '', branch: '', assigned: '',
-      authReq: '', payMethod: '', authSigner: '', authPhone: ''
+      authReq: '', payMethod: '', authSigner: '', authPhone: '',
+      jobName: '', customerName: '', customerEmail: '', customerPhone: '',
+      insuranceCompany: '', insurancePolicyNumber: '', insuranceAdjusterName: '', insuranceAdjusterPhone: '', insuranceAdjusterEmail: '',
+      restorationCompany: '', restorationContact: '', restorationPhone: '', restorationEmail: '',
     });
     setAffectedAreas([]);
     setCustomerForms([]);
+    setValidationErrors({});
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -316,6 +365,19 @@ function Intake() {
         </button>
       </div>
 
+      {Object.keys(validationErrors).length > 0 && (
+        <section className="intake-panel intake-validation-panel">
+          <p className="section-title">REQUIRED FIELDS</p>
+          <ul className="intake-error-list">
+            {Object.entries(validationErrors).map(([field, message]) => (
+              <li key={field}>
+                <button type="button" className="intake-error-link" onClick={() => focusField(field)}>{message}</button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* REFERRAL OR LARGE LOSS FORM */}
       {formData.division === 'Referral' || formData.division === 'Large Loss' ? (
         <>
@@ -325,7 +387,8 @@ function Intake() {
             <div className="intake-grid">
               <div className="col-6">
                 <label htmlFor="jobName">Job Name</label>
-                <input id="jobName" value={formData.jobName} onChange={handleInputChange} placeholder="Enter job name" required />
+                <input id="jobName" className={fieldClassName('jobName')} value={formData.jobName} onChange={handleInputChange} placeholder="Enter job name" aria-invalid={!!validationErrors.jobName} required />
+                {renderFieldError('jobName')}
               </div>
               <div className="col-6">
                 <label htmlFor="propertyType">Property Type</label>
@@ -336,11 +399,13 @@ function Intake() {
               </div>
               <div className="col-6">
                 <label htmlFor="customerName">Client Name</label>
-                <input id="customerName" value={formData.customerName} onChange={handleInputChange} placeholder="John Doe" required />
+                <input id="customerName" className={fieldClassName('customerName')} value={formData.customerName} onChange={handleInputChange} placeholder="John Doe" aria-invalid={!!validationErrors.customerName} required />
+                {renderFieldError('customerName')}
               </div>
               <div className="col-4">
                 <label htmlFor="customerPhone">Client Phone</label>
-                <input id="customerPhone" type="tel" value={formData.customerPhone} onChange={handleInputChange} placeholder="(555) 555-5555" required />
+                <input id="customerPhone" className={fieldClassName('customerPhone')} type="tel" value={formData.customerPhone} onChange={handleInputChange} placeholder="(555) 555-5555" aria-invalid={!!validationErrors.customerPhone} required />
+                {renderFieldError('customerPhone')}
               </div>
               <div className="col-4">
                 <label htmlFor="customerEmail">Client Email</label>
@@ -363,13 +428,16 @@ function Intake() {
                 </label>
                 <input 
                   id="address" 
+                  className={fieldClassName('address')}
                   ref={addressInputRef}
                   value={formData.address} 
                   onChange={handleInputChange} 
                   placeholder={autocompleteStatus === 'ready' ? "Start typing address..." : "Enter full address manually"}
                   autoComplete="off"
+                  aria-invalid={!!validationErrors.address}
                   required 
                 />
+                {renderFieldError('address')}
                 {autocompleteStatus === 'error' && (
                   <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
                     Google Maps API error. Please enter address manually or check browser console for details.
@@ -425,7 +493,8 @@ function Intake() {
               <div className="intake-grid">
                 <div className="col-6">
                   <label htmlFor="restorationCompany">Company Name</label>
-                  <input id="restorationCompany" value={formData.restorationCompany} onChange={handleInputChange} placeholder="XYZ Restoration" required />
+                  <input id="restorationCompany" className={fieldClassName('restorationCompany')} value={formData.restorationCompany} onChange={handleInputChange} placeholder="XYZ Restoration" aria-invalid={!!validationErrors.restorationCompany} required />
+                  {renderFieldError('restorationCompany')}
                 </div>
                 <div className="col-6">
                   <label htmlFor="restorationContact">Contact Person</label>
@@ -433,7 +502,8 @@ function Intake() {
                 </div>
                 <div className="col-6">
                   <label htmlFor="restorationPhone">Phone</label>
-                  <input id="restorationPhone" type="tel" value={formData.restorationPhone} onChange={handleInputChange} placeholder="(555) 555-5555" required />
+                  <input id="restorationPhone" className={fieldClassName('restorationPhone')} type="tel" value={formData.restorationPhone} onChange={handleInputChange} placeholder="(555) 555-5555" aria-invalid={!!validationErrors.restorationPhone} required />
+                  {renderFieldError('restorationPhone')}
                 </div>
                 <div className="col-6">
                   <label htmlFor="restorationEmail">Email</label>
@@ -463,7 +533,7 @@ function Intake() {
         <div className="intake-grid">
           <div className="col-4">
             <label htmlFor="callerType">Caller Type</label>
-            <select id="callerType" value={formData.callerType} onChange={handleInputChange} required>
+            <select id="callerType" className={fieldClassName('callerType')} value={formData.callerType} onChange={handleInputChange} aria-invalid={!!validationErrors.callerType} required>
               <option value="">Select…</option>
               <option>Homeowner</option>
               <option>Adjuster</option>
@@ -471,14 +541,17 @@ function Intake() {
               <option>GC</option>
               <option>Tenant</option>
             </select>
+            {renderFieldError('callerType')}
           </div>
           <div className="col-4">
             <label htmlFor="callerName">Caller Name</label>
-            <input id="callerName" value={formData.callerName} onChange={handleInputChange} placeholder="Jane Smith" required />
+            <input id="callerName" className={fieldClassName('callerName')} value={formData.callerName} onChange={handleInputChange} placeholder="Jane Smith" aria-invalid={!!validationErrors.callerName} required />
+            {renderFieldError('callerName')}
           </div>
           <div className="col-4">
             <label htmlFor="callerPhone">Caller Phone</label>
-            <input id="callerPhone" type="tel" value={formData.callerPhone} onChange={handleInputChange} placeholder="(555) 555-5555" required />
+            <input id="callerPhone" className={fieldClassName('callerPhone')} type="tel" value={formData.callerPhone} onChange={handleInputChange} placeholder="(555) 555-5555" aria-invalid={!!validationErrors.callerPhone} required />
+            {renderFieldError('callerPhone')}
           </div>
           <div className="col-6">
             <label htmlFor="callerEmail">Caller Email</label>
@@ -511,13 +584,16 @@ function Intake() {
             </label>
             <input 
               id="address" 
+              className={fieldClassName('address')}
               ref={addressInputRef}
               value={formData.address} 
               onChange={handleInputChange} 
               placeholder={autocompleteStatus === 'ready' ? "Start typing address..." : "Enter full address manually"}
               autoComplete="off"
+              aria-invalid={!!validationErrors.address}
               required 
             />
+            {renderFieldError('address')}
             {autocompleteStatus === 'error' && (
               <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
                 Google Maps API error. Please enter address manually or check browser console for details.
@@ -581,7 +657,7 @@ function Intake() {
           </div>
           <div className="col-3">
             <label htmlFor="lossType">Loss Type</label>
-            <select id="lossType" value={formData.lossType} onChange={handleInputChange} required>
+            <select id="lossType" className={fieldClassName('lossType')} value={formData.lossType} onChange={handleInputChange} aria-invalid={!!validationErrors.lossType} required>
               <option value="">Select…</option>
               <option>Water</option>
               <option>Fire</option>
@@ -592,6 +668,7 @@ function Intake() {
               <option>Reconstruction</option>
               <option>Contents</option>
             </select>
+            {renderFieldError('lossType')}
           </div>
           <div className="col-3">
             <label htmlFor="source">Source of Loss</label>
@@ -611,22 +688,24 @@ function Intake() {
           </div>
           <div className="col-3">
             <label htmlFor="category">Water Category</label>
-            <select id="category" value={formData.category} onChange={handleInputChange}>
+            <select id="category" className={fieldClassName('category')} value={formData.category} onChange={handleInputChange} aria-invalid={!!validationErrors.category}>
               <option value="">N/A / Unknown</option>
               <option>1</option>
               <option>2</option>
               <option>3</option>
             </select>
+            {renderFieldError('category')}
           </div>
           <div className="col-3">
             <label htmlFor="wclass">Water Class</label>
-            <select id="wclass" value={formData.wclass} onChange={handleInputChange}>
+            <select id="wclass" className={fieldClassName('wclass')} value={formData.wclass} onChange={handleInputChange} aria-invalid={!!validationErrors.wclass}>
               <option value="">N/A / Unknown</option>
               <option>1</option>
               <option>2</option>
               <option>3</option>
               <option>4</option>
             </select>
+            {renderFieldError('wclass')}
           </div>
           <div className="col-12">
             <label>Affected Areas</label>

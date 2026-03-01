@@ -38,9 +38,15 @@ const intakeService = {
    * @returns {Object} Created records { customer, property, job }
    */
   async submitIntake(intakeData) {
+    let createdCustomerId = null;
+    let createdPropertyId = null;
+    let createdJobId = null;
+
     try {
       // Check if this is a Referral or Large Loss intake
       const isReferral = intakeData.division === 'Referral' || intakeData.division === 'Large Loss';
+      const latitude = intakeData.latitude !== '' && intakeData.latitude != null ? Number(intakeData.latitude) : null;
+      const longitude = intakeData.longitude !== '' && intakeData.longitude != null ? Number(intakeData.longitude) : null;
 
       // Step 1: Create or find customer
       const customerData = isReferral ? {
@@ -58,6 +64,7 @@ const intakeService = {
       };
 
       const customer = await customerService.create(customerData);
+      createdCustomerId = customer.id;
 
       // Step 2: Create property
       const propertyData = isReferral ? {
@@ -69,6 +76,8 @@ const intakeService = {
         state: intakeData.state || '',
         postal_code: intakeData.zip || '',
         country: 'USA',
+        latitude: Number.isFinite(latitude) ? latitude : null,
+        longitude: Number.isFinite(longitude) ? longitude : null,
         notes: `Access: ${intakeData.access || 'N/A'}\nOnsite Contact: ${intakeData.onsiteName || 'N/A'} - ${intakeData.onsitePhone || 'N/A'}`
       } : {
         customer_id: customer.id,
@@ -79,10 +88,13 @@ const intakeService = {
         state: intakeData.state || '',
         postal_code: intakeData.zip || '',
         country: 'USA',
+        latitude: Number.isFinite(latitude) ? latitude : null,
+        longitude: Number.isFinite(longitude) ? longitude : null,
         notes: `Access: ${intakeData.access || 'N/A'}\nOnsite Contact: ${intakeData.onsiteName || 'N/A'} - ${intakeData.onsitePhone || 'N/A'}`
       };
 
       const property = await propertyService.create(propertyData);
+      createdPropertyId = property.id;
 
       // Step 3: Create job
       // Generate sequential job number: YY-DIVISION-####
@@ -125,7 +137,7 @@ const intakeService = {
         scope_summary: this._buildScopeSummary(intakeData),
         internal_notes: this._buildInternalNotes(intakeData),
         referral_source: intakeData.callerType,
-        is_emergency: intakeData.urgency === 'Emergency',
+        is_emergency: String(intakeData.urgency || '').toLowerCase().startsWith('emergency'),
         division: intakeData.division,
         // Insurance fields — saved to dedicated columns (not just internal_notes)
         insurance_company: intakeData.carrier || null,
@@ -135,6 +147,7 @@ const intakeService = {
       };
 
       const job = await jobService.create(jobData);
+      createdJobId = job.id;
 
       return {
         success: true,
@@ -146,6 +159,20 @@ const intakeService = {
 
     } catch (error) {
       console.error('Intake submission error:', error);
+      // Best-effort rollback to avoid leaving orphaned customer/property rows.
+      const rollbackErrors = [];
+      if (createdJobId) {
+        try { await jobService.delete(createdJobId); } catch (e) { rollbackErrors.push(`job:${e.message}`); }
+      }
+      if (createdPropertyId) {
+        try { await propertyService.delete(createdPropertyId); } catch (e) { rollbackErrors.push(`property:${e.message}`); }
+      }
+      if (createdCustomerId) {
+        try { await customerService.delete(createdCustomerId); } catch (e) { rollbackErrors.push(`customer:${e.message}`); }
+      }
+      if (rollbackErrors.length > 0) {
+        console.error('Intake rollback had errors:', rollbackErrors);
+      }
       throw new Error(error.message || 'Failed to submit intake form');
     }
   },

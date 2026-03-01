@@ -101,6 +101,27 @@ function Sandbox() {
           <span className="btn-icon">📒</span>
           Company Directory
         </button>
+        <button
+          className={`action-btn ${activeTab === 'equipment' ? 'action-btn-green' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('equipment')}
+        >
+          <span className="btn-icon">📦</span>
+          Equipment & Inventory
+        </button>
+        <button
+          className={`action-btn ${activeTab === 'pm-checklist' ? 'action-btn-green' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('pm-checklist')}
+        >
+          <span className="btn-icon">📋</span>
+          PM Job Checklist
+        </button>
+        <button
+          className={`action-btn ${activeTab === 'pm-compliance' ? 'action-btn-green' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('pm-compliance')}
+        >
+          <span className="btn-icon">✅</span>
+          PM File Compliance
+        </button>
         {/* Future tabs can be added here */}
       </div>
 
@@ -231,8 +252,29 @@ function Sandbox() {
           </div>
         )}
 
+        {/* Equipment & Inventory View */}
+        {activeTab === 'equipment' && (
+          <div className="sandbox-placeholder">
+            <p>Equipment & Inventory feature coming soon...</p>
+          </div>
+        )}
+
+        {/* PM Job Checklist View */}
+        {activeTab === 'pm-checklist' && (
+          <div className="sandbox-placeholder">
+            <p>PM Job Checklist feature coming soon...</p>
+          </div>
+        )}
+
+        {/* PM File Compliance View */}
+        {activeTab === 'pm-compliance' && (
+          <div className="sandbox-placeholder">
+            <p>PM File Compliance feature coming soon...</p>
+          </div>
+        )}
+
         {/* Placeholder for future tabs */}
-        {activeTab !== 'scorecard' && activeTab !== 'b2b-referrals' && activeTab !== 'customer-nps' && activeTab !== 'enps' && activeTab !== 'financials' && activeTab !== 'company-directory' && (
+        {activeTab !== 'scorecard' && activeTab !== 'b2b-referrals' && activeTab !== 'customer-nps' && activeTab !== 'enps' && activeTab !== 'financials' && activeTab !== 'company-directory' && activeTab !== 'equipment' && activeTab !== 'pm-checklist' && activeTab !== 'pm-compliance' && (
           <div className="sandbox-placeholder">
             <p>Coming soon...</p>
           </div>

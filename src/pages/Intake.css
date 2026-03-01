@@ -205,6 +205,43 @@
   border-color: rgba(96, 165, 250, 0.4);
 }
 
+.intake-wrap .field-invalid {
+  border-color: var(--intake-danger);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
+.intake-wrap .field-error {
+  color: #fca5a5;
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.intake-validation-panel {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: linear-gradient(135deg, rgba(127, 29, 29, 0.25) 0%, rgba(30, 41, 59, 0.8) 100%);
+}
+
+.intake-error-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.intake-error-link {
+  color: #fecaca;
+  background: transparent;
+  border: 0;
+  padding: 2px 0;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(254, 202, 202, 0.5);
+}
+
+.intake-error-link:hover {
+  color: #fff;
+}
+
 .intake-wrap textarea {
   min-height: 100px;
   resize: vertical;

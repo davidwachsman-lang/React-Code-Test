@@ -59,7 +59,12 @@ function TimesheetReview() {
     return d;
   }, [weekOffset]);
 
-  const crewNames = pmCrewMapping[selectedPm] || [];
+  const crewNames = useMemo(() => {
+    if (selectedPm === 'All') {
+      return Object.values(pmCrewMapping).flat();
+    }
+    return pmCrewMapping[selectedPm] || [];
+  }, [selectedPm]);
 
   const filteredEntries = useMemo(() => {
     return entries.filter((e) => crewNames.includes(e.technician_name));
@@ -70,7 +75,10 @@ function TimesheetReview() {
   }, [crewNames]);
 
   // KPIs
-  const techCount = new Set(filteredEntries.map((e) => e.technician_name)).size;
+  const uniqueEmployees = [...new Set(filteredEntries.map((e) => e.technician_name))];
+  const techCount = uniqueEmployees.length;
+  const crewChiefCount = uniqueEmployees.filter((n) => employeeRoles[n] === 'Crew Chief').length;
+  const techRoleCount = techCount - crewChiefCount;
   const totalHours = filteredEntries.reduce((sum, e) => sum + e.total_hours, 0);
   const pendingCount = filteredEntries.filter((e) => e.status === 'pending').length;
   const laborCost = totalHours * BLENDED_RATE;
@@ -399,6 +407,7 @@ function TimesheetReview() {
             value={selectedPm}
             onChange={(e) => setSelectedPm(e.target.value)}
           >
+            <option value="All">All PMs</option>
             {Object.keys(pmCrewMapping).map((pm) => (
               <option key={pm} value={pm}>
                 {pm}
@@ -425,8 +434,9 @@ function TimesheetReview() {
       {/* KPI Row */}
       <div className="tsr-kpi-row">
         <div className="tsr-kpi-card">
-          <div className="tsr-kpi-label">Technicians</div>
+          <div className="tsr-kpi-label">Employees</div>
           <div className="tsr-kpi-value">{techCount}</div>
+          <div className="tsr-kpi-sub">{crewChiefCount} Crew Chief{crewChiefCount !== 1 ? 's' : ''}, {techRoleCount} Tech{techRoleCount !== 1 ? 's' : ''}</div>
         </div>
         <div className="tsr-kpi-card">
           <div className="tsr-kpi-label">Total Hours</div>

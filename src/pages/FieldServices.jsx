@@ -163,18 +163,6 @@ function FieldServices() {
     },
     {
       id: 'pm-center',
-      title: 'PM Command Center',
-      description: 'Project manager hub for job oversight and task management',
-      icon: <PMCenterIcon />
-    },
-    {
-      id: 'crew-chief-center',
-      title: 'Crew Chief Command Center',
-      description: 'Crew chief hub for daily assignments and crew coordination',
-      icon: <CrewChiefIcon />
-    },
-    {
-      id: 'mitigation-center',
       title: 'Mitigation Command Center',
       description: 'Mitigation operations hub for water, fire, and mold response',
       icon: <MitigationIcon />

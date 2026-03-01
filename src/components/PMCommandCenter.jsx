@@ -5,18 +5,23 @@ import {
   pmTasks as pmTasksData,
   pmCrewAssignments,
   pmFinancials,
+  pmEstimates,
+  pmCommHub,
   pmCommunicationLog,
   pmDocumentStatus,
 } from '../data/pmCommandCenterData';
+import ScheduleView from './ScheduleView';
 import './PMCommandCenter.css';
 
 const TABS = [
-  { id: 'jobs', label: 'Job Overview' },
+  { id: 'estimates', label: 'Estimates' },
+  { id: 'jobs', label: 'WIP - Jobs' },
+  { id: 'docs', label: 'Job File Checks' },
   { id: 'tasks', label: 'Tasks & Action Items' },
   { id: 'crew', label: 'Crew Assignments' },
   { id: 'financials', label: 'Financials' },
-  { id: 'comms', label: 'Communication Log' },
-  { id: 'docs', label: 'Documents & Photos' },
+  { id: 'commhub', label: 'Communication Hub' },
+  { id: 'schedule', label: 'Schedule' },
 ];
 
 const STATUS_COLORS = {
@@ -50,7 +55,7 @@ function formatCurrency(val) {
 
 export default function PMCommandCenter() {
   const [selectedPm, setSelectedPm] = useState('');
-  const [activeTab, setActiveTab] = useState('jobs');
+  const [activeTab, setActiveTab] = useState('estimates');
   const [tasks, setTasks] = useState(pmTasksData);
   const [expandedJob, setExpandedJob] = useState(null);
   const [commFilter, setCommFilter] = useState('');
@@ -68,6 +73,8 @@ export default function PMCommandCenter() {
     if (commFilter) result = result.filter((c) => c.jobId === commFilter);
     return result;
   }, [selectedPm, commFilter]);
+  const filteredEstimates = useMemo(() => filterByPm(pmEstimates), [selectedPm]);
+  const filteredCommHub = useMemo(() => filterByPm(pmCommHub), [selectedPm]);
   const filteredDocs = useMemo(() => filterByPm(pmDocumentStatus), [selectedPm]);
   const filteredCrew = useMemo(() => {
     if (!selectedPm) return pmCrewAssignments;
@@ -145,7 +152,7 @@ export default function PMCommandCenter() {
       {/* Top Bar */}
       <div className="pmc-header">
         <div className="pmc-header-left">
-          <h2>PM Command Center</h2>
+          <h2>Mitigation Command Center</h2>
           <div className="pmc-pm-selector">
             <label htmlFor="pmc-pm-select">PM</label>
             <select
@@ -387,7 +394,79 @@ export default function PMCommandCenter() {
           </div>
         )}
 
-        {/* ===== 4. Financials ===== */}
+        {/* ===== 4. Estimates ===== */}
+        {activeTab === 'estimates' && (
+          <div className="pmc-section">
+            <div className="pmc-table-wrap">
+              <table className="pmc-table">
+                <thead>
+                  <tr>
+                    <th>Estimate #</th>
+                    <th>Job #</th>
+                    <th>Customer</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th>Approved</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredEstimates.map((est) => (
+                    <tr key={est.id} className="pmc-table-row">
+                      <td className="pmc-td-bold">
+                        {est.id}
+                        {est.supplement && <span className="pmc-pill" style={{ background: '#a855f722', color: '#a855f7', marginLeft: '0.4rem', fontSize: '0.65rem' }}>SUPP</span>}
+                      </td>
+                      <td>{est.jobId}</td>
+                      <td>{est.customer}</td>
+                      <td>
+                        <span className="pmc-pill" style={{ background: TYPE_COLORS[est.type] + '22', color: TYPE_COLORS[est.type] }}>
+                          {est.type}
+                        </span>
+                      </td>
+                      <td className="pmc-td-bold">{formatCurrency(est.estimateTotal)}</td>
+                      <td>
+                        <span className="pmc-pill" style={{
+                          background: (est.status === 'Approved' ? '#22c55e' : est.status === 'Pending' ? '#f59e0b' : '#64748b') + '22',
+                          color: est.status === 'Approved' ? '#22c55e' : est.status === 'Pending' ? '#f59e0b' : '#94a3b8',
+                        }}>
+                          {est.status}
+                        </span>
+                      </td>
+                      <td>{est.dateSubmitted || '—'}</td>
+                      <td>{est.dateApproved || '—'}</td>
+                      <td className="pmc-est-notes">{est.notes}</td>
+                    </tr>
+                  ))}
+                  {filteredEstimates.length > 0 && (
+                    <tr className="pmc-table-row pmc-totals-row">
+                      <td className="pmc-td-bold" colSpan={4}>Totals</td>
+                      <td className="pmc-td-bold">{formatCurrency(filteredEstimates.reduce((s, e) => s + e.estimateTotal, 0))}</td>
+                      <td colSpan={4}>
+                        <span style={{ color: '#22c55e', marginRight: '0.75rem' }}>
+                          {filteredEstimates.filter((e) => e.status === 'Approved').length} Approved
+                        </span>
+                        <span style={{ color: '#f59e0b', marginRight: '0.75rem' }}>
+                          {filteredEstimates.filter((e) => e.status === 'Pending').length} Pending
+                        </span>
+                        <span style={{ color: '#94a3b8' }}>
+                          {filteredEstimates.filter((e) => e.status === 'Draft').length} Draft
+                        </span>
+                      </td>
+                    </tr>
+                  )}
+                  {filteredEstimates.length === 0 && (
+                    <tr><td colSpan={9} className="pmc-empty">No estimates for selected PM.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ===== 5. Financials ===== */}
         {activeTab === 'financials' && (
           <div className="pmc-section">
             <div className="pmc-table-wrap">
@@ -431,6 +510,74 @@ export default function PMCommandCenter() {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* ===== Communication Hub ===== */}
+        {activeTab === 'commhub' && (
+          <div className="pmc-section">
+            <div className="pmc-table-wrap">
+              <table className="pmc-table">
+                <thead>
+                  <tr className="pmc-commhub-group-row">
+                    <th colSpan={2}></th>
+                    <th colSpan={3} className="pmc-commhub-group-header">Customer</th>
+                    <th></th>
+                    <th colSpan={3} className="pmc-commhub-group-header">Adjuster</th>
+                    <th colSpan={3} className="pmc-commhub-group-header">Agent</th>
+                    <th colSpan={3} className="pmc-commhub-group-header">Team</th>
+                  </tr>
+                  <tr>
+                    <th>Job #</th>
+                    <th>Customer</th>
+                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Insurance</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Crew Chief</th>
+                    <th>Tech</th>
+                    <th>BDR</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCommHub.map((c) => (
+                    <tr key={c.jobId} className="pmc-table-row">
+                      <td className="pmc-td-bold">{c.jobId}</td>
+                      <td>{c.customer}</td>
+                      <td>{c.customerContact}</td>
+                      <td className="pmc-commhub-email">{c.customerEmail}</td>
+                      <td className="pmc-commhub-phone">{c.customerPhone}</td>
+                      <td>{c.insuranceCo}</td>
+                      <td>{c.adjuster}</td>
+                      <td className="pmc-commhub-email">{c.adjusterEmail}</td>
+                      <td className="pmc-commhub-phone">{c.adjusterPhone}</td>
+                      <td>{c.agent}</td>
+                      <td className="pmc-commhub-email">{c.agentEmail}</td>
+                      <td className="pmc-commhub-phone">{c.agentPhone}</td>
+                      <td>{c.crewChief || <span className="pmc-unassigned">—</span>}</td>
+                      <td>{c.tech || <span className="pmc-unassigned">—</span>}</td>
+                      <td>{c.bdr}</td>
+                    </tr>
+                  ))}
+                  {filteredCommHub.length === 0 && (
+                    <tr><td colSpan={15} className="pmc-empty">No active jobs for selected PM.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ===== Schedule ===== */}
+        {activeTab === 'schedule' && (
+          <div className="pmc-section">
+            <ScheduleView />
           </div>
         )}
 

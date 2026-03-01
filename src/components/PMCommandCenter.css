@@ -484,6 +484,41 @@
 .pmc-fin-collected { color: #22c55e; }
 .pmc-fin-outstanding { color: #ef4444; }
 
+/* Communication Hub */
+.pmc-commhub-group-row th {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.pmc-commhub-group-header {
+  font-size: 0.65rem !important;
+  color: #94a3b8 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.08) !important;
+  padding-bottom: 0.2rem !important;
+}
+
+.pmc-commhub-email {
+  font-size: 0.75rem;
+  color: #3b82f6;
+}
+
+.pmc-commhub-phone {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.pmc-est-notes {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
 .pmc-totals-row td {
   border-top: 2px solid rgba(71, 85, 105, 0.6);
   background: rgba(30, 41, 59, 0.5) !important;

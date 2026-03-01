@@ -280,7 +280,8 @@ function AppContent() {
               <div className={isTestRoute ? 'sales-test-content' : 'app-content'}>
                 <Routes>
                   <Route path="/dispatch" element={<DispatchAndScheduling />} />
-                  <Route path="/wip-board" element={<WIPBoard />} />
+                  <Route path="/production-pipeline" element={<WIPBoard />} />
+                  <Route path="/wip-board" element={<Navigate to="/production-pipeline" replace />} />
                   <Route path="/estimating" element={<Estimating />} />
                   <Route path="/estimate-control-tower" element={<EstimateControlTower />} />
                   <Route path="/job-files" element={<JobFiles />} />

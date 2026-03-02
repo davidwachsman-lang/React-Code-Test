@@ -207,6 +207,9 @@ function Navigation() {
   ];
 
   const isActive = (path) => {
+    if (path === '/dispatch') {
+      return location.pathname === '/dispatch' || location.pathname.startsWith('/dispatch/');
+    }
     return location.pathname === path;
   };
 

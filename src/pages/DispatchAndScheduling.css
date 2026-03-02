@@ -80,6 +80,24 @@
   border-color: #22c55e;
 }
 
+.dispatch-job-status-planning-btn {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: rgba(14, 165, 164, 0.18);
+  border: 1px solid rgba(14, 165, 164, 0.5);
+  border-radius: 8px;
+  color: #5eead4;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.dispatch-job-status-planning-btn:hover {
+  background: rgba(14, 165, 164, 0.28);
+  border-color: rgba(14, 165, 164, 0.75);
+}
+
 .dispatch-export-pdf-btn {
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
@@ -188,6 +206,181 @@
   color: #1e293b;
   border-radius: 9px;
   vertical-align: middle;
+}
+
+.dispatch-status-planning-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.76);
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+}
+
+.dispatch-status-planning-modal {
+  width: min(1200px, calc(100vw - 20px));
+  max-height: calc(100vh - 20px);
+  background: #0f172a;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dispatch-status-planning-header {
+  padding: 0.75rem 0.85rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dispatch-status-planning-header h3 {
+  margin: 0;
+  color: #f1f5f9;
+}
+
+.dispatch-status-planning-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dispatch-status-planning-header button {
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+.dispatch-status-planning-header .dispatch-status-apply-btn {
+  border-color: rgba(59, 130, 246, 0.55);
+  background: rgba(59, 130, 246, 0.2);
+  color: #bfdbfe;
+  font-weight: 600;
+}
+
+.dispatch-status-planning-header .dispatch-status-apply-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.dispatch-status-planning-toolbar {
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dispatch-status-toggle {
+  display: inline-flex;
+  border: 1px solid rgba(59, 130, 246, 0.38);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dispatch-status-toggle button {
+  border: 0;
+  background: rgba(30, 41, 59, 0.82);
+  color: #94a3b8;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.dispatch-status-toggle button.active {
+  color: #60a5fa;
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.dispatch-status-count {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.dispatch-status-table-wrap {
+  overflow: auto;
+  padding: 0.75rem 0.85rem 0.9rem;
+}
+
+.dispatch-status-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 940px;
+}
+
+.dispatch-status-table th,
+.dispatch-status-table td {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  padding: 0.55rem 0.5rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.dispatch-status-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgba(15, 23, 42, 0.94);
+  color: #cbd5e1;
+  font-size: 0.78rem;
+}
+
+.dispatch-status-table td {
+  color: #e2e8f0;
+  font-size: 0.82rem;
+}
+
+.dispatch-status-table select {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+  border-radius: 6px;
+  padding: 0.32rem 0.4rem;
+}
+
+.dispatch-hours-adjust {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dispatch-hours-adjust button {
+  width: 22px;
+  height: 22px;
+  line-height: 1;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 4px;
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+.dispatch-hours-adjust button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.dispatch-hours-adjust span {
+  min-width: 30px;
+  text-align: center;
+  color: #cbd5e1;
+}
+
+.dispatch-status-empty {
+  padding: 1rem 0.85rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.dispatch-status-error {
+  margin: 0.4rem 0.85rem 0;
+  color: #f87171;
+  font-size: 0.85rem;
 }
 
 .dispatch-week-view {

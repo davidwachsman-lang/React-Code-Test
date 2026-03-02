@@ -15,6 +15,7 @@ export default function DispatchHeader({
   conflicts,
   onCopyFromDate,
   onManageTeams,
+  onOpenJobStatusPlanning,
 }) {
   const copyDateRef = useRef(null);
 
@@ -32,7 +33,7 @@ export default function DispatchHeader({
   };
   return (
     <div className="dispatch-header">
-      <h1>Dispatch & Scheduling</h1>
+      <h1>Schedule</h1>
       {/* Row 1: nav, range toggle, undo/redo, view toggle */}
       <div className="dispatch-header-row dispatch-header-nav-row">
         <div className="dispatch-date-nav">
@@ -75,6 +76,9 @@ export default function DispatchHeader({
         </button>
         <button type="button" className="dispatch-manage-teams-btn" onClick={onManageTeams}>
           Manage Teams
+        </button>
+        <button type="button" className="dispatch-job-status-planning-btn" onClick={onOpenJobStatusPlanning}>
+          Job Status Planning
         </button>
         {rangeMode === 'day' && (
           <div className="dispatch-copy-from-wrap">

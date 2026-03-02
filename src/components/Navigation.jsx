@@ -191,7 +191,7 @@ function Navigation() {
   const navItems = [
     { path: '/', label: 'Intake', icon: <IntakeIcon /> },
     { path: '/dispatch', label: 'Dispatch & Scheduling', icon: <DispatchIcon /> },
-    { path: '/wip-board', label: 'WIP Board', icon: <WIPBoardIcon /> },
+    { path: '/production-pipeline', label: 'Production Pipeline', icon: <WIPBoardIcon /> },
     { path: '/estimating', label: 'Estimating', icon: <EstimatingIcon /> },
     { path: '/estimate-control-tower', label: 'Estimate Control Tower', icon: <EstimateControlTowerIcon /> },
     { path: '/job-files', label: 'Job Files', icon: <JobFilesIcon /> },
@@ -207,6 +207,9 @@ function Navigation() {
   ];
 
   const isActive = (path) => {
+    if (path === '/dispatch') {
+      return location.pathname === '/dispatch' || location.pathname.startsWith('/dispatch/');
+    }
     return location.pathname === path;
   };
 

@@ -10,6 +10,8 @@ import AuthCallback from './pages/AuthCallback';
 import SetPassword from './pages/SetPassword';
 import Intake from './pages/Intake';
 import DispatchAndScheduling from './pages/DispatchAndScheduling';
+import DispatchHub from './pages/DispatchHub';
+import DispatchBoard from './pages/DispatchBoard';
 import WIPBoard from './pages/WIPBoard';
 import Estimating from './pages/Estimating';
 import EstimateControlTower from './pages/EstimateControlTower';
@@ -59,7 +61,8 @@ function OpsNav() {
       zIndex: 50,
     }}>
       {tabs.map(tab => {
-        const isActive = location.pathname === tab.path || (tab.path === '/dispatch' && location.pathname === '/');
+        const isActive = location.pathname === tab.path
+          || (tab.path === '/dispatch' && (location.pathname === '/' || location.pathname.startsWith('/dispatch/')));
         return (
           <a
             key={tab.path}
@@ -245,8 +248,10 @@ function AppContent() {
                 <OpsNav />
                 <div className="app-content" style={{ marginLeft: 0 }}>
                   <Routes>
-                    <Route path="/" element={<DispatchAndScheduling />} />
-                    <Route path="/dispatch" element={<DispatchAndScheduling />} />
+                    <Route path="/" element={<Navigate to="/dispatch" replace />} />
+                    <Route path="/dispatch" element={<DispatchHub />} />
+                    <Route path="/dispatch/scheduling" element={<DispatchAndScheduling defaultMode="scheduling" />} />
+                    <Route path="/dispatch/board" element={<DispatchBoard />} />
                     <Route path="/job-file-checks" element={<JobFileChecks />} />
                     <Route path="/job-files" element={<JobFiles />} />
                     <Route path="/job-files/:id" element={<JobDetail />} />
@@ -279,8 +284,11 @@ function AppContent() {
               {!isTestRoute && <Navigation />}
               <div className={isTestRoute ? 'sales-test-content' : 'app-content'}>
                 <Routes>
-                  <Route path="/dispatch" element={<DispatchAndScheduling />} />
-                  <Route path="/wip-board" element={<WIPBoard />} />
+                  <Route path="/dispatch" element={<DispatchHub />} />
+                  <Route path="/dispatch/scheduling" element={<DispatchAndScheduling defaultMode="scheduling" />} />
+                  <Route path="/dispatch/board" element={<DispatchBoard />} />
+                  <Route path="/production-pipeline" element={<WIPBoard />} />
+                  <Route path="/wip-board" element={<Navigate to="/production-pipeline" replace />} />
                   <Route path="/estimating" element={<Estimating />} />
                   <Route path="/estimate-control-tower" element={<EstimateControlTower />} />
                   <Route path="/job-files" element={<JobFiles />} />

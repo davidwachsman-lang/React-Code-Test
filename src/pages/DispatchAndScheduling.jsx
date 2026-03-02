@@ -16,12 +16,14 @@ import DispatchScheduleModal from '../components/dispatch/DispatchScheduleModal'
 import DispatchMapView from '../components/dispatch/DispatchMapView';
 import DispatchWeekView from '../components/dispatch/DispatchWeekView';
 import DispatchMonthView from '../components/dispatch/DispatchMonthView';
+import DispatchJobStatusPlanningModal from '../components/dispatch/DispatchJobStatusPlanningModal';
 import BulkCrewSwapModal from '../components/dispatch/BulkCrewSwapModal';
 import TeamManagementModal from '../components/dispatch/TeamManagementModal';
+import { hoursForJobType } from '../config/dispatchJobDurations';
 import './Page.css';
 import './DispatchAndScheduling.css';
 
-function DispatchAndScheduling() {
+function DispatchAndScheduling({ defaultMode = 'board' }) {
   const { user } = useAuth();
   const userId = user?.id || null;
 
@@ -69,12 +71,25 @@ function DispatchAndScheduling() {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showSwapModal, setShowSwapModal] = useState(false);
   const [showTeamModal, setShowTeamModal] = useState(false);
+  const [showJobStatusPlanning, setShowJobStatusPlanning] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [emailSuccess, setEmailSuccess] = useState('');
 
   useEffect(() => {
     if (rangeMode !== 'day' && viewMode === 'map') setViewMode('table');
   }, [rangeMode, viewMode]);
+
+  useEffect(() => {
+    if (defaultMode === 'scheduling') {
+      setRangeMode('day');
+      setViewMode('table');
+      setCrewFilter('all');
+      return;
+    }
+    setRangeMode('day');
+    setViewMode('table');
+    setCrewFilter('all');
+  }, [defaultMode, setCrewFilter, setRangeMode, setViewMode]);
 
   // ─── Arrow key navigation ──────────────────────────────────────────────────
   useEffect(() => {
@@ -484,6 +499,32 @@ function DispatchAndScheduling() {
     }));
   };
 
+  const applyStatusToSchedule = (updates) => {
+    const list = Array.isArray(updates) ? updates : [updates];
+    const normalized = list.map(({ jobId, jobNumber, statusValue, hours }) => ({
+      jobId,
+      normalizedNumber: String(jobNumber || '').trim().toLowerCase(),
+      statusValue,
+      nextHours: Number(hours) || hoursForJobType(statusValue) || 1,
+    }));
+
+    pushUndo();
+    setSchedule((prev) => {
+      const next = { ...prev };
+      Object.keys(next).forEach((laneId) => {
+        next[laneId] = (next[laneId] || []).map((job) => {
+          const scheduleNum = String(job.jobNumber || '').trim().toLowerCase();
+          const match = normalized.find((u) => {
+            if (u.jobId && job.dbJobId === u.jobId) return true;
+            return u.normalizedNumber && scheduleNum === u.normalizedNumber;
+          });
+          return match ? { ...job, jobType: match.statusValue, hours: match.nextHours } : job;
+        });
+      });
+      return next;
+    });
+  };
+
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
@@ -521,6 +562,7 @@ function DispatchAndScheduling() {
         conflicts={conflicts}
         onCopyFromDate={copyFromDate}
         onManageTeams={() => setShowTeamModal(true)}
+        onOpenJobStatusPlanning={() => setShowJobStatusPlanning(true)}
       />
 
       {showExcelUpload && (
@@ -634,6 +676,12 @@ function DispatchAndScheduling() {
           onClose={() => setShowTeamModal(false)}
         />
       )}
+
+      <DispatchJobStatusPlanningModal
+        open={showJobStatusPlanning}
+        onClose={() => setShowJobStatusPlanning(false)}
+        onApplyStatusToSchedule={applyStatusToSchedule}
+      />
     </div>
   );
 }

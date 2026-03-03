@@ -8,7 +8,11 @@
       "Bash(lsof:*)",
       "Bash(awk:*)",
       "Bash(xargs kill:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(node:*)",
+      "Bash(npx vite:*)",
+      "Bash(supabase:*)"
     ],
     "deny": [],
     "ask": []

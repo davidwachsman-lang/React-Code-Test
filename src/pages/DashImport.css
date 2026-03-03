@@ -1,0 +1,205 @@
+/* DashImport — action bar, table, pagination */
+
+.dash-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.dash-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.dash-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dash-btn-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.dash-btn-green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+/* Status / progress */
+
+.dash-status {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.dash-progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(59, 130, 246, 0.15);
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.dash-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.dash-status-text {
+  color: #94a3b8;
+  margin: 0;
+}
+
+.dash-success {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.dash-error {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* Table section */
+
+.dash-table-section {
+  margin-top: 2rem;
+}
+
+.dash-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+.dash-btn-close {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  background: rgba(51, 65, 85, 0.5);
+  border: 1px solid #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.dash-btn-close:hover {
+  color: #f1f5f9;
+  border-color: #475569;
+}
+
+.dash-table-scroll {
+  overflow-x: auto;
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 12px;
+  background: rgba(30, 41, 59, 0.6);
+}
+
+.dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.dash-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.dash-table th {
+  background: rgba(15, 23, 42, 0.95);
+  color: #94a3b8;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.625rem 0.75rem;
+  white-space: nowrap;
+  border-bottom: 1px solid #334155;
+  user-select: none;
+}
+
+.dash-th-content {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.sort-indicator {
+  color: #475569;
+  font-size: 0.75rem;
+}
+
+.dash-table td {
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+  color: #e2e8f0;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+}
+
+.dash-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+/* Pagination */
+
+.dash-pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0;
+  flex-wrap: wrap;
+}
+
+.dash-pagination button {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  background: rgba(51, 65, 85, 0.5);
+  border: 1px solid #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.dash-pagination button:hover:not(:disabled) {
+  color: #f1f5f9;
+  border-color: #475569;
+}
+
+.dash-pagination button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.dash-page-info {
+  color: #94a3b8;
+  font-size: 0.8125rem;
+  padding: 0 0.5rem;
+}
+
+.dash-pagination select {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8125rem;
+  color: #e2e8f0;
+  background: rgba(51, 65, 85, 0.5);
+  border: 1px solid #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: auto;
+}

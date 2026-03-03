@@ -28,6 +28,7 @@ import Expectations2026 from './pages/Expectations2026';
 import Storm from './pages/Storm';
 import ResourceCenter from './pages/ResourceCenter';
 import Sandbox from './pages/Sandbox';
+import DashImport from './pages/DashImport';
 import InsuranceJobSOPs from './pages/InsuranceJobSOPs';
 import Conversion from './pages/Conversion';
 import JobFileChecks from './pages/JobFileChecks';
@@ -304,6 +305,7 @@ function AppContent() {
                   <Route path="/resources" element={<ResourceCenter />} />
                   <Route path="/expectations-2026" element={<Expectations2026 />} />
                   <Route path="/sandbox" element={<Sandbox />} />
+                  <Route path="/dash-import" element={<DashImport />} />
                   <Route path="/insurance-job-sops" element={<InsuranceJobSOPs />} />
                   <Route path="/conversion" element={<Conversion />} />
                   <Route path="/job-file-checks" element={<JobFileChecks />} />

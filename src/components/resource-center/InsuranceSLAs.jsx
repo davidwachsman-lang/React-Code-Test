@@ -7,23 +7,14 @@ import './InsuranceSLAs.css';
 /*  PDF text extraction (pdfjs-dist)                                  */
 /* ------------------------------------------------------------------ */
 
-// Fix #1: Promise-based singleton to prevent concurrent loading race
-let pdfjsPromise = null;
-function loadPdfJs() {
-  if (!pdfjsPromise) {
-    pdfjsPromise = import('pdfjs-dist').then((lib) => {
-      lib.GlobalWorkerOptions.workerSrc = new URL(
-        'pdfjs-dist/build/pdf.worker.mjs',
-        import.meta.url,
-      ).href;
-      return lib;
-    });
-  }
-  return pdfjsPromise;
-}
+import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
+
+// Configure worker (Vite resolves ?url to the correct built asset path)
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 async function extractTextFromPdf(file) {
-  const lib = await loadPdfJs();
+  const lib = pdfjsLib;
   let arrayBuffer;
   try {
     arrayBuffer = await file.arrayBuffer();

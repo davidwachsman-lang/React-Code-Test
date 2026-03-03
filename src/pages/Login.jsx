@@ -1,8 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../services/supabaseClient';
+import { supabase, isSupabaseConfigured, checkSupabaseReachability } from '../services/supabaseClient';
 import './Login.css';
+
+function getAuthErrorMessage(err, reachabilityHint) {
+  const msg = err?.message || '';
+  if (msg === 'Failed to fetch' || msg.includes('NetworkError') || err?.name === 'TypeError') {
+    if (!isSupabaseConfigured()) {
+      return 'Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file (see .env.example). Restart the dev server after changing .env.';
+    }
+    const base = 'Cannot reach the authentication server.';
+    return reachabilityHint ? `${base} ${reachabilityHint}` : `${base} Try restarting the dev server, check if the Supabase project is paused, or use incognito mode.`;
+  }
+  return msg || 'Failed to sign in. Please check your credentials.';
+}
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -10,8 +22,18 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [processingToken, setProcessingToken] = useState(false);
+  const [reachabilityHint, setReachabilityHint] = useState(null);
 
   const { signIn, user } = useAuth();
+
+  // Run connection diagnostic on mount (helps with "Failed to fetch")
+  useEffect(() => {
+    let cancelled = false;
+    checkSupabaseReachability().then((r) => {
+      if (!cancelled && !r.reachable && r.hint) setReachabilityHint(r.hint);
+    });
+    return () => { cancelled = true; };
+  }, []);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -90,7 +112,7 @@ const Login = () => {
       navigate(from, { replace: true });
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.message || 'Failed to sign in. Please check your credentials.');
+      setError(getAuthErrorMessage(err, reachabilityHint));
     } finally {
       setLoading(false);
     }
@@ -134,6 +156,16 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
+          {!isSupabaseConfigured() && (
+            <div className="login-error" style={{ marginBottom: '1rem' }}>
+              Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file (see .env.example). Restart the dev server after changing .env.
+            </div>
+          )}
+          {reachabilityHint && !error && (
+            <div className="login-error" style={{ marginBottom: '1rem' }}>
+              <strong>Connection issue:</strong> {reachabilityHint}
+            </div>
+          )}
           {error && (
             <div className="login-error">
               {error}
@@ -168,7 +200,7 @@ const Login = () => {
             />
           </div>
 
-          <button type="submit" className="login-button" disabled={loading}>
+          <button type="submit" className="login-button" disabled={loading || !isSupabaseConfigured()}>
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
 

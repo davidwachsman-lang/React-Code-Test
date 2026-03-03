@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import JobBulkUpload from '../components/job-files/JobBulkUpload';
 import {
@@ -57,6 +57,15 @@ function JobFiles() {
   }, []);
 
   const [sorting, setSorting] = useState([]);
+  const [columnVisibility, setColumnVisibility] = useState({
+    stage: false,
+    group: false,
+    division: false,
+    job_type: false,
+    jfc: false,
+    business_dev_rep: false,
+  });
+  const [showColumnPicker, setShowColumnPicker] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [showNewJobModal, setShowNewJobModal] = useState(false);
   const [newJobDiv, setNewJobDiv] = useState('');
@@ -64,6 +73,18 @@ function JobFiles() {
   const [creatingJob, setCreatingJob] = useState(false);
 
   const { getLocalState } = useJobLocalState();
+  const columnPickerRef = useRef(null);
+
+  useEffect(() => {
+    if (!showColumnPicker) return;
+    const handleClick = (e) => {
+      if (columnPickerRef.current && !columnPickerRef.current.contains(e.target)) {
+        setShowColumnPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showColumnPicker]);
 
   // Abbreviation maps (3 chars max)
   const DIV_ABBREV = { HB: 'HB', LL: 'LL', REFERRAL: 'REF' };
@@ -246,15 +267,34 @@ function JobFiles() {
       cell: ({ row }) => {
         const jn = row.original.job_number;
         const ext = row.original.external_job_number;
-        if (jn) return <span className="job-number">{jn}</span>;
-        if (ext) return <span className="job-number ext-job-number">{ext}</span>;
-        return <span className="job-number">N/A</span>;
+        const jobType = (row.original.department || row.original.loss_type || '').toUpperCase();
+        const typeIcon = {
+          WATER: { icon: '💧', cls: 'decal-water' },
+          FIRE: { icon: '🔥', cls: 'decal-fire' },
+          MOLD: { icon: '🧫', cls: 'decal-mold' },
+          BIO: { icon: '☣', cls: 'decal-bio' },
+          CONTENTS: { icon: '📦', cls: 'decal-contents' },
+        }[jobType];
+        const display = jn || ext || 'N/A';
+        return (
+          <span className={`job-id-with-decal${ext && !jn ? ' ext-job-number' : ''}`}>
+            {typeIcon && (
+              <span className={`job-type-decal ${typeIcon.cls}`} title={jobType}>
+                {typeIcon.icon}
+              </span>
+            )}
+            <span className="job-number">{display}</span>
+          </span>
+        );
       },
     },
     {
       accessorKey: 'customer_name',
       header: 'Customer',
-      cell: ({ getValue }) => getValue() || 'N/A',
+      cell: ({ getValue }) => {
+        const name = getValue() || 'N/A';
+        return <span className="customer-cell" title={name}>{name}</span>;
+      },
     },
     {
       id: 'aging',
@@ -269,7 +309,9 @@ function JobFiles() {
       },
       cell: ({ getValue }) => {
         const days = getValue();
-        return days != null ? <span className="aging-cell">{days}d</span> : '-';
+        if (days == null) return '-';
+        const agingClass = days > 60 ? 'aging-red' : days > 30 ? 'aging-yellow' : 'aging-green';
+        return <span className={`aging-cell ${agingClass}`}>{days}d</span>;
       },
       sortingFn: (rowA, rowB) => {
         const a = rowA.getValue('aging') ?? -1;
@@ -337,6 +379,7 @@ function JobFiles() {
     {
       accessorKey: 'estimate_value',
       header: 'Estimate',
+      meta: { align: 'right' },
       cell: ({ getValue }) => {
         const val = getValue();
         if (!val) return '-';
@@ -351,6 +394,7 @@ function JobFiles() {
     {
       id: 'ar_balance',
       header: 'AR Balance',
+      meta: { align: 'right' },
       accessorFn: (row) => {
         const val = row.ar_balance;
         const n = parseFloat(val);
@@ -372,8 +416,9 @@ function JobFiles() {
   const table = useReactTable({
     data: filteredJobs,
     columns,
-    state: { sorting },
+    state: { sorting, columnVisibility },
     onSortingChange: setSorting,
+    onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -414,13 +459,32 @@ function JobFiles() {
           <h1>Job Files</h1>
           <p>Access and manage all project files and information</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <button onClick={() => { setNewJobDiv(''); setNewJobDept(''); setShowNewJobModal(true); }} className="btn-new-job" disabled={creatingJob}>
             {creatingJob ? 'Creating...' : '+ New Job'}
           </button>
           <button onClick={() => setShowUpload(true)} className="btn-primary">
             Upload Excel
           </button>
+          <div className="column-picker-wrapper" ref={columnPickerRef}>
+            <button onClick={() => setShowColumnPicker(prev => !prev)} className="btn-secondary">
+              Columns
+            </button>
+            {showColumnPicker && (
+              <div className="column-picker-dropdown">
+                {table.getAllLeafColumns().map(column => (
+                  <label key={column.id} className="column-picker-item">
+                    <input
+                      type="checkbox"
+                      checked={column.getIsVisible()}
+                      onChange={column.getToggleVisibilityHandler()}
+                    />
+                    {column.columnDef.header}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
           <button onClick={loadJobs} className="btn-secondary">
             <span className="refresh-icon">&#8635;</span> Refresh
           </button>
@@ -563,6 +627,8 @@ function JobFiles() {
             const estimate = job.estimate_value
               ? '$' + parseFloat(job.estimate_value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
               : '-';
+            const mobileJobType = (job.department || job.loss_type || '').toUpperCase();
+            const mobileIcon = { WATER: '💧', FIRE: '🔥', MOLD: '🧫', BIO: '☣', CONTENTS: '📦' }[mobileJobType];
             return (
               <div
                 key={row.id}
@@ -570,7 +636,10 @@ function JobFiles() {
                 onClick={() => navigate(`/job-files/${job.id}${buildFilterParams()}`)}
               >
                 <div className="mobile-card-top">
-                  <span className="job-number">{job.job_number || 'N/A'}</span>
+                  <span className="job-id-with-decal">
+                    {mobileIcon && <span className="job-type-decal">{mobileIcon}</span>}
+                    <span className="job-number">{job.job_number || 'N/A'}</span>
+                  </span>
                   <span className={`status-badge status-${job.status}`}>
                     {formatStatus(job.status)}
                   </span>
@@ -608,11 +677,12 @@ function JobFiles() {
               <thead>
                 {table.getHeaderGroups().map(headerGroup => (
                   <tr key={headerGroup.id}>
-                    {headerGroup.headers.map(header => (
+                    {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
                         onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                         className={`${header.column.getCanSort() ? 'sortable-header' : ''}${header.column.getIsSorted() ? ' sorted' : ''}`}
+                        style={header.column.columnDef.meta?.align ? { textAlign: header.column.columnDef.meta.align } : undefined}
                       >
                         <div className="th-content">
                           {flexRender(header.column.columnDef.header, header.getContext())}
@@ -641,8 +711,11 @@ function JobFiles() {
                       if (e.key === 'Enter') navigate(`/job-files/${row.original.id}${buildFilterParams()}`);
                     }}
                   >
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        style={cell.column.columnDef.meta?.align ? { textAlign: cell.column.columnDef.meta.align } : undefined}
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}

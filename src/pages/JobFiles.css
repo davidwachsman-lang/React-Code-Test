@@ -497,14 +497,15 @@
 }
 
 .jobs-table th {
-  padding: 1rem;
+  padding: 0.6rem 0.75rem;
   text-align: left;
   color: #60a5fa;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   background: #1a2540;
+  white-space: nowrap;
 }
 
 .jobs-table th.sortable-header {
@@ -543,7 +544,7 @@
 }
 
 .jobs-table tbody tr:nth-child(even) {
-  background: #1a2540;
+  background: rgba(59, 130, 246, 0.06);
 }
 
 .jobs-table tbody tr {
@@ -570,15 +571,101 @@
 .jobs-table tbody tr:last-child { border-bottom: none; }
 
 .jobs-table td {
-  padding: 1rem;
+  padding: 0.6rem 0.75rem;
   color: #cbd5e1;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   vertical-align: middle;
+  white-space: nowrap;
+}
+
+.job-id-with-decal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.job-type-decal {
+  font-size: 0.85rem;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .job-number {
   color: #f1f5f9;
   font-weight: 600;
+}
+
+/* ===== Aging Color Coding ===== */
+.aging-green {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.aging-yellow {
+  color: #facc15;
+  font-weight: 600;
+}
+
+.aging-red {
+  color: #f87171;
+  font-weight: 700;
+}
+
+/* ===== Customer Name Truncation ===== */
+.customer-cell {
+  display: block;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== Money Columns ===== */
+.estimate-cell,
+.ar-balance-cell {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Column Picker ===== */
+.column-picker-wrapper {
+  position: relative;
+}
+
+.column-picker-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: #1e293b;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem;
+  z-index: 50;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.column-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 4px;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.column-picker-item:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.column-picker-item input[type="checkbox"] {
+  accent-color: #3b82f6;
 }
 
 /* ===== Pagination ===== */

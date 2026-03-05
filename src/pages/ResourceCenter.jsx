@@ -7,7 +7,7 @@ import './ResourceCenter.css';
 
 const emptyForm = () => ({
   name: '',
-  category: 'Other',
+  category: 'OTHER',
   phone: '',
   email: '',
   notes: ''

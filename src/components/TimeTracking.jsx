@@ -548,6 +548,42 @@ function TimeTracking() {
             </div>
 
             {/* C. Lunch/Break & Training */}
+            {activeEntry && activeEntry.job_number === 'LUNCH-BREAK' && (
+              <div className="tt-other-section">
+                <div className="tt-special-active">
+                  <span className="tt-special-icon">&#9749;</span>
+                  <div className="tt-special-active-info">
+                    <div className="tt-special-title">Lunch / Break</div>
+                    <div className="tt-elapsed">{formatElapsed(elapsed)}</div>
+                  </div>
+                  <button
+                    className="tt-btn tt-btn-checkout"
+                    onClick={handleClockOut}
+                    disabled={loading}
+                  >
+                    {loading ? 'Checking Out...' : 'Check Out'}
+                  </button>
+                </div>
+              </div>
+            )}
+            {activeEntry && activeEntry.job_number === 'TRAINING' && (
+              <div className="tt-other-section">
+                <div className="tt-special-active">
+                  <span className="tt-special-icon">&#128218;</span>
+                  <div className="tt-special-active-info">
+                    <div className="tt-special-title">Training</div>
+                    <div className="tt-elapsed">{formatElapsed(elapsed)}</div>
+                  </div>
+                  <button
+                    className="tt-btn tt-btn-checkout"
+                    onClick={handleClockOut}
+                    disabled={loading}
+                  >
+                    {loading ? 'Checking Out...' : 'Check Out'}
+                  </button>
+                </div>
+              </div>
+            )}
             {!activeEntry && (
               <div className="tt-other-section">
                 <div className="tt-special-options">

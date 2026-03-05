@@ -48,7 +48,7 @@ function OpsNav() {
   const tabs = [
     { path: '/dispatch', label: 'Dispatch & Scheduling' },
     { path: '/job-file-checks', label: 'Job File Checks' },
-    { path: '/job-files', label: 'Job Files' },
+    { path: '/resources', label: 'Resources' },
   ];
   return (
     <nav style={{
@@ -231,7 +231,7 @@ function AppContent() {
     );
   }
 
-  // If Ops-only mode, show Dispatch, Job File Checks, and Job Files with tab navigation
+  // If Ops-only mode, show only Resource Center
   if (opsOnlyMode) {
     return (
       <div className="App">
@@ -244,20 +244,12 @@ function AppContent() {
           <Route path="/set-password" element={<SetPassword />} />
           <Route path="/*" element={
             <ProtectedRoute>
-              <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                <OpsNav />
-                <div className="app-content" style={{ marginLeft: 0 }}>
-                  <Routes>
-                    <Route path="/" element={<Navigate to="/dispatch" replace />} />
-                    <Route path="/dispatch" element={<DispatchHub />} />
-                    <Route path="/dispatch/scheduling" element={<DispatchAndScheduling defaultMode="scheduling" />} />
-                    <Route path="/dispatch/board" element={<DispatchBoard />} />
-                    <Route path="/job-file-checks" element={<JobFileChecks />} />
-                    <Route path="/job-files" element={<JobFiles />} />
-                    <Route path="/job-files/:id" element={<JobDetail />} />
-                    <Route path="/*" element={<Navigate to="/" replace />} />
-                  </Routes>
-                </div>
+              <div className="app-content" style={{ marginLeft: 0 }}>
+                <Routes>
+                  <Route path="/" element={<ResourceCenter />} />
+                  <Route path="/resources" element={<ResourceCenter />} />
+                  <Route path="/*" element={<Navigate to="/" replace />} />
+                </Routes>
               </div>
             </ProtectedRoute>
           } />

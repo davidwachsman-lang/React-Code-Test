@@ -13,7 +13,6 @@ export const VENDOR_CATEGORIES = [
   'Landscaping',
   'Masonry',
   'Moving',
-  'Other',
   'Painting',
   'Pods',
   'Plumbers',
@@ -24,7 +23,8 @@ export const VENDOR_CATEGORIES = [
   'Specialty',
   'Structural Engineers',
   'Textiles',
-  'Tree Removal'
+  'Tree Removal',
+  'OTHER'
 ];
 
 export const CATEGORY_COLORS = {
@@ -52,5 +52,5 @@ export const CATEGORY_COLORS = {
   'Equipment Rentals': '#2563eb',
   'Driveway Repair': '#4f46e5',
   'Specialty': '#c026d3',
-  'Other': '#64748b'
+  'OTHER': '#64748b'
 };

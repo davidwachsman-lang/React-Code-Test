@@ -393,6 +393,28 @@
   text-overflow: ellipsis;
 }
 
+/* Current-time "now" line */
+.dispatch-now-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ef4444;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.dispatch-now-line::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
 .dispatch-add-modal-backdrop {
   position: fixed;
   inset: 0;

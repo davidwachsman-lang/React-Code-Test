@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import useDispatchSchedule, { DAY_START, DAY_END } from '../hooks/useDispatchSchedule';
 import DispatchNowMapModal from '../components/dispatch/DispatchNowMapModal';
 import './Page.css';
@@ -75,6 +75,36 @@ function DispatchBoard() {
     startHour: '',
   });
   const [assignTargets, setAssignTargets] = useState({});
+
+  // Current-time indicator: percentage across the time grid, null if outside range
+  const [nowPct, setNowPct] = useState(() => {
+    const now = new Date();
+    const h = now.getHours() + now.getMinutes() / 60;
+    if (h < DAY_START || h > DAY_END) return null;
+    return ((h - DAY_START) / (DAY_END - DAY_START)) * 100;
+  });
+
+  useEffect(() => {
+    const update = () => {
+      const now = new Date();
+      const h = now.getHours() + now.getMinutes() / 60;
+      if (h < DAY_START || h > DAY_END) { setNowPct(null); return; }
+      setNowPct(((h - DAY_START) / (DAY_END - DAY_START)) * 100);
+    };
+    update();
+    const id = setInterval(update, 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Only show the line when viewing today's date
+  const isToday = useMemo(() => {
+    const today = new Date();
+    return date.getFullYear() === today.getFullYear()
+      && date.getMonth() === today.getMonth()
+      && date.getDate() === today.getDate();
+  }, [date]);
+
+  const showNowLine = isToday && nowPct != null;
 
   const search = searchText.trim().toLowerCase();
   const crewChiefNames = useMemo(() => {
@@ -191,7 +221,7 @@ function DispatchBoard() {
       return {
         ...prev,
         unassigned: source,
-        [targetLaneId]: [...(prev[targetLaneId] || []), moved],
+        [lane.id]: [...(prev[lane.id] || []), moved],
       };
     });
 
@@ -412,7 +442,7 @@ function DispatchBoard() {
           </div>
           <div className="dispatch-time-header">
             <div className="dispatch-employee-header">Employee</div>
-            <div className="dispatch-time-scale">
+            <div className="dispatch-time-scale" style={{ position: 'relative' }}>
               <div
                 className="dispatch-time-scale-grid"
                 style={{ gridTemplateColumns: `repeat(${hours.length}, minmax(0, 1fr))` }}
@@ -421,6 +451,7 @@ function DispatchBoard() {
                   <span key={hour}>{formatHour(hour)}</span>
                 ))}
               </div>
+              {showNowLine && <div className="dispatch-now-line" style={{ left: `${nowPct}%` }} />}
             </div>
           </div>
 
@@ -444,6 +475,7 @@ function DispatchBoard() {
                         ))}
                       </div>
                       {renderLaneJobs(lane.id)}
+                      {showNowLine && <div className="dispatch-now-line" style={{ left: `${nowPct}%` }} />}
                     </div>
                   </div>
                 ))}

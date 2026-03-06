@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import {
   useReactTable,
@@ -146,6 +146,11 @@ function DashImport() {
 
   // Table state
   const [sorting, setSorting] = useState([]);
+  const [expandedCell, setExpandedCell] = useState(null);
+
+  const toggleCell = useCallback((cellId) => {
+    setExpandedCell((prev) => (prev === cellId ? null : cellId));
+  }, []);
 
   // ---------- Upload flow ----------
   const handleFileChange = async (e) => {
@@ -221,6 +226,8 @@ function DashImport() {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     initialState: { pagination: { pageSize: 50 } },
+    enableColumnResizing: true,
+    columnResizeMode: 'onChange',
   });
 
   const paginationState = table.getState().pagination;
@@ -318,15 +325,23 @@ function DashImport() {
                     {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
-                        onClick={header.column.getToggleSortingHandler()}
-                        style={{ cursor: 'pointer' }}
+                        style={{ width: header.getSize(), position: 'relative' }}
                       >
-                        <div className="dash-th-content">
+                        <div
+                          className="dash-th-content"
+                          onClick={header.column.getToggleSortingHandler()}
+                          style={{ cursor: 'pointer' }}
+                        >
                           {flexRender(header.column.columnDef.header, header.getContext())}
-                          <span className="sort-indicator">
+                          <span className={`sort-indicator${header.column.getIsSorted() ? ' sort-active' : ''}`}>
                             {{ asc: ' ↑', desc: ' ↓' }[header.column.getIsSorted()] ?? ' ⇅'}
                           </span>
                         </div>
+                        <div
+                          className={`dash-resize-handle${header.column.getIsResizing() ? ' resizing' : ''}`}
+                          onMouseDown={header.getResizeHandler()}
+                          onTouchStart={header.getResizeHandler()}
+                        />
                       </th>
                     ))}
                   </tr>
@@ -335,11 +350,21 @@ function DashImport() {
               <tbody>
                 {table.getRowModel().rows.map((row) => (
                   <tr key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
+                    {row.getVisibleCells().map((cell) => {
+                      const val = cell.getValue();
+                      const text = val != null ? String(val) : '';
+                      return (
+                        <td
+                          key={cell.id}
+                          className={expandedCell === cell.id ? 'expanded' : ''}
+                          style={{ width: cell.column.getSize() }}
+                          title={text}
+                          onClick={() => toggleCell(cell.id)}
+                        >
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
               </tbody>

@@ -112,7 +112,9 @@
 
 .dash-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
   font-size: 0.8125rem;
 }
 
@@ -130,7 +132,12 @@
   padding: 0.625rem 0.75rem;
   white-space: nowrap;
   border-bottom: 1px solid #334155;
+  border-right: 1px solid #334155;
   user-select: none;
+}
+
+.dash-table th:last-child {
+  border-right: none;
 }
 
 .dash-th-content {
@@ -142,6 +149,14 @@
 .sort-indicator {
   color: #475569;
   font-size: 0.75rem;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.sort-indicator.sort-active {
+  color: #60a5fa;
+  font-weight: 700;
+  font-size: 0.8125rem;
 }
 
 .dash-table td {
@@ -149,6 +164,44 @@
   white-space: nowrap;
   color: #e2e8f0;
   border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+  border-right: 1px solid rgba(51, 65, 85, 0.4);
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+.dash-table td:last-child {
+  border-right: none;
+}
+
+.dash-table td.expanded {
+  white-space: normal;
+  overflow: visible;
+  max-width: none;
+}
+
+/* Resize handle */
+
+.dash-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  cursor: col-resize;
+  background: transparent;
+  user-select: none;
+  touch-action: none;
+  z-index: 1;
+}
+
+.dash-resize-handle:hover {
+  background: rgba(59, 130, 246, 0.5);
+}
+
+.dash-resize-handle.resizing {
+  background: rgba(59, 130, 246, 0.8);
 }
 
 .dash-table tbody tr:hover {

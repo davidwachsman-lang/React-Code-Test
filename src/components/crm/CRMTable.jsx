@@ -146,19 +146,6 @@ function CRMTable({
         enableSorting: true,
         size: 50,
       }),
-      columnHelper.accessor(
-        (row) => row.parent_company_name || (row.parent_id ? 'Loading...' : ''),
-        {
-          header: 'Parent Company',
-          id: 'parent_company_name',
-          cell: (info) => {
-            const value = info.getValue();
-            return value || 'N/A';
-          },
-          enableSorting: true,
-          size: 180,
-        }
-      ),
       columnHelper.accessor('company_name', {
         id: 'company_name',
         header: 'Company Name',

@@ -28,6 +28,13 @@ const JOB_FILE_CHECKLIST = [
   { group: 'Notes', label: 'Initial Inspection Questions Answered' },
 ];
 
+const CREW_CHIEFS = ['Gabriel', 'David', 'Michael', 'Ramon', 'Roger', 'Pedro', 'Monica'];
+const TECHS = ['Genesis', 'Tyler', 'Josue', 'Frank', 'Juan', 'Leslie'];
+const ALL_FIELD_NAMES = [
+  ...CREW_CHIEFS.map((n) => ({ name: n, role: 'Crew Chief' })),
+  ...TECHS.map((n) => ({ name: n, role: 'Tech' })),
+];
+
 function TimeTracking() {
   const { user } = useAuth();
 
@@ -36,11 +43,41 @@ function TimeTracking() {
   // Checklist checked state: { [jobNumber]: { [label]: true/false } }
   const [checkedItems, setCheckedItems] = useState({});
 
+  // Temp labor
+  const [tempWorkers, setTempWorkers] = useState([]); // [{name, id, company}]
+  const [tempNameInput, setTempNameInput] = useState('');
+  const [showTempPanel, setShowTempPanel] = useState(false);
+  // Track temp clock-in state: { [tempId]: { activeJobNumber, clockInTime, entries: [{job, in, out, hours}] } }
+  const [tempTimeState, setTempTimeState] = useState({});
+
   // Identity
   const [technicianName, setTechnicianName] = useState('');
   const [nameLocked, setNameLocked] = useState(false);
   const [crewNames, setCrewNames] = useState([]);
   const [showCrewDropdown, setShowCrewDropdown] = useState(false);
+
+  // Load admin-assigned temp workers for this crew chief (after name is locked)
+  useEffect(() => {
+    if (!nameLocked || !technicianName) return;
+    try {
+      const stored = localStorage.getItem('temp-labor-workers');
+      if (stored) {
+        const all = JSON.parse(stored);
+        const mine = all.filter(
+          (w) => w.active && w.assignedTo && w.assignedTo.toLowerCase() === technicianName.toLowerCase()
+        );
+        if (mine.length > 0) {
+          setTempWorkers(mine);
+          setShowTempPanel(true);
+          const initState = {};
+          mine.forEach((w) => {
+            initState[w.id] = { activeJobNumber: null, clockInTime: null, entries: [] };
+          });
+          setTempTimeState((prev) => ({ ...initState, ...prev }));
+        }
+      }
+    } catch {}
+  }, [nameLocked, technicianName]);
 
   // Data
   const [dispatchJobs, setDispatchJobs] = useState([]);
@@ -211,6 +248,96 @@ function TimeTracking() {
     setDataLoaded(false);
   };
 
+  // --- Temp labor helpers ---
+  const addTempWorker = () => {
+    const name = tempNameInput.trim();
+    if (!name) return;
+    if (tempWorkers.some((w) => w.name.toLowerCase() === name.toLowerCase())) return;
+    const id = 'temp-' + Date.now();
+    setTempWorkers((prev) => [...prev, { name, id }]);
+    setTempTimeState((prev) => ({ ...prev, [id]: { activeJobNumber: null, clockInTime: null, entries: [] } }));
+    setTempNameInput('');
+  };
+
+  const removeTempWorker = (id) => {
+    setTempWorkers((prev) => prev.filter((w) => w.id !== id));
+    setTempTimeState((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  };
+
+  const tempClockIn = (tempId, jobNumber) => {
+    setTempTimeState((prev) => ({
+      ...prev,
+      [tempId]: {
+        ...prev[tempId],
+        activeJobNumber: jobNumber,
+        clockInTime: new Date().toISOString(),
+      },
+    }));
+  };
+
+  const tempClockOut = (tempId) => {
+    setTempTimeState((prev) => {
+      const state = prev[tempId];
+      if (!state || !state.activeJobNumber) return prev;
+      const clockOut = new Date();
+      const clockIn = new Date(state.clockInTime);
+      const hours = (clockOut - clockIn) / (1000 * 60 * 60);
+      return {
+        ...prev,
+        [tempId]: {
+          activeJobNumber: null,
+          clockInTime: null,
+          entries: [
+            ...state.entries,
+            {
+              job: state.activeJobNumber,
+              in: state.clockInTime,
+              out: clockOut.toISOString(),
+              hours: hours.toFixed(2),
+            },
+          ],
+        },
+      };
+    });
+  };
+
+  const tempClockAllIn = (jobNumber) => {
+    tempWorkers.forEach((w) => {
+      const state = tempTimeState[w.id];
+      if (!state || state.activeJobNumber) return; // skip if already clocked in somewhere
+      tempClockIn(w.id, jobNumber);
+    });
+  };
+
+  const tempClockAllOut = () => {
+    tempWorkers.forEach((w) => {
+      const state = tempTimeState[w.id];
+      if (state && state.activeJobNumber) {
+        tempClockOut(w.id);
+      }
+    });
+  };
+
+  const getTempStatusForJob = (tempId, jobNumber) => {
+    const state = tempTimeState[tempId];
+    if (!state) return 'upcoming';
+    if (state.activeJobNumber === jobNumber) return 'active';
+    if (state.entries.some((e) => e.job === jobNumber)) return 'completed';
+    return 'upcoming';
+  };
+
+  const getTempTotalHoursForJob = (tempId, jobNumber) => {
+    const state = tempTimeState[tempId];
+    if (!state) return 0;
+    return state.entries
+      .filter((e) => e.job === jobNumber)
+      .reduce((sum, e) => sum + parseFloat(e.hours || 0), 0);
+  };
+
   // --- Computed values ---
 
   // Build full timeline: WIP first, then dispatched jobs
@@ -305,21 +432,31 @@ function TimeTracking() {
 
   // --- Render ---
 
-  if (!nameLocked && !user?.user_metadata?.full_name) {
-    // No auth name — show name input
+  if (!nameLocked) {
     return (
       <div className="tt-container">
         <div className="tt-card">
           <h2 className="tt-title">Time Tracking</h2>
           <div className="tt-name-setup">
-            <label htmlFor="techName">Your Name</label>
-            <input
+            <label htmlFor="techName">Who are you?</label>
+            <select
               id="techName"
-              type="text"
+              className="tt-name-select"
               value={technicianName}
               onChange={(e) => setTechnicianName(e.target.value)}
-              placeholder="Enter your name"
-            />
+            >
+              <option value="">-- Select your name --</option>
+              <optgroup label="Crew Chiefs">
+                {CREW_CHIEFS.map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </optgroup>
+              <optgroup label="Techs">
+                {TECHS.map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </optgroup>
+            </select>
             <button
               className="tt-btn tt-btn-primary"
               onClick={() => {
@@ -342,24 +479,91 @@ function TimeTracking() {
 
         {error && <div className="tt-error">{error}</div>}
 
-        {/* Name display + crew dropdown fallback */}
+        {/* Name display + switch */}
         <div className="tt-name-bar">
           <span className="tt-name-label">{technicianName}</span>
-          {showCrewDropdown && (
-            <select
-              className="tt-crew-select"
-              value=""
-              onChange={(e) => handleCrewSelect(e.target.value)}
-            >
-              <option value="" disabled>
-                Switch crew...
-              </option>
-              {crewNames.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
+          <span className="tt-name-role">
+            {ALL_FIELD_NAMES.find((f) => f.name === technicianName)?.role || ''}
+          </span>
+          <button
+            className="tt-switch-btn"
+            onClick={() => {
+              setNameLocked(false);
+              setTechnicianName('');
+              setDataLoaded(false);
+              setDispatchJobs([]);
+              setActiveEntry(null);
+              setTodayEntries([]);
+              setRecentEntries([]);
+              setTempWorkers([]);
+              setShowTempPanel(false);
+              setTempTimeState({});
+            }}
+          >
+            Switch
+          </button>
+        </div>
+
+        {/* Temp Labor Panel */}
+        <div className="tt-temp-section">
+          <button
+            className="tt-temp-toggle"
+            onClick={() => setShowTempPanel(!showTempPanel)}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+              <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <line x1="19" y1="8" x2="19" y2="14" />
+              <line x1="22" y1="11" x2="16" y2="11" />
+            </svg>
+            Temp Labor ({tempWorkers.length})
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14" style={{ transform: showTempPanel ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          {showTempPanel && (
+            <div className="tt-temp-panel">
+              <div className="tt-temp-add-row">
+                <input
+                  type="text"
+                  placeholder="Temp worker name"
+                  value={tempNameInput}
+                  onChange={(e) => setTempNameInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addTempWorker()}
+                  className="tt-temp-input"
+                />
+                <button className="tt-btn tt-btn-primary tt-temp-add-btn" onClick={addTempWorker} disabled={!tempNameInput.trim()}>
+                  Add
+                </button>
+              </div>
+              {tempWorkers.length === 0 && (
+                <div className="tt-temp-empty">No temp workers assigned today</div>
+              )}
+              {tempWorkers.map((w) => {
+                const state = tempTimeState[w.id] || {};
+                const totalHrs = (state.entries || []).reduce((s, e) => s + parseFloat(e.hours || 0), 0);
+                return (
+                  <div key={w.id} className="tt-temp-worker-row">
+                    <div className="tt-temp-worker-info">
+                      <span className="tt-temp-worker-name">{w.name}</span>
+                      {w.company && <span className="tt-temp-worker-company">{w.company}</span>}
+                    </div>
+                    <span className="tt-temp-worker-status">
+                      {state.activeJobNumber ? (
+                        <span className="tt-temp-active-badge">On {state.activeJobNumber}</span>
+                      ) : (
+                        <span className="tt-temp-hours">{totalHrs.toFixed(1)}h</span>
+                      )}
+                    </span>
+                    {!w.assignedTo && (
+                      <button className="tt-temp-remove" onClick={() => removeTempWorker(w.id)} title="Remove">
+                        &times;
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
 
@@ -540,6 +744,86 @@ function TimeTracking() {
                             {loading ? 'Checking In...' : 'Check In'}
                           </button>
                         )}
+
+                        {/* Temp labor controls for this job */}
+                        {tempWorkers.length > 0 && !job.isWip && (() => {
+                          const anyTempActive = tempWorkers.some((w) => {
+                            const s = tempTimeState[w.id];
+                            return s && s.activeJobNumber === job.jobNumber;
+                          });
+                          const anyTempCanClockIn = tempWorkers.some((w) => {
+                            const s = tempTimeState[w.id];
+                            return !s || !s.activeJobNumber;
+                          });
+                          return (
+                            <div className="tt-temp-job-controls">
+                              {tempWorkers.length > 1 && (
+                                <div className="tt-temp-bulk-row">
+                                  <span className="tt-temp-bulk-label">All Temps</span>
+                                  {anyTempActive && (
+                                    <button
+                                      className="tt-btn tt-btn-temp-out"
+                                      onClick={() => tempClockAllOut()}
+                                    >
+                                      Clock All Out
+                                    </button>
+                                  )}
+                                  {anyTempCanClockIn && (
+                                    <button
+                                      className="tt-btn tt-btn-temp-in"
+                                      onClick={() => tempClockAllIn(job.jobNumber)}
+                                    >
+                                      Clock All In
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                              {tempWorkers.map((w) => {
+                                const tStatus = getTempStatusForJob(w.id, job.jobNumber);
+                                const tState = tempTimeState[w.id] || {};
+                                const tActive = tStatus === 'active';
+                                const tCompleted = tStatus === 'completed';
+                                const tHasOtherActive = tState.activeJobNumber && tState.activeJobNumber !== job.jobNumber;
+                                return (
+                                  <div key={w.id} className={`tt-temp-job-row ${tStatus}`}>
+                                    <span className="tt-temp-job-name">{w.name}</span>
+                                    {tActive && (
+                                      <button
+                                        className="tt-btn tt-btn-temp-out"
+                                        onClick={() => tempClockOut(w.id)}
+                                      >
+                                        Clock Out
+                                      </button>
+                                    )}
+                                    {tCompleted && (
+                                      <div className="tt-temp-completed-area">
+                                        <span className="tt-temp-job-hours">
+                                          {getTempTotalHoursForJob(w.id, job.jobNumber).toFixed(1)}h
+                                        </span>
+                                        <button
+                                          className="tt-btn tt-btn-temp-in"
+                                          onClick={() => tempClockIn(w.id, job.jobNumber)}
+                                          disabled={tHasOtherActive}
+                                        >
+                                          Clock In Again
+                                        </button>
+                                      </div>
+                                    )}
+                                    {!tActive && !tCompleted && (
+                                      <button
+                                        className="tt-btn tt-btn-temp-in"
+                                        onClick={() => tempClockIn(w.id, job.jobNumber)}
+                                        disabled={tHasOtherActive}
+                                      >
+                                        Clock In
+                                      </button>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   );

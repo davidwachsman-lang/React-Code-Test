@@ -384,6 +384,11 @@ const crmService = {
     });
   },
 
+  // Set key influencer for a CRM record
+  async setKeyInfluencer(id, contactKey) {
+    return this.update(id, { key_influencer: contactKey });
+  },
+
   // Get ROI data with LTM metrics (via Postgres view)
   async getROIData() {
     const response = await supabase

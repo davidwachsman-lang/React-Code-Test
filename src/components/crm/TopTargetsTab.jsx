@@ -37,6 +37,7 @@ const initialTargetsData = {
 
 function TopTargetsTab() {
   const [topTargetsData, setTopTargetsData] = useState({});
+  const [parkedTargets, setParkedTargets] = useState([]);
   const [loadingTopTargets, setLoadingTopTargets] = useState(false);
   const [showTopTargetModal, setShowTopTargetModal] = useState(false);
   const [editingTarget, setEditingTarget] = useState(null);
@@ -133,6 +134,9 @@ function TopTargetsTab() {
             setTopTargetsData(updatedTargetsObj);
           }
         }
+        // Load parked targets
+        const parked = await topTargetsService.getParked();
+        setParkedTargets(parked);
       } catch (error) {
         console.error('Error loading top targets:', error);
         setLoadingTopTargets(false);
@@ -200,6 +204,85 @@ function TopTargetsTab() {
     }
   };
 
+  const handleParkTarget = async () => {
+    if (!editingTarget || !editingTarget.id) return;
+    if (!targetFormData.companyName.trim()) return;
+
+    const confirmed = window.confirm(
+      `Move "${targetFormData.companyName}" to the Parking Lot? This will remove it from ${editingTarget.salesRep}'s Top 10.`
+    );
+    if (!confirmed) return;
+
+    setLoadingTopTargets(true);
+    try {
+      // Park the target
+      await topTargetsService.park(editingTarget.id);
+
+      // Shift remaining targets up to fill the gap
+      const rep = editingTarget.salesRep;
+      const parkedPosition = editingTarget.position;
+
+      // Collect targets that need shifting (those below the parked position)
+      const shiftsNeeded = [];
+      for (let pos = parkedPosition + 1; pos <= 10; pos++) {
+        const target = topTargetsData[rep]?.[pos];
+        if (target && target.companyName) {
+          shiftsNeeded.push({ ...target, oldPos: pos, newPos: pos - 1 });
+        }
+      }
+
+      // Update each target's position (using upsert which handles insert/update)
+      for (const shift of shiftsNeeded) {
+        await topTargetsService.upsert({
+          sales_rep: rep,
+          target_position: shift.newPos,
+          company_name: shift.companyName || null,
+          status: shift.status || null,
+          notes: shift.notes || null
+        });
+      }
+
+      // Clear the last occupied position (or the highest shifted-from position)
+      if (shiftsNeeded.length > 0) {
+        const lastOldPos = shiftsNeeded[shiftsNeeded.length - 1].oldPos;
+        await topTargetsService.delete(rep, lastOldPos);
+      }
+
+      // Reload all data
+      const allTargets = await topTargetsService.getAll();
+      const targetsObj = {};
+      allTopTargetsReps.forEach(r => {
+        targetsObj[r] = {};
+        for (let i = 1; i <= 10; i++) {
+          targetsObj[r][i] = { companyName: '', status: '', notes: '', id: null };
+        }
+      });
+      allTargets.forEach(target => {
+        const repName = target.sales_rep.charAt(0).toUpperCase() + target.sales_rep.slice(1).toLowerCase();
+        if (targetsObj[repName] && target.target_position >= 1 && target.target_position <= 10) {
+          targetsObj[repName][target.target_position] = {
+            companyName: target.company_name || '',
+            status: target.status || '',
+            notes: target.notes || '',
+            id: target.id
+          };
+        }
+      });
+      setTopTargetsData(targetsObj);
+
+      const parked = await topTargetsService.getParked();
+      setParkedTargets(parked);
+
+      setShowTopTargetModal(false);
+      setEditingTarget(null);
+    } catch (error) {
+      console.error('Error parking target:', error);
+      alert('Failed to park target: ' + (error.message || 'Unknown error'));
+    } finally {
+      setLoadingTopTargets(false);
+    }
+  };
+
   return (
     <>
       <div className="customers-container">
@@ -261,6 +344,39 @@ function TopTargetsTab() {
             </table>
           </div>
         )}
+
+        {/* Parking Lot */}
+        {parkedTargets.length > 0 && (
+          <div style={{ marginTop: '1.5rem' }}>
+            <h2 style={{ color: '#f1f5f9', marginBottom: '0.75rem' }}>Parking Lot</h2>
+            <div className="top-targets-table-container">
+              <table className="top-targets-table">
+                <thead>
+                  <tr>
+                    <th>Company Name</th>
+                    <th>Sales Rep</th>
+                    <th>Date Parked</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {parkedTargets.map(target => (
+                    <tr key={target.id}>
+                      <td style={{ padding: '0.5rem 0.75rem', color: '#e2e8f0' }}>
+                        {target.company_name}
+                      </td>
+                      <td style={{ padding: '0.5rem 0.75rem', color: '#94a3b8' }}>
+                        {target.sales_rep}
+                      </td>
+                      <td style={{ padding: '0.5rem 0.75rem', color: '#94a3b8' }}>
+                        {new Date(target.parked_at).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Top Target Edit Modal */}
@@ -316,16 +432,39 @@ function TopTargetsTab() {
                   }}
                 />
               </div>
-              <div className="form-actions">
-                <button type="button" className="btn-secondary" onClick={() => {
-                  setShowTopTargetModal(false);
-                  setEditingTarget(null);
-                }}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn-primary" disabled={loadingTopTargets}>
-                  {loadingTopTargets ? 'Saving...' : 'Save'}
-                </button>
+              <div className="form-actions" style={{ justifyContent: 'space-between' }}>
+                <div>
+                  {editingTarget.id && targetFormData.companyName.trim() && (
+                    <button
+                      type="button"
+                      onClick={handleParkTarget}
+                      disabled={loadingTopTargets}
+                      style={{
+                        background: 'linear-gradient(120deg, #92400e, #b45309)',
+                        border: '1px solid #d97706',
+                        color: '#fef3c7',
+                        padding: '0.5rem 0.75rem',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      Move to Parking Lot
+                    </button>
+                  )}
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button type="button" className="btn-secondary" onClick={() => {
+                    setShowTopTargetModal(false);
+                    setEditingTarget(null);
+                  }}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary" disabled={loadingTopTargets}>
+                    {loadingTopTargets ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

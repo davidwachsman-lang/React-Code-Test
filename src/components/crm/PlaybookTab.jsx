@@ -1,8 +1,53 @@
 import React, { useState } from 'react';
 import playbookService from '../../services/playbookService';
+import agencyPlaybookService from '../../services/agencyPlaybookService';
 import { jsPDF } from 'jspdf';
 
 function PlaybookTab() {
+  const [activePlaybook, setActivePlaybook] = useState('commercial');
+
+  const [agencyFormData, setAgencyFormData] = useState({
+    agencyName: '',
+    agencyAddress: '',
+    agencyCityStateZip: '',
+    agencyPhone: '',
+    agencyEmail: '',
+    keyContacts: '',
+    preferredCommunication: '',
+
+    homeownerPolicies: '',
+    commercialPolicies: '',
+    avgMonthlyClaims: '',
+    seasonalVolumeNotes: '',
+
+    claimsProcess: '',
+    notificationTiming: '',
+    trackingProcess: '',
+    reportingRequirements: '',
+
+    vendorInfluencers: '',
+    hasPreferredVendorList: '',
+    vendorListRequirements: '',
+    keyDecisionCriteria: '',
+
+    pastFrustrations: '',
+    commonMistakes: '',
+    communicationIssues: '',
+
+    mostImportantOutcomes: [],
+    confidentReferralFactors: '',
+    vendorSuccessMeasurement: '',
+
+    sixMonthVision: '',
+    coBrandedOpportunities: '',
+    additionalSupport: '',
+    updateFrequency: '',
+
+    optionalNotes: '',
+  });
+
+  const [agencyValidationErrors, setAgencyValidationErrors] = useState({});
+
   const [playbookFormData, setPlaybookFormData] = useState({
     // Contact Section
     contactName: '',
@@ -236,11 +281,237 @@ function PlaybookTab() {
     doc.save(fileName);
   };
 
+  const validateAgencyForm = () => {
+    const errors = {};
+    const required = {
+      agencyName: 'Agency Name',
+      agencyAddress: 'Address',
+      agencyCityStateZip: 'City/State/Zip',
+      agencyPhone: 'Phone Number',
+      agencyEmail: 'Email',
+      keyContacts: 'Key Contact(s)',
+      preferredCommunication: 'Preferred Communication',
+      homeownerPolicies: 'Homeowner Policies',
+      commercialPolicies: 'Commercial Policies',
+      avgMonthlyClaims: 'Avg Monthly Claims',
+      seasonalVolumeNotes: 'Seasonal Volume Notes',
+      claimsProcess: 'Claims Process',
+      notificationTiming: 'Notification Timing',
+      trackingProcess: 'Tracking Process',
+      reportingRequirements: 'Reporting Requirements',
+      vendorInfluencers: 'Vendor Influencer(s)',
+      hasPreferredVendorList: 'Preferred Vendor List',
+      keyDecisionCriteria: 'Key Decision Criteria',
+      pastFrustrations: 'Past Frustrations',
+      commonMistakes: 'Common Mistakes',
+      communicationIssues: 'Communication Issues',
+      confidentReferralFactors: 'Confident Referral Factors',
+      vendorSuccessMeasurement: 'Vendor Success Measurement',
+      sixMonthVision: 'Six-Month Vision',
+      coBrandedOpportunities: 'Co-Branded Opportunities',
+      additionalSupport: 'Additional Support',
+      updateFrequency: 'Update Frequency',
+    };
+    if (agencyFormData.mostImportantOutcomes.length === 0) {
+      errors.mostImportantOutcomes = 'Most Important Outcomes is required';
+    }
+    for (const [field, label] of Object.entries(required)) {
+      if (!agencyFormData[field]) errors[field] = `${label} is required`;
+    }
+    setAgencyValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const generateAgencyPDF = () => {
+    const doc = new jsPDF();
+    let yPosition = 20;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 20;
+    const lineHeight = 7;
+    const sectionSpacing = 5;
+
+    const checkPageBreak = (requiredSpace = 10) => {
+      if (yPosition + requiredSpace > pageHeight - margin) {
+        doc.addPage();
+        yPosition = margin;
+      }
+    };
+
+    const addText = (text, x, y, maxWidth, fontSize = 10) => {
+      doc.setFontSize(fontSize);
+      const lines = doc.splitTextToSize(text || 'N/A', maxWidth);
+      doc.text(lines, x, y);
+      return lines.length * lineHeight;
+    };
+
+    doc.setFontSize(18);
+    doc.setFont(undefined, 'bold');
+    doc.text('Agency Insight Meeting Playbook', margin, yPosition);
+    yPosition += 10;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, margin, yPosition);
+    yPosition += sectionSpacing + 5;
+
+    checkPageBreak(20);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('Agency Info', margin, yPosition);
+    yPosition += 8;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    yPosition += addText(`Agency Name: ${agencyFormData.agencyName}`, margin, yPosition, 170);
+    yPosition += addText(`Address: ${agencyFormData.agencyAddress}`, margin, yPosition, 170);
+    yPosition += addText(`City/State/Zip: ${agencyFormData.agencyCityStateZip}`, margin, yPosition, 170);
+    yPosition += addText(`Phone: ${agencyFormData.agencyPhone}`, margin, yPosition, 170);
+    yPosition += addText(`Email: ${agencyFormData.agencyEmail}`, margin, yPosition, 170);
+    yPosition += addText(`Key Contact(s): ${agencyFormData.keyContacts}`, margin, yPosition, 170);
+    yPosition += addText(`Preferred Communication: ${agencyFormData.preferredCommunication}`, margin, yPosition, 170);
+    yPosition += sectionSpacing;
+
+    checkPageBreak(20);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('1. Portfolio & Volume', margin, yPosition);
+    yPosition += 8;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    yPosition += addText(`Homeowner Policies: ${agencyFormData.homeownerPolicies}`, margin, yPosition, 170);
+    yPosition += addText(`Commercial Policies: ${agencyFormData.commercialPolicies}`, margin, yPosition, 170);
+    yPosition += addText(`Avg Monthly Claims: ${agencyFormData.avgMonthlyClaims}`, margin, yPosition, 170);
+    yPosition += addText(`Seasonal Volume Notes: ${agencyFormData.seasonalVolumeNotes}`, margin, yPosition, 170);
+    yPosition += sectionSpacing;
+
+    checkPageBreak(20);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('2. Claims Handling', margin, yPosition);
+    yPosition += 8;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    yPosition += addText(`Claims Process: ${agencyFormData.claimsProcess}`, margin, yPosition, 170);
+    yPosition += addText(`Notification Timing: ${agencyFormData.notificationTiming}`, margin, yPosition, 170);
+    yPosition += addText(`Tracking Process: ${agencyFormData.trackingProcess}`, margin, yPosition, 170);
+    yPosition += addText(`Reporting Requirements: ${agencyFormData.reportingRequirements}`, margin, yPosition, 170);
+    yPosition += sectionSpacing;
+
+    checkPageBreak(20);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('3. Decision Makers & Influence', margin, yPosition);
+    yPosition += 8;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    yPosition += addText(`Vendor Influencer(s): ${agencyFormData.vendorInfluencers}`, margin, yPosition, 170);
+    yPosition += addText(`Preferred Vendor List: ${agencyFormData.hasPreferredVendorList}`, margin, yPosition, 170);
+    if (agencyFormData.hasPreferredVendorList === 'Yes') {
+      yPosition += addText(`Requirements to be added: ${agencyFormData.vendorListRequirements}`, margin, yPosition, 170);
+    }
+    yPosition += addText(`Key Decision Criteria: ${agencyFormData.keyDecisionCriteria}`, margin, yPosition, 170);
+    yPosition += sectionSpacing;
+
+    checkPageBreak(20);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('4. Past Experience & Pain Points', margin, yPosition);
+    yPosition += 8;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    yPosition += addText(`Past Frustrations: ${agencyFormData.pastFrustrations}`, margin, yPosition, 170);
+    yPosition += addText(`Common Mistakes: ${agencyFormData.commonMistakes}`, margin, yPosition, 170);
+    yPosition += addText(`Communication Issues: ${agencyFormData.communicationIssues}`, margin, yPosition, 170);
+    yPosition += sectionSpacing;
+
+    checkPageBreak(20);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('5. Priorities & Expectations', margin, yPosition);
+    yPosition += 8;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    const outcomes = agencyFormData.mostImportantOutcomes.length > 0 ? agencyFormData.mostImportantOutcomes.join(', ') : 'None';
+    yPosition += addText(`Most Important Outcomes: ${outcomes}`, margin, yPosition, 170);
+    yPosition += addText(`Confident Referral Factors: ${agencyFormData.confidentReferralFactors}`, margin, yPosition, 170);
+    yPosition += addText(`Vendor Success Measurement: ${agencyFormData.vendorSuccessMeasurement}`, margin, yPosition, 170);
+    yPosition += sectionSpacing;
+
+    checkPageBreak(20);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('6. Partnership & Next Steps', margin, yPosition);
+    yPosition += 8;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    yPosition += addText(`Six-Month Vision: ${agencyFormData.sixMonthVision}`, margin, yPosition, 170);
+    yPosition += addText(`Co-Branded Opportunities: ${agencyFormData.coBrandedOpportunities}`, margin, yPosition, 170);
+    yPosition += addText(`Additional Support: ${agencyFormData.additionalSupport}`, margin, yPosition, 170);
+    yPosition += addText(`Update Frequency: ${agencyFormData.updateFrequency}`, margin, yPosition, 170);
+    yPosition += sectionSpacing;
+
+    if (agencyFormData.optionalNotes) {
+      checkPageBreak(20);
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text('7. Optional Notes', margin, yPosition);
+      yPosition += 8;
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      yPosition += addText(agencyFormData.optionalNotes, margin, yPosition, 170);
+    }
+
+    const fileName = `Agency_Playbook_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+  };
+
+  const agencyFieldError = (id) => agencyValidationErrors[id] ? 'field-invalid' : '';
+  const renderAgencyError = (id) => agencyValidationErrors[id] ? <small className="field-error" style={{ color: '#fca5a5', display: 'block', marginTop: '4px', fontSize: '12px' }}>{agencyValidationErrors[id]}</small> : null;
+
   return (
     <div className="customers-container">
       <div className="customers-header">
         <h2>Insight Meeting Playbook</h2>
       </div>
+
+      {/* Sub-tab toggle */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', paddingLeft: '1rem' }}>
+        <button
+          type="button"
+          onClick={() => setActivePlaybook('commercial')}
+          style={{
+            padding: '0.5rem 1.25rem',
+            borderRadius: '8px',
+            border: activePlaybook === 'commercial' ? '2px solid #3b82f6' : '1px solid rgba(148,163,184,0.3)',
+            background: activePlaybook === 'commercial' ? 'rgba(59,130,246,0.15)' : 'rgba(30,41,59,0.6)',
+            color: activePlaybook === 'commercial' ? '#60a5fa' : '#94a3b8',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          Commercial Playbook
+        </button>
+        <button
+          type="button"
+          onClick={() => setActivePlaybook('agency')}
+          style={{
+            padding: '0.5rem 1.25rem',
+            borderRadius: '8px',
+            border: activePlaybook === 'agency' ? '2px solid #f59e0b' : '1px solid rgba(148,163,184,0.3)',
+            background: activePlaybook === 'agency' ? 'rgba(245,158,11,0.15)' : 'rgba(30,41,59,0.6)',
+            color: activePlaybook === 'agency' ? '#fbbf24' : '#94a3b8',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          Agency Playbook
+        </button>
+      </div>
+
+      {/* COMMERCIAL PLAYBOOK */}
+      {activePlaybook === 'commercial' && (
       <div className="playbook-form-container">
         <form className="playbook-form" onSubmit={async (e) => {
           e.preventDefault();
@@ -755,6 +1026,262 @@ function PlaybookTab() {
           </div>
         </form>
       </div>
+      )}
+
+      {/* AGENCY PLAYBOOK */}
+      {activePlaybook === 'agency' && (
+      <div className="playbook-form-container">
+        <form className="playbook-form" onSubmit={async (e) => {
+          e.preventDefault();
+          if (!validateAgencyForm()) return;
+          try {
+            const savedPlaybook = await agencyPlaybookService.create(agencyFormData);
+            console.log('Agency playbook saved:', savedPlaybook);
+            alert('Agency playbook saved successfully!');
+          } catch (error) {
+            console.error('Error saving agency playbook:', error);
+            alert(`Error saving agency playbook: ${error.message}`);
+          }
+        }}>
+          {/* Agency Info */}
+          <div className="form-section-header">Agency Info</div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Agency Name *</label>
+              <input type="text" className={agencyFieldError('agencyName')} value={agencyFormData.agencyName} onChange={(e) => setAgencyFormData({...agencyFormData, agencyName: e.target.value})} placeholder="Agency name" />
+              {renderAgencyError('agencyName')}
+            </div>
+            <div className="form-group">
+              <label>Phone Number *</label>
+              <input type="tel" className={agencyFieldError('agencyPhone')} value={agencyFormData.agencyPhone} onChange={(e) => setAgencyFormData({...agencyFormData, agencyPhone: formatPhoneNumber(e.target.value)})} placeholder="(555) 555-5555" />
+              {renderAgencyError('agencyPhone')}
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Address *</label>
+            <input type="text" className={agencyFieldError('agencyAddress')} value={agencyFormData.agencyAddress} onChange={(e) => setAgencyFormData({...agencyFormData, agencyAddress: e.target.value})} placeholder="Street address" />
+            {renderAgencyError('agencyAddress')}
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>City / State / Zip *</label>
+              <input type="text" className={agencyFieldError('agencyCityStateZip')} value={agencyFormData.agencyCityStateZip} onChange={(e) => setAgencyFormData({...agencyFormData, agencyCityStateZip: e.target.value})} placeholder="Nashville, TN 37201" />
+              {renderAgencyError('agencyCityStateZip')}
+            </div>
+            <div className="form-group">
+              <label>Email *</label>
+              <input type="email" className={agencyFieldError('agencyEmail')} value={agencyFormData.agencyEmail} onChange={(e) => setAgencyFormData({...agencyFormData, agencyEmail: e.target.value})} placeholder="agency@email.com" />
+              {renderAgencyError('agencyEmail')}
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Key Contact(s) / Role *</label>
+            <input type="text" className={agencyFieldError('keyContacts')} value={agencyFormData.keyContacts} onChange={(e) => setAgencyFormData({...agencyFormData, keyContacts: e.target.value})} placeholder="Name - Role, Name - Role" />
+            {renderAgencyError('keyContacts')}
+          </div>
+          <div className="form-group">
+            <label>Preferred Communication *</label>
+            <select className={agencyFieldError('preferredCommunication')} value={agencyFormData.preferredCommunication} onChange={(e) => setAgencyFormData({...agencyFormData, preferredCommunication: e.target.value})}>
+              <option value="">Select...</option>
+              <option value="Phone">Phone</option>
+              <option value="Email">Email</option>
+              <option value="Text">Text</option>
+              <option value="Other">Other</option>
+            </select>
+            {renderAgencyError('preferredCommunication')}
+          </div>
+
+          <div className="form-section-divider"></div>
+
+          {/* Section 1: Portfolio & Volume */}
+          <div className="form-section-header">1. Portfolio & Volume</div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Homeowner Policies *</label>
+              <input type="text" className={agencyFieldError('homeownerPolicies')} value={agencyFormData.homeownerPolicies} onChange={(e) => setAgencyFormData({...agencyFormData, homeownerPolicies: e.target.value})} placeholder="Number of policies" />
+              {renderAgencyError('homeownerPolicies')}
+            </div>
+            <div className="form-group">
+              <label>Commercial Policies *</label>
+              <input type="text" className={agencyFieldError('commercialPolicies')} value={agencyFormData.commercialPolicies} onChange={(e) => setAgencyFormData({...agencyFormData, commercialPolicies: e.target.value})} placeholder="Number of policies" />
+              {renderAgencyError('commercialPolicies')}
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Avg Monthly Claims *</label>
+              <input type="text" className={agencyFieldError('avgMonthlyClaims')} value={agencyFormData.avgMonthlyClaims} onChange={(e) => setAgencyFormData({...agencyFormData, avgMonthlyClaims: e.target.value})} placeholder="Average claims per month" />
+              {renderAgencyError('avgMonthlyClaims')}
+            </div>
+            <div className="form-group">
+              <label>Seasonal Volume Notes *</label>
+              <input type="text" className={agencyFieldError('seasonalVolumeNotes')} value={agencyFormData.seasonalVolumeNotes} onChange={(e) => setAgencyFormData({...agencyFormData, seasonalVolumeNotes: e.target.value})} placeholder="Any seasonal patterns" />
+              {renderAgencyError('seasonalVolumeNotes')}
+            </div>
+          </div>
+
+          <div className="form-section-divider"></div>
+
+          {/* Section 2: Claims Handling */}
+          <div className="form-section-header">2. Claims Handling</div>
+          <div className="form-group">
+            <label>Step-by-step process when a client calls with a loss *</label>
+            <textarea className={agencyFieldError('claimsProcess')} value={agencyFormData.claimsProcess} onChange={(e) => setAgencyFormData({...agencyFormData, claimsProcess: e.target.value})} placeholder="Describe the step-by-step claims process" rows="3" />
+            {renderAgencyError('claimsProcess')}
+          </div>
+          <div className="form-group">
+            <label>Typical notification timing for vendors *</label>
+            <input type="text" className={agencyFieldError('notificationTiming')} value={agencyFormData.notificationTiming} onChange={(e) => setAgencyFormData({...agencyFormData, notificationTiming: e.target.value})} placeholder="e.g., Same day, within 24 hours" />
+            {renderAgencyError('notificationTiming')}
+          </div>
+          <div className="form-group">
+            <label>Internal tracking / documentation process *</label>
+            <textarea className={agencyFieldError('trackingProcess')} value={agencyFormData.trackingProcess} onChange={(e) => setAgencyFormData({...agencyFormData, trackingProcess: e.target.value})} placeholder="How do they track and document claims internally?" rows="2" />
+            {renderAgencyError('trackingProcess')}
+          </div>
+          <div className="form-group">
+            <label>Reporting requirements *</label>
+            <textarea className={agencyFieldError('reportingRequirements')} value={agencyFormData.reportingRequirements} onChange={(e) => setAgencyFormData({...agencyFormData, reportingRequirements: e.target.value})} placeholder="What reporting do they need from vendors?" rows="2" />
+            {renderAgencyError('reportingRequirements')}
+          </div>
+
+          <div className="form-section-divider"></div>
+
+          {/* Section 3: Decision Makers & Influence */}
+          <div className="form-section-header">3. Decision Makers & Influence</div>
+          <div className="form-group">
+            <label>Vendor recommendation influencer(s) *</label>
+            <input type="text" className={agencyFieldError('vendorInfluencers')} value={agencyFormData.vendorInfluencers} onChange={(e) => setAgencyFormData({...agencyFormData, vendorInfluencers: e.target.value})} placeholder="Who influences vendor recommendations?" />
+            {renderAgencyError('vendorInfluencers')}
+          </div>
+          <div className="form-group">
+            <label>Preferred vendor list? *</label>
+            <select className={agencyFieldError('hasPreferredVendorList')} value={agencyFormData.hasPreferredVendorList} onChange={(e) => setAgencyFormData({...agencyFormData, hasPreferredVendorList: e.target.value})}>
+              <option value="">Select...</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+            {renderAgencyError('hasPreferredVendorList')}
+          </div>
+          {agencyFormData.hasPreferredVendorList === 'Yes' && (
+            <div className="form-group">
+              <label>What's required to be added?</label>
+              <textarea value={agencyFormData.vendorListRequirements} onChange={(e) => setAgencyFormData({...agencyFormData, vendorListRequirements: e.target.value})} placeholder="Requirements to get on the preferred vendor list" rows="2" />
+            </div>
+          )}
+          <div className="form-group">
+            <label>Key decision criteria *</label>
+            <textarea className={agencyFieldError('keyDecisionCriteria')} value={agencyFormData.keyDecisionCriteria} onChange={(e) => setAgencyFormData({...agencyFormData, keyDecisionCriteria: e.target.value})} placeholder="What criteria do they use to choose vendors?" rows="2" />
+            {renderAgencyError('keyDecisionCriteria')}
+          </div>
+
+          <div className="form-section-divider"></div>
+
+          {/* Section 4: Past Experience & Pain Points */}
+          <div className="form-section-header">4. Past Experience & Pain Points</div>
+          <div className="form-group">
+            <label>Past frustrations with restoration vendors *</label>
+            <textarea className={agencyFieldError('pastFrustrations')} value={agencyFormData.pastFrustrations} onChange={(e) => setAgencyFormData({...agencyFormData, pastFrustrations: e.target.value})} placeholder="What frustrations have they had?" rows="3" />
+            {renderAgencyError('pastFrustrations')}
+          </div>
+          <div className="form-group">
+            <label>Common vendor mistakes to avoid *</label>
+            <textarea className={agencyFieldError('commonMistakes')} value={agencyFormData.commonMistakes} onChange={(e) => setAgencyFormData({...agencyFormData, commonMistakes: e.target.value})} placeholder="What mistakes do vendors commonly make?" rows="2" />
+            {renderAgencyError('commonMistakes')}
+          </div>
+          <div className="form-group">
+            <label>Communication/follow-up issues experienced *</label>
+            <textarea className={agencyFieldError('communicationIssues')} value={agencyFormData.communicationIssues} onChange={(e) => setAgencyFormData({...agencyFormData, communicationIssues: e.target.value})} placeholder="Any communication or follow-up issues?" rows="2" />
+            {renderAgencyError('communicationIssues')}
+          </div>
+
+          <div className="form-section-divider"></div>
+
+          {/* Section 5: Priorities & Expectations */}
+          <div className="form-section-header">5. Priorities & Expectations</div>
+          <div className="form-group">
+            <label>Most important claim outcomes *</label>
+            <div className="checkbox-group">
+              {['Speed', 'Communication', 'Documentation', 'Cost', 'Quality'].map(outcome => (
+                <label key={outcome} className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={agencyFormData.mostImportantOutcomes.includes(outcome)}
+                    onChange={(e) => {
+                      const current = agencyFormData.mostImportantOutcomes;
+                      const updated = e.target.checked ? [...current, outcome] : current.filter(o => o !== outcome);
+                      setAgencyFormData({...agencyFormData, mostImportantOutcomes: updated});
+                    }}
+                  />
+                  {outcome}
+                </label>
+              ))}
+            </div>
+            {renderAgencyError('mostImportantOutcomes')}
+          </div>
+          <div className="form-group">
+            <label>What makes a rep confident referring a company *</label>
+            <textarea className={agencyFieldError('confidentReferralFactors')} value={agencyFormData.confidentReferralFactors} onChange={(e) => setAgencyFormData({...agencyFormData, confidentReferralFactors: e.target.value})} placeholder="What gives them confidence in a vendor?" rows="2" />
+            {renderAgencyError('confidentReferralFactors')}
+          </div>
+          <div className="form-group">
+            <label>How vendor success is measured *</label>
+            <textarea className={agencyFieldError('vendorSuccessMeasurement')} value={agencyFormData.vendorSuccessMeasurement} onChange={(e) => setAgencyFormData({...agencyFormData, vendorSuccessMeasurement: e.target.value})} placeholder="How do they measure vendor performance?" rows="2" />
+            {renderAgencyError('vendorSuccessMeasurement')}
+          </div>
+
+          <div className="form-section-divider"></div>
+
+          {/* Section 6: Partnership & Next Steps */}
+          <div className="form-section-header">6. Partnership & Next Steps</div>
+          <div className="form-group">
+            <label>Six-month success vision if partnered *</label>
+            <textarea className={agencyFieldError('sixMonthVision')} value={agencyFormData.sixMonthVision} onChange={(e) => setAgencyFormData({...agencyFormData, sixMonthVision: e.target.value})} placeholder="What does success look like in 6 months?" rows="3" />
+            {renderAgencyError('sixMonthVision')}
+          </div>
+          <div className="form-group">
+            <label>Co-branded opportunities / client education *</label>
+            <textarea className={agencyFieldError('coBrandedOpportunities')} value={agencyFormData.coBrandedOpportunities} onChange={(e) => setAgencyFormData({...agencyFormData, coBrandedOpportunities: e.target.value})} placeholder="Any interest in co-branded materials or client education?" rows="2" />
+            {renderAgencyError('coBrandedOpportunities')}
+          </div>
+          <div className="form-group">
+            <label>Additional support areas needed *</label>
+            <textarea className={agencyFieldError('additionalSupport')} value={agencyFormData.additionalSupport} onChange={(e) => setAgencyFormData({...agencyFormData, additionalSupport: e.target.value})} placeholder="What additional support do they need?" rows="2" />
+            {renderAgencyError('additionalSupport')}
+          </div>
+          <div className="form-group">
+            <label>Preferred frequency of updates *</label>
+            <select className={agencyFieldError('updateFrequency')} value={agencyFormData.updateFrequency} onChange={(e) => setAgencyFormData({...agencyFormData, updateFrequency: e.target.value})}>
+              <option value="">Select...</option>
+              <option value="Weekly">Weekly</option>
+              <option value="Bi-Weekly">Bi-Weekly</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Quarterly">Quarterly</option>
+              <option value="As Needed">As Needed</option>
+            </select>
+            {renderAgencyError('updateFrequency')}
+          </div>
+
+          <div className="form-section-divider"></div>
+
+          {/* Section 7: Optional Notes */}
+          <div className="form-section-header">7. Optional Notes</div>
+          <div className="form-group">
+            <label>Additional Notes</label>
+            <textarea value={agencyFormData.optionalNotes} onChange={(e) => setAgencyFormData({...agencyFormData, optionalNotes: e.target.value})} placeholder="Any additional notes, observations, or follow-up items" rows="4" />
+          </div>
+
+          <div className="form-actions">
+            <button type="button" className="btn-secondary" onClick={generateAgencyPDF}>
+              Print to PDF
+            </button>
+            <button type="submit" className="btn-primary">
+              Save / Email
+            </button>
+          </div>
+        </form>
+      </div>
+      )}
     </div>
   );
 }

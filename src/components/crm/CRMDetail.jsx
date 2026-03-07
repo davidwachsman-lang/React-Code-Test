@@ -251,12 +251,6 @@ function CRMDetail({ crmRecord, parentRecord, onEdit, onClose, onRefresh }) {
             Overview
           </button>
           <button
-            className={activeTab === 'properties' ? 'active' : ''}
-            onClick={() => setActiveTab('properties')}
-          >
-            Properties
-          </button>
-          <button
             className={activeTab === 'activities' ? 'active' : ''}
             onClick={() => setActiveTab('activities')}
           >
@@ -318,40 +312,6 @@ function CRMDetail({ crmRecord, parentRecord, onEdit, onClose, onRefresh }) {
                   <h3>Notes</h3>
                   <p>{crmRecord.notes}</p>
                 </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'properties' && (
-            <div className="properties-content">
-              <div className="section-header">
-                <h3>Properties</h3>
-                <button className="btn-add" onClick={() => setShowPropertyForm(true)}>
-                  Add Property
-                </button>
-              </div>
-              {propertiesLoading ? (
-                <div>Loading properties...</div>
-              ) : (
-                <PropertyList
-                  properties={properties || []}
-                  onEdit={(property) => {
-                    setEditingProperty(property);
-                    setShowPropertyForm(true);
-                  }}
-                  onDelete={handlePropertyDelete}
-                />
-              )}
-              {showPropertyForm && (
-                <PropertyForm
-                  crmId={crmRecord.id}
-                  property={editingProperty}
-                  onSave={handlePropertySave}
-                  onCancel={() => {
-                    setShowPropertyForm(false);
-                    setEditingProperty(null);
-                  }}
-                />
               )}
             </div>
           )}

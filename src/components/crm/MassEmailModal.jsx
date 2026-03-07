@@ -17,11 +17,13 @@ const MAX_MAILTO_LENGTH = 2000;
 function MassEmailModal({ onClose }) {
   const [selectedRep, setSelectedRep] = useState('');
   const [contacts, setContacts] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(new Set());
   const [loading, setLoading] = useState(false);
 
   const loadContacts = useCallback(async (rep) => {
     if (!rep) {
       setContacts([]);
+      setSelectedIds(new Set());
       return;
     }
     setLoading(true);
@@ -34,9 +36,13 @@ function MassEmailModal({ onClose }) {
         .order('company_name', { ascending: true });
       const data = handleSupabaseResult(response);
       setContacts(data || []);
+      // Select all contacts with email by default
+      const withEmail = (data || []).filter(c => c.email && c.email.trim());
+      setSelectedIds(new Set(withEmail.map(c => c.id)));
     } catch (err) {
       console.error('Error loading contacts:', err);
       setContacts([]);
+      setSelectedIds(new Set());
     } finally {
       setLoading(false);
     }
@@ -49,7 +55,26 @@ function MassEmailModal({ onClose }) {
   };
 
   const contactsWithEmail = contacts.filter(c => c.email && c.email.trim());
-  const emails = contactsWithEmail.map(c => c.email.trim());
+
+  const toggleContact = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selectedIds.size === contactsWithEmail.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(contactsWithEmail.map(c => c.id)));
+    }
+  };
+
+  const selectedContacts = contactsWithEmail.filter(c => selectedIds.has(c.id));
+  const emails = selectedContacts.map(c => c.email.trim());
 
   // Split emails into batches if BCC string exceeds mailto length limit
   const buildBatches = () => {
@@ -114,12 +139,16 @@ function MassEmailModal({ onClose }) {
             <>
               <div className="mass-email-stats">
                 <div className="mass-email-stat">
+                  <div className="stat-value">{selectedContacts.length}</div>
+                  <div className="stat-label">Selected</div>
+                </div>
+                <div className="mass-email-stat">
                   <div className="stat-value">{contactsWithEmail.length}</div>
-                  <div className="stat-label">Contacts with Email</div>
+                  <div className="stat-label">With Email</div>
                 </div>
                 <div className="mass-email-stat">
                   <div className="stat-value">{contacts.length}</div>
-                  <div className="stat-label">Total Contacts</div>
+                  <div className="stat-label">Total</div>
                 </div>
               </div>
 
@@ -127,19 +156,39 @@ function MassEmailModal({ onClose }) {
                 <table>
                   <thead>
                     <tr>
+                      <th style={{ width: '36px', textAlign: 'center' }}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.size === contactsWithEmail.length && contactsWithEmail.length > 0}
+                          onChange={toggleAll}
+                          title="Select All / Deselect All"
+                        />
+                      </th>
                       <th>Name</th>
                       <th>Company</th>
                       <th>Email</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {contacts.map(c => (
-                      <tr key={c.id}>
-                        <td>{contactName(c)}</td>
-                        <td>{c.company_name || '—'}</td>
-                        <td>{c.email && c.email.trim() ? c.email : <span className="no-email">No email</span>}</td>
-                      </tr>
-                    ))}
+                    {contacts.map(c => {
+                      const hasEmail = c.email && c.email.trim();
+                      return (
+                        <tr key={c.id} style={{ opacity: hasEmail ? 1 : 0.5 }}>
+                          <td style={{ textAlign: 'center' }}>
+                            {hasEmail && (
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.has(c.id)}
+                                onChange={() => toggleContact(c.id)}
+                              />
+                            )}
+                          </td>
+                          <td>{contactName(c)}</td>
+                          <td>{c.company_name || '—'}</td>
+                          <td>{hasEmail ? c.email : <span className="no-email">No email</span>}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -147,7 +196,7 @@ function MassEmailModal({ onClose }) {
               <div className="mass-email-actions">
                 {batches.length === 1 && (
                   <button onClick={() => openMailto(batches[0])} disabled={emails.length === 0}>
-                    Open in Email Client ({emails.length} contacts)
+                    Open in Email Client ({selectedContacts.length} selected)
                   </button>
                 )}
                 {batches.length > 1 && batches.map((batch, i) => (
@@ -155,7 +204,10 @@ function MassEmailModal({ onClose }) {
                     Send Batch {i + 1} ({batch.length} contacts)
                   </button>
                 ))}
-                {emails.length === 0 && (
+                {selectedContacts.length === 0 && contactsWithEmail.length > 0 && (
+                  <div className="mass-email-empty">Select contacts to email.</div>
+                )}
+                {contactsWithEmail.length === 0 && (
                   <div className="mass-email-empty">No contacts with email addresses for this rep.</div>
                 )}
               </div>

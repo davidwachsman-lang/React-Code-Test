@@ -1,0 +1,216 @@
+.scoreboard-container {
+  padding: 0;
+}
+
+.scoreboard-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.scoreboard-header h2 {
+  color: #e5e7eb;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.scoreboard-year {
+  padding: 0.25rem 0.75rem;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  color: #60a5fa;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.scoreboard-loading {
+  color: #9ca3af;
+  text-align: center;
+  padding: 3rem;
+}
+
+.scoreboard-table-wrapper {
+  overflow-x: auto;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(55, 65, 81, 0.6);
+  border-radius: 12px;
+}
+
+.scoreboard-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+}
+
+/* Header */
+.scoreboard-table thead th {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(30, 41, 59, 0.8) 100%);
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.75px;
+  padding: 0.875rem 1rem;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+
+.scoreboard-table thead th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.scoreboard-table thead th:last-child {
+  border-top-right-radius: 12px;
+}
+
+/* Body rows */
+.scoreboard-table tbody td {
+  padding: 0.875rem 1rem;
+  color: #e5e7eb;
+  border-bottom: 1px solid rgba(55, 65, 81, 0.3);
+  transition: background 0.15s;
+}
+
+.scoreboard-table tbody tr {
+  transition: background 0.15s;
+}
+
+.scoreboard-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.scoreboard-table tbody tr:hover td {
+  color: #f1f5f9;
+}
+
+/* Alternating row tint */
+.scoreboard-table tbody tr:nth-child(even) {
+  background: rgba(30, 41, 59, 0.25);
+}
+
+.scoreboard-table tbody tr:nth-child(even):hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* Footer */
+.scoreboard-table tfoot td {
+  padding: 0.875rem 1rem;
+  color: #f1f5f9;
+  font-weight: 700;
+  border-top: 2px solid rgba(59, 130, 246, 0.25);
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.6) 0%, rgba(30, 41, 59, 0.4) 100%);
+}
+
+.scoreboard-table tfoot td:first-child {
+  border-bottom-left-radius: 12px;
+}
+
+.scoreboard-table tfoot td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
+/* Column alignments */
+.col-name {
+  text-align: left;
+  font-weight: 600;
+  color: #e5e7eb;
+  font-size: 0.9375rem;
+}
+
+.col-num {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.col-currency {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.col-pct {
+  text-align: center;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.col-pct.positive {
+  color: #4ade80;
+}
+
+.col-pct.negative {
+  color: #f87171;
+}
+
+.col-pct.warning {
+  color: #fbbf24;
+}
+
+/* Quota cell */
+.col-quota {
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.col-quota:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.quota-value {
+  color: #64748b;
+  font-style: italic;
+  font-size: 0.8125rem;
+}
+
+/* Show set value in normal style */
+.col-quota .quota-value:not(:empty) {
+  color: #94a3b8;
+}
+
+.quota-input {
+  width: 100%;
+  max-width: 120px;
+  padding: 0.25rem 0.5rem;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  border-radius: 4px;
+  color: #e5e7eb;
+  font-size: 0.875rem;
+  text-align: right;
+  outline: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.quota-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Rep name column highlight */
+.scoreboard-table tbody .col-name {
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.scoreboard-table tbody .col-name::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  height: 50%;
+  width: 3px;
+  border-radius: 2px;
+  background: #3b82f6;
+}
+
+.scoreboard-table tbody tr:nth-child(1) .col-name::before { background: #f59e0b; }
+.scoreboard-table tbody tr:nth-child(2) .col-name::before { background: #3b82f6; }
+.scoreboard-table tbody tr:nth-child(3) .col-name::before { background: #10b981; }
+.scoreboard-table tbody tr:nth-child(4) .col-name::before { background: #8b5cf6; }
+.scoreboard-table tbody tr:nth-child(5) .col-name::before { background: #ec4899; }

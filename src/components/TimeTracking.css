@@ -50,6 +50,49 @@
   font-size: 0.9375rem;
 }
 
+.tt-name-role {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tt-switch-btn {
+  margin-left: auto;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(71, 85, 105, 0.4);
+  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tt-switch-btn:hover {
+  color: #e2e8f0;
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.tt-name-select {
+  width: 100%;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: #f1f5f9;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+
+.tt-name-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
 .tt-crew-select {
   background: rgba(30, 41, 59, 0.5);
   border: 1px solid rgba(71, 85, 105, 0.5);
@@ -804,4 +847,238 @@
   .tt-elapsed {
     text-align: center;
   }
+}
+
+/* ===== Temp Labor ===== */
+.tt-temp-section {
+  margin-bottom: 1rem;
+}
+
+.tt-temp-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 8px;
+  padding: 0.625rem 1rem;
+  color: #fbbf24;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tt-temp-toggle:hover {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+.tt-temp-panel {
+  margin-top: 0.5rem;
+  background: rgba(30, 41, 59, 0.3);
+  border: 1px solid rgba(71, 85, 105, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.tt-temp-add-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.tt-temp-input {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+}
+
+.tt-temp-input:focus {
+  outline: none;
+  border-color: #fbbf24;
+}
+
+.tt-temp-input::placeholder {
+  color: #64748b;
+}
+
+.tt-temp-add-btn {
+  width: auto !important;
+  min-height: 36px !important;
+  padding: 0.375rem 1rem !important;
+  font-size: 0.8125rem !important;
+}
+
+.tt-temp-empty {
+  color: #64748b;
+  font-size: 0.8125rem;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.tt-temp-worker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.2);
+}
+
+.tt-temp-worker-row:last-child {
+  border-bottom: none;
+}
+
+.tt-temp-worker-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.tt-temp-worker-name {
+  color: #e2e8f0;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.tt-temp-worker-company {
+  color: #64748b;
+  font-size: 0.6875rem;
+}
+
+.tt-temp-worker-status {
+  font-size: 0.75rem;
+}
+
+.tt-temp-active-badge {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.tt-temp-hours {
+  color: #94a3b8;
+}
+
+.tt-temp-remove {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.tt-temp-remove:hover {
+  color: #ef4444;
+}
+
+/* Temp controls on job cards */
+.tt-temp-job-controls {
+  margin-top: 0.625rem;
+  padding-top: 0.625rem;
+  border-top: 1px dashed rgba(251, 191, 36, 0.2);
+}
+
+.tt-temp-job-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0;
+}
+
+.tt-temp-job-row + .tt-temp-job-row {
+  border-top: 1px solid rgba(71, 85, 105, 0.15);
+}
+
+.tt-temp-job-name {
+  flex: 1;
+  color: #fbbf24;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.tt-temp-job-hours {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.tt-btn-temp-in,
+.tt-btn-temp-out {
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.75rem;
+  min-height: 28px;
+  transition: all 0.2s ease;
+}
+
+.tt-btn-temp-in {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.tt-btn-temp-in:hover:not(:disabled) {
+  background: rgba(251, 191, 36, 0.3);
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+.tt-btn-temp-in:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tt-btn-temp-out {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.tt-btn-temp-out:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.tt-temp-job-row.active .tt-temp-job-name {
+  color: #10b981;
+}
+
+.tt-temp-job-row.completed .tt-temp-job-name {
+  color: #64748b;
+}
+
+.tt-temp-completed-area {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Bulk row */
+.tt-temp-bulk-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0 0.5rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(251, 191, 36, 0.15);
+}
+
+.tt-temp-bulk-label {
+  flex: 1;
+  color: #fbbf24;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }

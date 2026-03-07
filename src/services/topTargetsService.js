@@ -4,14 +4,38 @@ import { supabase, handleSupabaseResult } from './supabaseClient';
 const TABLE = 'top_targets';
 
 const topTargetsService = {
-  // Get all top targets
+  // Get all active (non-parked) top targets
   async getAll() {
     const response = await supabase
       .from(TABLE)
       .select('*')
+      .is('parked_at', null)
       .order('sales_rep', { ascending: true })
       .order('target_position', { ascending: true });
-    
+
+    return handleSupabaseResult(response);
+  },
+
+  // Get all parked targets
+  async getParked() {
+    const response = await supabase
+      .from(TABLE)
+      .select('*')
+      .not('parked_at', 'is', null)
+      .order('parked_at', { ascending: false });
+
+    return handleSupabaseResult(response);
+  },
+
+  // Park a target (move to parking lot)
+  async park(id) {
+    const response = await supabase
+      .from(TABLE)
+      .update({ parked_at: new Date().toISOString(), target_position: null })
+      .eq('id', id)
+      .select()
+      .single();
+
     return handleSupabaseResult(response);
   },
 

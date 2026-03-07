@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import './CRMForm.css';
 import ActivityTimeline from '../ActivityTimeline';
 import ActivityForm from '../ActivityForm';
+import SalesFunnelTracker from './SalesFunnelTracker';
+import KeyContactsMap from './KeyContactsMap';
 import { useActivities } from '../../hooks/useActivities';
 import crmActivityService from '../../services/crmActivityService';
 
@@ -373,6 +375,20 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
           >
             Activities
           </button>
+          <button
+            type="button"
+            className={activeTab === 'funnel' ? 'active' : ''}
+            onClick={() => setActiveTab('funnel')}
+          >
+            Sales Funnel
+          </button>
+          <button
+            type="button"
+            className={activeTab === 'contacts' ? 'active' : ''}
+            onClick={() => setActiveTab('contacts')}
+          >
+            Key Contacts
+          </button>
         </div>
       )}
 
@@ -406,6 +422,30 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
             <ActivityTimeline activities={activities || []} />
           )}
           
+          <div className="form-actions">
+            <button type="button" className="btn-secondary" onClick={onCancel}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Sales Funnel Tab */}
+      {isEditing && activeTab === 'funnel' && (
+        <div className="crm-form-tab-content">
+          <SalesFunnelTracker recordId={crmRecord.id} />
+          <div className="form-actions">
+            <button type="button" className="btn-secondary" onClick={onCancel}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Key Contacts Tab */}
+      {isEditing && activeTab === 'contacts' && (
+        <div className="crm-form-tab-content">
+          <KeyContactsMap recordId={crmRecord.id} />
           <div className="form-actions">
             <button type="button" className="btn-secondary" onClick={onCancel}>
               Close

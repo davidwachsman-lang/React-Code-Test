@@ -3,6 +3,7 @@ import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { useCRM } from '../hooks/useCRM';
 import { useCreateCRMRecord, useUpdateCRMRecord, useDeleteCRMRecord } from '../hooks/useCRMRecord';
 import crmService from '../services/crmService';
+import { FUNNEL_STAGES } from '../constants/crmConstants';
 import SalesFunnel from '../components/SalesFunnel';
 import CRMTable from '../components/crm/CRMTable';
 import CRMFilters from '../components/crm/CRMFilters';
@@ -22,6 +23,7 @@ const PlaybookTab = lazy(() => import('../components/crm/PlaybookTab'));
 const FeatureUpgradesTab = lazy(() => import('../components/crm/FeatureUpgradesTab'));
 const TopTargetsTab = lazy(() => import('../components/crm/TopTargetsTab'));
 const ActivityTrackingTab = lazy(() => import('../components/crm/ActivityTrackingTab'));
+const ScoreboardTab = lazy(() => import('../components/crm/ScoreboardTab'));
 
 function CRM() {
   const { data: crmRecordsData, loading, error, refetch } = useCRM();
@@ -244,17 +246,12 @@ function CRM() {
     const msaSigned = crmRecords.filter(r => r.date_closed).length;
 
     // Use dummy data that shows descending funnel pattern
-    // Each level should be smaller than the previous
-    const dummyData = [
-      { name: 'Target Identified', count: 100, color: '#f97316', gradient: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', percentage: 100 },
-      { name: 'Insight Meeting Scheduled', count: 75, color: '#fb923c', gradient: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)', percentage: 75 },
-      { name: 'Insight Meeting Completed', count: 55, color: '#fbbf24', gradient: 'linear-gradient(135deg, #fbbf24 0%, #fb923c 100%)', percentage: 55 },
-      { name: 'Presentation to Client', count: 40, color: '#fde047', gradient: 'linear-gradient(135deg, #fde047 0%, #fbbf24 100%)', percentage: 40 },
-      { name: 'Initial Commitment', count: 28, color: '#60a5fa', gradient: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)', percentage: 28 },
-      { name: 'First Referral Received', count: 18, color: '#3b82f6', gradient: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', percentage: 18 },
-      { name: 'Closed / First Job Reviewed', count: 12, color: '#1e40af', gradient: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)', percentage: 12 },
-      { name: 'MSA Signed', count: 8, color: '#1e3a8a', gradient: 'linear-gradient(135deg, #1e3a8a 0%, #172554 100%)', percentage: 8 }
-    ];
+    const dummyCounts = [100, 75, 55, 40, 28, 18, 12, 8];
+    const dummyData = FUNNEL_STAGES.map((stage, i) => ({
+      ...stage,
+      count: dummyCounts[i],
+      percentage: dummyCounts[i],
+    }));
 
     return dummyData;
   }, [crmRecords]);
@@ -276,6 +273,13 @@ function CRM() {
 
       {/* Action Buttons */}
       <div className="crm-action-buttons">
+        <button
+          className={`action-btn ${activeTab === 'all' ? 'action-btn-green' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('all')}
+        >
+          <span className="btn-icon">📋</span>
+          CRM
+        </button>
         <button className="action-btn action-btn-blue" onClick={() => {
           setEditingRecord(null);
           setShowForm(true);
@@ -286,13 +290,6 @@ function CRM() {
         <button className="action-btn action-btn-indigo" onClick={() => setShowMassEmailModal(true)}>
           <span className="btn-icon">✉️</span>
           Email Book
-        </button>
-        <button
-          className={`action-btn ${activeTab === 'all' ? 'action-btn-green' : 'action-btn-gray'}`}
-          onClick={() => setActiveTab('all')}
-        >
-          <span className="btn-icon">📋</span>
-          CRM
         </button>
         <button
           className={`action-btn ${activeTab === 'funnel' ? 'action-btn-purple' : 'action-btn-gray'}`}
@@ -321,6 +318,13 @@ function CRM() {
         >
           <span className="btn-icon">🎯</span>
           Top 10 Targets
+        </button>
+        <button
+          className={`action-btn ${activeTab === 'scoreboard' ? 'action-btn-yellow' : 'action-btn-gray'}`}
+          onClick={() => setActiveTab('scoreboard')}
+        >
+          <span className="btn-icon">🏆</span>
+          Scoreboard
         </button>
         <button
           className={`action-btn ${activeTab === 'featureUpgrades' ? 'action-btn-teal' : 'action-btn-gray'}`}
@@ -447,6 +451,7 @@ function CRM() {
         {activeTab === 'activity' && <ActivityTrackingTab />}
         {activeTab === 'topTargets' && <TopTargetsTab />}
         {activeTab === 'featureUpgrades' && <FeatureUpgradesTab />}
+        {activeTab === 'scoreboard' && <ScoreboardTab />}
       </Suspense>
 
       {/* CRM Detail Modal */}

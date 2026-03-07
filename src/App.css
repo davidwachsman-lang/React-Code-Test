@@ -7,33 +7,20 @@
 
 .App {
   min-height: 100vh;
-  background: linear-gradient(180deg, #222a0f 0%, #1e293b 50%, #0f172a 100%);
+  background: var(--stripe-slate-50);
   position: relative;
   display: flex;
-}
-
-.App::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(96, 165, 250, 0.08) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
 }
 
 .app-content {
   flex: 1;
   margin-left: 0;
-  padding-top: 20px;
+  padding: 24px 32px;
   position: relative;
   z-index: 1;
   min-height: 100vh;
   overflow-x: hidden;
+  background: var(--stripe-slate-50);
 }
 
 body {
@@ -44,6 +31,7 @@ body {
 @media (max-width: 768px) {
   .app-content {
     margin-left: 0;
+    padding: 16px;
   }
 }
 
@@ -55,6 +43,7 @@ body {
   z-index: 1;
   min-height: 100vh;
   overflow-x: hidden;
+  background: var(--stripe-slate-50);
 }
 
 /* Print Styles - Clean white background */
@@ -66,10 +55,6 @@ body {
     background: white !important;
     margin: 0 !important;
     padding: 0 !important;
-  }
-
-  .App::before {
-    display: none !important;
   }
 
   .app-content {

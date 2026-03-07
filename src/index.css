@@ -1,14 +1,38 @@
 @import "tailwindcss";
 
+/* Stripe Design System */
 :root {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  line-height: 1.6;
+  /* Stripe Colors */
+  --stripe-primary: #635bff;
+  --stripe-primary-hover: #5046e5;
+  --stripe-cyan: #00d4ff;
+  --stripe-green: #00d924;
+  --stripe-yellow: #ffbb00;
+  --stripe-orange: #ff5500;
+  --stripe-red: #ff4444;
+  
+  /* Neutral Palette */
+  --stripe-slate-900: #0a2540;
+  --stripe-slate-800: #1a3a5c;
+  --stripe-slate-700: #425466;
+  --stripe-slate-600: #516f90;
+  --stripe-slate-500: #697386;
+  --stripe-slate-400: #8792a2;
+  --stripe-slate-300: #a3acb9;
+  --stripe-slate-200: #c1c9d2;
+  --stripe-slate-100: #e3e8ee;
+  --stripe-slate-50: #f6f9fc;
+  --stripe-white: #ffffff;
+  
+  /* Typography */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Ubuntu', sans-serif;
+  line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: dark;
-  color: rgba(255, 255, 255, 0.87);
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-
+  
+  color-scheme: light;
+  color: var(--stripe-slate-700);
+  background: var(--stripe-slate-50);
+  
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -25,32 +49,110 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-  background-attachment: fixed;
+  background: var(--stripe-slate-50);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--stripe-slate-900);
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 2.5rem;
+  line-height: 1.2;
 }
 
+h2 {
+  font-size: 1.75rem;
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+/* Stripe Button Styles */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  border-radius: 6px;
+  border: none;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--stripe-primary);
+  color: white;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 button:hover {
-  border-color: #646cff;
+  background-color: var(--stripe-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 91, 255, 0.25);
 }
 
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.3);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Links */
+a {
+  color: var(--stripe-primary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--stripe-primary-hover);
+}
+
+/* Inputs */
+input, select, textarea {
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--stripe-slate-900);
+  background: var(--stripe-white);
+  border: 1px solid var(--stripe-slate-200);
+  border-radius: 6px;
+  padding: 0.625rem 0.875rem;
+  transition: all 0.15s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--stripe-primary);
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.15);
+}
+
+input::placeholder {
+  color: var(--stripe-slate-400);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--stripe-slate-100);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--stripe-slate-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--stripe-slate-400);
 }

@@ -1,14 +1,14 @@
-/* Map Filters Styles */
+/* DW Brand System — Map Filters */
 
 .map-filters-container {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   overflow: hidden;
-  backdrop-filter: blur(8px);
   max-height: 100%;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .map-filters-header {
@@ -16,7 +16,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  background: rgba(30, 41, 59, 0.8);
+  background: #F8FAFC;
   cursor: pointer;
   user-select: none;
   transition: background 0.2s ease;
@@ -24,14 +24,14 @@
 }
 
 .map-filters-header:hover {
-  background: rgba(30, 41, 59, 1);
+  background: #F1F5F9;
 }
 
 .map-filters-header h4 {
   margin: 0;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #0A2540;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -40,14 +40,14 @@
 .active-filter-badge {
   font-size: 0.7rem;
   padding: 0.15rem 0.5rem;
-  background: #3b82f6;
+  background: #635BFF;
   color: white;
   border-radius: 10px;
   font-weight: 500;
 }
 
 .toggle-arrow {
-  color: #64748b;
+  color: #94A3B8;
   font-size: 0.7rem;
   transition: transform 0.2s ease;
 }
@@ -68,12 +68,12 @@
 }
 
 .map-filters-content::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background: #F1F5F9;
   border-radius: 3px;
 }
 
 .map-filters-content::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.4);
+  background: #CBD5E1;
   border-radius: 3px;
 }
 
@@ -81,10 +81,10 @@
   width: 100%;
   padding: 0.5rem;
   margin-bottom: 0.75rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.2);
   border-radius: 6px;
-  color: #fca5a5;
+  color: #DC2626;
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
@@ -92,8 +92,8 @@
 }
 
 .clear-all-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.5);
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
 }
 
 /* Filter Columns */
@@ -104,10 +104,10 @@
 }
 
 .filter-column-group {
-  background: rgba(30, 41, 59, 0.5);
+  background: #F8FAFC;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid rgba(71, 85, 105, 0.3);
+  border: 1px solid #E2E8F0;
 }
 
 .filter-column-header {
@@ -120,19 +120,19 @@
 }
 
 .filter-column-header:hover {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(99, 91, 255, 0.04);
 }
 
 .filter-column-header.expanded {
-  background: rgba(59, 130, 246, 0.1);
-  border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+  background: rgba(99, 91, 255, 0.04);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .column-name {
   flex: 1;
   font-size: 0.85rem;
   font-weight: 500;
-  color: #e2e8f0;
+  color: #0A2540;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -141,20 +141,20 @@
 .color-badge {
   font-size: 0.65rem;
   padding: 0.1rem 0.35rem;
-  background: rgba(59, 130, 246, 0.3);
-  color: #93c5fd;
+  background: rgba(99, 91, 255, 0.1);
+  color: #635BFF;
   border-radius: 4px;
   font-weight: 500;
 }
 
 .column-count {
   font-size: 0.75rem;
-  color: #64748b;
+  color: #94A3B8;
 }
 
 .column-arrow {
   font-size: 0.6rem;
-  color: #64748b;
+  color: #94A3B8;
   transition: transform 0.2s ease;
 }
 
@@ -165,7 +165,7 @@
 /* Filter Column Content */
 .filter-column-content {
   padding: 0.5rem 0.75rem;
-  background: rgba(15, 23, 42, 0.3);
+  background: #FFFFFF;
 }
 
 .filter-actions {
@@ -178,16 +178,16 @@
   flex: 1;
   padding: 0.3rem 0.5rem;
   font-size: 0.7rem;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(99, 91, 255, 0.06);
+  border: 1px solid #E2E8F0;
   border-radius: 4px;
-  color: #93c5fd;
+  color: #635BFF;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .filter-actions button:hover {
-  background: rgba(59, 130, 246, 0.2);
+  background: rgba(99, 91, 255, 0.1);
 }
 
 /* Filter Values */
@@ -205,7 +205,7 @@
 }
 
 .filter-values::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.3);
+  background: #CBD5E1;
   border-radius: 2px;
 }
 
@@ -217,15 +217,15 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
-  background: rgba(30, 41, 59, 0.4);
+  background: #FFFFFF;
 }
 
 .filter-value:hover {
-  background: rgba(30, 41, 59, 0.8);
+  background: #F8FAFC;
 }
 
 .filter-value.active {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(99, 91, 255, 0.04);
 }
 
 .filter-value.inactive {
@@ -235,7 +235,7 @@
 .filter-value input[type="checkbox"] {
   width: 14px;
   height: 14px;
-  accent-color: #3b82f6;
+  accent-color: #635BFF;
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -245,13 +245,13 @@
   height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .filter-value-label {
   flex: 1;
   font-size: 0.8rem;
-  color: #cbd5e1;
+  color: #64748B;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -259,6 +259,6 @@
 
 .filter-value-count {
   font-size: 0.7rem;
-  color: #64748b;
+  color: #94A3B8;
   flex-shrink: 0;
 }

@@ -28,19 +28,19 @@
 .ect-lob-toggle {
   display: flex;
   gap: 0;
-  border: 1px solid rgba(59, 130, 246, 0.35);
-  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
-  background: rgba(15, 23, 42, 0.6);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .ect-lob-toggle button {
   border: none;
-  border-right: 1px solid rgba(59, 130, 246, 0.2);
+  border-right: 1px solid #E2E8F0;
   background: transparent;
-  color: #94a3b8;
+  color: #64748B;
   padding: 0.55rem 1.15rem;
   font-size: 0.85rem;
   font-weight: 600;
@@ -55,14 +55,13 @@
 }
 
 .ect-lob-toggle button:hover {
-  color: #e2e8f0;
-  background: rgba(59, 130, 246, 0.08);
+  color: #0A2540;
+  background: #F8FAFC;
 }
 
 .ect-lob-toggle button.active {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(96, 165, 250, 0.25));
-  color: #fff;
-  box-shadow: inset 0 0 12px rgba(59, 130, 246, 0.15);
+  background: #635BFF;
+  color: #FFFFFF;
 }
 
 /* ================================================================== */
@@ -93,13 +92,13 @@
   align-items: center;
   gap: 0.25rem;
   padding: 0.75rem 0.5rem;
-  border-radius: 10px;
+  border-radius: 8px;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .ect-cycle-segment:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 .ect-cycle-label {
@@ -107,7 +106,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #94a3b8;
+  color: #94A3B8;
   text-align: center;
   white-space: nowrap;
 }
@@ -128,7 +127,7 @@
   flex-shrink: 0;
   width: 28px;
   height: 2px;
-  background: rgba(148, 163, 184, 0.25);
+  background: #E2E8F0;
   position: relative;
 }
 
@@ -138,52 +137,53 @@
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  border-left: 6px solid rgba(148, 163, 184, 0.35);
+  border-left: 6px solid #CBD5E1;
   border-top: 4px solid transparent;
   border-bottom: 4px solid transparent;
 }
 
-/* Segment colors */
+/* Segment colors - light brand variants */
 .ect-cycle-segment.seg-cyan {
-  background: rgba(6, 182, 212, 0.08);
-  border: 1px solid rgba(6, 182, 212, 0.2);
+  background: #ECFEFF;
+  border: 1px solid #A5F3FC;
 }
-.seg-cyan .ect-cycle-days { color: #22d3ee; }
+.seg-cyan .ect-cycle-days { color: #0891B2; }
 
 .ect-cycle-segment.seg-blue {
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
 }
-.seg-blue .ect-cycle-days { color: #60a5fa; }
+.seg-blue .ect-cycle-days { color: #2563EB; }
 
 .ect-cycle-segment.seg-indigo {
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: #EEF2FF;
+  border: 1px solid #C7D2FE;
 }
-.seg-indigo .ect-cycle-days { color: #818cf8; }
+.seg-indigo .ect-cycle-days { color: #4F46E5; }
 
 .ect-cycle-segment.seg-total {
-  background: rgba(168, 85, 247, 0.1);
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  background: #F5F3FF;
+  border: 1px solid #DDD6FE;
 }
-.seg-total .ect-cycle-days { color: #c084fc; font-size: 2rem; }
-.seg-total .ect-cycle-label { color: #a78bfa; }
+.seg-total .ect-cycle-days { color: #635BFF; font-size: 2rem; }
+.seg-total .ect-cycle-label { color: #635BFF; }
 
 .ect-kpi-card {
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1rem 1.1rem;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
   border-left: 3px solid transparent;
   transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .ect-kpi-card:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 .ect-kpi-label {
@@ -191,28 +191,28 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #94a3b8;
+  color: #94A3B8;
 }
 
 .ect-kpi-value {
   font-size: 1.65rem;
   font-weight: 700;
   line-height: 1.2;
-  color: #f1f5f9;
+  color: #0A2540;
 }
 
 .ect-kpi-subtitle {
   font-size: 0.78rem;
-  color: #64748b;
+  color: #64748B;
 }
 
 /* Accent colors */
-.ect-kpi-card.accent-red    { border-left-color: #ef4444; }
-.ect-kpi-card.accent-blue   { border-left-color: #3b82f6; }
-.ect-kpi-card.accent-purple { border-left-color: #a855f7; }
-.ect-kpi-card.accent-green  { border-left-color: #22c55e; }
-.ect-kpi-card.accent-amber  { border-left-color: #f59e0b; }
-.ect-kpi-card.accent-slate  { border-left-color: #64748b; }
+.ect-kpi-card.accent-red    { border-left-color: #DC2626; }
+.ect-kpi-card.accent-blue   { border-left-color: #2563EB; }
+.ect-kpi-card.accent-purple { border-left-color: #635BFF; }
+.ect-kpi-card.accent-green  { border-left-color: #16A34A; }
+.ect-kpi-card.accent-amber  { border-left-color: #D97706; }
+.ect-kpi-card.accent-slate  { border-left-color: #64748B; }
 
 /* Approval Rate toggle */
 .ect-kpi-toggle {
@@ -222,10 +222,10 @@
 }
 
 .ect-kpi-toggle button {
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
-  background: rgba(148, 163, 184, 0.08);
-  color: #94a3b8;
+  background: #F8FAFC;
+  color: #64748B;
   padding: 0.2rem 0.5rem;
   font-size: 0.72rem;
   font-weight: 600;
@@ -234,38 +234,39 @@
 }
 
 .ect-kpi-toggle button:hover {
-  color: #f1f5f9;
-  border-color: rgba(148, 163, 184, 0.45);
+  color: #0A2540;
+  border-color: #CBD5E1;
 }
 
 .ect-kpi-toggle button.active {
-  background: rgba(245, 158, 11, 0.18);
-  border-color: rgba(245, 158, 11, 0.5);
-  color: #fbbf24;
+  background: #FEF3C7;
+  border-color: #FCD34D;
+  color: #D97706;
 }
 
 /* ================================================================== */
 /*  Shared section card                                                */
 /* ================================================================== */
 .ect-section-card {
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1.1rem 1.2rem;
   margin-top: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .ect-section-title {
   margin: 0 0 0.85rem;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: #0A2540;
 }
 
 .ect-section-subtitle {
   font-size: 0.75rem;
   font-weight: 400;
-  color: #64748b;
+  color: #64748B;
 }
 
 .ect-section-header {
@@ -281,10 +282,10 @@
 
 /* Export CSV button */
 .ect-export-btn {
-  border: 1px solid rgba(59, 130, 246, 0.35);
-  border-radius: 7px;
-  background: rgba(59, 130, 246, 0.1);
-  color: #60a5fa;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: #635BFF;
   padding: 0.35rem 0.85rem;
   font-size: 0.76rem;
   font-weight: 600;
@@ -294,9 +295,9 @@
 }
 
 .ect-export-btn:hover {
-  background: rgba(59, 130, 246, 0.2);
-  color: #93c5fd;
-  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(99,91,255,0.06);
+  color: #4F46E5;
+  border-color: #635BFF;
 }
 
 /* Remind action button */
@@ -304,9 +305,9 @@
   display: inline-block;
   padding: 0.25rem 0.65rem;
   border-radius: 6px;
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  color: #fbbf24;
+  background: #FEF3C7;
+  border: 1px solid #FCD34D;
+  color: #D97706;
   font-size: 0.76rem;
   font-weight: 600;
   text-decoration: none;
@@ -316,9 +317,9 @@
 }
 
 .ect-remind-btn:hover {
-  background: rgba(245, 158, 11, 0.22);
-  color: #fcd34d;
-  border-color: rgba(245, 158, 11, 0.5);
+  background: #FDE68A;
+  color: #B45309;
+  border-color: #D97706;
 }
 
 /* ================================================================== */
@@ -338,16 +339,17 @@
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #64748b;
+  color: #635BFF;
   padding: 0.5rem 0.6rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  border-bottom: 1px solid #E2E8F0;
+  background: #F8FAFC;
 }
 
 .ect-leaderboard tbody td {
   padding: 0.55rem 0.6rem;
   font-size: 0.84rem;
-  color: #cbd5e1;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  color: #64748B;
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .ect-leaderboard tbody tr {
@@ -356,16 +358,16 @@
 }
 
 .ect-leaderboard tbody tr:hover {
-  background: rgba(148, 163, 184, 0.08);
+  background: rgba(99,91,255,0.04);
 }
 
 .ect-leaderboard tbody tr.active {
-  background: rgba(59, 130, 246, 0.12);
+  background: rgba(99,91,255,0.06);
 }
 
 .ect-lb-name {
   font-weight: 600;
-  color: #f1f5f9;
+  color: #0A2540;
   white-space: nowrap;
 }
 
@@ -377,11 +379,11 @@
 
 .ect-thead-group th.ect-col-group-header {
   text-align: center !important;
-  color: #e2e8f0 !important;
+  color: #0A2540 !important;
   font-size: 0.72rem !important;
   font-weight: 700 !important;
   padding-bottom: 0.4rem !important;
-  border-bottom: 2px solid rgba(59, 130, 246, 0.5) !important;
+  border-bottom: 2px solid #635BFF !important;
 }
 
 /* Contact buttons */
@@ -396,21 +398,21 @@
 }
 
 .ect-contact-phone {
-  color: #60a5fa;
+  color: #2563EB;
 }
 
 .ect-contact-phone:hover {
-  background: rgba(59, 130, 246, 0.15);
-  color: #93c5fd;
+  background: #DBEAFE;
+  color: #1D4ED8;
 }
 
 .ect-contact-email {
-  color: #a78bfa;
+  color: #635BFF;
 }
 
 .ect-contact-email:hover {
-  background: rgba(168, 85, 247, 0.15);
-  color: #c4b5fd;
+  background: rgba(99,91,255,0.08);
+  color: #4F46E5;
 }
 
 /* ================================================================== */
@@ -423,7 +425,7 @@
 }
 
 .ect-aging-bucket {
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 1rem 0.8rem;
   display: flex;
   flex-direction: column;
@@ -451,37 +453,37 @@
 
 /* Aging color tiers */
 .ect-aging-bucket.aging-green {
-  background: rgba(34, 197, 94, 0.12);
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: #DCFCE7;
+  border: 1px solid #BBF7D0;
 }
-.ect-aging-bucket.aging-green .ect-aging-count { color: #4ade80; }
-.ect-aging-bucket.aging-green .ect-aging-label { color: rgba(34, 197, 94, 0.7); }
+.ect-aging-bucket.aging-green .ect-aging-count { color: #16A34A; }
+.ect-aging-bucket.aging-green .ect-aging-label { color: #15803D; }
 
 .ect-aging-bucket.aging-yellow {
-  background: rgba(234, 179, 8, 0.12);
-  border: 1px solid rgba(234, 179, 8, 0.3);
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
 }
-.ect-aging-bucket.aging-yellow .ect-aging-count { color: #facc15; }
-.ect-aging-bucket.aging-yellow .ect-aging-label { color: rgba(234, 179, 8, 0.7); }
+.ect-aging-bucket.aging-yellow .ect-aging-count { color: #D97706; }
+.ect-aging-bucket.aging-yellow .ect-aging-label { color: #B45309; }
 
 .ect-aging-bucket.aging-orange {
-  background: rgba(249, 115, 22, 0.12);
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
 }
-.ect-aging-bucket.aging-orange .ect-aging-count { color: #fb923c; }
-.ect-aging-bucket.aging-orange .ect-aging-label { color: rgba(249, 115, 22, 0.7); }
+.ect-aging-bucket.aging-orange .ect-aging-count { color: #EA580C; }
+.ect-aging-bucket.aging-orange .ect-aging-label { color: #C2410C; }
 
 .ect-aging-bucket.aging-red {
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
 }
-.ect-aging-bucket.aging-red .ect-aging-count { color: #f87171; }
-.ect-aging-bucket.aging-red .ect-aging-label { color: rgba(239, 68, 68, 0.7); }
+.ect-aging-bucket.aging-red .ect-aging-count { color: #DC2626; }
+.ect-aging-bucket.aging-red .ect-aging-label { color: #B91C1C; }
 
 /* Aging text colors (used in Conversion Center table) */
-.ect-aging-text-yellow { color: #facc15; font-weight: 600; }
-.ect-aging-text-orange { color: #fb923c; font-weight: 600; }
-.ect-aging-text-red    { color: #f87171; font-weight: 600; }
+.ect-aging-text-yellow { color: #D97706; font-weight: 600; }
+.ect-aging-text-orange { color: #EA580C; font-weight: 600; }
+.ect-aging-text-red    { color: #DC2626; font-weight: 600; }
 
 /* ================================================================== */
 /*  Responsive                                                         */

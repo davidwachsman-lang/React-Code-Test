@@ -1,13 +1,14 @@
 .crm-widget {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 1.5rem;
+  box-shadow: var(--shadow-card);
 }
 
 .crm-widget h3 {
   margin: 0 0 1rem 0;
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 1.125rem;
   font-weight: 600;
 }
@@ -21,21 +22,21 @@
 .stat-item {
   text-align: center;
   padding: 1rem;
-  background: rgba(30, 41, 59, 0.5);
-  border-radius: 4px;
+  background: #F8FAFC;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
 }
 
 .stat-value {
   font-size: 2rem;
   font-weight: 700;
-  color: #3b82f6;
+  color: #635BFF;
   margin-bottom: 0.5rem;
 }
 
 .stat-label {
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: #94A3B8;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-

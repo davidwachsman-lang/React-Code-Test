@@ -9,9 +9,9 @@ function dateToString(d) {
 const STATUS_ORDER = ['scheduled', 'confirmed', 'in_progress', 'completed'];
 const STATUS_COLORS = {
   scheduled: '#94a3b8',
-  confirmed: '#3b82f6',
-  in_progress: '#f59e0b',
-  completed: '#22c55e',
+  confirmed: '#635BFF',
+  in_progress: '#D97706',
+  completed: '#16A34A',
 };
 const STATUS_LABELS = {
   scheduled: 'Scheduled',

@@ -171,9 +171,9 @@ function CRMDetail({ crmRecord, parentRecord, onEdit, onClose, onRefresh }) {
   const getHealthIndicator = (lastJobDate) => {
     if (!lastJobDate) return { status: 'unknown', label: 'No jobs', color: '#9ca3af' };
     const daysSince = Math.floor((new Date() - new Date(lastJobDate)) / (1000 * 60 * 60 * 24));
-    if (daysSince < 30) return { status: 'healthy', label: 'Healthy', color: '#22c55e' };
-    if (daysSince < 60) return { status: 'at-risk', label: 'At Risk', color: '#eab308' };
-    return { status: 'critical', label: 'Critical', color: '#ef4444' };
+    if (daysSince < 30) return { status: 'healthy', label: 'Healthy', color: '#16A34A' };
+    if (daysSince < 60) return { status: 'at-risk', label: 'At Risk', color: '#CA8A04' };
+    return { status: 'critical', label: 'Critical', color: '#DC2626' };
   };
 
   if (!crmRecord) {

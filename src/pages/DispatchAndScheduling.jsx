@@ -1,3 +1,4 @@
+/* APPLE THEME TEST — revert to original DS to undo */
 import React, { useState, useEffect, useMemo } from 'react';
 import { jsPDF } from 'jspdf';
 import { useAuth } from '../contexts/AuthContext';
@@ -264,7 +265,7 @@ function DispatchAndScheduling({ defaultMode = 'board' }) {
       if (bodyText.length > MAX_BODY_CHARS) {
         clipped = bodyText.slice(0, MAX_BODY_CHARS);
         note = '\n\n[Schedule truncated. Full schedule copied to clipboard.]';
-        try { navigator?.clipboard?.writeText(bodyText); } catch (_) {}
+        try { navigator?.clipboard?.writeText(bodyText); } catch (_) { }
       }
       window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(clipped + note)}`;
       setEmailSuccess('Email draft opened.');

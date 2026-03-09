@@ -174,7 +174,7 @@ function ROITable({ records = [], onRecordClick }) {
           const roiValue = typeof roi === 'number' ? roi : null;
           return (
             <span style={{ 
-              color: roiValue !== null && roiValue >= 0 ? '#10b981' : roiValue !== null ? '#ef4444' : '#94a3b8',
+              color: roiValue !== null && roiValue >= 0 ? '#16A34A' : roiValue !== null ? '#DC2626' : '#94a3b8',
               fontWeight: roiValue !== null ? '600' : 'normal'
             }}>
               {formatROI(roiValue)}
@@ -262,9 +262,9 @@ function ROITable({ records = [], onRecordClick }) {
               maxWidth: '400px',
               padding: '0.5rem',
               borderRadius: '6px',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              backgroundColor: 'rgba(30, 41, 59, 0.8)',
-              color: '#f1f5f9',
+              border: '1px solid #E2E8F0',
+              backgroundColor: '#FFFFFF',
+              color: '#0A2540',
               fontSize: '0.9rem'
             }}
           />

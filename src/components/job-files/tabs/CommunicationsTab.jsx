@@ -43,11 +43,11 @@ export default function CommunicationsTab({ job, localState, onSupabaseChange, o
   };
 
   const sectionColors = {
-    internal: '#3b82f6',
-    customer: '#22c55e',
-    adjuster: '#f59e0b',
-    escalations: '#ef4444',
-    timeline: '#8b5cf6',
+    internal: '#2563EB',
+    customer: '#16A34A',
+    adjuster: '#D97706',
+    escalations: '#DC2626',
+    timeline: '#9333EA',
   };
 
   return (
@@ -55,7 +55,7 @@ export default function CommunicationsTab({ job, localState, onSupabaseChange, o
       {COMM_TYPES.map((type) => {
         const isOpen = openSections[type.key];
         const log = getLog(type);
-        const borderColor = sectionColors[type.key] || '#3b82f6';
+        const borderColor = sectionColors[type.key] || '#2563EB';
 
         return (
           <div

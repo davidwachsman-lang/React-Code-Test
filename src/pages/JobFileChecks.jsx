@@ -701,7 +701,7 @@ function JobFileChecks() {
                       <span className="jfc-lb-jobs">{e.jobs} job{e.jobs !== 1 ? 's' : ''}</span>
                       <span className="jfc-lb-score">{e.passed}/{e.total}</span>
                       <div className="jfc-lb-bar-wrap">
-                        <div className="jfc-lb-bar" style={{ width: `${e.pct}%`, background: e.pct >= 80 ? '#22c55e' : e.pct >= 50 ? '#fbbf24' : '#ef4444' }} />
+                        <div className="jfc-lb-bar" style={{ width: `${e.pct}%`, background: e.pct >= 80 ? '#16A34A' : e.pct >= 50 ? '#D97706' : '#DC2626' }} />
                       </div>
                       <span className={`jfc-lb-pct${e.pct >= 80 ? ' high' : e.pct >= 50 ? ' mid' : ' low'}`}>{e.pct}%</span>
                     </div>
@@ -722,7 +722,7 @@ function JobFileChecks() {
                       <span className="jfc-lb-jobs">{e.jobs} job{e.jobs !== 1 ? 's' : ''}</span>
                       <span className="jfc-lb-score">{e.passed}/{e.total}</span>
                       <div className="jfc-lb-bar-wrap">
-                        <div className="jfc-lb-bar" style={{ width: `${e.pct}%`, background: e.pct >= 80 ? '#22c55e' : e.pct >= 50 ? '#fbbf24' : '#ef4444' }} />
+                        <div className="jfc-lb-bar" style={{ width: `${e.pct}%`, background: e.pct >= 80 ? '#16A34A' : e.pct >= 50 ? '#D97706' : '#DC2626' }} />
                       </div>
                       <span className={`jfc-lb-pct${e.pct >= 80 ? ' high' : e.pct >= 50 ? ' mid' : ' low'}`}>{e.pct}%</span>
                     </div>

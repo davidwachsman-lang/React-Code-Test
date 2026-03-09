@@ -252,24 +252,24 @@ function ActivityTrackingTab() {
 
     return (
       <div style={{ marginBottom: '2rem' }}>
-        <h3 style={{ color: '#f1f5f9', marginBottom: '1rem' }}>{title}</h3>
+        <h3 style={{ color: '#0A2540', marginBottom: '1rem' }}>{title}</h3>
         <div className="customers-table-container">
           <table className="customers-table activity-tracking-table">
             <thead>
               <tr>
-                <th rowSpan="2" style={{ color: '#ffffff', textAlign: 'center' }}>Sales Rep</th>
-                <th colSpan="4" style={{ backgroundColor: 'rgba(255, 182, 193, 0.2)', textAlign: 'center', color: '#ffffff' }}>ACTIVITY</th>
-                <th colSpan="4" style={{ backgroundColor: 'rgba(144, 238, 144, 0.2)', textAlign: 'center', color: '#ffffff' }}>CONVERSION</th>
+                <th rowSpan="2" style={{ color: '#0A2540', textAlign: 'center' }}>Sales Rep</th>
+                <th colSpan="4" style={{ backgroundColor: 'rgba(255, 182, 193, 0.2)', textAlign: 'center', color: '#0A2540' }}>ACTIVITY</th>
+                <th colSpan="4" style={{ backgroundColor: 'rgba(144, 238, 144, 0.2)', textAlign: 'center', color: '#0A2540' }}>CONVERSION</th>
               </tr>
               <tr>
-                <th style={{ backgroundColor: 'rgba(255, 255, 200, 0.3)', color: '#ffffff', textAlign: 'center' }}>Cold Calls</th>
-                <th style={{ backgroundColor: 'rgba(255, 255, 200, 0.3)', color: '#ffffff', textAlign: 'center' }}>Insight Meetings</th>
-                <th style={{ backgroundColor: 'rgba(255, 255, 200, 0.3)', color: '#ffffff', textAlign: 'center' }}>Initial Commitments</th>
-                <th style={{ backgroundColor: 'rgba(255, 255, 200, 0.3)', color: '#ffffff', textAlign: 'center' }}>Referral Jobs</th>
-                <th style={{ backgroundColor: 'rgba(173, 216, 230, 0.3)', color: '#ffffff', textAlign: 'center' }}>Insight Mtg</th>
-                <th style={{ backgroundColor: 'rgba(173, 216, 230, 0.3)', color: '#ffffff', textAlign: 'center' }}>Initial Commitment</th>
-                <th style={{ backgroundColor: 'rgba(173, 216, 230, 0.3)', color: '#ffffff', textAlign: 'center' }}>Referral Job</th>
-                <th style={{ backgroundColor: 'rgba(173, 216, 230, 0.3)', color: '#ffffff', textAlign: 'center' }}>Full Funnel</th>
+                <th style={{ backgroundColor: 'rgba(255, 255, 200, 0.3)', color: '#0A2540', textAlign: 'center' }}>Cold Calls</th>
+                <th style={{ backgroundColor: 'rgba(255, 255, 200, 0.3)', color: '#0A2540', textAlign: 'center' }}>Insight Meetings</th>
+                <th style={{ backgroundColor: 'rgba(255, 255, 200, 0.3)', color: '#0A2540', textAlign: 'center' }}>Initial Commitments</th>
+                <th style={{ backgroundColor: 'rgba(255, 255, 200, 0.3)', color: '#0A2540', textAlign: 'center' }}>Referral Jobs</th>
+                <th style={{ backgroundColor: 'rgba(173, 216, 230, 0.3)', color: '#0A2540', textAlign: 'center' }}>Insight Mtg</th>
+                <th style={{ backgroundColor: 'rgba(173, 216, 230, 0.3)', color: '#0A2540', textAlign: 'center' }}>Initial Commitment</th>
+                <th style={{ backgroundColor: 'rgba(173, 216, 230, 0.3)', color: '#0A2540', textAlign: 'center' }}>Referral Job</th>
+                <th style={{ backgroundColor: 'rgba(173, 216, 230, 0.3)', color: '#0A2540', textAlign: 'center' }}>Full Funnel</th>
               </tr>
             </thead>
             <tbody>
@@ -288,29 +288,29 @@ function ActivityTrackingTab() {
                     onClick={handleRowClick ? () => handleRowClick(rep) : undefined}
                     style={isEditable ? { cursor: 'pointer' } : {}}
                   >
-                    <td className="customer-name" style={{ color: '#ffffff', textAlign: 'center' }}>{rep}</td>
-                    <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.coldCalls}</td>
-                    <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.insightMeetings}</td>
-                    <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.initialCommitments}</td>
-                    <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.referralJobs}</td>
-                    <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.insightMtg}%</td>
-                    <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.initialCommitment}%</td>
-                    <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.referralJob}%</td>
-                    <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.fullFunnel}%</td>
+                    <td className="customer-name" style={{ color: '#0A2540', textAlign: 'center' }}>{rep}</td>
+                    <td style={{ color: '#0A2540', textAlign: 'center' }}>{repData.coldCalls}</td>
+                    <td style={{ color: '#0A2540', textAlign: 'center' }}>{repData.insightMeetings}</td>
+                    <td style={{ color: '#0A2540', textAlign: 'center' }}>{repData.initialCommitments}</td>
+                    <td style={{ color: '#0A2540', textAlign: 'center' }}>{repData.referralJobs}</td>
+                    <td style={{ textAlign: 'center', color: '#0A2540' }}>{conversions.insightMtg}%</td>
+                    <td style={{ textAlign: 'center', color: '#0A2540' }}>{conversions.initialCommitment}%</td>
+                    <td style={{ textAlign: 'center', color: '#0A2540' }}>{conversions.referralJob}%</td>
+                    <td style={{ textAlign: 'center', color: '#0A2540' }}>{conversions.fullFunnel}%</td>
                   </tr>
                 );
               })}
               {/* HB Nashville Subtotal */}
-              <tr style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)', fontWeight: '600' }}>
-                <td className="customer-name" style={{ color: '#ffffff', textAlign: 'center' }}>HB Nashville</td>
-                <td style={{ color: '#ffffff', textAlign: 'center' }}>{hbNashvilleTotals.coldCalls}</td>
-                <td style={{ color: '#ffffff', textAlign: 'center' }}>{hbNashvilleTotals.insightMeetings}</td>
-                <td style={{ color: '#ffffff', textAlign: 'center' }}>{hbNashvilleTotals.initialCommitments}</td>
-                <td style={{ color: '#ffffff', textAlign: 'center' }}>{hbNashvilleTotals.referralJobs}</td>
-                <td style={{ textAlign: 'center', color: '#ffffff' }}>{hbNashvilleConversions.insightMtg}%</td>
-                <td style={{ textAlign: 'center', color: '#ffffff' }}>{hbNashvilleConversions.initialCommitment}%</td>
-                <td style={{ textAlign: 'center', color: '#ffffff' }}>{hbNashvilleConversions.referralJob}%</td>
-                <td style={{ textAlign: 'center', color: '#ffffff' }}>{hbNashvilleConversions.fullFunnel}%</td>
+              <tr style={{ backgroundColor: 'rgba(99, 91, 255, 0.08)', fontWeight: '600' }}>
+                <td className="customer-name" style={{ color: '#0A2540', textAlign: 'center' }}>HB Nashville</td>
+                <td style={{ color: '#0A2540', textAlign: 'center' }}>{hbNashvilleTotals.coldCalls}</td>
+                <td style={{ color: '#0A2540', textAlign: 'center' }}>{hbNashvilleTotals.insightMeetings}</td>
+                <td style={{ color: '#0A2540', textAlign: 'center' }}>{hbNashvilleTotals.initialCommitments}</td>
+                <td style={{ color: '#0A2540', textAlign: 'center' }}>{hbNashvilleTotals.referralJobs}</td>
+                <td style={{ textAlign: 'center', color: '#0A2540' }}>{hbNashvilleConversions.insightMtg}%</td>
+                <td style={{ textAlign: 'center', color: '#0A2540' }}>{hbNashvilleConversions.initialCommitment}%</td>
+                <td style={{ textAlign: 'center', color: '#0A2540' }}>{hbNashvilleConversions.referralJob}%</td>
+                <td style={{ textAlign: 'center', color: '#0A2540' }}>{hbNashvilleConversions.fullFunnel}%</td>
               </tr>
               {/* National Sales Reps */}
               {nationalSalesReps.map(rep => {
@@ -327,41 +327,41 @@ function ActivityTrackingTab() {
                     onClick={handleRowClick ? () => handleRowClick(rep) : undefined}
                     style={isEditable ? { cursor: 'pointer' } : {}}
                   >
-                    <td className="customer-name" style={{ color: '#ffffff', textAlign: 'center' }}>{rep}</td>
-                    <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.coldCalls}</td>
-                    <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.insightMeetings}</td>
-                    <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.initialCommitments}</td>
-                    <td style={{ color: '#ffffff', textAlign: 'center' }}>{repData.referralJobs}</td>
-                    <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.insightMtg}%</td>
-                    <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.initialCommitment}%</td>
-                    <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.referralJob}%</td>
-                    <td style={{ textAlign: 'center', color: '#ffffff' }}>{conversions.fullFunnel}%</td>
+                    <td className="customer-name" style={{ color: '#0A2540', textAlign: 'center' }}>{rep}</td>
+                    <td style={{ color: '#0A2540', textAlign: 'center' }}>{repData.coldCalls}</td>
+                    <td style={{ color: '#0A2540', textAlign: 'center' }}>{repData.insightMeetings}</td>
+                    <td style={{ color: '#0A2540', textAlign: 'center' }}>{repData.initialCommitments}</td>
+                    <td style={{ color: '#0A2540', textAlign: 'center' }}>{repData.referralJobs}</td>
+                    <td style={{ textAlign: 'center', color: '#0A2540' }}>{conversions.insightMtg}%</td>
+                    <td style={{ textAlign: 'center', color: '#0A2540' }}>{conversions.initialCommitment}%</td>
+                    <td style={{ textAlign: 'center', color: '#0A2540' }}>{conversions.referralJob}%</td>
+                    <td style={{ textAlign: 'center', color: '#0A2540' }}>{conversions.fullFunnel}%</td>
                   </tr>
                 );
               })}
               {/* National Sales Subtotal */}
-              <tr style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)', fontWeight: '600' }}>
-                <td className="customer-name" style={{ color: '#ffffff', textAlign: 'center' }}>National Sales</td>
-                <td style={{ color: '#ffffff', textAlign: 'center' }}>{nationalSalesTotals.coldCalls}</td>
-                <td style={{ color: '#ffffff', textAlign: 'center' }}>{nationalSalesTotals.insightMeetings}</td>
-                <td style={{ color: '#ffffff', textAlign: 'center' }}>{nationalSalesTotals.initialCommitments}</td>
-                <td style={{ color: '#ffffff', textAlign: 'center' }}>{nationalSalesTotals.referralJobs}</td>
-                <td style={{ textAlign: 'center', color: '#ffffff' }}>{nationalSalesConversions.insightMtg}%</td>
-                <td style={{ textAlign: 'center', color: '#ffffff' }}>{nationalSalesConversions.initialCommitment}%</td>
-                <td style={{ textAlign: 'center', color: '#ffffff' }}>{nationalSalesConversions.referralJob}%</td>
-                <td style={{ textAlign: 'center', color: '#ffffff' }}>{nationalSalesConversions.fullFunnel}%</td>
+              <tr style={{ backgroundColor: 'rgba(99, 91, 255, 0.08)', fontWeight: '600' }}>
+                <td className="customer-name" style={{ color: '#0A2540', textAlign: 'center' }}>National Sales</td>
+                <td style={{ color: '#0A2540', textAlign: 'center' }}>{nationalSalesTotals.coldCalls}</td>
+                <td style={{ color: '#0A2540', textAlign: 'center' }}>{nationalSalesTotals.insightMeetings}</td>
+                <td style={{ color: '#0A2540', textAlign: 'center' }}>{nationalSalesTotals.initialCommitments}</td>
+                <td style={{ color: '#0A2540', textAlign: 'center' }}>{nationalSalesTotals.referralJobs}</td>
+                <td style={{ textAlign: 'center', color: '#0A2540' }}>{nationalSalesConversions.insightMtg}%</td>
+                <td style={{ textAlign: 'center', color: '#0A2540' }}>{nationalSalesConversions.initialCommitment}%</td>
+                <td style={{ textAlign: 'center', color: '#0A2540' }}>{nationalSalesConversions.referralJob}%</td>
+                <td style={{ textAlign: 'center', color: '#0A2540' }}>{nationalSalesConversions.fullFunnel}%</td>
               </tr>
               {/* Grand Total */}
-              <tr style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', fontWeight: '600' }}>
-                <td className="customer-name" style={{ color: '#ffffff', textAlign: 'center' }}>TOTAL</td>
-                <td style={{ color: '#ffffff', textAlign: 'center' }}>{totals.coldCalls}</td>
-                <td style={{ color: '#ffffff', textAlign: 'center' }}>{totals.insightMeetings}</td>
-                <td style={{ color: '#ffffff', textAlign: 'center' }}>{totals.initialCommitments}</td>
-                <td style={{ color: '#ffffff', textAlign: 'center' }}>{totals.referralJobs}</td>
-                <td style={{ textAlign: 'center', color: '#ffffff' }}>{totalConversions.insightMtg}%</td>
-                <td style={{ textAlign: 'center', color: '#ffffff' }}>{totalConversions.initialCommitment}%</td>
-                <td style={{ textAlign: 'center', color: '#ffffff' }}>{totalConversions.referralJob}%</td>
-                <td style={{ textAlign: 'center', color: '#ffffff' }}>{totalConversions.fullFunnel}%</td>
+              <tr style={{ backgroundColor: 'rgba(99, 91, 255, 0.06)', fontWeight: '600' }}>
+                <td className="customer-name" style={{ color: '#0A2540', textAlign: 'center' }}>TOTAL</td>
+                <td style={{ color: '#0A2540', textAlign: 'center' }}>{totals.coldCalls}</td>
+                <td style={{ color: '#0A2540', textAlign: 'center' }}>{totals.insightMeetings}</td>
+                <td style={{ color: '#0A2540', textAlign: 'center' }}>{totals.initialCommitments}</td>
+                <td style={{ color: '#0A2540', textAlign: 'center' }}>{totals.referralJobs}</td>
+                <td style={{ textAlign: 'center', color: '#0A2540' }}>{totalConversions.insightMtg}%</td>
+                <td style={{ textAlign: 'center', color: '#0A2540' }}>{totalConversions.initialCommitment}%</td>
+                <td style={{ textAlign: 'center', color: '#0A2540' }}>{totalConversions.referralJob}%</td>
+                <td style={{ textAlign: 'center', color: '#0A2540' }}>{totalConversions.fullFunnel}%</td>
               </tr>
             </tbody>
           </table>
@@ -446,7 +446,7 @@ function ActivityTrackingTab() {
         <div className="customers-header">
           <h2>Activity Tracking</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <label style={{ color: '#f1f5f9' }}>Week Starting:</label>
+            <label style={{ color: '#0A2540' }}>Week Starting:</label>
             <select
               value={formatDateString(selectedWeekStart)}
               onChange={(e) => {
@@ -457,10 +457,10 @@ function ActivityTrackingTab() {
               }}
               style={{
                 padding: '0.5rem 1rem',
-                background: 'rgba(30, 41, 59, 0.8)',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                borderRadius: '8px',
-                color: '#f1f5f9',
+                background: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: '6px',
+                color: '#0A2540',
                 fontSize: '0.9rem',
                 cursor: 'pointer'
               }}
@@ -474,8 +474,8 @@ function ActivityTrackingTab() {
           </div>
         </div>
 
-        {loadingActivity && <div style={{ color: '#f1f5f9', marginBottom: '1rem' }}>Loading...</div>}
-        {savingActivity && <div style={{ color: '#f1f5f9', marginBottom: '1rem' }}>Saving...</div>}
+        {loadingActivity && <div style={{ color: '#0A2540', marginBottom: '1rem' }}>Loading...</div>}
+        {savingActivity && <div style={{ color: '#0A2540', marginBottom: '1rem' }}>Saving...</div>}
         {renderActivityTable(`Week: ${formatWeekLabel(selectedWeekStart)}`, weekData, true)}
         {renderActivityTable('MTD (Month-to-Date)', mtdData, false)}
         {renderActivityTable('YTD (Year-to-Date)', ytdData, false)}

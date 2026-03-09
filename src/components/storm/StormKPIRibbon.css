@@ -1,3 +1,5 @@
+/* DW Brand System — Storm KPI Ribbon */
+
 .storm-kpi-ribbon {
   margin-bottom: 2rem;
 }
@@ -10,7 +12,7 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: #0A2540;
 }
 
 .storm-kpi-grid {
@@ -32,14 +34,14 @@
 }
 
 .storm-kpi-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1.25rem;
   display: flex;
   align-items: center;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .storm-kpi-card.clickable {
@@ -47,33 +49,33 @@
 }
 
 .storm-kpi-card.clickable:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
-  transform: translateY(-4px);
+  border-color: rgba(99, 91, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
 
 .storm-kpi-card-blue {
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #2563EB;
 }
 
 .storm-kpi-card-purple {
-  border-left: 4px solid #8b5cf6;
+  border-left: 4px solid #635BFF;
 }
 
 .storm-kpi-card-orange {
-  border-left: 4px solid #f97316;
+  border-left: 4px solid #D97706;
 }
 
 .storm-kpi-card-green {
-  border-left: 4px solid #10b981;
+  border-left: 4px solid #16A34A;
 }
 
 .storm-kpi-card-gold {
-  border-left: 4px solid #eab308;
+  border-left: 4px solid #D97706;
 }
 
 .storm-kpi-card-teal {
-  border-left: 4px solid #14b8a6;
+  border-left: 4px solid #0D9488;
 }
 
 .storm-kpi-content {
@@ -84,7 +86,7 @@
 .storm-kpi-value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: #0A2540;
   line-height: 1.2;
   margin-bottom: 0.5rem;
 }
@@ -92,7 +94,7 @@
 .storm-kpi-label {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: #64748B;
   line-height: 1.3;
 }
 
@@ -100,7 +102,7 @@
   grid-column: 1 / -1;
   text-align: center;
   padding: 2rem;
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.875rem;
 }
 

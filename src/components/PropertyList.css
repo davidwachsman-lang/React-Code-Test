@@ -19,20 +19,20 @@
 .property-list-empty {
   text-align: center;
   padding: 2rem;
-  color: #9ca3af;
+  color: #94A3B8;
 }
 
 .property-item {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 1.25rem;
   transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .property-item:hover {
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 .property-item-header {
@@ -50,15 +50,15 @@
 
 .property-item-title h4 {
   margin: 0;
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 1.1rem;
 }
 
 .primary-badge {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
+  background: #DCFCE7;
+  color: #16A34A;
   padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -81,11 +81,11 @@
 }
 
 .btn-icon:hover {
-  background: rgba(59, 130, 246, 0.2);
+  background: rgba(99, 91, 255, 0.08);
 }
 
 .btn-icon.btn-danger:hover {
-  background: rgba(239, 68, 68, 0.2);
+  background: #FEF2F2;
 }
 
 .property-item-details {
@@ -101,13 +101,12 @@
 }
 
 .property-label {
-  color: #9ca3af;
+  color: #94A3B8;
   font-weight: 500;
   min-width: 80px;
 }
 
 .property-value {
-  color: #e5e7eb;
+  color: #0A2540;
   flex: 1;
 }
-

@@ -1,11 +1,12 @@
 .top-targets-widget {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .widget-header {
@@ -16,15 +17,15 @@
 
 .widget-header h3 {
   margin: 0;
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 1.25rem;
 }
 
 .widget-count {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: white;
+  background: #FEF3C7;
+  color: #D97706;
   padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -43,8 +44,8 @@
 .target-item {
   display: flex;
   gap: 1rem;
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   padding: 1rem;
   cursor: pointer;
@@ -52,8 +53,8 @@
 }
 
 .target-item:hover {
-  border-color: #3b82f6;
-  background: rgba(30, 41, 59, 0.8);
+  border-color: #E2E8F0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 .target-rank {
@@ -62,7 +63,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: #D97706;
   color: white;
   border-radius: 50%;
   font-weight: 700;
@@ -85,16 +86,15 @@
 
 .target-company {
   font-weight: 600;
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 0.875rem;
 }
 
 .target-status {
   padding: 0.125rem 0.5rem;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
-  color: white;
   text-transform: capitalize;
 }
 
@@ -103,7 +103,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: #94A3B8;
 }
 
 .target-contact {
@@ -111,17 +111,16 @@
 }
 
 .target-value {
-  color: #10b981;
+  color: #16A34A;
   font-weight: 600;
 }
 
 .no-targets {
   text-align: center;
   padding: 2rem;
-  color: #9ca3af;
+  color: #94A3B8;
 }
 
 .error {
-  color: #ef4444;
+  color: #DC2626;
 }
-

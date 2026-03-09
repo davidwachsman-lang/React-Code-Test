@@ -14,19 +14,21 @@
 
 .analytics-header h1 {
   margin-bottom: 0.5rem;
+  color: #0A2540;
 }
 
 .analytics-header p {
   margin: 0;
   font-size: 1rem;
+  color: #64748B;
 }
 
 .btn-refresh {
   padding: 0.75rem 1.5rem;
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
+  background: #FFFFFF;
+  color: #0A2540;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -36,8 +38,8 @@
 }
 
 .btn-refresh:hover {
-  background: rgba(59, 130, 246, 0.3);
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: #635BFF;
+  color: #635BFF;
   transform: translateY(-2px);
 }
 
@@ -54,8 +56,8 @@
 }
 
 .spinner {
-  border: 4px solid rgba(59, 130, 246, 0.1);
-  border-top: 4px solid #3b82f6;
+  border: 4px solid rgba(99, 91, 255, 0.15);
+  border-top: 4px solid #635BFF;
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -69,30 +71,30 @@
 }
 
 .error-state h2 {
-  color: #f87171;
+  color: #DC2626;
   margin-bottom: 1rem;
 }
 
 .error-state p {
-  color: #94a3b8;
+  color: #64748B;
   margin-bottom: 1.5rem;
 }
 
 .btn-primary {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #635BFF;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: #4F46E5;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 /* Metrics Grid */
@@ -104,20 +106,21 @@
 }
 
 .metric-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1.5rem;
   display: flex;
   align-items: center;
   gap: 1rem;
   transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .metric-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
-  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  border-color: #E2E8F0;
 }
 
 .metric-icon {
@@ -137,7 +140,7 @@
 
 .metric-content h3 {
   margin: 0 0 0.5rem 0;
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -146,7 +149,7 @@
 
 .metric-value {
   margin: 0;
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 2rem;
   font-weight: 700;
 }
@@ -159,20 +162,21 @@
 }
 
 .report-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1.5rem;
   display: flex;
   align-items: flex-start;
   gap: 1.25rem;
   transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .report-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
-  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  border-color: #E2E8F0;
 }
 
 .report-icon {
@@ -195,24 +199,24 @@
 
 .report-content h3 {
   margin: 0;
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 .report-content p {
   margin: 0;
-  color: #94a3b8;
+  color: #64748B;
   font-size: 0.9rem;
   line-height: 1.5;
 }
 
 .btn-generate-report {
   padding: 0.625rem 1.25rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #635BFF;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -222,24 +226,24 @@
 }
 
 .btn-generate-report:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: #4F46E5;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 /* Recharts Custom Styles */
 .recharts-cartesian-axis-tick-value {
-  fill: #94a3b8;
+  fill: #64748B;
   font-size: 0.85rem;
 }
 
 .recharts-legend-item-text {
-  color: #94a3b8 !important;
+  color: #64748B !important;
   font-size: 0.9rem;
 }
 
 .recharts-pie-label-text {
-  fill: #f1f5f9;
+  fill: #0A2540;
   font-size: 0.85rem;
   font-weight: 600;
 }

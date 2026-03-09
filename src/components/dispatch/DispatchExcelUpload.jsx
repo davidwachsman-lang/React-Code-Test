@@ -18,7 +18,7 @@ export const STATUS_OPTIONS = [
 
 const UNASSIGNED_ID = 'unassigned';
 const LANE_COLORS = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#8b5cf6', '#ec4899', '#84cc16',
+  '#DC2626', '#EA580C', '#CA8A04', '#16A34A', '#0284C7', '#9333EA', '#DB2777', '#16A34A',
   '#f43f5e', '#fb923c', '#a3e635', '#2dd4bf',
 ];
 
@@ -281,7 +281,7 @@ function DispatchExcelUpload({ onApply, onCancel }) {
     if (andSaveToSupabase) handleSaveToSupabase();
     // Build PM groups from the data (if PM column was mapped)
     // Each crew chief belongs to ONE PM only (first occurrence wins)
-    const PM_GROUP_COLORS = ['#3b82f6', '#8b5cf6', '#22c55e', '#f97316', '#ef4444', '#06b6d4', '#ec4899', '#84cc16'];
+    const PM_GROUP_COLORS = ['#2563EB', '#9333EA', '#16A34A', '#EA580C', '#DC2626', '#0284C7', '#DB2777', '#16A34A'];
     const pmGroupsFromData = [];
     const globalAssignedCrews = new Set();
     rows.forEach((r) => {

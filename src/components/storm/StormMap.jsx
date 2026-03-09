@@ -202,15 +202,15 @@ function StormMap({
     
     // Database job status colors
     if (priority === 'emergency' || status === 'lead' || !job.inspection_completed) {
-      return '#ef4444'; // Red
+      return '#DC2626'; // Red
     } else if (status === 'inspection_scheduled') {
-      return '#f97316'; // Orange
+      return '#EA580C'; // Orange
     } else if (status === 'inspected' || status === 'pending_crew') {
-      return '#eab308'; // Yellow
+      return '#CA8A04'; // Yellow
     } else if (status === 'in_progress' || status === 'wip') {
-      return '#22c55e'; // Green
+      return '#16A34A'; // Green
     } else if (status === 'completed' || status === 'complete') {
-      return '#3b82f6'; // Blue
+      return '#2563EB'; // Blue
     }
     return '#6b7280'; // Gray
   };
@@ -402,7 +402,7 @@ function StormMap({
       {!mapLoaded && !loadError && (
         <div className="storm-map-loading">
           <p>Loading map...</p>
-          <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.5rem' }}>
+          <p style={{ fontSize: '0.85rem', color: '#64748B', marginTop: '0.5rem' }}>
             {!window.google ? 'Loading Google Maps API...' : 'Initializing map...'}
           </p>
         </div>
@@ -412,7 +412,7 @@ function StormMap({
       {loadError && (
         <div className="storm-map-error">
           <p>Error loading map: {loadError.message}</p>
-          <p style={{ fontSize: '0.85rem', marginTop: '0.5rem', color: '#94a3b8' }}>
+          <p style={{ fontSize: '0.85rem', marginTop: '0.5rem', color: '#64748B' }}>
             Check your internet connection and Google Maps API key.
           </p>
         </div>
@@ -422,7 +422,7 @@ function StormMap({
       {mapLoaded && jobsWithCoords.length === 0 && jobs.length > 0 && (
         <div className="storm-map-info">
           <p>Map loaded - no jobs have location data</p>
-          <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.5rem' }}>
+          <p style={{ fontSize: '0.85rem', color: '#64748B', marginTop: '0.5rem' }}>
             Addresses need GPS coordinates from Google Places Autocomplete
           </p>
         </div>

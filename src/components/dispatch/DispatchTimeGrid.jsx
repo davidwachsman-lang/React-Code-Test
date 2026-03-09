@@ -1,3 +1,4 @@
+/* APPLE THEME TEST — revert to original DS to undo */
 import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react';
 import {
   DAY_START, DAY_END, SLOT_INTERVAL, TIME_SLOTS,
@@ -127,7 +128,7 @@ export default function DispatchTimeGrid({
                       } else if (data.source === 'lane' && data.job && col.type === 'pm' && data.laneId !== col.id) {
                         copyJobToLane(col.id, data.job, data.startHour);
                       }
-                    } catch (_) {}
+                    } catch (_) { }
                   }}
                 >
                   <span className="grid-crew-name">{col.name}{col.type === 'pm' && <span className="grid-crew-role-badge">PM</span>}</span>
@@ -167,7 +168,7 @@ export default function DispatchTimeGrid({
                   } else if (data.source === 'lane' && data.job && col.type === 'pm' && data.laneId !== col.id) {
                     copyJobToLane(col.id, data.job, data.startHour);
                   }
-                } catch (_) {}
+                } catch (_) { }
               };
 
               return (

@@ -21,22 +21,23 @@ class ErrorBoundary extends Component {
         <div style={{
           padding: '40px',
           fontFamily: 'system-ui, -apple-system, sans-serif',
-          backgroundColor: '#1a1a2e',
-          color: '#fff',
+          backgroundColor: '#F6F9FC',
+          color: '#0A2540',
           minHeight: '100vh'
         }}>
-          <h1 style={{ color: '#ff6b6b', marginBottom: '20px' }}>
+          <h1 style={{ color: '#DC2626', marginBottom: '20px' }}>
             Something went wrong
           </h1>
           <div style={{
-            backgroundColor: '#16213e',
+            backgroundColor: '#FFFFFF',
             padding: '20px',
             borderRadius: '8px',
-            marginBottom: '20px'
+            marginBottom: '20px',
+            border: '1px solid #E2E8F0'
           }}>
-            <h3 style={{ color: '#ffd93d', marginBottom: '10px' }}>Error:</h3>
+            <h3 style={{ color: '#0A2540', marginBottom: '10px' }}>Error:</h3>
             <pre style={{
-              color: '#ff6b6b',
+              color: '#DC2626',
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-word',
               fontSize: '14px'
@@ -46,13 +47,14 @@ class ErrorBoundary extends Component {
           </div>
           {this.state.errorInfo && (
             <div style={{
-              backgroundColor: '#16213e',
+              backgroundColor: '#FFFFFF',
               padding: '20px',
-              borderRadius: '8px'
+              borderRadius: '8px',
+              border: '1px solid #E2E8F0'
             }}>
-              <h3 style={{ color: '#ffd93d', marginBottom: '10px' }}>Stack Trace:</h3>
+              <h3 style={{ color: '#0A2540', marginBottom: '10px' }}>Stack Trace:</h3>
               <pre style={{
-                color: '#a0a0a0',
+                color: '#64748B',
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
                 fontSize: '12px',
@@ -68,7 +70,7 @@ class ErrorBoundary extends Component {
             style={{
               marginTop: '20px',
               padding: '12px 24px',
-              backgroundColor: '#4361ee',
+              backgroundColor: '#635BFF',
               color: '#fff',
               border: 'none',
               borderRadius: '6px',

@@ -1,4 +1,4 @@
-/* ===== Time Tracking — Schedule-Driven ===== */
+/* ===== Time Tracking — DW Brand System (light theme) ===== */
 
 .tt-container {
   padding: 1.5rem;
@@ -7,32 +7,33 @@
 }
 
 .tt-card {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .tt-title {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0 0 1.25rem 0;
 }
 
 .tt-error {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: #FEF2F2;
+  border: 1px solid #FEF2F2;
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  color: #fca5a5;
+  color: #DC2626;
   font-size: 0.875rem;
   margin-bottom: 1rem;
 }
 
 .tt-loading {
   text-align: center;
-  color: #94a3b8;
+  color: #94A3B8;
   padding: 3rem 1rem;
 }
 
@@ -45,13 +46,13 @@
 }
 
 .tt-name-label {
-  color: #cbd5e1;
+  color: #0A2540;
   font-weight: 500;
   font-size: 0.9375rem;
 }
 
 .tt-name-role {
-  color: #64748b;
+  color: #64748B;
   font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
@@ -60,11 +61,11 @@
 
 .tt-switch-btn {
   margin-left: auto;
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(71, 85, 105, 0.4);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   padding: 0.3rem 0.75rem;
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
@@ -72,33 +73,33 @@
 }
 
 .tt-switch-btn:hover {
-  color: #e2e8f0;
-  border-color: rgba(59, 130, 246, 0.5);
-  background: rgba(59, 130, 246, 0.1);
+  color: #0A2540;
+  border-color: #635BFF;
+  background: rgba(99,91,255,0.04);
 }
 
 .tt-name-select {
   width: 100%;
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 0.75rem;
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 0.9375rem;
   cursor: pointer;
 }
 
 .tt-name-select:focus {
   outline: none;
-  border-color: #3b82f6;
+  border: 1.5px solid #635BFF;
 }
 
 .tt-crew-select {
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   padding: 0.375rem 0.5rem;
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 0.8125rem;
 }
 
@@ -110,23 +111,23 @@
 }
 
 .tt-name-setup label {
-  color: #cbd5e1;
+  color: #0A2540;
   font-size: 0.875rem;
   font-weight: 500;
 }
 
 .tt-name-setup input {
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 0.75rem;
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 0.9375rem;
 }
 
 .tt-name-setup input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border: 1.5px solid #635BFF;
 }
 
 /* ===== Day Summary Bar ===== */
@@ -135,9 +136,9 @@
   align-items: center;
   gap: 1.5rem;
   padding: 0.875rem 1rem;
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.4) 100%);
-  border: 1px solid rgba(71, 85, 105, 0.3);
-  border-radius: 10px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   margin-bottom: 1.5rem;
 }
 
@@ -149,14 +150,14 @@
 }
 
 .tt-stat-value {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 1.25rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .tt-stat-label {
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -173,40 +174,40 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #64748b;
+  background: #CBD5E1;
   flex-shrink: 0;
 }
 
 .tt-status-dot.active {
-  background: #10b981;
+  background: #16A34A;
   animation: tt-pulse 2s ease-in-out infinite;
 }
 
 @keyframes tt-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-  50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
 }
 
 /* WIP card */
 .tt-job-card.wip .tt-job-content {
-  border-color: rgba(139, 92, 246, 0.35);
+  border-color: #E2E8F0;
 }
 
 .tt-job-card.wip.active .tt-job-content {
-  background: rgba(139, 92, 246, 0.08);
-  border-color: rgba(139, 92, 246, 0.5);
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.1);
+  background: rgba(99,91,255,0.04);
+  border-color: #635BFF;
+  box-shadow: 0 4px 16px rgba(99,91,255,0.08);
 }
 
 .wip-badge {
-  background: rgba(139, 92, 246, 0.2) !important;
-  color: #a78bfa !important;
+  background: #F3E8FF !important;
+  color: #9333EA !important;
 }
 
 .tt-no-schedule-note {
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.8125rem;
-  background: rgba(30, 41, 59, 0.3);
+  background: #F8FAFC;
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
   margin-bottom: 1rem;
@@ -214,7 +215,7 @@
 
 /* ===== Timeline ===== */
 .tt-section-title {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -233,7 +234,7 @@
   top: 8px;
   bottom: 8px;
   width: 2px;
-  background: rgba(71, 85, 105, 0.5);
+  background: #E2E8F0;
   border-radius: 1px;
 }
 
@@ -255,40 +256,40 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: rgba(30, 41, 59, 0.8);
-  border: 2px solid #475569;
+  background: #FFFFFF;
+  border: 2px solid #CBD5E1;
   z-index: 1;
 }
 
 .tt-job-card.active .tt-timeline-dot {
-  background: #10b981;
-  border-color: #10b981;
+  background: #16A34A;
+  border-color: #16A34A;
   animation: tt-pulse 2s ease-in-out infinite;
 }
 
 .tt-job-card.completed .tt-timeline-dot {
-  background: #475569;
-  border-color: #475569;
+  background: #CBD5E1;
+  border-color: #CBD5E1;
 }
 
 /* Job content */
 .tt-job-content {
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(71, 85, 105, 0.4);
-  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1rem;
   transition: all 0.2s ease;
 }
 
 .tt-job-card.active .tt-job-content {
-  background: rgba(16, 185, 129, 0.08);
-  border-color: rgba(16, 185, 129, 0.4);
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.1);
+  background: #DCFCE7;
+  border-color: #16A34A;
+  box-shadow: 0 4px 16px rgba(22,163,74,0.08);
 }
 
 .tt-job-card.completed .tt-job-content {
   opacity: 0.6;
-  border-color: rgba(71, 85, 105, 0.25);
+  border-color: #E2E8F0;
 }
 
 .tt-job-header {
@@ -300,21 +301,21 @@
 }
 
 .tt-job-time {
-  color: #60a5fa;
+  color: #635BFF;
   font-size: 0.8125rem;
   font-weight: 600;
 }
 
 .tt-job-type {
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.75rem;
-  background: rgba(71, 85, 105, 0.3);
+  background: #F1F5F9;
   padding: 0.125rem 0.5rem;
   border-radius: 4px;
 }
 
 .tt-drive-time {
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.6875rem;
 }
 
@@ -323,7 +324,7 @@
   margin-left: auto;
   background: none;
   border: none;
-  color: #64748b;
+  color: #94A3B8;
   cursor: pointer;
   padding: 0.25rem;
   border-radius: 4px;
@@ -334,19 +335,19 @@
 }
 
 .tt-checklist-icon:hover {
-  color: #94a3b8;
-  background: rgba(71, 85, 105, 0.3);
+  color: #64748B;
+  background: #F1F5F9;
 }
 
 .tt-checklist-icon.open {
-  color: #60a5fa;
-  background: rgba(59, 130, 246, 0.1);
+  color: #635BFF;
+  background: rgba(99,91,255,0.04);
 }
 
 /* Checklist panel */
 .tt-checklist-panel {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(71, 85, 105, 0.3);
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 0.75rem 1rem;
   margin-bottom: 0.5rem;
@@ -360,7 +361,7 @@
 }
 
 .tt-checklist-title {
-  color: #cbd5e1;
+  color: #64748B;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -368,7 +369,7 @@
 }
 
 .tt-checklist-count {
-  color: #64748b;
+  color: #64748B;
   font-size: 0.75rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -383,7 +384,7 @@
 }
 
 .tt-checklist-group-label {
-  color: #60a5fa;
+  color: #635BFF;
   font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -404,7 +405,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #94a3b8;
+  color: #64748B;
   font-size: 0.8125rem;
   cursor: pointer;
   padding: 0.25rem 0;
@@ -414,17 +415,17 @@
 }
 
 .tt-checklist-item:hover {
-  color: #cbd5e1;
+  color: #0A2540;
 }
 
 .tt-checklist-item.checked {
-  color: #10b981;
+  color: #16A34A;
 }
 
 .tt-check-box {
   width: 16px;
   height: 16px;
-  border: 1.5px solid rgba(71, 85, 105, 0.6);
+  border: 1.5px solid #E2E8F0;
   border-radius: 3px;
   flex-shrink: 0;
   display: flex;
@@ -434,8 +435,8 @@
 }
 
 .tt-check-box.checked {
-  background: #10b981;
-  border-color: #10b981;
+  background: #16A34A;
+  border-color: #16A34A;
   color: white;
 }
 
@@ -447,18 +448,18 @@
 }
 
 .tt-job-number {
-  color: #f1f5f9;
+  color: #0A2540;
   font-weight: 600;
   font-size: 0.9375rem;
 }
 
 .tt-job-customer {
-  color: #e2e8f0;
+  color: #64748B;
   font-size: 0.875rem;
 }
 
 .tt-job-address {
-  color: #60a5fa;
+  color: #635BFF;
   font-size: 0.75rem;
   line-height: 1.4;
   margin-bottom: 0.375rem;
@@ -467,12 +468,12 @@
 }
 
 .tt-job-address:hover {
-  color: #93bbfd;
+  color: #5046e5;
   text-decoration: underline;
 }
 
 .tt-job-meta {
-  color: #64748b;
+  color: #64748B;
   font-size: 0.75rem;
   margin-bottom: 0.75rem;
 }
@@ -488,7 +489,7 @@
 .tt-elapsed {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #10b981;
+  color: #16A34A;
   font-variant-numeric: tabular-nums;
   font-family: inherit;
   letter-spacing: -0.02em;
@@ -503,15 +504,15 @@
 }
 
 .tt-job-completed-info {
-  color: #64748b;
+  color: #64748B;
   font-size: 0.8125rem;
   font-weight: 500;
 }
 
 .tt-btn-checkin-again {
   background: transparent;
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  color: #60a5fa;
+  border: 1px solid #E2E8F0;
+  color: #635BFF;
   font-size: 0.8125rem;
   padding: 0.375rem 0.75rem;
   min-height: 36px;
@@ -519,17 +520,17 @@
 }
 
 .tt-btn-checkin-again:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: rgba(59, 130, 246, 0.6);
+  background: rgba(99,91,255,0.04);
+  border-color: #635BFF;
 }
 
 /* No schedule */
 .tt-no-schedule {
   text-align: center;
-  color: #94a3b8;
+  color: #94A3B8;
   padding: 2.5rem 1rem;
-  background: rgba(30, 41, 59, 0.3);
-  border-radius: 10px;
+  background: #F8FAFC;
+  border-radius: 8px;
   margin-bottom: 1rem;
   font-size: 0.9375rem;
 }
@@ -537,7 +538,7 @@
 /* ===== Buttons ===== */
 .tt-btn {
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -553,34 +554,34 @@
 
 .tt-btn-primary {
   width: 100%;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #635BFF;
   color: white;
 }
 
 .tt-btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: #5046e5;
 }
 
 .tt-btn-checkin {
   width: 100%;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: #16A34A;
   color: white;
 }
 
 .tt-btn-checkin:hover:not(:disabled) {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  background: #15803d;
+  box-shadow: 0 4px 16px rgba(22,163,74,0.15);
 }
 
 .tt-btn-checkout {
   flex: 1;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: #DC2626;
   color: white;
 }
 
 .tt-btn-checkout:hover:not(:disabled) {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  background: #b91c1c;
+  box-shadow: 0 4px 16px rgba(220,38,38,0.15);
 }
 
 /* ===== Other / Special Options ===== */
@@ -591,9 +592,9 @@
 
 .tt-other-toggle {
   background: none;
-  border: 1px solid rgba(71, 85, 105, 0.3);
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
-  color: #94a3b8;
+  color: #94A3B8;
   padding: 0.5rem 1rem;
   font-size: 0.8125rem;
   cursor: pointer;
@@ -604,8 +605,8 @@
 }
 
 .tt-other-toggle:hover {
-  border-color: rgba(71, 85, 105, 0.5);
-  color: #cbd5e1;
+  border-color: #CBD5E1;
+  color: #0A2540;
 }
 
 .tt-chevron {
@@ -630,7 +631,7 @@
   gap: 0.75rem;
   width: 100%;
   text-align: left;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 1rem;
   border: 2px solid;
   cursor: pointer;
@@ -639,33 +640,30 @@
 }
 
 .tt-btn-special.home-office {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
-  border-color: rgba(139, 92, 246, 0.35);
+  background: #F3E8FF;
+  border-color: #E9D5FF;
 }
 
 .tt-btn-special.home-office:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(124, 58, 237, 0.2) 100%);
-  border-color: rgba(139, 92, 246, 0.55);
+  border-color: #C084FC;
 }
 
 .tt-btn-special.lunch {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
-  border-color: rgba(251, 191, 36, 0.35);
+  background: #FEF3C7;
+  border-color: #FDE68A;
 }
 
 .tt-btn-special.lunch:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%);
-  border-color: rgba(251, 191, 36, 0.55);
+  border-color: #D97706;
 }
 
 .tt-btn-special.training {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.1) 100%);
-  border-color: rgba(34, 197, 94, 0.35);
+  background: #DCFCE7;
+  border-color: #BBF7D0;
 }
 
 .tt-btn-special.training:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.2) 100%);
-  border-color: rgba(34, 197, 94, 0.55);
+  border-color: #4ADE80;
 }
 
 .tt-btn-special:disabled {
@@ -679,13 +677,13 @@
 }
 
 .tt-special-title {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 0.9375rem;
   font-weight: 600;
 }
 
 .tt-special-sub {
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.75rem;
   margin-top: 0.125rem;
 }
@@ -696,9 +694,9 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  border-radius: 10px;
-  border: 2px solid rgba(59, 130, 246, 0.4);
-  background: rgba(59, 130, 246, 0.08);
+  border-radius: 8px;
+  border: 2px solid #E2E8F0;
+  background: #F8FAFC;
 }
 
 .tt-special-active .tt-special-active-info {
@@ -708,7 +706,7 @@
 .tt-special-active .tt-elapsed {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #60a5fa;
+  color: #635BFF;
   font-variant-numeric: tabular-nums;
   margin-top: 0.25rem;
 }
@@ -717,7 +715,7 @@
 .tt-recent {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(71, 85, 105, 0.3);
+  border-top: 1px solid #E2E8F0;
 }
 
 .tt-entries-list {
@@ -727,8 +725,8 @@
 }
 
 .tt-entry-item {
-  background: rgba(30, 41, 59, 0.3);
-  border: 1px solid rgba(71, 85, 105, 0.25);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 0.75rem 1rem;
 }
@@ -741,38 +739,38 @@
 }
 
 .tt-entry-job {
-  color: #f1f5f9;
+  color: #0A2540;
   font-weight: 600;
   font-size: 0.875rem;
 }
 
 .tt-entry-status {
   padding: 0.125rem 0.5rem;
-  border-radius: 10px;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 500;
 }
 
 .tt-entry-status.completed {
-  background: rgba(16, 185, 129, 0.12);
-  color: #10b981;
+  background: #DCFCE7;
+  color: #16A34A;
 }
 
 .tt-entry-status.active {
-  background: rgba(59, 130, 246, 0.12);
-  color: #3b82f6;
+  background: #DBEAFE;
+  color: #2563EB;
 }
 
 .tt-entry-times {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.75rem;
 }
 
 .tt-time-sep {
-  color: #64748b;
+  color: #CBD5E1;
 }
 
 /* ===== Mobile ===== */
@@ -859,11 +857,11 @@
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(251, 191, 36, 0.25);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 0.625rem 1rem;
-  color: #fbbf24;
+  color: #635BFF;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -871,14 +869,14 @@
 }
 
 .tt-temp-toggle:hover {
-  background: rgba(30, 41, 59, 0.6);
-  border-color: rgba(251, 191, 36, 0.4);
+  background: #F8FAFC;
+  border-color: #CBD5E1;
 }
 
 .tt-temp-panel {
   margin-top: 0.5rem;
-  background: rgba(30, 41, 59, 0.3);
-  border: 1px solid rgba(71, 85, 105, 0.3);
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 0.75rem;
 }
@@ -891,21 +889,21 @@
 
 .tt-temp-input {
   flex: 1;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 0.875rem;
 }
 
 .tt-temp-input:focus {
   outline: none;
-  border-color: #fbbf24;
+  border: 1.5px solid #635BFF;
 }
 
 .tt-temp-input::placeholder {
-  color: #64748b;
+  color: #94A3B8;
 }
 
 .tt-temp-add-btn {
@@ -916,7 +914,7 @@
 }
 
 .tt-temp-empty {
-  color: #64748b;
+  color: #94A3B8;
   font-size: 0.8125rem;
   text-align: center;
   padding: 0.5rem 0;
@@ -927,7 +925,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.25rem;
-  border-bottom: 1px solid rgba(71, 85, 105, 0.2);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .tt-temp-worker-row:last-child {
@@ -942,13 +940,13 @@
 }
 
 .tt-temp-worker-name {
-  color: #e2e8f0;
+  color: #0A2540;
   font-size: 0.875rem;
   font-weight: 500;
 }
 
 .tt-temp-worker-company {
-  color: #64748b;
+  color: #94A3B8;
   font-size: 0.6875rem;
 }
 
@@ -957,18 +955,18 @@
 }
 
 .tt-temp-active-badge {
-  color: #10b981;
+  color: #16A34A;
   font-weight: 600;
 }
 
 .tt-temp-hours {
-  color: #94a3b8;
+  color: #94A3B8;
 }
 
 .tt-temp-remove {
   background: none;
   border: none;
-  color: #64748b;
+  color: #94A3B8;
   font-size: 1.25rem;
   cursor: pointer;
   padding: 0 0.25rem;
@@ -977,14 +975,14 @@
 }
 
 .tt-temp-remove:hover {
-  color: #ef4444;
+  color: #DC2626;
 }
 
 /* Temp controls on job cards */
 .tt-temp-job-controls {
   margin-top: 0.625rem;
   padding-top: 0.625rem;
-  border-top: 1px dashed rgba(251, 191, 36, 0.2);
+  border-top: 1px dashed #E2E8F0;
 }
 
 .tt-temp-job-row {
@@ -995,18 +993,18 @@
 }
 
 .tt-temp-job-row + .tt-temp-job-row {
-  border-top: 1px solid rgba(71, 85, 105, 0.15);
+  border-top: 1px solid #E2E8F0;
 }
 
 .tt-temp-job-name {
   flex: 1;
-  color: #fbbf24;
+  color: #635BFF;
   font-size: 0.8125rem;
   font-weight: 500;
 }
 
 .tt-temp-job-hours {
-  color: #64748b;
+  color: #64748B;
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -1024,14 +1022,13 @@
 }
 
 .tt-btn-temp-in {
-  background: rgba(251, 191, 36, 0.2);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: #635BFF;
+  color: #FFFFFF;
+  border: none;
 }
 
 .tt-btn-temp-in:hover:not(:disabled) {
-  background: rgba(251, 191, 36, 0.3);
-  border-color: rgba(251, 191, 36, 0.5);
+  background: #5046e5;
 }
 
 .tt-btn-temp-in:disabled {
@@ -1040,22 +1037,21 @@
 }
 
 .tt-btn-temp-out {
-  background: rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: #FEF2F2;
+  color: #DC2626;
+  border: none;
 }
 
 .tt-btn-temp-out:hover {
-  background: rgba(239, 68, 68, 0.3);
-  border-color: rgba(239, 68, 68, 0.5);
+  background: #fecaca;
 }
 
 .tt-temp-job-row.active .tt-temp-job-name {
-  color: #10b981;
+  color: #16A34A;
 }
 
 .tt-temp-job-row.completed .tt-temp-job-name {
-  color: #64748b;
+  color: #94A3B8;
 }
 
 .tt-temp-completed-area {
@@ -1071,12 +1067,12 @@
   gap: 0.5rem;
   padding: 0.375rem 0 0.5rem;
   margin-bottom: 0.25rem;
-  border-bottom: 1px solid rgba(251, 191, 36, 0.15);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .tt-temp-bulk-label {
   flex: 1;
-  color: #fbbf24;
+  color: #635BFF;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;

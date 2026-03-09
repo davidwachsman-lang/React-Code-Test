@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import dispatchTeamService from '../../services/dispatchTeamService';
 
-const PM_COLORS = ['#3b82f6', '#8b5cf6', '#22c55e', '#f97316', '#ef4444', '#06b6d4', '#ec4899', '#84cc16'];
+const PM_COLORS = ['#2563EB', '#9333EA', '#16A34A', '#EA580C', '#DC2626', '#0284C7', '#DB2777', '#16A34A'];
 
 export default function TeamManagementModal({ pmGroups: initialPmGroups, onSave, onClose }) {
   const [pmGroups, setPmGroups] = useState(() =>

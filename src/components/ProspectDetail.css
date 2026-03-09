@@ -13,29 +13,29 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: #94A3B8;
   margin-bottom: 0.5rem;
 }
 
 .breadcrumb-link {
-  color: #60a5fa;
+  color: #635BFF;
   cursor: pointer;
   text-decoration: underline;
 }
 
 .breadcrumb-link:hover {
-  color: #3b82f6;
+  color: #5549e6;
 }
 
 .breadcrumb-separator {
-  color: #6b7280;
+  color: #94A3B8;
 }
 
 .prospect-detail-tabs {
   display: flex;
   gap: 0.5rem;
   padding: 0 1.5rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .tab-button {
@@ -43,7 +43,7 @@
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  color: #9ca3af;
+  color: #94A3B8;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -52,12 +52,12 @@
 }
 
 .tab-button:hover {
-  color: #e5e7eb;
+  color: #0A2540;
 }
 
 .tab-button.active {
-  color: #60a5fa;
-  border-bottom-color: #3b82f6;
+  color: #635BFF;
+  border-bottom-color: #635BFF;
 }
 
 .prospect-detail-body {
@@ -80,13 +80,13 @@
 
 .overview-section h3 {
   margin: 0;
-  color: #60a5fa;
+  color: #0A2540;
   font-size: 1.1rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .detail-grid {
@@ -102,18 +102,18 @@
 }
 
 .detail-item strong {
-  color: #9ca3af;
+  color: #94A3B8;
   font-size: 0.875rem;
   font-weight: 600;
 }
 
 .detail-item span {
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 0.95rem;
 }
 
 .notes-content {
-  color: #e5e7eb;
+  color: #0A2540;
   line-height: 1.6;
   white-space: pre-wrap;
 }
@@ -122,7 +122,7 @@
   display: flex;
   justify-content: flex-end;
   padding-top: 1rem;
-  border-top: 1px solid rgba(59, 130, 246, 0.2);
+  border-top: 1px solid #E2E8F0;
 }
 
 .prospect-properties,
@@ -136,55 +136,54 @@
 .priority-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: capitalize;
 }
 
 .status-lead {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
+  background: #FEF3C7;
+  color: #D97706;
 }
 
 .status-active {
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
+  background: #DBEAFE;
+  color: #2563EB;
 }
 
 .status-won {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
+  background: #DCFCE7;
+  color: #16A34A;
 }
 
 .status-lost {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+  background: #FEF2F2;
+  color: #DC2626;
 }
 
 .priority-hot {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+  background: #FEF2F2;
+  color: #DC2626;
 }
 
 .priority-warm {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
+  background: #FEF3C7;
+  color: #D97706;
 }
 
 .priority-cold {
-  background: rgba(107, 114, 128, 0.2);
-  color: #9ca3af;
+  background: #F1F5F9;
+  color: #64748B;
 }
 
 .top-10-badge {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: white;
+  background: #FEF3C7;
+  color: #D97706;
   padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-

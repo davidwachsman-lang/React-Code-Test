@@ -1,10 +1,11 @@
 .crm-table-container {
   overflow-x: auto;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 1rem;
   width: 100%;
+  box-shadow: var(--shadow-card);
 }
 
 .crm-table-controls {
@@ -24,16 +25,17 @@
 .crm-table-search .search-input {
   width: 100%;
   padding: 0.5rem 1rem;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  border-radius: 4px;
-  color: #e5e7eb;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  color: #0A2540;
   font-size: 0.875rem;
 }
 
 .crm-table-search .search-input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #635BFF;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.1);
 }
 
 .crm-table-actions-bar {
@@ -44,29 +46,30 @@
 
 .btn-export {
   padding: 0.5rem 1rem;
-  background: #3b82f6;
+  background: #635BFF;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
 }
 
 .btn-export:hover {
-  background: #2563eb;
+  background: #4F46E5;
 }
 
 .column-visibility {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #9ca3af;
+  color: #94A3B8;
   font-size: 0.875rem;
 }
 
 .column-visibility input[type="checkbox"] {
   cursor: pointer;
+  accent-color: #635BFF;
 }
 
 .crm-table-wrapper {
@@ -85,17 +88,17 @@
 }
 
 .crm-table-top-scroll::-webkit-scrollbar-track {
-  background: rgba(30, 41, 59, 0.5);
+  background: #F8FAFC;
   border-radius: 6px;
 }
 
 .crm-table-top-scroll::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.5);
+  background: #CBD5E1;
   border-radius: 6px;
 }
 
 .crm-table-top-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.7);
+  background: #94A3B8;
 }
 
 .crm-table {
@@ -107,18 +110,18 @@
 }
 
 .crm-table thead {
-  background: rgba(30, 41, 59, 0.8);
+  background: #F8FAFC;
 }
 
 .crm-table th {
   padding: 0.4rem 0.75rem;
   text-align: left;
-  color: #9ca3af;
+  color: #64748B;
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 2px solid rgba(55, 65, 81, 0.8);
+  border-bottom: 2px solid #E2E8F0;
   white-space: nowrap;
   position: relative;
 }
@@ -129,7 +132,7 @@
 }
 
 .crm-table th.sortable:hover {
-  background: rgba(30, 41, 59, 1);
+  background: #F1F5F9;
 }
 
 .header-content {
@@ -139,7 +142,7 @@
 }
 
 .sort-indicator {
-  color: #6b7280;
+  color: #94A3B8;
   font-size: 0.75rem;
 }
 
@@ -158,17 +161,17 @@
 .column-filter-input {
   width: 100%;
   padding: 0.25rem 0.5rem;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  border-radius: 4px;
-  color: #e5e7eb;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  color: #0A2540;
   font-size: 0.75rem;
 }
 
 .column-filter-select:focus,
 .column-filter-input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #635BFF;
 }
 
 .column-filter-select {
@@ -176,26 +179,26 @@
 }
 
 .crm-table tbody tr {
-  border-bottom: 1px solid rgba(55, 65, 81, 0.5);
-  transition: background-color 0.2s;
+  border-bottom: 1px solid #E2E8F0;
+  transition: background-color 0.15s;
 }
 
 .crm-table tbody tr:hover {
-  background: rgba(30, 41, 59, 0.5);
+  background: rgba(99, 91, 255, 0.04);
   cursor: pointer;
 }
 
 .crm-table tbody tr.top-target {
-  background: rgba(59, 130, 246, 0.1);
+  background: #EEEDFF;
 }
 
 .crm-table tbody tr.top-target:hover {
-  background: rgba(59, 130, 246, 0.2);
+  background: #E0DEFF;
 }
 
 .crm-table td {
   padding: 0.4rem 0.75rem;
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 0.875rem;
   vertical-align: middle;
   white-space: nowrap;
@@ -204,7 +207,7 @@
 .star-button {
   background: none;
   border: none;
-  color: #9ca3af;
+  color: #CBD5E1;
   font-size: 1.25rem;
   cursor: pointer;
   padding: 0.25rem;
@@ -212,17 +215,17 @@
 }
 
 .star-button:hover {
-  color: #fbbf24;
+  color: #D97706;
 }
 
 .star-button.starred {
-  color: #fbbf24;
+  color: #D97706;
 }
 
 .stage-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -230,31 +233,31 @@
 }
 
 .stage-badge.stage-prospect {
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background: #DBEAFE;
+  color: #2563EB;
+  border: 1px solid rgba(37, 99, 235, 0.2);
 }
 
 .stage-badge.stage-active-customer {
-  background: rgba(34, 197, 94, 0.2);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.4);
+  background: #DCFCE7;
+  color: #16A34A;
+  border: 1px solid rgba(22, 163, 74, 0.2);
 }
 
 .stage-badge.stage-inactive {
-  background: rgba(234, 179, 8, 0.2);
-  color: #facc15;
-  border: 1px solid rgba(234, 179, 8, 0.4);
+  background: #FEF3C7;
+  color: #D97706;
+  border: 1px solid rgba(217, 119, 6, 0.2);
 }
 
 .stage-badge.stage-lost {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid rgba(220, 38, 38, 0.2);
 }
 
 .followup-overdue {
-  color: #f87171;
+  color: #DC2626;
   font-weight: 600;
 }
 
@@ -268,29 +271,29 @@
 }
 
 .btn-action {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  color: #e5e7eb;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #0A2540;
   padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 1rem;
-  transition: background-color 0.2s;
+  transition: background-color 0.15s;
 }
 
 .btn-action:hover {
-  background: rgba(30, 41, 59, 1);
+  background: #F8FAFC;
 }
 
 .btn-action.btn-delete:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.5);
+  background: #FEF2F2;
+  border-color: rgba(220, 38, 38, 0.3);
 }
 
 .crm-table-empty {
   padding: 2rem;
   text-align: center;
-  color: #9ca3af;
+  color: #94A3B8;
 }
 
 .crm-table-pagination {
@@ -299,23 +302,23 @@
   align-items: center;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(55, 65, 81, 0.8);
+  border-top: 1px solid #E2E8F0;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
 .crm-table-pagination button {
   padding: 0.5rem 1rem;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  color: #e5e7eb;
-  border-radius: 4px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #0A2540;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.875rem;
 }
 
 .crm-table-pagination button:hover:not(:disabled) {
-  background: rgba(30, 41, 59, 1);
+  background: #F8FAFC;
 }
 
 .crm-table-pagination button:disabled {
@@ -324,31 +327,30 @@
 }
 
 .crm-table-pagination span {
-  color: #9ca3af;
+  color: #64748B;
   font-size: 0.875rem;
 }
 
 .crm-table-pagination select {
   padding: 0.5rem 1rem;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  color: #e5e7eb;
-  border-radius: 4px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #0A2540;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.875rem;
 }
 
 .crm-table-pagination select:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #635BFF;
 }
 
 .crm-table a {
-  color: #60a5fa;
+  color: #635BFF;
   text-decoration: none;
 }
 
 .crm-table a:hover {
   text-decoration: underline;
 }
-

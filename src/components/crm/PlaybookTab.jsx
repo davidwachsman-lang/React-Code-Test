@@ -464,7 +464,7 @@ function PlaybookTab() {
   };
 
   const agencyFieldError = (id) => agencyValidationErrors[id] ? 'field-invalid' : '';
-  const renderAgencyError = (id) => agencyValidationErrors[id] ? <small className="field-error" style={{ color: '#fca5a5', display: 'block', marginTop: '4px', fontSize: '12px' }}>{agencyValidationErrors[id]}</small> : null;
+  const renderAgencyError = (id) => agencyValidationErrors[id] ? <small className="field-error" style={{ color: '#DC2626', display: 'block', marginTop: '4px', fontSize: '12px' }}>{agencyValidationErrors[id]}</small> : null;
 
   return (
     <div className="customers-container">
@@ -480,9 +480,9 @@ function PlaybookTab() {
           style={{
             padding: '0.5rem 1.25rem',
             borderRadius: '8px',
-            border: activePlaybook === 'commercial' ? '2px solid #3b82f6' : '1px solid rgba(148,163,184,0.3)',
-            background: activePlaybook === 'commercial' ? 'rgba(59,130,246,0.15)' : 'rgba(30,41,59,0.6)',
-            color: activePlaybook === 'commercial' ? '#60a5fa' : '#94a3b8',
+            border: activePlaybook === 'commercial' ? '2px solid #635BFF' : '1px solid #E2E8F0',
+            background: activePlaybook === 'commercial' ? 'rgba(99,91,255,0.1)' : '#F1F5F9',
+            color: activePlaybook === 'commercial' ? '#635BFF' : '#94A3B8',
             fontWeight: 600,
             fontSize: '0.875rem',
             cursor: 'pointer',
@@ -497,9 +497,9 @@ function PlaybookTab() {
           style={{
             padding: '0.5rem 1.25rem',
             borderRadius: '8px',
-            border: activePlaybook === 'agency' ? '2px solid #f59e0b' : '1px solid rgba(148,163,184,0.3)',
-            background: activePlaybook === 'agency' ? 'rgba(245,158,11,0.15)' : 'rgba(30,41,59,0.6)',
-            color: activePlaybook === 'agency' ? '#fbbf24' : '#94a3b8',
+            border: activePlaybook === 'agency' ? '2px solid #D97706' : '1px solid rgba(148,163,184,0.3)',
+            background: activePlaybook === 'agency' ? 'rgba(217,119,6,0.1)' : '#F1F5F9',
+            color: activePlaybook === 'agency' ? '#D97706' : '#94A3B8',
             fontWeight: 600,
             fontSize: '0.875rem',
             cursor: 'pointer',

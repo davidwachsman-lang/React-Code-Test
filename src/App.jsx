@@ -54,7 +54,7 @@ function OpsNav() {
     <nav style={{
       display: 'flex',
       gap: '0',
-      backgroundColor: '#1e293b',
+      backgroundColor: '#0A2540',
       padding: '0 16px',
       position: 'sticky',
       top: 0,
@@ -73,7 +73,7 @@ function OpsNav() {
               textDecoration: 'none',
               fontSize: '14px',
               fontWeight: isActive ? '600' : '400',
-              borderBottom: isActive ? '2px solid #3b82f6' : '2px solid transparent',
+              borderBottom: isActive ? '2px solid #635BFF' : '2px solid transparent',
               transition: 'all 0.15s',
             }}
           >
@@ -88,27 +88,27 @@ function OpsNav() {
 function AppContent() {
   const location = useLocation();
   const isTestRoute = location.pathname === '/sales-test';
-  
+
   // Check if we should only show CRM (for Vercel deployment)
   // Option 1: Build-time env var (requires rebuild after setting in Vercel)
   const envCrmOnly = import.meta.env.VITE_CRM_ONLY === 'true';
-  
+
   // Option 2: Runtime check - look for 'crm-only' in URL or localStorage
   // This allows switching without rebuilding
   const urlParams = new URLSearchParams(window.location.search);
   // Accept both ?crm-only=true and ?crm-only (just the presence of the param)
   const urlCrmOnly = urlParams.has('crm-only') || urlParams.get('crm-only') === 'true';
   const storedCrmOnly = localStorage.getItem('crm-only-mode') === 'true';
-  
+
   // Use env var first, then fall back to runtime checks
   const crmOnlyMode = envCrmOnly || urlCrmOnly || storedCrmOnly;
-  
+
   // Check if we should only show Estimate Tool (for Vercel deployment)
   const envEstimateOnly = import.meta.env.VITE_ESTIMATE_ONLY === 'true';
   const urlEstimateOnly = urlParams.has('estimate-only') || urlParams.get('estimate-only') === 'true';
   const storedEstimateOnly = localStorage.getItem('estimate-only-mode') === 'true';
   const estimateOnlyMode = envEstimateOnly || urlEstimateOnly || storedEstimateOnly;
-  
+
   // Check if we should only show Storm pages (for Vercel deployment)
   const envStormOnly = import.meta.env.VITE_STORM_ONLY === 'true';
   const urlStormOnly = urlParams.has('storm-only') || urlParams.get('storm-only') === 'true';
@@ -120,8 +120,8 @@ function AppContent() {
   const urlOpsOnly = urlParams.has('ops-only') || urlParams.get('ops-only') === 'true';
   const storedOpsOnly = localStorage.getItem('ops-only-mode') === 'true';
   const opsOnlyMode = envOpsOnly || urlOpsOnly || storedOpsOnly;
-  
-  
+
+
   // If URL param is set, store it in localStorage for future visits
   if (urlCrmOnly && !storedCrmOnly) {
     localStorage.setItem('crm-only-mode', 'true');
@@ -135,7 +135,7 @@ function AppContent() {
   if (urlOpsOnly && !storedOpsOnly) {
     localStorage.setItem('ops-only-mode', 'true');
   }
-  
+
   // Allow disabling via URL params
   if (urlParams.get('crm-only') === 'false') {
     localStorage.removeItem('crm-only-mode');
@@ -176,7 +176,7 @@ function AppContent() {
       </div>
     );
   }
-  
+
   // If CRM-only mode, show only CRM without navigation
   if (crmOnlyMode) {
     return (
@@ -203,7 +203,7 @@ function AppContent() {
       </div>
     );
   }
-  
+
   // If Storm-only mode, show only Storm without navigation
   if (stormOnlyMode) {
     return (
@@ -268,7 +268,7 @@ function AppContent() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/set-password" element={<SetPassword />} />
-        
+
         {/* Protected routes - auth required */}
         <Route path="/*" element={
           <ProtectedRoute>

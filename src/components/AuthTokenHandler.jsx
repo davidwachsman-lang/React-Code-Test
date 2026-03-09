@@ -97,31 +97,30 @@ const AuthTokenHandler = ({ children }) => {
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background: linear-gradient(180deg, #222a0f 0%, #1e293b 50%, #0f172a 100%);
+            background: #F6F9FC;
             padding: 1rem;
           }
           .token-processing-card {
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
             border-radius: 16px;
             padding: 2.5rem;
             text-align: center;
-            color: white;
+            color: #0A2540;
           }
           .token-processing-card h1 {
             font-size: 1.5rem;
             margin-bottom: 0.5rem;
           }
           .token-processing-card p {
-            color: rgba(255, 255, 255, 0.6);
+            color: #64748B;
             margin-bottom: 1.5rem;
           }
           .spinner {
             width: 40px;
             height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top-color: #3b82f6;
+            border: 3px solid #E2E8F0;
+            border-top-color: #635BFF;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto;

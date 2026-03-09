@@ -11,7 +11,7 @@
 }
 
 .mass-email-body .form-group label {
-  color: #9ca3af;
+  color: #64748B;
   font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
@@ -21,17 +21,17 @@
 .mass-email-body .form-group select {
   width: 100%;
   padding: 0.75rem;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(55, 65, 81, 0.8);
-  border-radius: 4px;
-  color: #e5e7eb;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  color: #0A2540;
   font-size: 0.875rem;
 }
 
 .mass-email-body .form-group select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #635BFF;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.1);
 }
 
 .mass-email-stats {
@@ -41,8 +41,8 @@
 }
 
 .mass-email-stat {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 0.75rem 1rem;
   flex: 1;
@@ -52,19 +52,19 @@
 .mass-email-stat .stat-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: #0A2540;
 }
 
 .mass-email-stat .stat-label {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: #94A3B8;
   margin-top: 0.25rem;
 }
 
 .mass-email-contacts-list {
   max-height: 300px;
   overflow-y: auto;
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   margin-bottom: 1.5rem;
 }
@@ -81,30 +81,30 @@
 }
 
 .mass-email-contacts-list th {
-  background: rgba(15, 23, 42, 0.9);
-  color: #9ca3af;
+  background: #F8FAFC;
+  color: #64748B;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding: 0.625rem 0.75rem;
   text-align: left;
-  border-bottom: 1px solid rgba(55, 65, 81, 0.8);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .mass-email-contacts-list td {
   padding: 0.5rem 0.75rem;
   font-size: 0.8125rem;
-  color: #e5e7eb;
-  border-bottom: 1px solid rgba(55, 65, 81, 0.4);
+  color: #0A2540;
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .mass-email-contacts-list tr:hover td {
-  background: rgba(59, 130, 246, 0.05);
+  background: rgba(99, 91, 255, 0.04);
 }
 
 .mass-email-contacts-list .no-email {
-  color: #ef4444;
+  color: #DC2626;
   font-style: italic;
 }
 
@@ -120,36 +120,35 @@
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 600;
   color: white;
   cursor: pointer;
-  transition: all 0.2s;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  transition: all 0.15s;
+  background: #635BFF;
 }
 
 .mass-email-actions button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  background: #4F46E5;
+  box-shadow: 0 2px 8px rgba(99, 91, 255, 0.25);
 }
 
 .mass-email-actions button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
   box-shadow: none;
 }
 
 .mass-email-loading {
   text-align: center;
   padding: 2rem;
-  color: #9ca3af;
+  color: #94A3B8;
 }
 
 .mass-email-empty {
   text-align: center;
   padding: 2rem;
-  color: #64748b;
+  color: #94A3B8;
   font-style: italic;
 }

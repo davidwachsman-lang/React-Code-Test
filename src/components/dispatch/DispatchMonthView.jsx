@@ -164,12 +164,12 @@ export default function DispatchMonthView({
 
   const typeColor = (jobType) => {
     switch (jobType) {
-      case 'estimate': return '#f97316';
-      case 'site-visit': return '#22c55e';
-      case 'emergency': return '#ef4444';
-      case 'new-start': return '#8b5cf6';
-      case 'demo': return '#ec4899';
-      default: return '#3b82f6';
+      case 'estimate': return '#EA580C';
+      case 'site-visit': return '#16A34A';
+      case 'emergency': return '#DC2626';
+      case 'new-start': return '#9333EA';
+      case 'demo': return '#DB2777';
+      default: return '#2563EB';
     }
   };
 

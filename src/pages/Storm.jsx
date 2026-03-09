@@ -113,9 +113,9 @@ function Storm() {
 
   // Color palette for dynamic color coding
   const COLOR_PALETTE = [
-    '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', 
-    '#8b5cf6', '#ec4899', '#14b8a6', '#f59e0b', '#06b6d4',
-    '#84cc16', '#6366f1'
+    '#DC2626', '#EA580C', '#CA8A04', '#16A34A', '#2563EB',
+    '#9333EA', '#DB2777', '#059669', '#D97706', '#0284C7',
+    '#16A34A', '#6366f1'
   ];
 
   // Function to change color column and regenerate colors
@@ -1045,8 +1045,8 @@ function Storm() {
               color: #000;
             }
             h2 {
-              color: #1e293b;
-              border-bottom: 2px solid #3b82f6;
+              color: #0A2540;
+              border-bottom: 2px solid #2563EB;
               padding-bottom: 10px;
               margin-bottom: 20px;
             }
@@ -1057,7 +1057,7 @@ function Storm() {
             .form-section-title {
               font-size: 18px;
               font-weight: bold;
-              color: #1e293b;
+              color: #0A2540;
               margin-bottom: 15px;
               border-bottom: 1px solid #e2e8f0;
               padding-bottom: 5px;
@@ -1469,10 +1469,10 @@ function Storm() {
                   <div className="form-group">
                     <label htmlFor="propertyAddress">
                       Property Address
-                      {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
-                      {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
-                      {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
-                      {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
+                      {autocompleteStatus === 'ready' && <span style={{ color: '#16A34A', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
+                      {autocompleteStatus === 'loading' && <span style={{ color: '#D97706', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
+                      {autocompleteStatus === 'error' && <span style={{ color: '#DC2626', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
+                      {autocompleteStatus === 'unavailable' && <span style={{ color: '#94A3B8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
                     </label>
                     <input
                       type="text"
@@ -1485,7 +1485,7 @@ function Storm() {
                       autoComplete="off"
                     />
                     {autocompleteStatus === 'error' && (
-                      <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
+                      <small style={{ color: '#DC2626', display: 'block', marginTop: '4px' }}>
                         Google Maps API error. Please enter address manually or check browser console for details.
                       </small>
                     )}
@@ -1980,7 +1980,7 @@ function Storm() {
                         {jobs.length === 0 ? (
                           <div className="empty-state">
                             <p>No jobs found for this storm event.</p>
-                            <p style={{ fontSize: '0.9rem', color: '#94a3b8', marginTop: '0.5rem' }}>
+                            <p style={{ fontSize: '0.9rem', color: '#64748B', marginTop: '0.5rem' }}>
                               Add intake entries from the Intake tab to create jobs.
                             </p>
                           </div>

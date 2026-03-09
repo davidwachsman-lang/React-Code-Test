@@ -8,19 +8,19 @@
 }
 
 .prospect-form .form-section-header {
-  color: #60a5fa;
+  color: #0A2540;
   font-size: 1.1rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .prospect-form .form-section-divider {
   height: 2px;
-  background: linear-gradient(90deg, rgba(59, 130, 246, 0.5) 0%, rgba(59, 130, 246, 0.1) 100%);
+  background: #E2E8F0;
   margin: 1rem 0;
   border-radius: 2px;
 }
@@ -38,7 +38,7 @@
 }
 
 .prospect-form label {
-  color: #cbd5e1;
+  color: #64748B;
   font-size: 0.9rem;
   font-weight: 500;
 }
@@ -47,10 +47,10 @@
 .prospect-form select,
 .prospect-form textarea {
   padding: 0.75rem;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
-  color: #f1f5f9;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  color: #0A2540;
   font-size: 0.95rem;
   font-family: inherit;
 }
@@ -59,8 +59,8 @@
 .prospect-form select:focus,
 .prospect-form textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border: 1.5px solid #635BFF;
+  box-shadow: none;
 }
 
 .prospect-form textarea {
@@ -79,14 +79,14 @@
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  color: #e5e7eb;
+  color: #0A2540;
 }
 
 .prospect-form .form-checkbox input[type="checkbox"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #3b82f6;
+  accent-color: #635BFF;
 }
 
 .prospect-form .form-actions {
@@ -95,14 +95,14 @@
   gap: 1rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(59, 130, 246, 0.2);
+  border-top: 1px solid #E2E8F0;
 }
 
 .prospect-form .btn-primary,
 .prospect-form .btn-secondary {
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -110,20 +110,20 @@
 }
 
 .prospect-form .btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #635BFF;
   color: white;
 }
 
 .prospect-form .btn-primary:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: #5549e6;
 }
 
 .prospect-form .btn-secondary {
-  background: rgba(55, 65, 81, 0.8);
-  color: #e5e7eb;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  color: #0A2540;
 }
 
 .prospect-form .btn-secondary:hover {
-  background: rgba(75, 85, 99, 0.8);
+  background: #F8FAFC;
 }
-

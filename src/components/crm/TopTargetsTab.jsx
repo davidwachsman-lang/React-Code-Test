@@ -331,7 +331,7 @@ function TopTargetsTab() {
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                               {target.companyName || <span className="top-targets-empty">Click to add</span>}
                               {target.notes && (
-                                <span style={{ fontSize: '0.85rem', color: '#60a5fa', flexShrink: 0 }} title={target.notes}>📝</span>
+                                <span style={{ fontSize: '0.85rem', color: '#635BFF', flexShrink: 0 }} title={target.notes}>📝</span>
                               )}
                             </div>
                           </td>
@@ -348,7 +348,7 @@ function TopTargetsTab() {
         {/* Parking Lot */}
         {parkedTargets.length > 0 && (
           <div style={{ marginTop: '1.5rem' }}>
-            <h2 style={{ color: '#f1f5f9', marginBottom: '0.75rem' }}>Parking Lot</h2>
+            <h2 style={{ color: '#0A2540', marginBottom: '0.75rem' }}>Parking Lot</h2>
             <div className="top-targets-table-container">
               <table className="top-targets-table">
                 <thead>
@@ -361,13 +361,13 @@ function TopTargetsTab() {
                 <tbody>
                   {parkedTargets.map(target => (
                     <tr key={target.id}>
-                      <td style={{ padding: '0.5rem 0.75rem', color: '#e2e8f0' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', color: '#0A2540' }}>
                         {target.company_name}
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: '#94a3b8' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', color: '#64748B' }}>
                         {target.sales_rep}
                       </td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: '#94a3b8' }}>
+                      <td style={{ padding: '0.5rem 0.75rem', color: '#64748B' }}>
                         {new Date(target.parked_at).toLocaleDateString()}
                       </td>
                     </tr>
@@ -423,9 +423,9 @@ function TopTargetsTab() {
                     width: '100%',
                     padding: '0.5rem',
                     borderRadius: '4px',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                    color: '#f1f5f9',
+                    border: '1px solid #E2E8F0',
+                    backgroundColor: '#FFFFFF',
+                    color: '#0A2540',
                     fontSize: '0.95rem',
                     fontFamily: 'inherit',
                     resize: 'vertical'
@@ -440,9 +440,9 @@ function TopTargetsTab() {
                       onClick={handleParkTarget}
                       disabled={loadingTopTargets}
                       style={{
-                        background: 'linear-gradient(120deg, #92400e, #b45309)',
-                        border: '1px solid #d97706',
-                        color: '#fef3c7',
+                        background: '#FFFFFF',
+                        border: '1px solid #D97706',
+                        color: '#D97706',
                         padding: '0.5rem 0.75rem',
                         borderRadius: '6px',
                         cursor: 'pointer',

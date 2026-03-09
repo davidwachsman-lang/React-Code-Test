@@ -13,22 +13,22 @@
   width: 100%;
   padding: 0.875rem 2.5rem 0.875rem 1rem;
   font-size: 1rem;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 10px;
-  color: #e2e8f0;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  color: #0A2540;
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
 
 .company-directory-search-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  border: 1.5px solid #635BFF;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.1);
 }
 
 .company-directory-search-input::placeholder {
-  color: #64748b;
+  color: #94A3B8;
 }
 
 .company-directory-clear-search {
@@ -38,7 +38,7 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #64748b;
+  color: #94A3B8;
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0.25rem;
@@ -46,11 +46,11 @@
 }
 
 .company-directory-clear-search:hover {
-  color: #94a3b8;
+  color: #64748B;
 }
 
 .company-directory-results-info {
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.9375rem;
   margin-bottom: 1rem;
 }
@@ -58,7 +58,7 @@
 .company-directory-empty {
   padding: 2rem;
   text-align: center;
-  color: #94a3b8;
+  color: #94A3B8;
 }
 
 .company-directory-empty p {
@@ -79,13 +79,15 @@
 .company-directory-table td {
   padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid rgba(55, 65, 81, 0.5);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .company-directory-table thead th {
-  background: rgba(30, 41, 59, 0.8);
-  color: #e2e8f0;
+  background: #F8FAFC;
+  color: #94A3B8;
   font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
 }
 
 .company-directory-th.sortable {
@@ -94,7 +96,7 @@
 }
 
 .company-directory-th.sortable:hover {
-  background: rgba(30, 41, 59, 1);
+  background: #F1F5F9;
 }
 
 .company-directory-table .header-content {
@@ -104,7 +106,7 @@
 }
 
 .company-directory-table .sort-indicator {
-  color: #60a5fa;
+  color: #635BFF;
   font-size: 0.75rem;
 }
 
@@ -113,9 +115,9 @@
 }
 
 .company-directory-table tbody tr:hover {
-  background: rgba(30, 41, 59, 0.4);
+  background: rgba(99, 91, 255, 0.04);
 }
 
 .company-directory-table td {
-  color: #cbd5e1;
+  color: #0A2540;
 }

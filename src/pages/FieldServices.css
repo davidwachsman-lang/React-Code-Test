@@ -1,3 +1,5 @@
+/* DW Brand System — Field Services */
+
 .field-services-content {
   padding: 1.5rem;
 }
@@ -10,9 +12,9 @@
 }
 
 .field-service-card {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -21,13 +23,13 @@
   align-items: flex-start;
   gap: 1rem;
   min-height: 120px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .field-service-card:hover {
-  background: rgba(15, 23, 42, 0.8);
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: rgba(99, 91, 255, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .field-service-card:active {
@@ -41,9 +43,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(59, 130, 246, 0.1);
-  border-radius: 10px;
-  color: #3b82f6;
+  background: rgba(99, 91, 255, 0.08);
+  border-radius: 8px;
+  color: #635BFF;
 }
 
 .field-service-card-icon svg {
@@ -56,7 +58,7 @@
 }
 
 .field-service-card-content h3 {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 1.125rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
@@ -64,25 +66,25 @@
 }
 
 .field-service-card-content p {
-  color: #94a3b8;
+  color: #64748B;
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.5;
 }
 
 .field-service-card-highlight {
-  border: 2px solid rgba(239, 68, 68, 0.6);
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
+  border: 2px solid rgba(220, 38, 38, 0.4);
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.08);
 }
 
 .field-service-card-highlight:hover {
-  border-color: rgba(239, 68, 68, 0.8);
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
+  border-color: rgba(220, 38, 38, 0.6);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.12);
 }
 
 .field-service-card-highlight .field-service-card-icon {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  background: rgba(220, 38, 38, 0.08);
+  color: #DC2626;
 }
 
 .field-service-detail {
@@ -90,23 +92,24 @@
 }
 
 .documentation-panel {
-  background: rgba(15, 23, 42, 0.7);
-  border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
   padding: 1.75rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .documentation-header h2 {
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 1.4rem;
   margin: 0 0 0.25rem 0;
 }
 
 .documentation-subtitle {
-  color: #9ca3af;
+  color: #64748B;
   font-size: 0.9rem;
   margin: 0;
 }
@@ -119,15 +122,15 @@
 
 .documentation-job-card,
 .documentation-checklist {
-  background: rgba(15, 23, 42, 0.85);
-  border-radius: 10px;
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  background: #F8FAFC;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
   padding: 1.25rem 1.5rem;
 }
 
 .documentation-job-card h3,
 .documentation-checklist h3 {
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 1.05rem;
   margin: 0 0 1rem 0;
 }
@@ -143,18 +146,18 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #6b7280;
+  color: #94A3B8;
   margin-bottom: 0.1rem;
 }
 
 .job-value {
   font-size: 0.9rem;
-  color: #e5e7eb;
+  color: #0A2540;
 }
 
 .job-notes {
   font-size: 0.85rem;
-  color: #9ca3af;
+  color: #64748B;
   line-height: 1.5;
 }
 
@@ -176,7 +179,7 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #9ca3af;
+  color: #64748B;
   margin-bottom: 0.35rem;
 }
 
@@ -185,43 +188,43 @@
   align-items: flex-start;
   gap: 0.5rem;
   font-size: 0.9rem;
-  color: #e5e7eb;
+  color: #0A2540;
 }
 
 .check-square {
   width: 14px;
   height: 14px;
   border-radius: 4px;
-  border: 1px solid rgba(59, 130, 246, 0.7);
+  border: 1px solid rgba(99, 91, 255, 0.5);
   margin-top: 2px;
 }
 
 .documentation-footer {
   font-size: 0.8rem;
-  color: #9ca3af;
+  color: #64748B;
 }
 
-.empty-state {
+.field-services-content .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 3rem 1.5rem;
   text-align: center;
-  background: rgba(15, 23, 42, 0.6);
-  border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
 }
 
-.empty-state h2 {
-  color: #f1f5f9;
+.field-services-content .empty-state h2 {
+  color: #0A2540;
   font-size: 1.5rem;
   margin-bottom: 0.75rem;
   font-weight: 600;
 }
 
-.empty-state p {
-  color: #94a3b8;
+.field-services-content .empty-state p {
+  color: #64748B;
   font-size: 1rem;
   max-width: 500px;
   line-height: 1.6;
@@ -229,13 +232,14 @@
 
 /* PM File Compliance */
 .pm-dashboard-panel {
-  background: rgba(15, 23, 42, 0.7);
-  border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
   padding: 1.75rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .pm-dashboard-header {
@@ -253,7 +257,7 @@
 
 .pm-dashboard-header h2,
 .pm-dashboard-header-top h2 {
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 1.4rem;
   margin: 0;
   font-weight: 600;
@@ -268,7 +272,7 @@
 .pm-dashboard-pm-label {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: #64748B;
   margin-right: 0.5rem;
 }
 
@@ -276,30 +280,31 @@
   font-size: 0.8125rem;
   padding: 0.35rem 0.6rem;
   border-radius: 6px;
-  border: 1px solid rgba(71, 85, 105, 0.8);
-  background: rgba(30, 41, 59, 0.8);
-  color: #e2e8f0;
+  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  color: #0A2540;
   min-width: 140px;
 }
 
 .pm-dashboard-pm-select:focus {
   outline: none;
-  border-color: rgba(59, 130, 246, 0.6);
+  border-color: #635BFF;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.12);
 }
 
 .pm-dashboard-count {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #64748b;
-  background: rgba(51, 65, 85, 0.5);
+  color: #64748B;
+  background: #F1F5F9;
   padding: 0.35rem 0.75rem;
   border-radius: 8px;
 }
 
 .pm-dashboard-table-wrap {
-  border-radius: 10px;
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(71, 85, 105, 0.4);
+  border-radius: 8px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
 }
 
 .pm-dashboard-table {
@@ -315,12 +320,12 @@
   font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: #94a3b8;
+  color: #64748B;
   padding: 0.35rem 0.4rem;
   white-space: normal;
   line-height: 1.2;
-  background: rgba(30, 41, 59, 0.8);
-  border-bottom: 1px solid rgba(71, 85, 105, 0.6);
+  background: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
   position: sticky;
   top: 0;
   z-index: 1;
@@ -328,7 +333,7 @@
 
 .pm-dashboard-th-group {
   text-align: center;
-  color: #cbd5e1;
+  color: #0A2540;
   font-size: 0.65rem;
 }
 
@@ -336,24 +341,24 @@
   border-top: none;
 }
 
-/* Vertical divider between File Checks and Date Checks (first Date Check column; 15-column table) */
+/* Vertical divider between File Checks and Date Checks */
 .pm-dashboard-thead-sub .pm-dashboard-th:nth-child(14) {
-  border-left: 2px solid rgba(71, 85, 105, 0.9);
+  border-left: 2px solid #CBD5E1;
 }
 
 .pm-dashboard-table tbody .pm-dashboard-td:nth-child(14) {
-  border-left: 2px solid rgba(71, 85, 105, 0.9);
+  border-left: 2px solid #CBD5E1;
 }
 
 /* Stronger line under column headers */
 .pm-dashboard-thead-sub .pm-dashboard-th {
-  border-bottom: 2px solid rgba(71, 85, 105, 0.7);
+  border-bottom: 2px solid #E2E8F0;
 }
 
 .pm-dashboard-td {
   padding: 0.35rem 0.4rem;
-  color: #e2e8f0;
-  border-bottom: 1px solid rgba(71, 85, 105, 0.35);
+  color: #0A2540;
+  border-bottom: 1px solid #E2E8F0;
   vertical-align: middle;
   white-space: normal;
   word-break: break-word;
@@ -362,29 +367,29 @@
 
 .pm-dashboard-td:first-child {
   font-weight: 500;
-  color: #f1f5f9;
+  color: #0A2540;
 }
 
 .pm-dashboard-td-missing {
-  color: #ef4444;
+  color: #DC2626;
   font-weight: 600;
 }
 
 .pm-dashboard-td-done {
-  color: #22c55e;
+  color: #16A34A;
   font-weight: 600;
 }
 
 .pm-dashboard-tr:hover .pm-dashboard-td {
-  background: rgba(59, 130, 246, 0.06);
+  background: rgba(99, 91, 255, 0.04);
 }
 
 .pm-dashboard-table tbody tr:nth-child(even) .pm-dashboard-td {
-  background: rgba(30, 41, 59, 0.2);
+  background: #F8FAFC;
 }
 
 .pm-dashboard-table tbody tr:nth-child(even):hover .pm-dashboard-td {
-  background: rgba(59, 130, 246, 0.08);
+  background: rgba(99, 91, 255, 0.04);
 }
 
 /* Mobile responsiveness */
@@ -421,11 +426,11 @@
     font-size: 0.8125rem;
   }
 
-  .empty-state {
+  .field-services-content .empty-state {
     padding: 2rem 1rem;
   }
 
-  .empty-state h2 {
+  .field-services-content .empty-state h2 {
     font-size: 1.25rem;
   }
 

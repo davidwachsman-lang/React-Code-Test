@@ -493,14 +493,14 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
                 top: '100%',
                 left: 0,
                 right: 0,
-                backgroundColor: 'rgba(30, 41, 59, 0.98)',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E2E8F0',
                 borderRadius: '8px',
                 maxHeight: '200px',
                 overflowY: 'auto',
                 zIndex: 1000,
                 marginTop: '4px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
               }}
             >
               {filteredParentRecords.map(record => {
@@ -512,11 +512,11 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
                     style={{
                       padding: '10px 15px',
                       cursor: 'pointer',
-                      borderBottom: '1px solid rgba(59, 130, 246, 0.1)',
-                      color: '#f1f5f9'
+                      borderBottom: '1px solid #E2E8F0',
+                      color: '#0A2540'
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
+                      e.target.style.backgroundColor = 'rgba(99, 91, 255, 0.06)';
                     }}
                     onMouseLeave={(e) => {
                       e.target.style.backgroundColor = 'transparent';
@@ -538,16 +538,16 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
                   style={{
                     padding: '10px 15px',
                     cursor: 'pointer',
-                    borderTop: '1px solid rgba(59, 130, 246, 0.3)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    color: '#60a5fa',
+                    borderTop: '1px solid #E2E8F0',
+                    backgroundColor: 'rgba(99, 91, 255, 0.06)',
+                    color: '#635BFF',
                     fontWeight: '500'
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
+                    e.target.style.backgroundColor = 'rgba(99, 91, 255, 0.1)';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+                    e.target.style.backgroundColor = 'rgba(99, 91, 255, 0.06)';
                   }}
                 >
                   + Create "{parentSearchTerm}" as new parent
@@ -563,12 +563,12 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
                 top: '100%',
                 left: 0,
                 right: 0,
-                backgroundColor: 'rgba(30, 41, 59, 0.98)',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E2E8F0',
                 borderRadius: '8px',
                 zIndex: 1000,
                 marginTop: '4px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
               }}
             >
               <div style={{ padding: '10px 15px', color: '#94a3b8' }}>
@@ -586,16 +586,16 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
                   style={{
                     padding: '10px 15px',
                     cursor: 'pointer',
-                    borderTop: '1px solid rgba(59, 130, 246, 0.3)',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    color: '#60a5fa',
+                    borderTop: '1px solid #E2E8F0',
+                    backgroundColor: 'rgba(99, 91, 255, 0.06)',
+                    color: '#635BFF',
                     fontWeight: '500'
                   }}
                   onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
+                    e.target.style.backgroundColor = 'rgba(99, 91, 255, 0.1)';
                   }}
                   onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+                    e.target.style.backgroundColor = 'rgba(99, 91, 255, 0.06)';
                   }}
                 >
                   + Create "{parentSearchTerm}" as new parent
@@ -705,9 +705,9 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
       <div className="form-group">
         <label>
           Address
-          {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
-          {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
-          {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
+          {autocompleteStatus === 'ready' && <span style={{ color: '#16A34A', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
+          {autocompleteStatus === 'loading' && <span style={{ color: '#D97706', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
+          {autocompleteStatus === 'error' && <span style={{ color: '#DC2626', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
           {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
         </label>
         <input
@@ -720,7 +720,7 @@ function CRMForm({ crmRecord = null, parentRecords = [], onSave, onCancel, onCre
           autoComplete="off"
         />
         {autocompleteStatus === 'error' && (
-          <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
+          <small style={{ color: '#DC2626', display: 'block', marginTop: '4px' }}>
             Google Maps API error. Please enter address manually or check browser console for details.
           </small>
         )}

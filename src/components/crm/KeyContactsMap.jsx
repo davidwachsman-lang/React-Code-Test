@@ -4,12 +4,12 @@ import keyContactsService from '../../services/keyContactsService';
 const EMPTY_CONTACT = { name: '', title: '', email: '', cell: '', role: '' };
 
 const ROLE_OPTIONS = [
-  { value: 'decisionMaker', label: 'Decision Maker', color: '#f59e0b', hint: 'Signs off — exec, owner, agency principal' },
-  { value: 'operations', label: 'Operations Contact', color: '#3b82f6', hint: 'Day-to-day — office manager, claims handler, property manager' },
-  { value: 'finance', label: 'Finance / AP', color: '#10b981', hint: 'Handles payments and invoicing' },
+  { value: 'decisionMaker', label: 'Decision Maker', color: '#D97706', hint: 'Signs off — exec, owner, agency principal' },
+  { value: 'operations', label: 'Operations Contact', color: '#2563EB', hint: 'Day-to-day — office manager, claims handler, property manager' },
+  { value: 'finance', label: 'Finance / AP', color: '#16A34A', hint: 'Handles payments and invoicing' },
   { value: 'referralSource', label: 'Referral Source', color: '#f97316', hint: 'Sends you work — agent, adjuster, maintenance supervisor' },
-  { value: 'gatekeeper', label: 'Gatekeeper', color: '#a855f7', hint: 'Controls access — admin, assistant, front desk' },
-  { value: 'other', label: 'Other', color: '#8b5cf6', hint: '' },
+  { value: 'gatekeeper', label: 'Gatekeeper', color: '#9333EA', hint: 'Controls access — admin, assistant, front desk' },
+  { value: 'other', label: 'Other', color: '#9333EA', hint: '' },
 ];
 
 const ROLE_COLORS = Object.fromEntries(ROLE_OPTIONS.map(r => [r.value, r.color]));
@@ -325,7 +325,7 @@ function KeyContactsMap({ recordId }) {
 
       <div className="contact-cards-grid">
         {contacts.map((contact, i) => {
-          const roleColor = ROLE_COLORS[contact.role] || '#8b5cf6';
+          const roleColor = ROLE_COLORS[contact.role] || '#9333EA';
           const roleOption = ROLE_OPTIONS.find(r => r.value === contact.role);
           const roleLabel = roleOption?.label || 'Select Role';
           return (
@@ -345,7 +345,7 @@ function KeyContactsMap({ recordId }) {
         })}
 
         <div className="contact-card contact-card-empty" onClick={addContact}>
-          <div className="contact-avatar" style={{ background: '#8b5cf633', color: '#8b5cf6' }}>+</div>
+          <div className="contact-avatar" style={{ background: '#9333EA33', color: '#9333EA' }}>+</div>
           <div className="contact-card-body">
             <span className="contact-card-add">Add Key Contact</span>
           </div>

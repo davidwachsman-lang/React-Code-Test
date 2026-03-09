@@ -1,10 +1,10 @@
-/* Excel Upload Component Styles */
+/* DW Brand System — Excel Job Upload */
 
 .excel-upload-container {
   padding: 1.5rem;
-  background: rgba(30, 41, 59, 0.5);
-  border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
   max-height: 100%;
   overflow-y: auto;
 }
@@ -14,17 +14,17 @@
 }
 
 .excel-upload-container::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background: #F1F5F9;
   border-radius: 4px;
 }
 
 .excel-upload-container::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.4);
+  background: #CBD5E1;
   border-radius: 4px;
 }
 
 .excel-upload-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.6);
+  background: #94A3B8;
 }
 
 /* Upload Step */
@@ -34,13 +34,13 @@
 }
 
 .upload-step h3 {
-  color: #f1f5f9;
+  color: #0A2540;
   margin-bottom: 0.5rem;
   font-size: 1.25rem;
 }
 
 .upload-description {
-  color: #94a3b8;
+  color: #64748B;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
 }
@@ -66,38 +66,39 @@
   align-items: center;
   gap: 0.5rem;
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #635BFF;
   color: white;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .file-input-label:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  background: #5046E5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 91, 255, 0.25);
 }
 
 .file-icon {
   font-size: 1.25rem;
 }
 
-.cancel-btn {
+.excel-upload-container .cancel-btn {
   display: block;
   margin: 1rem auto 0;
   padding: 0.5rem 1rem;
   background: transparent;
-  border: 1px solid #475569;
-  color: #94a3b8;
+  border: 1px solid #E2E8F0;
+  color: #64748B;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.cancel-btn:hover {
-  border-color: #64748b;
-  color: #e2e8f0;
+.excel-upload-container .cancel-btn:hover {
+  border-color: #CBD5E1;
+  color: #0A2540;
 }
 
 /* Mapping Step */
@@ -106,19 +107,19 @@
 }
 
 .mapping-step h3 {
-  color: #f1f5f9;
+  color: #0A2540;
   margin-bottom: 0.5rem;
   font-size: 1.25rem;
 }
 
 .mapping-description {
-  color: #94a3b8;
+  color: #64748B;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
 }
 
 .file-info {
-  color: #64748b;
+  color: #94A3B8;
   font-size: 0.85rem;
 }
 
@@ -136,29 +137,29 @@
 }
 
 .mapping-field label {
-  color: #cbd5e1;
+  color: #64748B;
   font-size: 0.85rem;
   font-weight: 500;
 }
 
 .mapping-field select {
   padding: 0.5rem 0.75rem;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
-  color: #e2e8f0;
+  color: #0A2540;
   font-size: 0.9rem;
   cursor: pointer;
 }
 
 .mapping-field select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: #635BFF;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.12);
 }
 
 .field-hint {
-  color: #64748b;
+  color: #94A3B8;
   font-size: 0.75rem;
   margin-top: 0.25rem;
 }
@@ -169,7 +170,7 @@
 }
 
 .mapping-preview h4 {
-  color: #cbd5e1;
+  color: #64748B;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }
@@ -184,17 +185,17 @@
 .preview-table td {
   padding: 0.5rem 0.75rem;
   text-align: left;
-  border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .preview-table th {
-  color: #94a3b8;
+  color: #64748B;
   font-weight: 500;
-  background: rgba(15, 23, 42, 0.4);
+  background: #F8FAFC;
 }
 
 .preview-table td {
-  color: #e2e8f0;
+  color: #0A2540;
 }
 
 /* Mapping Actions */
@@ -204,8 +205,8 @@
   gap: 0.75rem;
 }
 
-.primary-btn,
-.secondary-btn {
+.excel-upload-container .primary-btn,
+.excel-upload-container .secondary-btn {
   padding: 0.6rem 1.25rem;
   border-radius: 6px;
   font-weight: 500;
@@ -213,26 +214,27 @@
   transition: all 0.2s ease;
 }
 
-.primary-btn {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+.excel-upload-container .primary-btn {
+  background: #635BFF;
   color: white;
   border: none;
 }
 
-.primary-btn:hover {
+.excel-upload-container .primary-btn:hover {
+  background: #5046E5;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(99, 91, 255, 0.25);
 }
 
-.secondary-btn {
+.excel-upload-container .secondary-btn {
   background: transparent;
-  color: #94a3b8;
-  border: 1px solid #475569;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
 }
 
-.secondary-btn:hover {
-  border-color: #64748b;
-  color: #e2e8f0;
+.excel-upload-container .secondary-btn:hover {
+  border-color: #CBD5E1;
+  color: #0A2540;
 }
 
 /* Processing Step */
@@ -242,7 +244,7 @@
 }
 
 .processing-step h3 {
-  color: #f1f5f9;
+  color: #0A2540;
   margin-bottom: 1.5rem;
   font-size: 1.25rem;
 }
@@ -250,7 +252,7 @@
 .progress-container {
   width: 100%;
   height: 8px;
-  background: rgba(15, 23, 42, 0.6);
+  background: #F1F5F9;
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 1rem;
@@ -258,18 +260,18 @@
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #22c55e 100%);
+  background: #635BFF;
   transition: width 0.3s ease;
 }
 
 .progress-text {
-  color: #e2e8f0;
+  color: #0A2540;
   font-size: 0.95rem;
   margin-bottom: 0.5rem;
 }
 
 .processing-note {
-  color: #64748b;
+  color: #94A3B8;
   font-size: 0.85rem;
 }
 
@@ -280,7 +282,7 @@
 }
 
 .complete-step h3 {
-  color: #22c55e;
+  color: #16A34A;
   margin-bottom: 1.5rem;
   font-size: 1.25rem;
 }
@@ -305,24 +307,24 @@
 }
 
 .result-stat .stat-label {
-  color: #94a3b8;
+  color: #64748B;
   font-size: 0.85rem;
 }
 
 .result-stat.success .stat-value {
-  color: #22c55e;
+  color: #16A34A;
 }
 
 .result-stat.warning .stat-value {
-  color: #f97316;
+  color: #D97706;
 }
 
 .warning-note {
-  color: #f97316;
+  color: #D97706;
   font-size: 0.85rem;
   margin-bottom: 1.5rem;
   padding: 0.75rem;
-  background: rgba(249, 115, 22, 0.1);
+  background: rgba(217, 119, 6, 0.08);
   border-radius: 6px;
 }
 
@@ -334,11 +336,11 @@
 
 /* Error Message */
 .upload-error {
-  color: #ef4444;
+  color: #DC2626;
   font-size: 0.9rem;
   margin-top: 1rem;
   padding: 0.75rem;
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(220, 38, 38, 0.06);
   border-radius: 6px;
 }
 
@@ -346,13 +348,13 @@
 .color-preview-section {
   margin: 1.5rem 0;
   padding: 1rem;
-  background: rgba(15, 23, 42, 0.5);
+  background: #F8FAFC;
   border-radius: 8px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid #E2E8F0;
 }
 
 .color-preview-section h4 {
-  color: #e2e8f0;
+  color: #0A2540;
   font-size: 0.9rem;
   margin: 0 0 0.75rem 0;
   font-weight: 500;
@@ -369,9 +371,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.35rem 0.75rem;
-  background: rgba(30, 41, 59, 0.6);
+  background: #FFFFFF;
   border-radius: 20px;
-  border: 1px solid rgba(71, 85, 105, 0.3);
+  border: 1px solid #E2E8F0;
 }
 
 .color-dot {
@@ -379,7 +381,7 @@
   height: 12px;
   border-radius: 50%;
   flex-shrink: 0;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(0, 0, 0, 0.1);
 }
 
 .color-dot-inline {
@@ -392,7 +394,7 @@
 }
 
 .color-label {
-  color: #cbd5e1;
+  color: #64748B;
   font-size: 0.8rem;
 }
 
@@ -406,13 +408,13 @@
 }
 
 .sheet-select-step h3 {
-  color: #f1f5f9;
+  color: #0A2540;
   margin-bottom: 0.5rem;
   font-size: 1.25rem;
 }
 
 .sheet-description {
-  color: #94a3b8;
+  color: #64748B;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
 }
@@ -429,27 +431,27 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: rgba(30, 41, 59, 0.5);
-  border: 2px solid rgba(71, 85, 105, 0.3);
+  background: #FFFFFF;
+  border: 2px solid #E2E8F0;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .sheet-option:hover {
-  background: rgba(30, 41, 59, 0.8);
-  border-color: rgba(59, 130, 246, 0.3);
+  background: #F8FAFC;
+  border-color: rgba(99, 91, 255, 0.3);
 }
 
 .sheet-option.selected {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: #3b82f6;
+  background: rgba(99, 91, 255, 0.04);
+  border-color: #635BFF;
 }
 
 .sheet-option input[type="radio"] {
   width: 18px;
   height: 18px;
-  accent-color: #3b82f6;
+  accent-color: #635BFF;
   cursor: pointer;
 }
 
@@ -461,12 +463,12 @@
   flex: 1;
   font-size: 1rem;
   font-weight: 500;
-  color: #e2e8f0;
+  color: #0A2540;
 }
 
 .sheet-index {
   font-size: 0.8rem;
-  color: #64748b;
+  color: #94A3B8;
 }
 
 .sheet-actions {

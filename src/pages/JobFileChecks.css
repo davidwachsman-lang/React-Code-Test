@@ -2,16 +2,17 @@
 
 .jfc-subtitle {
   font-size: 1rem;
-  color: #94a3b8;
+  color: #64748B;
   margin: -0.5rem 0 1.5rem 0;
 }
 
 /* Card container */
 .jfc-card {
-  background: rgba(30, 41, 59, 0.45);
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 14px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .jfc-card-header {
@@ -19,13 +20,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.85rem 1.25rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .jfc-card-title {
   font-size: 1rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: #0A2540;
 }
 
 .jfc-card-actions {
@@ -36,17 +37,17 @@
 
 .jfc-summary {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: #94A3B8;
 }
 
 .jfc-filter-select {
   padding: 0.3rem 0.5rem;
   font-size: 0.8rem;
   font-weight: 500;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
-  color: #e2e8f0;
+  color: #0A2540;
   cursor: pointer;
   outline: none;
   transition: border-color 0.2s;
@@ -54,33 +55,34 @@
 
 .jfc-filter-select:hover,
 .jfc-filter-select:focus {
-  border-color: rgba(148, 163, 184, 0.5);
+  border-color: #635BFF;
 }
 
 .jfc-filter-select option {
-  background: #1e293b;
-  color: #e2e8f0;
+  background: #FFFFFF;
+  color: #0A2540;
 }
 
 .jfc-leaderboard-btn {
   padding: 0.3rem 0.75rem;
   font-size: 0.8rem;
   font-weight: 500;
-  background: rgba(168, 85, 247, 0.15);
-  border: 1px solid rgba(168, 85, 247, 0.35);
+  background: rgba(99, 91, 255, 0.08);
+  border: 1px solid rgba(99, 91, 255, 0.25);
   border-radius: 6px;
-  color: #c084fc;
+  color: #635BFF;
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .jfc-leaderboard-btn:hover {
-  background: rgba(168, 85, 247, 0.28);
+  background: rgba(99, 91, 255, 0.14);
 }
 
 .jfc-leaderboard-btn.active {
-  background: rgba(168, 85, 247, 0.3);
-  border-color: #a855f7;
+  background: #635BFF;
+  border-color: #635BFF;
+  color: #FFFFFF;
 }
 
 /* Leaderboard panel */
@@ -89,7 +91,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
   padding: 1.25rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 @media (max-width: 768px) {
@@ -103,13 +105,13 @@
 .jfc-lb-title {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #0A2540;
   margin: 0 0 0.75rem 0;
 }
 
 .jfc-lb-empty {
   font-size: 0.85rem;
-  color: #64748b;
+  color: #64748B;
   margin: 0;
 }
 
@@ -124,40 +126,40 @@
   align-items: center;
   gap: 0.6rem;
   padding: 0.45rem 0.6rem;
-  background: rgba(15, 23, 42, 0.5);
+  background: #F8FAFC;
   border-radius: 8px;
-  border: 1px solid rgba(148, 163, 184, 0.08);
+  border: 1px solid #E2E8F0;
 }
 
 .jfc-lb-rank {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #64748b;
+  color: #64748B;
   min-width: 1.8rem;
 }
 
-.jfc-lb-top1 { color: #fbbf24; }
-.jfc-lb-top2 { color: #94a3b8; }
+.jfc-lb-top1 { color: #D97706; }
+.jfc-lb-top2 { color: #94A3B8; }
 .jfc-lb-top3 { color: #cd7f32; }
 
 .jfc-lb-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: #0A2540;
   min-width: 80px;
   flex-shrink: 0;
 }
 
 .jfc-lb-jobs {
   font-size: 0.7rem;
-  color: #64748b;
+  color: #64748B;
   min-width: 45px;
   flex-shrink: 0;
 }
 
 .jfc-lb-score {
   font-size: 0.7rem;
-  color: #94a3b8;
+  color: #94A3B8;
   min-width: 45px;
   flex-shrink: 0;
   text-align: right;
@@ -166,7 +168,7 @@
 .jfc-lb-bar-wrap {
   flex: 1;
   height: 6px;
-  background: rgba(148, 163, 184, 0.12);
+  background: #E2E8F0;
   border-radius: 3px;
   overflow: hidden;
   min-width: 60px;
@@ -185,40 +187,40 @@
   text-align: right;
 }
 
-.jfc-lb-pct.high { color: #22c55e; }
-.jfc-lb-pct.mid { color: #fbbf24; }
-.jfc-lb-pct.low { color: #ef4444; }
+.jfc-lb-pct.high { color: #16A34A; }
+.jfc-lb-pct.mid { color: #D97706; }
+.jfc-lb-pct.low { color: #DC2626; }
 
 .jfc-export-btn {
   padding: 0.3rem 0.75rem;
   font-size: 0.8rem;
   font-weight: 500;
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: #DCFCE7;
+  border: 1px solid #DCFCE7;
   border-radius: 6px;
-  color: #4ade80;
+  color: #16A34A;
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .jfc-export-btn:hover {
-  background: rgba(34, 197, 94, 0.28);
+  background: #BBF7D0;
 }
 
 .jfc-clear-btn {
   padding: 0.3rem 0.75rem;
   font-size: 0.8rem;
   font-weight: 500;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: #FEF2F2;
+  border: 1px solid #FEF2F2;
   border-radius: 6px;
-  color: #f87171;
+  color: #DC2626;
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .jfc-clear-btn:hover {
-  background: rgba(239, 68, 68, 0.28);
+  background: #FECACA;
 }
 
 /* Upload area */
@@ -234,7 +236,7 @@
 .jfc-upload-icon {
   width: 48px;
   height: 48px;
-  color: #64748b;
+  color: #94A3B8;
 }
 
 .jfc-upload-icon svg {
@@ -244,7 +246,7 @@
 
 .jfc-upload-text {
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: #64748B;
   text-align: center;
   max-width: 420px;
   margin: 0;
@@ -252,7 +254,7 @@
 }
 
 .jfc-upload-text strong {
-  color: #e2e8f0;
+  color: #0A2540;
 }
 
 .jfc-upload-checks {
@@ -267,10 +269,10 @@
   padding: 0.2rem 0.55rem;
   font-size: 0.7rem;
   font-weight: 600;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: #DBEAFE;
+  border: 1px solid #DBEAFE;
   border-radius: 4px;
-  color: #60a5fa;
+  color: #2563EB;
 }
 
 .jfc-upload-btn {
@@ -278,17 +280,16 @@
   padding: 0.6rem 1.4rem;
   font-size: 0.95rem;
   font-weight: 600;
-  background: rgba(34, 197, 94, 0.18);
-  border: 1px solid rgba(34, 197, 94, 0.5);
-  border-radius: 8px;
-  color: #4ade80;
+  background: #635BFF;
+  border: none;
+  border-radius: 6px;
+  color: #FFFFFF;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition: background 0.2s;
 }
 
 .jfc-upload-btn:hover {
-  background: rgba(34, 197, 94, 0.3);
-  border-color: #22c55e;
+  background: #4F46E5;
 }
 
 /* Table */
@@ -312,13 +313,13 @@
 
 .jfc-table th {
   padding: 0.6rem 0.5rem;
-  background: #0f172a;
-  color: #94a3b8;
+  background: #F8FAFC;
+  color: #635BFF;
   font-weight: 700;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .jfc-th-job {
@@ -340,7 +341,7 @@
 }
 
 .jfc-th-sortable:hover {
-  color: #e2e8f0;
+  color: #0A2540;
 }
 
 .jfc-th-check {
@@ -380,7 +381,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   text-align: center;
-  border-bottom: 2px solid rgba(148, 163, 184, 0.2);
+  border-bottom: 2px solid #E2E8F0;
 }
 
 .jfc-th-group-spacer {
@@ -388,44 +389,44 @@
 }
 
 .jfc-th-group {
-  border-left: 1px solid rgba(148, 163, 184, 0.15);
-  border-right: 1px solid rgba(148, 163, 184, 0.15);
+  border-left: 1px solid #E2E8F0;
+  border-right: 1px solid #E2E8F0;
 }
 
-.jfc-group-0 { color: #60a5fa; background: #101b30 !important; }
-.jfc-group-1 { color: #a78bfa; background: #13102a !important; }
-.jfc-group-2 { color: #f472b6; background: #17101e !important; }
-.jfc-group-3 { color: #34d399; background: #0e1a1c !important; }
-.jfc-group-4 { color: #fbbf24; background: #161310 !important; }
+.jfc-group-0 { color: #2563EB; background: #EFF6FF !important; }
+.jfc-group-1 { color: #7C3AED; background: #F5F3FF !important; }
+.jfc-group-2 { color: #DB2777; background: #FDF2F8 !important; }
+.jfc-group-3 { color: #16A34A; background: #F0FDF4 !important; }
+.jfc-group-4 { color: #D97706; background: #FFFBEB !important; }
 
 .jfc-row {
   transition: background 0.15s;
 }
 
 .jfc-row:hover {
-  background: rgba(148, 163, 184, 0.06);
+  background: rgba(99, 91, 255, 0.04);
 }
 
 .jfc-td-job {
   padding: 0.5rem 0.5rem 0.5rem 1.25rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #0A2540;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 200px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .jfc-td-info {
   padding: 0.5rem 0.5rem;
-  color: #cbd5e1;
+  color: #64748B;
   font-size: 0.85rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 160px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .jfc-td-check {
@@ -433,7 +434,7 @@
   font-size: 1rem;
   font-weight: 700;
   padding: 0.3rem 0.3rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .jfc-td-toggle {
@@ -442,41 +443,41 @@
 }
 
 .jfc-td-toggle:hover {
-  background: rgba(148, 163, 184, 0.1);
+  background: rgba(99, 91, 255, 0.06);
 }
 
 .jfc-td-check.present {
-  color: #22c55e;
+  color: #16A34A;
 }
 
 .jfc-td-check.missing {
-  color: #ef4444;
+  color: #DC2626;
 }
 
 .jfc-row-all-passed .jfc-td-job,
 .jfc-row-all-passed .jfc-td-info {
-  color: #22c55e;
+  color: #16A34A;
 }
 
 /* ─── Check column group borders & tints ─────────────────────────────────── */
 .jfc-col-group-first {
-  border-left: 2px solid rgba(148, 163, 184, 0.25) !important;
+  border-left: 2px solid #E2E8F0 !important;
 }
 
 .jfc-col-group-last {
-  border-right: 2px solid rgba(148, 163, 184, 0.25) !important;
+  border-right: 2px solid #E2E8F0 !important;
 }
 
 /* Subtle background tints per group */
-.jfc-col-group-0 { background: rgba(96, 165, 250, 0.04); }   /* Setup - blue */
-.jfc-col-group-1 { background: rgba(167, 139, 250, 0.04); }   /* Agreements - purple */
-.jfc-col-group-2 { background: rgba(244, 114, 182, 0.04); }   /* Photos - pink */
-.jfc-col-group-3 { background: rgba(52, 211, 153, 0.04); }    /* Field Work - green */
-.jfc-col-group-4 { background: rgba(251, 191, 36, 0.04); }    /* Notes - yellow */
+.jfc-col-group-0 { background: rgba(37, 99, 235, 0.04); }   /* Setup - blue */
+.jfc-col-group-1 { background: rgba(147, 51, 234, 0.04); }   /* Agreements - purple */
+.jfc-col-group-2 { background: rgba(236, 72, 153, 0.04); }   /* Photos - pink */
+.jfc-col-group-3 { background: rgba(22, 163, 74, 0.04); }    /* Field Work - green */
+.jfc-col-group-4 { background: rgba(217, 119, 6, 0.04); }    /* Notes - yellow */
 
 /* Header check cells – opaque so scrolling content doesn't bleed through */
-thead .jfc-col-group-0 { background: #0f1a2e !important; }
-thead .jfc-col-group-1 { background: #111028 !important; }
-thead .jfc-col-group-2 { background: #14101d !important; }
-thead .jfc-col-group-3 { background: #0d1720 !important; }
-thead .jfc-col-group-4 { background: #141210 !important; }
+thead .jfc-col-group-0 { background: #EFF6FF !important; }
+thead .jfc-col-group-1 { background: #F5F3FF !important; }
+thead .jfc-col-group-2 { background: #FDF2F8 !important; }
+thead .jfc-col-group-3 { background: #F0FDF4 !important; }
+thead .jfc-col-group-4 { background: #FFFBEB !important; }

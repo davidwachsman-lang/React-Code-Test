@@ -1,4 +1,4 @@
-/* ===== Temp Labor Admin ===== */
+/* ===== Temp Labor Admin — DW Brand System (light theme) ===== */
 .tla-container {
   padding: 1.5rem 0;
 }
@@ -13,14 +13,14 @@
 }
 
 .tla-title {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0 0 0.25rem 0;
 }
 
 .tla-subtitle {
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.875rem;
   margin: 0;
 }
@@ -29,18 +29,17 @@
   padding: 0.625rem 1.25rem;
   font-size: 0.9rem;
   font-weight: 600;
-  background: rgba(251, 191, 36, 0.3);
-  border: 1px solid rgba(251, 191, 36, 0.5);
-  border-radius: 8px;
-  color: #fbbf24;
+  background: #635BFF;
+  border: none;
+  border-radius: 6px;
+  color: #FFFFFF;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .tla-add-btn:hover {
-  background: rgba(251, 191, 36, 0.45);
-  border-color: #fbbf24;
+  background: #5046e5;
 }
 
 /* Filters */
@@ -59,7 +58,7 @@
 }
 
 .tla-filter-group label {
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
@@ -67,22 +66,22 @@
 }
 
 .tla-filter-group select {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
-  color: #e2e8f0;
+  color: #0A2540;
   font-size: 0.875rem;
   cursor: pointer;
 }
 
 .tla-filter-group select:focus {
   outline: none;
-  border-color: #fbbf24;
+  border: 1.5px solid #635BFF;
 }
 
 .tla-count {
-  color: #64748b;
+  color: #64748B;
   font-size: 0.875rem;
   margin-left: auto;
   align-self: flex-end;
@@ -91,15 +90,16 @@
 
 /* Form */
 .tla-form-card {
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(251, 191, 36, 0.25);
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1.25rem;
   margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .tla-form-title {
-  color: #fbbf24;
+  color: #0A2540;
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -118,7 +118,7 @@
 }
 
 .tla-form-field label {
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.8125rem;
   font-weight: 500;
 }
@@ -126,11 +126,11 @@
 .tla-form-field input,
 .tla-form-field select,
 .tla-form-field textarea {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
-  color: #e2e8f0;
+  color: #0A2540;
   font-size: 0.875rem;
   transition: border-color 0.2s;
 }
@@ -139,12 +139,12 @@
 .tla-form-field select:focus,
 .tla-form-field textarea:focus {
   outline: none;
-  border-color: #fbbf24;
+  border: 1.5px solid #635BFF;
 }
 
 .tla-form-field input::placeholder,
 .tla-form-field textarea::placeholder {
-  color: #64748b;
+  color: #94A3B8;
 }
 
 .tla-form-notes {
@@ -162,31 +162,31 @@
   gap: 0.75rem;
   margin-top: 1rem;
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(71, 85, 105, 0.2);
+  border-top: 1px solid #E2E8F0;
 }
 
 .tla-form-cancel {
   padding: 0.5rem 1rem;
-  background: transparent;
-  border: 1px solid rgba(100, 116, 139, 0.4);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
-  color: #94a3b8;
+  color: #0A2540;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .tla-form-cancel:hover {
-  border-color: #64748b;
-  color: #e2e8f0;
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 .tla-form-submit {
   padding: 0.5rem 1.25rem;
-  background: #fbbf24;
+  background: #635BFF;
   border: none;
   border-radius: 6px;
-  color: #0f172a;
+  color: #FFFFFF;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -194,13 +194,13 @@
 }
 
 .tla-form-submit:hover {
-  background: #f59e0b;
+  background: #5046e5;
 }
 
 /* Empty state */
 .tla-empty {
   text-align: center;
-  color: #64748b;
+  color: #64748B;
   padding: 3rem 1rem;
   font-size: 0.9375rem;
 }
@@ -214,12 +214,12 @@
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  color: #e2e8f0;
+  color: #0A2540;
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0 0 0.75rem 0;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid rgba(251, 191, 36, 0.3);
+  border-bottom: 2px solid #E2E8F0;
 }
 
 .tla-group-badge {
@@ -230,8 +230,8 @@
   height: 24px;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #0f172a;
-  background: #fbbf24;
+  color: #FFFFFF;
+  background: #635BFF;
   border-radius: 50%;
 }
 
@@ -243,15 +243,16 @@
 }
 
 .tla-worker-card {
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(71, 85, 105, 0.3);
-  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 0.875rem 1rem;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .tla-worker-card:hover {
-  border-color: rgba(251, 191, 36, 0.3);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 .tla-worker-card.inactive {
@@ -267,7 +268,7 @@
 }
 
 .tla-worker-name {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 1rem;
   font-weight: 600;
 }
@@ -280,9 +281,9 @@
 
 .tla-worker-edit {
   background: none;
-  border: 1px solid rgba(71, 85, 105, 0.3);
+  border: 1px solid #E2E8F0;
   border-radius: 5px;
-  color: #94a3b8;
+  color: #94A3B8;
   padding: 0.25rem;
   cursor: pointer;
   display: flex;
@@ -291,8 +292,8 @@
 }
 
 .tla-worker-edit:hover {
-  color: #fbbf24;
-  border-color: rgba(251, 191, 36, 0.4);
+  color: #635BFF;
+  border-color: #635BFF;
 }
 
 .tla-worker-toggle {
@@ -308,15 +309,15 @@
 }
 
 .tla-worker-toggle.active {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: rgba(16, 185, 129, 0.4);
-  color: #10b981;
+  background: #DCFCE7;
+  border-color: #DCFCE7;
+  color: #16A34A;
 }
 
 .tla-worker-toggle:not(.active) {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.3);
-  color: #f87171;
+  background: #FEF2F2;
+  border-color: #FEF2F2;
+  color: #DC2626;
 }
 
 .tla-worker-detail {
@@ -330,18 +331,18 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.8125rem;
 }
 
 .tla-worker-rate {
-  color: #fbbf24;
+  color: #635BFF;
   font-size: 0.8125rem;
   font-weight: 600;
 }
 
 .tla-worker-notes {
-  color: #64748b;
+  color: #64748B;
   font-size: 0.75rem;
   font-style: italic;
   margin-top: 0.375rem;
@@ -349,11 +350,12 @@
 
 /* ===== Batch Add Table ===== */
 .tla-batch-card {
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(251, 191, 36, 0.25);
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1.25rem;
   margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .tla-batch-header {
@@ -365,7 +367,7 @@
 }
 
 .tla-batch-hint {
-  color: #64748b;
+  color: #64748B;
   font-size: 0.8125rem;
 }
 
@@ -375,8 +377,8 @@
   gap: 0.75rem;
   margin-bottom: 1rem;
   padding: 0.75rem;
-  background: rgba(251, 191, 36, 0.06);
-  border: 1px solid rgba(251, 191, 36, 0.15);
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   flex-wrap: wrap;
 }
@@ -390,7 +392,7 @@
 }
 
 .tla-batch-default-field label {
-  color: #fbbf24;
+  color: #635BFF;
   font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -399,22 +401,22 @@
 
 .tla-batch-default-field input,
 .tla-batch-default-field select {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(251, 191, 36, 0.25);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 5px;
   padding: 0.4rem 0.6rem;
-  color: #e2e8f0;
+  color: #0A2540;
   font-size: 0.8125rem;
 }
 
 .tla-batch-default-field input:focus,
 .tla-batch-default-field select:focus {
   outline: none;
-  border-color: #fbbf24;
+  border: 1.5px solid #635BFF;
 }
 
 .tla-batch-default-field input::placeholder {
-  color: #64748b;
+  color: #94A3B8;
 }
 
 /* Batch table */
@@ -431,12 +433,13 @@
 .tla-batch-table th {
   text-align: left;
   padding: 0.5rem 0.375rem;
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid rgba(71, 85, 105, 0.4);
+  border-bottom: 1px solid #E2E8F0;
+  background: #F8FAFC;
 }
 
 .tla-batch-table td {
@@ -446,11 +449,11 @@
 .tla-batch-table input,
 .tla-batch-table select {
   width: 100%;
-  background: rgba(15, 23, 42, 0.4);
-  border: 1px solid rgba(71, 85, 105, 0.4);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 5px;
   padding: 0.4rem 0.5rem;
-  color: #e2e8f0;
+  color: #0A2540;
   font-size: 0.8125rem;
   transition: border-color 0.15s;
 }
@@ -458,22 +461,22 @@
 .tla-batch-table input:focus,
 .tla-batch-table select:focus {
   outline: none;
-  border-color: #fbbf24;
+  border: 1.5px solid #635BFF;
 }
 
 .tla-batch-table input::placeholder {
-  color: #475569;
+  color: #94A3B8;
 }
 
 .tla-batch-table tr:hover td input,
 .tla-batch-table tr:hover td select {
-  border-color: rgba(71, 85, 105, 0.6);
+  border-color: #CBD5E1;
 }
 
 .tla-batch-remove {
   background: none;
   border: none;
-  color: #64748b;
+  color: #94A3B8;
   font-size: 1.25rem;
   cursor: pointer;
   padding: 0.25rem 0.5rem;
@@ -483,8 +486,8 @@
 }
 
 .tla-batch-remove:hover {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
+  color: #DC2626;
+  background: #FEF2F2;
 }
 
 /* Footer */
@@ -494,14 +497,14 @@
   justify-content: space-between;
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(71, 85, 105, 0.2);
+  border-top: 1px solid #E2E8F0;
 }
 
 .tla-batch-add-row {
   background: none;
-  border: 1px dashed rgba(251, 191, 36, 0.3);
+  border: 1px dashed #CBD5E1;
   border-radius: 6px;
-  color: #fbbf24;
+  color: #635BFF;
   font-size: 0.8125rem;
   font-weight: 500;
   padding: 0.4rem 0.75rem;
@@ -510,8 +513,8 @@
 }
 
 .tla-batch-add-row:hover {
-  background: rgba(251, 191, 36, 0.08);
-  border-color: rgba(251, 191, 36, 0.5);
+  background: rgba(99,91,255,0.04);
+  border-color: #635BFF;
 }
 
 .tla-batch-actions {

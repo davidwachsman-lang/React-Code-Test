@@ -10,13 +10,19 @@
   flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
+  background-color: var(--color-navy);
+  border-bottom: 3px solid var(--color-purple);
+  padding: 20px 24px;
+  border-radius: var(--radius-card);
+  /* Optional: round it if it doesn't touch edges */
 }
 
 .dispatch-header h1 {
-  font-size: 1.75rem;
+  font-size: 20px;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--text-inverse);
   margin: 0;
+  line-height: tight;
 }
 
 .dispatch-header-row {
@@ -41,9 +47,9 @@
 .dispatch-range-toggle button {
   padding: 0.5rem 0.9rem;
   font-size: 0.9rem;
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(255, 255, 255, 0.1);
   border: none;
-  color: #94a3b8;
+  color: var(--text-muted);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
@@ -67,8 +73,8 @@
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
   font-weight: 500;
-  background: rgba(34, 197, 94, 0.2);
-  border: 1px solid rgba(34, 197, 94, 0.5);
+  background: rgba(22, 163, 74, 0.2);
+  border: 1px solid rgba(22, 163, 74, 0.5);
   border-radius: 8px;
   color: #4ade80;
   cursor: pointer;
@@ -76,8 +82,8 @@
 }
 
 .dispatch-upload-excel-btn:hover {
-  background: rgba(34, 197, 94, 0.3);
-  border-color: #22c55e;
+  background: rgba(22, 163, 74, 0.3);
+  border-color: #16A34A;
 }
 
 .dispatch-job-status-planning-btn {
@@ -102,8 +108,8 @@
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
   font-weight: 500;
-  background: rgba(59, 130, 246, 0.18);
-  border: 1px solid rgba(59, 130, 246, 0.45);
+  background: rgba(37, 99, 235, 0.18);
+  border: 1px solid rgba(37, 99, 235, 0.45);
   border-radius: 8px;
   color: #60a5fa;
   cursor: pointer;
@@ -111,8 +117,8 @@
 }
 
 .dispatch-export-pdf-btn:hover {
-  background: rgba(59, 130, 246, 0.26);
-  border-color: rgba(59, 130, 246, 0.7);
+  background: rgba(37, 99, 235, 0.26);
+  border-color: rgba(37, 99, 235, 0.7);
 }
 
 .dispatch-export-pdf-btn:disabled {
@@ -124,8 +130,8 @@
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
   font-weight: 600;
-  background: rgba(168, 85, 247, 0.18);
-  border: 1px solid rgba(168, 85, 247, 0.45);
+  background: rgba(147, 51, 234, 0.18);
+  border: 1px solid rgba(147, 51, 234, 0.45);
   border-radius: 8px;
   color: #c084fc;
   cursor: pointer;
@@ -133,8 +139,8 @@
 }
 
 .dispatch-email-schedule-btn:hover {
-  background: rgba(168, 85, 247, 0.26);
-  border-color: rgba(168, 85, 247, 0.7);
+  background: rgba(147, 51, 234, 0.26);
+  border-color: rgba(147, 51, 234, 0.7);
 }
 
 .dispatch-email-schedule-btn:disabled {
@@ -163,15 +169,15 @@
   gap: 0;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(37, 99, 235, 0.3);
 }
 
 .dispatch-view-toggle button {
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(255, 255, 255, 0.1);
   border: none;
-  color: #94a3b8;
+  color: var(--text-muted);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
   position: relative;
@@ -179,11 +185,11 @@
 
 .dispatch-view-toggle button:hover {
   color: #e2e8f0;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(37, 99, 235, 0.1);
 }
 
 .dispatch-view-toggle button.active {
-  background: rgba(59, 130, 246, 0.25);
+  background: rgba(37, 99, 235, 0.25);
   color: #60a5fa;
 }
 
@@ -202,8 +208,8 @@
   margin-left: 0.4rem;
   font-size: 0.7rem;
   font-weight: 700;
-  background: #f59e0b;
-  color: #1e293b;
+  background: #D97706;
+  color: #0A2540;
   border-radius: 9px;
   vertical-align: middle;
 }
@@ -257,8 +263,8 @@
 }
 
 .dispatch-status-planning-header .dispatch-status-apply-btn {
-  border-color: rgba(59, 130, 246, 0.55);
-  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(37, 99, 235, 0.55);
+  background: rgba(37, 99, 235, 0.2);
   color: #bfdbfe;
   font-weight: 600;
 }
@@ -278,7 +284,7 @@
 
 .dispatch-status-toggle {
   display: inline-flex;
-  border: 1px solid rgba(59, 130, 246, 0.38);
+  border: 1px solid rgba(37, 99, 235, 0.38);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -294,7 +300,7 @@
 
 .dispatch-status-toggle button.active {
   color: #60a5fa;
-  background: rgba(59, 130, 246, 0.2);
+  background: rgba(37, 99, 235, 0.2);
 }
 
 .dispatch-status-count {
@@ -500,7 +506,7 @@
 
 .dispatch-progress-card {
   background: rgba(30, 41, 59, 0.95);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(37, 99, 235, 0.3);
   border-radius: 16px;
   padding: 2rem 2.5rem;
   text-align: center;
@@ -523,7 +529,7 @@
 
 .dispatch-progress-bar-wrap {
   height: 6px;
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba(37, 99, 235, 0.15);
   border-radius: 3px;
   overflow: hidden;
   margin-bottom: 0.5rem;
@@ -531,7 +537,7 @@
 
 .dispatch-progress-bar {
   height: 100%;
-  background: #3b82f6;
+  background: #2563EB;
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -572,7 +578,7 @@
   align-items: center;
   justify-content: space-between;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+  border-bottom: 1px solid rgba(37, 99, 235, 0.15);
   margin-bottom: 0.25rem;
 }
 
@@ -591,7 +597,7 @@
 /* Crew cards in sidebar */
 .dispatch-map-crew-card {
   background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(37, 99, 235, 0.15);
   border-radius: 10px;
   padding: 0.6rem 0.75rem;
   transition: opacity 0.2s;
@@ -602,8 +608,8 @@
 }
 
 .dispatch-map-depot-card {
-  border-color: rgba(245, 158, 11, 0.3);
-  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(217, 119, 6, 0.3);
+  background: rgba(217, 119, 6, 0.08);
 }
 
 .dispatch-map-crew-top {
@@ -642,8 +648,8 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.35);
+  background: rgba(37, 99, 235, 0.2);
+  border: 1px solid rgba(37, 99, 235, 0.35);
   border-radius: 3px;
   color: #60a5fa;
   vertical-align: middle;
@@ -723,7 +729,7 @@
   height: 14px;
   font-size: 0.65rem;
   font-weight: 700;
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(220, 38, 38, 0.2);
   color: #f87171;
   border-radius: 50%;
   margin-left: auto;
@@ -734,7 +740,7 @@
 .dispatch-map-section {
   flex: 1;
   min-height: 500px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(37, 99, 235, 0.2);
   border-radius: 12px;
   overflow: hidden;
   position: relative;
@@ -781,6 +787,7 @@
   .dispatch-map-layout {
     flex-direction: column;
   }
+
   .dispatch-map-sidebar {
     width: 100%;
     min-width: unset;
@@ -790,9 +797,11 @@
     gap: 0.5rem;
     overflow-x: auto;
   }
+
   .dispatch-map-sidebar-header {
     width: 100%;
   }
+
   .dispatch-map-crew-card {
     min-width: 220px;
   }
@@ -809,7 +818,7 @@
   padding: 0.5rem 0.75rem;
   font-size: 0.9rem;
   background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(37, 99, 235, 0.3);
   border-radius: 8px;
   color: #e2e8f0;
   cursor: pointer;
@@ -817,7 +826,7 @@
 }
 
 .dispatch-date-nav button:hover {
-  background: rgba(59, 130, 246, 0.2);
+  background: rgba(37, 99, 235, 0.2);
 }
 
 .dispatch-date-nav .today-btn {
@@ -827,7 +836,7 @@
 .dispatch-date-label {
   margin-left: 0.5rem;
   font-size: 1rem;
-  color: #ef4444;
+  color: #DC2626;
   font-weight: 600;
 }
 
@@ -877,7 +886,7 @@
 }
 
 .dispatch-crew-filter-toggle button.active {
-  background: rgba(59, 130, 246, 0.25);
+  background: rgba(37, 99, 235, 0.25);
   color: #93c5fd;
 }
 
@@ -945,7 +954,7 @@
 }
 
 .sched-job-result-item:hover {
-  background: rgba(59, 130, 246, 0.12);
+  background: rgba(37, 99, 235, 0.12);
 }
 
 .sched-job-result-number {
@@ -980,8 +989,8 @@
   gap: 0.35rem;
   padding: 0.45rem 0.6rem;
   margin-top: 4px;
-  background: rgba(59, 130, 246, 0.08);
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.25);
   border-radius: 6px;
 }
 
@@ -1023,8 +1032,8 @@
   padding: 0.45rem 1rem;
   font-size: 0.85rem;
   font-weight: 600;
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.35);
+  background: rgba(37, 99, 235, 0.15);
+  border: 1px solid rgba(37, 99, 235, 0.35);
   border-radius: 8px;
   color: #93c5fd;
   cursor: pointer;
@@ -1033,16 +1042,16 @@
 }
 
 .dispatch-schedule-direct-btn:hover {
-  background: rgba(59, 130, 246, 0.25);
-  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(37, 99, 235, 0.25);
+  border-color: rgba(37, 99, 235, 0.5);
 }
 
 .dispatch-schedule-pdf-btn {
   padding: 0.45rem 1rem;
   font-size: 0.85rem;
   font-weight: 600;
-  background: rgba(139, 92, 246, 0.15);
-  border: 1px solid rgba(139, 92, 246, 0.35);
+  background: rgba(147, 51, 234, 0.15);
+  border: 1px solid rgba(147, 51, 234, 0.35);
   border-radius: 8px;
   color: #c4b5fd;
   cursor: pointer;
@@ -1051,8 +1060,8 @@
 }
 
 .dispatch-schedule-pdf-btn:hover {
-  background: rgba(139, 92, 246, 0.25);
-  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(147, 51, 234, 0.25);
+  border-color: rgba(147, 51, 234, 0.5);
 }
 
 .dispatch-schedule-pdf-btn:disabled {
@@ -1070,9 +1079,9 @@
 }
 
 .dispatch-unassigned-pool.dispatch-drag-over {
-  background: rgba(59, 130, 246, 0.12);
-  border-color: #3b82f6;
-  box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.2);
+  background: rgba(37, 99, 235, 0.12);
+  border-color: #2563EB;
+  box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 .dispatch-unassigned-header {
@@ -1127,8 +1136,8 @@
 }
 
 .dispatch-unassigned-card:hover {
-  border-color: rgba(59, 130, 246, 0.4);
-  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15);
+  border-color: rgba(37, 99, 235, 0.4);
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.15);
 }
 
 .dispatch-unassigned-card:active {
@@ -1163,8 +1172,8 @@
   padding: 0;
   font-size: 1rem;
   line-height: 1;
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: rgba(220, 38, 38, 0.2);
+  border: 1px solid rgba(220, 38, 38, 0.4);
   border-radius: 4px;
   color: #f87171;
   cursor: pointer;
@@ -1174,7 +1183,7 @@
 }
 
 .dispatch-unassigned-remove:hover {
-  background: rgba(239, 68, 68, 0.35);
+  background: rgba(220, 38, 38, 0.35);
 }
 
 /* Drag-over for crew columns */
@@ -1183,8 +1192,8 @@
 }
 
 .dispatch-crew-col.dispatch-drop-target.dispatch-drag-over {
-  background: rgba(59, 130, 246, 0.15);
-  outline: 2px dashed rgba(59, 130, 246, 0.5);
+  background: rgba(37, 99, 235, 0.15);
+  outline: 2px dashed rgba(37, 99, 235, 0.5);
   outline-offset: -2px;
 }
 
@@ -1287,7 +1296,7 @@
 }
 
 .dispatch-crew-col-pm {
-  background: rgba(59, 130, 246, 0.08);
+  background: rgba(37, 99, 235, 0.08);
   border-top-width: 4px !important;
 }
 
@@ -1299,8 +1308,8 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background: rgba(37, 99, 235, 0.2);
+  border: 1px solid rgba(37, 99, 235, 0.4);
   border-radius: 4px;
   color: #60a5fa;
   vertical-align: middle;
@@ -1349,7 +1358,7 @@
 }
 
 .dispatch-job-cell.empty-cell:hover {
-  background: rgba(59, 130, 246, 0.04);
+  background: rgba(37, 99, 235, 0.04);
 }
 
 .dispatch-job-cell-inner {
@@ -1371,18 +1380,20 @@
   margin-bottom: 0.15rem;
   font-size: 0.6rem;
   font-weight: 600;
-  color: #fbbf24;
-  background: rgba(251, 191, 36, 0.1);
-  border: 1px dashed rgba(251, 191, 36, 0.3);
+  color: #D97706;
+  background: rgba(217, 119, 6, 0.1);
+  border: 1px dashed rgba(217, 119, 6, 0.3);
   border-radius: 3px;
   letter-spacing: 0.02em;
   line-height: 1;
 }
+
 .grid-drive-indicator.grid-drive-na {
   color: #64748b;
   background: rgba(100, 116, 139, 0.08);
   border-color: rgba(100, 116, 139, 0.2);
 }
+
 .grid-drive-icon {
   font-size: 0.65rem;
 }
@@ -1433,7 +1444,7 @@
   font-size: 0.7rem;
   font-weight: 700;
   color: #e2e8f0;
-  background: rgba(59, 130, 246, 0.25);
+  background: rgba(37, 99, 235, 0.25);
   border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -1447,17 +1458,17 @@
 }
 
 .grid-job-status.type-site-visit {
-  background: rgba(34, 197, 94, 0.25);
+  background: rgba(22, 163, 74, 0.25);
   color: #4ade80;
 }
 
 .grid-job-status.type-emergency {
-  background: rgba(239, 68, 68, 0.25);
+  background: rgba(220, 38, 38, 0.25);
   color: #f87171;
 }
 
 .grid-job-status.type-new-start {
-  background: rgba(168, 85, 247, 0.25);
+  background: rgba(147, 51, 234, 0.25);
   color: #c084fc;
 }
 
@@ -1500,7 +1511,7 @@
 .grid-job-scheduled-time {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #fbbf24;
+  color: #D97706;
   line-height: 1.2;
   white-space: nowrap;
 }
@@ -1520,7 +1531,7 @@
 }
 
 .grid-resize-handle:hover {
-  background: rgba(59, 130, 246, 0.5);
+  background: rgba(37, 99, 235, 0.5);
 }
 
 .grid-resize-handle::after {
@@ -1537,17 +1548,17 @@
 }
 
 .grid-resize-handle:hover::after {
-  background: rgba(59, 130, 246, 0.8);
+  background: rgba(37, 99, 235, 0.8);
 }
 
 .grid-job-block.resizing {
-  border-color: rgba(59, 130, 246, 0.6);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: rgba(37, 99, 235, 0.6);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
   cursor: ns-resize;
 }
 
 .grid-job-block.resizing .grid-resize-handle {
-  background: rgba(59, 130, 246, 0.5);
+  background: rgba(37, 99, 235, 0.5);
 }
 
 .grid-remove-job {
@@ -1559,8 +1570,8 @@
   padding: 0;
   font-size: 1.1rem;
   line-height: 1;
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: rgba(220, 38, 38, 0.2);
+  border: 1px solid rgba(220, 38, 38, 0.4);
   border-radius: 4px;
   color: #f87171;
   cursor: pointer;
@@ -1570,7 +1581,7 @@
 }
 
 .grid-remove-job:hover {
-  background: rgba(239, 68, 68, 0.35);
+  background: rgba(220, 38, 38, 0.35);
 }
 
 .grid-to-unassigned {
@@ -1597,15 +1608,15 @@
 .dispatch-overflow-section {
   margin-top: 1rem;
   padding: 1rem;
-  background: rgba(251, 191, 36, 0.08);
-  border: 1px solid rgba(251, 191, 36, 0.35);
+  background: rgba(217, 119, 6, 0.08);
+  border: 1px solid rgba(217, 119, 6, 0.35);
   border-radius: 12px;
 }
 
 .dispatch-overflow-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #fbbf24;
+  color: #D97706;
   margin: 0 0 0.35rem 0;
 }
 
@@ -1657,8 +1668,8 @@
   padding: 0;
   font-size: 1.1rem;
   line-height: 1;
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: rgba(220, 38, 38, 0.2);
+  border: 1px solid rgba(220, 38, 38, 0.4);
   border-radius: 4px;
   color: #f87171;
   cursor: pointer;
@@ -1668,7 +1679,7 @@
 }
 
 .dispatch-overflow-remove:hover {
-  background: rgba(239, 68, 68, 0.35);
+  background: rgba(220, 38, 38, 0.35);
 }
 
 /* Grid actions */
@@ -1677,7 +1688,7 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   padding: 1rem;
-  border-top: 1px solid rgba(59, 130, 246, 0.15);
+  border-top: 1px solid rgba(37, 99, 235, 0.15);
 }
 
 .dispatch-grid-actions .add-job-btn {
@@ -1688,8 +1699,8 @@
   padding: 0.6rem 1rem;
   font-size: 0.9rem;
   font-weight: 500;
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px dashed rgba(59, 130, 246, 0.4);
+  background: rgba(37, 99, 235, 0.15);
+  border: 1px dashed rgba(37, 99, 235, 0.4);
   border-radius: 8px;
   color: #60a5fa;
   cursor: pointer;
@@ -1697,8 +1708,8 @@
 }
 
 .add-job-btn:hover {
-  background: rgba(59, 130, 246, 0.25);
-  border-color: rgba(59, 130, 246, 0.6);
+  background: rgba(37, 99, 235, 0.25);
+  border-color: rgba(37, 99, 235, 0.6);
 }
 
 /* ─── Undo / Redo ─────────────────────────────────────────────────────────── */
@@ -1739,8 +1750,8 @@
   padding: 0.5rem 1.1rem;
   font-size: 0.9rem;
   font-weight: 600;
-  background: rgba(34, 197, 94, 0.18);
-  border: 1px solid rgba(34, 197, 94, 0.5);
+  background: rgba(22, 163, 74, 0.18);
+  border: 1px solid rgba(22, 163, 74, 0.5);
   border-radius: 8px;
   color: #4ade80;
   cursor: pointer;
@@ -1748,8 +1759,8 @@
 }
 
 .dispatch-finalize-btn:hover:not(:disabled) {
-  background: rgba(34, 197, 94, 0.3);
-  border-color: #22c55e;
+  background: rgba(22, 163, 74, 0.3);
+  border-color: #16A34A;
 }
 
 .dispatch-finalize-btn:disabled {
@@ -1758,8 +1769,8 @@
 }
 
 .dispatch-finalize-btn.finalized {
-  background: rgba(34, 197, 94, 0.08);
-  border-color: rgba(34, 197, 94, 0.25);
+  background: rgba(22, 163, 74, 0.08);
+  border-color: rgba(22, 163, 74, 0.25);
   color: #86efac;
 }
 
@@ -1783,14 +1794,14 @@
 }
 
 .dispatch-conflict-item.overtime {
-  background: rgba(251, 191, 36, 0.12);
-  border: 1px solid rgba(251, 191, 36, 0.35);
-  color: #fbbf24;
+  background: rgba(217, 119, 6, 0.12);
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  color: #D97706;
 }
 
 .dispatch-conflict-item.duplicate {
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.35);
   color: #f87171;
 }
 
@@ -1800,7 +1811,7 @@
   padding: 0.15rem 0.3rem;
   font-size: 0.75rem;
   background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(37, 99, 235, 0.3);
   border-radius: 4px;
   color: #e2e8f0;
   text-align: center;
@@ -1815,8 +1826,8 @@
 
 .grid-job-hours-input:focus {
   outline: none;
-  border-color: rgba(59, 130, 246, 0.6);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  border-color: rgba(37, 99, 235, 0.6);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
 }
 
 /* ═══ Outlook-style Week View ═══════════════════════════════════════════════ */
@@ -1867,12 +1878,12 @@
 
 /* Today highlight */
 .outlook-day-column.outlook-today {
-  background: rgba(59, 130, 246, 0.06);
+  background: rgba(37, 99, 235, 0.06);
 }
 
 .outlook-day-column.outlook-today .outlook-day-header {
-  background: rgba(59, 130, 246, 0.15);
-  border-bottom-color: rgba(59, 130, 246, 0.3);
+  background: rgba(37, 99, 235, 0.15);
+  border-bottom-color: rgba(37, 99, 235, 0.3);
 }
 
 .outlook-day-column.outlook-today .outlook-day-name {
@@ -1898,7 +1909,7 @@
 }
 
 .outlook-day-header:hover {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(37, 99, 235, 0.1);
 }
 
 .outlook-day-name {
@@ -1929,13 +1940,13 @@
   font-size: 0.65rem;
   font-weight: 700;
   color: #fff;
-  background: rgba(59, 130, 246, 0.55);
+  background: rgba(37, 99, 235, 0.55);
   border-radius: 9px;
   line-height: 1;
 }
 
 .outlook-day-column.outlook-today .outlook-day-count {
-  background: #3b82f6;
+  background: #2563EB;
 }
 
 /* Day body — scrollable job list */
@@ -2005,7 +2016,7 @@
 .outlook-job-card {
   background: rgba(30, 41, 59, 0.65);
   border: 1px solid rgba(148, 163, 184, 0.12);
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #2563EB;
   border-radius: 6px;
   padding: 0.35rem 0.45rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
@@ -2029,15 +2040,15 @@
 }
 
 .outlook-job-card.outlook-card-site-visit {
-  border-left-color: #22c55e;
+  border-left-color: #16A34A;
 }
 
 .outlook-job-card.outlook-card-emergency {
-  border-left-color: #ef4444;
+  border-left-color: #DC2626;
 }
 
 .outlook-job-card.outlook-card-new-start {
-  border-left-color: #8b5cf6;
+  border-left-color: #9333EA;
 }
 
 .outlook-job-card.outlook-card-demo {
@@ -2062,7 +2073,7 @@
 .outlook-job-card .outlook-job-time {
   font-size: 0.68rem;
   font-weight: 600;
-  color: #fbbf24;
+  color: #D97706;
 }
 
 .outlook-job-card .outlook-job-number {
@@ -2080,7 +2091,7 @@
   letter-spacing: 0.03em;
   border-radius: 3px;
   white-space: nowrap;
-  background: rgba(59, 130, 246, 0.2);
+  background: rgba(37, 99, 235, 0.2);
   color: #60a5fa;
   margin-left: auto;
 }
@@ -2091,12 +2102,12 @@
 }
 
 .outlook-job-card .outlook-job-type.outlook-type-site-visit {
-  background: rgba(34, 197, 94, 0.2);
+  background: rgba(22, 163, 74, 0.2);
   color: #4ade80;
 }
 
 .outlook-job-card .outlook-job-type.outlook-type-emergency {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(220, 38, 38, 0.2);
   color: #f87171;
 }
 
@@ -2129,7 +2140,7 @@
 .outlook-compact-time {
   font-size: 0.6rem;
   font-weight: 600;
-  color: #fbbf24;
+  color: #D97706;
   white-space: nowrap;
   min-width: 3.2rem;
 }
@@ -2237,16 +2248,16 @@
 }
 
 .outlook-month-cell:hover {
-  background: rgba(59, 130, 246, 0.06);
+  background: rgba(37, 99, 235, 0.06);
 }
 
 /* Today */
 .outlook-month-cell.outlook-month-today {
-  background: rgba(59, 130, 246, 0.08);
+  background: rgba(37, 99, 235, 0.08);
 }
 
 .outlook-month-cell.outlook-month-today .outlook-month-date {
-  background: #3b82f6;
+  background: #2563EB;
   color: #fff;
   border-radius: 50%;
   width: 24px;
@@ -2284,7 +2295,7 @@
   gap: 0.25rem;
   padding: 0.1rem 0.3rem;
   background: rgba(30, 41, 59, 0.6);
-  border-left: 3px solid #3b82f6;
+  border-left: 3px solid #2563EB;
   border-radius: 3px;
   font-size: 0.65rem;
   line-height: 1.3;
@@ -2317,8 +2328,8 @@
   padding: 0.75rem 1rem;
   font-size: 0.85rem;
   font-weight: 500;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.35);
   border-radius: 8px;
   color: #f87171;
   text-align: center;
@@ -2328,8 +2339,8 @@
 
 .dispatch-crew-swap-btn {
   padding: 6px 14px;
-  background: rgba(139, 92, 246, 0.15);
-  border: 1px solid rgba(139, 92, 246, 0.4);
+  background: rgba(147, 51, 234, 0.15);
+  border: 1px solid rgba(147, 51, 234, 0.4);
   border-radius: 6px;
   color: #a78bfa;
   font-size: 0.82rem;
@@ -2337,8 +2348,9 @@
   cursor: pointer;
   transition: background 0.15s;
 }
+
 .dispatch-crew-swap-btn:hover {
-  background: rgba(139, 92, 246, 0.25);
+  background: rgba(147, 51, 234, 0.25);
 }
 
 .bulk-swap-overlay {
@@ -2352,7 +2364,7 @@
 }
 
 .bulk-swap-modal {
-  background: #1e293b;
+  background: #0A2540;
   border: 1px solid #334155;
   border-radius: 12px;
   padding: 1.5rem;
@@ -2374,6 +2386,7 @@
   border-radius: 6px;
   overflow: hidden;
 }
+
 .bulk-swap-mode button {
   flex: 1;
   padding: 6px 12px;
@@ -2384,8 +2397,9 @@
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
+
 .bulk-swap-mode button.active {
-  background: rgba(139, 92, 246, 0.2);
+  background: rgba(147, 51, 234, 0.2);
   color: #a78bfa;
 }
 
@@ -2399,12 +2413,14 @@
 .bulk-swap-field {
   flex: 1;
 }
+
 .bulk-swap-field label {
   display: block;
   font-size: 0.75rem;
   color: #94a3b8;
   margin-bottom: 4px;
 }
+
 .bulk-swap-field select {
   width: 100%;
   padding: 6px 8px;
@@ -2427,23 +2443,27 @@
   justify-content: center;
   gap: 1rem;
   padding: 0.75rem;
-  background: rgba(139, 92, 246, 0.08);
-  border: 1px solid rgba(139, 92, 246, 0.2);
+  background: rgba(147, 51, 234, 0.08);
+  border: 1px solid rgba(147, 51, 234, 0.2);
   border-radius: 8px;
   margin-bottom: 1.25rem;
 }
+
 .bulk-swap-preview-col {
   text-align: center;
 }
+
 .bulk-swap-preview-col strong {
   display: block;
   color: #f1f5f9;
   font-size: 0.85rem;
 }
+
 .bulk-swap-preview-col span {
   font-size: 0.75rem;
   color: #94a3b8;
 }
+
 .bulk-swap-preview-arrow {
   font-size: 1.25rem;
   color: #a78bfa;
@@ -2454,6 +2474,7 @@
   justify-content: flex-end;
   gap: 0.5rem;
 }
+
 .bulk-swap-cancel {
   padding: 6px 14px;
   background: transparent;
@@ -2462,9 +2483,10 @@
   color: #94a3b8;
   cursor: pointer;
 }
+
 .bulk-swap-apply {
   padding: 6px 14px;
-  background: #8b5cf6;
+  background: #9333EA;
   border: none;
   border-radius: 6px;
   color: #fff;
@@ -2472,9 +2494,11 @@
   cursor: pointer;
   transition: background 0.15s;
 }
+
 .bulk-swap-apply:hover {
   background: #7c3aed;
 }
+
 .bulk-swap-apply:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -2486,10 +2510,11 @@
   position: relative;
   display: inline-block;
 }
+
 .dispatch-copy-from-btn {
   padding: 6px 14px;
-  background: rgba(34, 197, 94, 0.12);
-  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: rgba(22, 163, 74, 0.12);
+  border: 1px solid rgba(22, 163, 74, 0.35);
   border-radius: 6px;
   color: #4ade80;
   font-size: 0.82rem;
@@ -2497,9 +2522,11 @@
   cursor: pointer;
   transition: background 0.15s;
 }
+
 .dispatch-copy-from-btn:hover {
-  background: rgba(34, 197, 94, 0.22);
+  background: rgba(22, 163, 74, 0.22);
 }
+
 .dispatch-copy-date-input {
   position: absolute;
   left: 0;
@@ -2514,8 +2541,8 @@
 
 .dispatch-status-panel-btn {
   padding: 6px 14px;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.35);
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.35);
   border-radius: 6px;
   color: #60a5fa;
   font-size: 0.82rem;
@@ -2523,15 +2550,16 @@
   cursor: pointer;
   transition: background 0.15s;
 }
+
 .dispatch-status-panel-btn:hover,
 .dispatch-status-panel-btn.active {
-  background: rgba(59, 130, 246, 0.25);
+  background: rgba(37, 99, 235, 0.25);
 }
 
 /* ─── Dispatch Status Panel ────────────────────────────────────────────── */
 
 .status-panel {
-  background: #1e293b;
+  background: #0A2540;
   border: 1px solid #334155;
   border-radius: 10px;
   padding: 1rem 1.25rem;
@@ -2544,6 +2572,7 @@
   justify-content: space-between;
   margin-bottom: 0.75rem;
 }
+
 .status-panel-header h3 {
   margin: 0;
   font-size: 0.95rem;
@@ -2555,6 +2584,7 @@
   align-items: center;
   gap: 0.5rem;
 }
+
 .status-panel-progress-bar {
   width: 120px;
   height: 6px;
@@ -2562,12 +2592,14 @@
   border-radius: 3px;
   overflow: hidden;
 }
+
 .status-panel-progress-fill {
   height: 100%;
-  background: #22c55e;
+  background: #16A34A;
   border-radius: 3px;
   transition: width 0.3s;
 }
+
 .status-panel-progress-label {
   font-size: 0.75rem;
   color: #94a3b8;
@@ -2580,11 +2612,13 @@
   font-size: 0.75rem;
   color: #94a3b8;
 }
+
 .status-panel-legend-item {
   display: flex;
   align-items: center;
   gap: 4px;
 }
+
 .status-dot {
   width: 8px;
   height: 8px;
@@ -2602,6 +2636,7 @@
 .status-crew-group {
   margin-bottom: 0.75rem;
 }
+
 .status-crew-header {
   display: flex;
   align-items: center;
@@ -2610,11 +2645,13 @@
   border-bottom: 1px solid #334155;
   margin-bottom: 4px;
 }
+
 .status-crew-name {
   font-weight: 600;
   font-size: 0.82rem;
   color: #e2e8f0;
 }
+
 .status-crew-progress {
   font-size: 0.75rem;
   color: #94a3b8;
@@ -2625,6 +2662,7 @@
   flex-direction: column;
   gap: 2px;
 }
+
 .status-job-row {
   display: flex;
   align-items: center;
@@ -2633,14 +2671,17 @@
   font-size: 0.8rem;
   border-radius: 4px;
 }
+
 .status-job-row:hover {
   background: rgba(255, 255, 255, 0.03);
 }
+
 .status-job-number {
   color: #e2e8f0;
   font-weight: 500;
   min-width: 70px;
 }
+
 .status-job-customer {
   color: #94a3b8;
   flex: 1;
@@ -2648,6 +2689,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .status-job-status {
   font-size: 0.72rem;
   color: #64748b;
@@ -2662,15 +2704,16 @@
   align-items: center;
   gap: 1rem;
   padding: 0.6rem 1rem;
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: rgba(22, 163, 74, 0.1);
+  border: 1px solid rgba(22, 163, 74, 0.3);
   border-radius: 8px;
   color: #4ade80;
   font-size: 0.85rem;
   margin-top: 0.5rem;
 }
+
 .dispatch-notify-warn {
-  color: #fbbf24;
+  color: #D97706;
 }
 
 /* ─── Manage Teams Button ──────────────────────────────────────────────── */
@@ -2686,6 +2729,7 @@
   cursor: pointer;
   transition: background 0.15s;
 }
+
 .dispatch-manage-teams-btn:hover {
   background: rgba(6, 182, 212, 0.22);
 }
@@ -2703,7 +2747,7 @@
 }
 
 .team-mgmt-modal {
-  background: #1e293b;
+  background: #0A2540;
   border: 1px solid #334155;
   border-radius: 12px;
   padding: 1.5rem;
@@ -2720,11 +2764,13 @@
   justify-content: space-between;
   margin-bottom: 1rem;
 }
+
 .team-mgmt-header h3 {
   margin: 0;
   font-size: 1.1rem;
   color: #f1f5f9;
 }
+
 .team-mgmt-close {
   background: none;
   border: none;
@@ -2736,8 +2782,8 @@
 
 .team-mgmt-error {
   padding: 0.5rem 0.75rem;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(220, 38, 38, 0.35);
   border-radius: 6px;
   color: #f87171;
   font-size: 0.85rem;
@@ -2801,7 +2847,7 @@
 .team-mgmt-remove-pm {
   background: none;
   border: none;
-  color: #ef4444;
+  color: #DC2626;
   font-size: 1.2rem;
   cursor: pointer;
   padding: 2px 6px;
@@ -2821,6 +2867,7 @@
   padding: 3px 0;
   cursor: grab;
 }
+
 .team-mgmt-crew-row:active {
   cursor: grabbing;
 }
@@ -2861,8 +2908,9 @@
   padding: 2px 4px;
   line-height: 1;
 }
+
 .team-mgmt-remove-crew:hover {
-  color: #ef4444;
+  color: #DC2626;
 }
 
 .team-mgmt-add-crew {
@@ -2875,6 +2923,7 @@
   font-size: 0.78rem;
   cursor: pointer;
 }
+
 .team-mgmt-add-crew:hover {
   border-color: #64748b;
   color: #e2e8f0;
@@ -2890,6 +2939,7 @@
   cursor: pointer;
   margin-bottom: 1rem;
 }
+
 .team-mgmt-add-pm:hover {
   border-color: #64748b;
   color: #e2e8f0;
@@ -2912,7 +2962,7 @@
 
 .team-mgmt-save {
   padding: 6px 14px;
-  background: #3b82f6;
+  background: #2563EB;
   border: none;
   border-radius: 6px;
   color: #fff;
@@ -2920,9 +2970,11 @@
   cursor: pointer;
   transition: background 0.15s;
 }
+
 .team-mgmt-save:hover {
   background: #2563eb;
 }
+
 .team-mgmt-save:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -2931,15 +2983,372 @@
 /* ─── Drag Between Days ────────────────────────────────────────────────── */
 
 .outlook-day-column--drag-over {
-  outline: 2px dashed #3b82f6;
+  outline: 2px dashed #2563EB;
   outline-offset: -2px;
-  background: rgba(59, 130, 246, 0.06);
+  background: rgba(37, 99, 235, 0.06);
 }
 
 .outlook-job-card[draggable="true"] {
   cursor: grab;
 }
+
 .outlook-job-card[draggable="true"]:active {
   cursor: grabbing;
   opacity: 0.6;
+}
+
+/* =========================================================
+   APPLE THEME TEST 
+   ========================================================= */
+
+.dispatch-page {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background-color: var(--color-bg) !important;
+  background-image: none !important;
+  min-height: calc(100vh - 44px);
+  /* calc view height minus top padding */
+  max-width: none !important;
+  margin: -20px 0 0 0 !important;
+  /* Offset app-content 20px top padding */
+  border-radius: 0 !important;
+}
+
+.dispatch-header h1 {
+  color: var(--text-inverse);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: normal;
+}
+
+/* Toggles */
+.dispatch-range-toggle,
+.dispatch-view-toggle,
+.dispatch-crew-filter-toggle,
+.dispatch-status-toggle {
+  border: 1px solid var(--color-border) !important;
+  background: var(--color-surface) !important;
+  border-radius: var(--radius-btn) !important;
+  padding: 2px !important;
+}
+
+.dispatch-range-toggle button,
+.dispatch-view-toggle button,
+.dispatch-crew-filter-toggle button,
+.dispatch-status-toggle button {
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+  font-weight: 500 !important;
+  border-radius: 4px !important;
+}
+
+.dispatch-range-toggle button.active,
+.dispatch-view-toggle button.active,
+.dispatch-crew-filter-toggle button.active,
+.dispatch-status-toggle button.active {
+  background: var(--color-purpleL) !important;
+  color: var(--color-purple) !important;
+  box-shadow: none !important;
+}
+
+/* Primary buttons */
+.dispatch-job-status-planning-btn,
+.dispatch-export-pdf-btn,
+.dispatch-email-schedule-btn,
+.dispatch-upload-excel-btn,
+.dispatch-schedule-direct-btn,
+.dispatch-crew-swap-btn,
+.dispatch-schedule-pdf-btn,
+.dispatch-status-apply-btn,
+.dispatch-manage-teams-btn,
+.dispatch-copy-from-btn,
+.dispatch-finalize-btn {
+  background: var(--color-purple) !important;
+  color: var(--text-inverse) !important;
+  border: none !important;
+  border-radius: var(--radius-btn) !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  padding: 8px 16px !important;
+  transition: all 0.2s ease !important;
+}
+
+.dispatch-job-status-planning-btn:hover,
+.dispatch-export-pdf-btn:hover,
+.dispatch-email-schedule-btn:hover,
+.dispatch-upload-excel-btn:hover,
+.dispatch-schedule-direct-btn:hover,
+.dispatch-crew-swap-btn:hover,
+.dispatch-schedule-pdf-btn:hover,
+.dispatch-status-apply-btn:hover,
+.dispatch-manage-teams-btn:hover,
+.dispatch-copy-from-btn:hover,
+.dispatch-finalize-btn:hover {
+  background: #4F46E5 !important;
+  box-shadow: 0 2px 8px rgba(99, 91, 255, 0.35) !important;
+}
+
+/* Remove dark backgrounds from headers/panels */
+.dispatch-time-grid th,
+.dispatch-week-table th {
+  background: var(--color-bg) !important;
+  color: var(--text-secondary) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.dispatch-time-grid td,
+.dispatch-week-table td {
+  border-bottom: 1px solid var(--color-border) !important;
+  border-left: 1px dashed var(--color-border) !important;
+}
+
+.dispatch-time-col {
+  background: var(--color-surface) !important;
+  color: var(--text-primary) !important;
+  border-right: 1px solid var(--color-border) !important;
+}
+
+.dispatch-time-col.time-slot-label {
+  color: var(--text-secondary) !important;
+  border-left: none !important;
+}
+
+/* Job blocks */
+.grid-job-block {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-card) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+.grid-job-number,
+.grid-job-customer {
+  color: var(--text-primary) !important;
+}
+
+.grid-job-status {
+  padding: 4px 10px !important;
+  border-radius: var(--radius-pill) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+.grid-job-status.type-estimate {
+  background: var(--color-blueBg) !important;
+  color: var(--color-blue) !important;
+  border: none !important;
+}
+
+.grid-job-status.type-site-visit {
+  background: var(--color-amberBg) !important;
+  color: var(--color-amber) !important;
+  border: none !important;
+}
+
+.grid-job-status.type-emergency {
+  background: var(--color-redBg) !important;
+  color: var(--color-red) !important;
+  border: none !important;
+}
+
+/* Modals */
+.dispatch-status-planning-modal,
+.bulk-crew-swap-modal,
+.team-mgmt-modal {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--shadow-modal) !important;
+}
+
+.dispatch-status-planning-header h3,
+.bulk-crew-swap-header h3,
+.team-mgmt-header h3 {
+  color: var(--text-primary) !important;
+}
+
+.dispatch-status-planning-header,
+.bulk-crew-swap-header,
+.team-mgmt-header {
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.dispatch-status-table th {
+  background: var(--color-bg) !important;
+  color: var(--text-secondary) !important;
+}
+
+.dispatch-status-table td,
+.bulk-crew-swap-body,
+.team-mgmt-body {
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.dispatch-status-table select,
+.bulk-crew-swap-select input,
+.bulk-crew-swap-select select,
+.team-mgmt-crew-name,
+.team-mgmt-crew-email {
+  background: var(--color-surface) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-btn) !important;
+}
+
+/* Week View */
+.dispatch-week-view {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-card) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+.outlook-day-header {
+  color: var(--text-primary) !important;
+}
+
+.outlook-day-date {
+  color: var(--text-secondary) !important;
+}
+
+.outlook-job-card {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-card) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+.outlook-job-card .outlook-job-number {
+  color: var(--text-primary) !important;
+}
+
+.outlook-type-default {
+  background: var(--color-bg) !important;
+  color: var(--text-secondary) !important;
+  border-radius: var(--radius-pill) !important;
+  border: none !important;
+}
+
+.outlook-type-estimate {
+  background: var(--color-blueBg) !important;
+  color: var(--color-blue) !important;
+  border-radius: var(--radius-pill) !important;
+  border: none !important;
+}
+
+.outlook-type-site-visit {
+  background: var(--color-amberBg) !important;
+  color: var(--color-amber) !important;
+  border-radius: var(--radius-pill) !important;
+  border: none !important;
+}
+
+.outlook-type-emergency {
+  background: var(--color-redBg) !important;
+  color: var(--color-red) !important;
+  border-radius: var(--radius-pill) !important;
+  border: none !important;
+}
+
+/* Misc overrides */
+.grid-crew-name,
+.outlook-crew-name {
+  color: var(--text-primary) !important;
+}
+
+.grid-crew-working,
+.grid-crew-drive,
+.outlook-crew-summary {
+  color: var(--text-secondary) !important;
+}
+
+.outlook-job-customer {
+  color: var(--text-primary) !important;
+}
+
+.outlook-job-hours,
+.outlook-job-time,
+.grid-job-address {
+  color: var(--text-secondary) !important;
+}
+
+.dispatch-map-sidebar-header h3 {
+  color: var(--text-primary) !important;
+}
+
+.dispatch-map-crew-card {
+  background: var(--color-surface) !important;
+  border-radius: var(--radius-card) !important;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border) !important;
+}
+
+.dispatch-map-crew-label {
+  color: var(--text-primary) !important;
+}
+
+.dispatch-map-job-cust {
+  color: var(--text-primary) !important;
+}
+
+.dispatch-map-job-id {
+  color: var(--text-secondary) !important;
+}
+
+.dispatch-week-table-wrap {
+  border: 1px solid var(--color-border) !important;
+  background-color: var(--color-surface) !important;
+}
+
+.dispatch-week-table {
+  background: var(--color-surface) !important;
+}
+
+.dispatch-week-table thead th {
+  background: var(--color-bg) !important;
+}
+
+.dispatch-week-daybtn {
+  color: var(--text-primary) !important;
+}
+
+.dispatch-week-crew {
+  color: var(--text-primary) !important;
+}
+
+.dispatch-week-cell,
+.dispatch-week-main {
+  color: var(--text-primary) !important;
+}
+
+/* Outlook / Day Group Specific Fixes */
+.outlook-filter-bar {
+  background: transparent !important;
+  border: none !important;
+}
+
+.outlook-day-column {
+  background: var(--color-surface) !important;
+  border-right: 1px dashed var(--color-border) !important;
+}
+
+.outlook-day-header {
+  background: var(--color-bg) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.outlook-today .outlook-day-header {
+  background: var(--color-blueBg) !important;
+  color: var(--color-blue) !important;
+}
+
+.outlook-crew-group {
+  border-top: 1px solid var(--color-border) !important;
 }

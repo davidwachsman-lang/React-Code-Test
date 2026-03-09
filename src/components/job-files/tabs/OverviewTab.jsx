@@ -523,7 +523,7 @@ export default function OverviewTab({ job, localState, onSupabaseChange, onLocal
               Schedule an inspection or visit for <strong>{job.job_number || job.external_job_number || 'this job'}</strong>
             </p>
             <div className="close-modal-field">
-              <label>Date <span style={{ color: '#ef4444' }}>*</span></label>
+              <label>Date <span style={{ color: '#DC2626' }}>*</span></label>
               <input
                 type="date"
                 className="form-input"
@@ -560,7 +560,7 @@ export default function OverviewTab({ job, localState, onSupabaseChange, onLocal
               </div>
             </div>
             <div className="close-modal-field">
-              <label>Assigned To <span style={{ color: '#ef4444' }}>*</span></label>
+              <label>Assigned To <span style={{ color: '#DC2626' }}>*</span></label>
               <select
                 className="form-input"
                 value={schedAssignee}
@@ -607,7 +607,7 @@ export default function OverviewTab({ job, localState, onSupabaseChange, onLocal
               This will mark <strong>{job.job_number || job.external_job_number || 'this job'}</strong> as closed.
             </p>
             <div className="close-modal-field">
-              <label>Closed By <span style={{ color: '#ef4444' }}>*</span></label>
+              <label>Closed By <span style={{ color: '#DC2626' }}>*</span></label>
               <input
                 type="text"
                 className="form-input"

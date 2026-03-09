@@ -1,20 +1,20 @@
-/* Map Legend Styles */
+/* DW Brand System — Map Legend */
 
 .map-legend {
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 1rem;
-  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .legend-title {
-  color: #e2e8f0;
+  color: #0A2540;
   font-size: 0.9rem;
   font-weight: 600;
   margin: 0 0 0.75rem 0;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .legend-items {
@@ -35,8 +35,8 @@
   border-radius: 50%;
   flex-shrink: 0;
   margin-top: 2px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .legend-text {
@@ -46,13 +46,13 @@
 }
 
 .legend-label {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 0.85rem;
   font-weight: 500;
 }
 
 .legend-description {
-  color: #64748b;
+  color: #94A3B8;
   font-size: 0.75rem;
 }
 
@@ -62,7 +62,7 @@
   flex-wrap: wrap;
   gap: 0.75rem 1.25rem;
   padding: 0.75rem 1rem;
-  background: rgba(15, 23, 42, 0.8);
+  background: #FFFFFF;
 }
 
 .legend-item-compact {
@@ -79,7 +79,7 @@
 
 .legend-item-compact .legend-label {
   font-size: 0.8rem;
-  color: #cbd5e1;
+  color: #64748B;
 }
 
 /* Position variants for use on map */

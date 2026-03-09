@@ -13,7 +13,7 @@
 .activity-timeline-empty {
   text-align: center;
   padding: 2rem;
-  color: #9ca3af;
+  color: #94A3B8;
 }
 
 .activity-timeline-items {
@@ -25,12 +25,13 @@
 .activity-item {
   display: flex;
   gap: 1rem;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 1.25rem;
   transition: all 0.2s;
   position: relative;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .activity-item::before {
@@ -40,13 +41,13 @@
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  background: #635BFF;
   border-radius: 8px 0 0 8px;
 }
 
 .activity-item:hover {
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-color: #E2E8F0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 .activity-item-icon {
@@ -57,7 +58,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(99, 91, 255, 0.08);
   border-radius: 50%;
 }
 
@@ -82,13 +83,13 @@
 
 .activity-item-title h4 {
   margin: 0;
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 1rem;
   text-transform: capitalize;
 }
 
 .activity-date {
-  color: #9ca3af;
+  color: #94A3B8;
   font-size: 0.875rem;
 }
 
@@ -98,17 +99,17 @@
 }
 
 .activity-outcome {
-  color: #cbd5e1;
+  color: #64748B;
   font-size: 0.875rem;
 }
 
 .activity-outcome strong {
-  color: #9ca3af;
+  color: #94A3B8;
   margin-right: 0.5rem;
 }
 
 .activity-notes {
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 0.875rem;
   line-height: 1.5;
   white-space: pre-wrap;
@@ -116,40 +117,39 @@
 
 .activity-next-action {
   padding: 0.75rem;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(99, 91, 255, 0.06);
   border-radius: 6px;
   font-size: 0.875rem;
-  color: #cbd5e1;
+  color: #64748B;
 }
 
 .activity-next-action.overdue {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: #FEF2F2;
+  border: 1px solid rgba(220, 38, 38, 0.2);
 }
 
 .activity-next-action strong {
-  color: #9ca3af;
+  color: #94A3B8;
   margin-right: 0.5rem;
 }
 
 .next-action-date {
-  color: #60a5fa;
+  color: #635BFF;
 }
 
 .activity-next-action.overdue .next-action-date {
-  color: #f87171;
+  color: #DC2626;
 }
 
 .overdue-badge {
   display: inline-block;
-  background: #ef4444;
-  color: white;
+  background: #FEF2F2;
+  color: #DC2626;
   padding: 0.125rem 0.5rem;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
   margin-left: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-

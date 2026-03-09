@@ -11,13 +11,13 @@ import {
 
 // ── Status helpers ─────────────────────────────────────────
 const STATUS_COLORS = {
-  on_track: '#10b981',
-  at_risk: '#f59e0b',
-  off_track: '#ef4444',
+  on_track: '#16A34A',
+  at_risk: '#D97706',
+  off_track: '#DC2626',
   not_started: '#6b7280',
-  in_progress: '#3b82f6',
-  complete: '#10b981',
-  overdue: '#ef4444',
+  in_progress: '#2563EB',
+  complete: '#16A34A',
+  overdue: '#DC2626',
 };
 
 const STATUS_LABELS = {

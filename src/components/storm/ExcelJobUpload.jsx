@@ -6,17 +6,17 @@ import './ExcelJobUpload.css';
 
 // Color palette for dynamic color coding
 const COLOR_PALETTE = [
-  '#ef4444', // Red
-  '#f97316', // Orange
-  '#eab308', // Yellow
-  '#22c55e', // Green
-  '#3b82f6', // Blue
-  '#8b5cf6', // Purple
-  '#ec4899', // Pink
-  '#14b8a6', // Teal
-  '#f59e0b', // Amber
-  '#06b6d4', // Cyan
-  '#84cc16', // Lime
+  '#DC2626', // Red
+  '#EA580C', // Orange
+  '#CA8A04', // Yellow
+  '#16A34A', // Green
+  '#2563EB', // Blue
+  '#9333EA', // Purple
+  '#DB2777', // Pink
+  '#059669', // Teal
+  '#D97706', // Amber
+  '#0284C7', // Cyan
+  '#16A34A', // Lime
   '#6366f1', // Indigo
 ];
 
@@ -752,7 +752,7 @@ function ExcelJobUpload({ onJobsLoaded, onCancel }) {
               <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>Saving to Supabase...</p>
             )}
             {saveStatus && saveStatus !== 'saving' && (
-              <p style={{ margin: 0, fontSize: '13px', color: '#059669' }}>
+              <p style={{ margin: 0, fontSize: '13px', color: '#16A34A' }}>
                 Saved: {saveStatus.created} created, {saveStatus.skipped} skipped (already exist)
                 {saveStatus.errors?.length > 0 && `, ${saveStatus.errors.length} errors`}
               </p>

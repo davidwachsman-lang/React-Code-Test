@@ -13,7 +13,7 @@ function Forms() {
       name: 'HB-NASHVILLE',
       description: 'Residential Services',
       icon: '🏠',
-      color: '#3b82f6',
+      color: '#2563EB',
       subcategories: [
         { id: 'mit', name: 'MIT', icon: '🔧' },
         { id: 'recon', name: 'RECON', icon: '🏗️' },
@@ -26,7 +26,7 @@ function Forms() {
       name: 'IDRT',
       description: 'Large Loss',
       icon: '📋',
-      color: '#10b981',
+      color: '#16A34A',
       subcategories: []
     },
     {
@@ -34,7 +34,7 @@ function Forms() {
       name: 'HR & ADMIN',
       description: 'Human Resources & Administration',
       icon: '👥',
-      color: '#f59e0b',
+      color: '#D97706',
       subcategories: []
     },
     {
@@ -50,7 +50,7 @@ function Forms() {
       name: 'CREATE CUSTOM',
       description: 'Build your own custom form',
       icon: '✨',
-      color: '#8b5cf6',
+      color: '#9333EA',
       subcategories: []
     }
   ];

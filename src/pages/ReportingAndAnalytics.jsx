@@ -11,43 +11,43 @@ function ReportingAndAnalytics() {
       title: 'Sales Pipeline',
       description: 'Track leads and opportunities through each stage of the sales process',
       icon: '📊',
-      color: 'rgba(59, 130, 246, 0.2)'
+      color: 'rgba(37, 99, 235, 0.2)'
     },
     {
       title: 'PM / Estimator Scorecard',
       description: 'Performance metrics for project managers and estimators',
       icon: '🎯',
-      color: 'rgba(16, 185, 129, 0.2)'
+      color: 'rgba(22, 163, 74, 0.2)'
     },
     {
       title: 'Revenue Pipeline by Stage',
       description: 'Revenue breakdown across different project stages',
       icon: '💰',
-      color: 'rgba(168, 85, 247, 0.2)'
+      color: 'rgba(147, 51, 234, 0.2)'
     },
     {
       title: 'Job Profitability',
       description: 'Analyze profit margins and financial performance by job',
       icon: '📈',
-      color: 'rgba(34, 197, 94, 0.2)'
+      color: 'rgba(22, 163, 74, 0.2)'
     },
     {
       title: 'Referral Source Report',
       description: 'Track which referral sources generate the most business',
       icon: '🔗',
-      color: 'rgba(251, 191, 36, 0.2)'
+      color: 'rgba(217, 119, 6, 0.2)'
     },
     {
       title: 'Capacity and Scheduling Utilization',
       description: 'Monitor team capacity and resource allocation efficiency',
       icon: '⚡',
-      color: 'rgba(59, 130, 246, 0.2)'
+      color: 'rgba(37, 99, 235, 0.2)'
     },
     {
       title: 'Job Cycle Time Analysis',
       description: 'Measure time from job start to completion across stages',
       icon: '⏱️',
-      color: 'rgba(239, 68, 68, 0.2)'
+      color: 'rgba(220, 38, 38, 0.2)'
     },
     {
       title: 'Job QA & Compliance Report',

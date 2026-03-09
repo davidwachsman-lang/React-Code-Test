@@ -1,30 +1,31 @@
+/* DW Brand System — Expectations 2026 */
+
 .expectations-content {
   padding: 2rem 0;
 }
 
 .expectations-date {
   font-size: 1rem !important;
-  color: #64748b !important;
+  color: #64748B !important;
   margin-bottom: 2rem !important;
 }
 
 .expectations-section {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
+  background: #FFFFFF;
   padding: 2.5rem;
-  border-radius: 16px;
+  border-radius: 8px;
   margin-bottom: 2rem;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.section-title {
-  color: #f1f5f9;
+.expectations-section .section-title {
+  color: #0A2540;
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+  border-bottom: 2px solid rgba(99, 91, 255, 0.15);
 }
 
 /* Team Expectations Grid */
@@ -36,38 +37,38 @@
 }
 
 .expectation-card {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1.5rem;
   display: flex;
   gap: 1rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .expectation-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.2);
-  border-color: rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(99, 91, 255, 0.3);
 }
 
 .expectation-number {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #3b82f6;
+  color: #635BFF;
   min-width: 50px;
   flex-shrink: 0;
 }
 
 .expectation-content h3 {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
 }
 
 .expectation-content p {
-  color: #cbd5e1;
+  color: #64748B;
   font-size: 0.95rem;
   line-height: 1.6;
   margin: 0;
@@ -86,36 +87,31 @@
 }
 
 .role-selector label {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 1rem;
   font-weight: 600;
 }
 
 .role-dropdown {
   padding: 0.75rem 1rem;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
-  color: #f1f5f9;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  color: #0A2540;
   font-size: 1rem;
   min-width: 250px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .role-dropdown:hover {
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: rgba(99, 91, 255, 0.3);
 }
 
 .role-dropdown:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-}
-
-.role-dropdown option {
-  background: #1e293b;
-  color: #f1f5f9;
+  border-color: #635BFF;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.12);
 }
 
 .role-scorecard {
@@ -128,19 +124,19 @@
 .scorecard-left,
 .scorecard-middle,
 .scorecard-right {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1.5rem;
 }
 
 .scorecard-section-title {
-  color: #60a5fa;
+  color: #635BFF;
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  border-bottom: 1px solid rgba(99, 91, 255, 0.15);
 }
 
 .role-tiles-grid {
@@ -151,29 +147,29 @@
 }
 
 .role-section {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1.5rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
 .role-section:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.2);
-  border-color: rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(99, 91, 255, 0.3);
 }
 
 .role-title {
-  color: #60a5fa;
+  color: #635BFF;
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  border-bottom: 1px solid rgba(99, 91, 255, 0.15);
 }
 
 .role-expectations-list {
@@ -188,33 +184,33 @@
   gap: 0.75rem;
   align-items: flex-start;
   padding: 0.75rem;
-  background: rgba(30, 41, 59, 0.3);
+  background: #FFFFFF;
   border-radius: 6px;
-  border-left: 3px solid rgba(59, 130, 246, 0.3);
-  transition: all 0.3s ease;
+  border-left: 3px solid #E2E8F0;
+  transition: all 0.2s ease;
   position: relative;
 }
 
 .role-expectation-item:hover {
-  background: rgba(30, 41, 59, 0.5);
-  border-left-color: #3b82f6;
+  background: #F8FAFC;
+  border-left-color: #635BFF;
   transform: translateX(4px);
 }
 
 /* Rating color classes */
 .role-expectation-item.rating-exceeds {
-  border-left-color: #fbbf24;
-  background: rgba(251, 191, 36, 0.1);
+  border-left-color: #D97706;
+  background: rgba(217, 119, 6, 0.04);
 }
 
 .role-expectation-item.rating-meets {
-  border-left-color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
+  border-left-color: #16A34A;
+  background: rgba(22, 163, 74, 0.04);
 }
 
 .role-expectation-item.rating-does-not-meet {
-  border-left-color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
+  border-left-color: #DC2626;
+  background: rgba(220, 38, 38, 0.04);
 }
 
 .expectation-rating-controls {
@@ -229,8 +225,8 @@
   height: 32px;
   border-radius: 4px;
   border: 2px solid transparent;
-  background: rgba(30, 41, 59, 0.5);
-  color: #94a3b8;
+  background: #F8FAFC;
+  color: #94A3B8;
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
@@ -252,60 +248,60 @@
 }
 
 .rating-exceeds-btn {
-  color: #fbbf24;
+  color: #D97706;
 }
 
 .rating-exceeds-btn:hover:not(:disabled) {
-  background: rgba(251, 191, 36, 0.2);
-  border-color: #fbbf24;
+  background: rgba(217, 119, 6, 0.1);
+  border-color: #D97706;
 }
 
 .rating-exceeds-btn.active {
-  background: rgba(251, 191, 36, 0.3);
-  border-color: #fbbf24;
-  color: #fbbf24;
+  background: rgba(217, 119, 6, 0.15);
+  border-color: #D97706;
+  color: #D97706;
 }
 
 .rating-meets-btn {
-  color: #10b981;
+  color: #16A34A;
 }
 
 .rating-meets-btn:hover:not(:disabled) {
-  background: rgba(16, 185, 129, 0.2);
-  border-color: #10b981;
+  background: rgba(22, 163, 74, 0.1);
+  border-color: #16A34A;
 }
 
 .rating-meets-btn.active {
-  background: rgba(16, 185, 129, 0.3);
-  border-color: #10b981;
-  color: #10b981;
+  background: rgba(22, 163, 74, 0.15);
+  border-color: #16A34A;
+  color: #16A34A;
 }
 
 .rating-does-not-meet-btn {
-  color: #ef4444;
+  color: #DC2626;
 }
 
 .rating-does-not-meet-btn:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: #ef4444;
+  background: rgba(220, 38, 38, 0.1);
+  border-color: #DC2626;
 }
 
 .rating-does-not-meet-btn.active {
-  background: rgba(239, 68, 68, 0.3);
-  border-color: #ef4444;
-  color: #ef4444;
+  background: rgba(220, 38, 38, 0.15);
+  border-color: #DC2626;
+  color: #DC2626;
 }
 
 .role-number {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #3b82f6;
+  color: #635BFF;
   min-width: 35px;
   flex-shrink: 0;
 }
 
 .role-text {
-  color: #e2e8f0;
+  color: #0A2540;
   font-size: 0.9rem;
   line-height: 1.5;
   flex: 1;
@@ -319,35 +315,34 @@
 }
 
 .metric-item {
-  background: rgba(30, 41, 59, 0.3);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 1rem;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .metric-item:hover {
-  background: rgba(30, 41, 59, 0.5);
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: rgba(99, 91, 255, 0.3);
   transform: translateX(4px);
 }
 
 .metric-name {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 0.95rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .metric-value {
-  color: #60a5fa;
+  color: #635BFF;
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
 }
 
 .metric-target {
-  color: #94a3b8;
+  color: #64748B;
   font-size: 0.85rem;
 }
 
@@ -365,7 +360,7 @@
 }
 
 .notes-label {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 0.95rem;
   font-weight: 600;
 }
@@ -373,32 +368,32 @@
 .notes-textarea {
   width: 100%;
   padding: 0.75rem;
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
-  color: #f1f5f9;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  color: #0A2540;
   font-size: 0.9rem;
   font-family: inherit;
   line-height: 1.5;
   resize: vertical;
   min-height: 120px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .notes-textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-  background: rgba(30, 41, 59, 0.7);
+  border-color: #635BFF;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.12);
 }
 
 .notes-textarea::placeholder {
-  color: #64748b;
+  color: #94A3B8;
 }
 
 .notes-textarea:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  background: #F1F5F9;
 }
 
 .notes-header {
@@ -409,7 +404,7 @@
 }
 
 .notes-timestamp {
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.75rem;
   font-weight: normal;
 }
@@ -417,19 +412,19 @@
 .notes-save-btn {
   margin-top: 0.5rem;
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #635BFF;
   color: white;
   border: none;
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   width: 100%;
 }
 
 .notes-save-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: #5046E5;
   transform: translateY(-1px);
 }
 
@@ -442,13 +437,13 @@
 .notes-loading {
   padding: 2rem;
   text-align: center;
-  color: #94a3b8;
+  color: #94A3B8;
 }
 
 .notes-history {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(59, 130, 246, 0.2);
+  border-top: 1px solid #E2E8F0;
 }
 
 .notes-history-details {
@@ -456,7 +451,7 @@
 }
 
 .notes-history-summary {
-  color: #60a5fa;
+  color: #635BFF;
   font-size: 0.85rem;
   font-weight: 600;
   list-style: none;
@@ -488,14 +483,14 @@
 }
 
 .notes-history-item {
-  background: rgba(30, 41, 59, 0.3);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   padding: 0.75rem;
 }
 
 .notes-history-content {
-  color: #e2e8f0;
+  color: #0A2540;
   font-size: 0.85rem;
   line-height: 1.5;
   margin-bottom: 0.5rem;
@@ -503,7 +498,7 @@
 }
 
 .notes-history-date {
-  color: #64748b;
+  color: #94A3B8;
   font-size: 0.75rem;
 }
 
@@ -511,19 +506,19 @@
   .expectations-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .expectation-card {
     flex-direction: column;
   }
-  
+
   .expectation-number {
     min-width: auto;
   }
-  
+
   .role-tiles-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .role-section {
     padding: 1.5rem;
   }

@@ -239,7 +239,7 @@ function Navigation() {
       {/* Navigation drawer */}
       <nav className={`navigation ${isOpen ? 'open' : ''}`}>
         <div className="nav-header">
-          <h1 className="nav-title">BETA TEST</h1>
+          <h1 className="nav-title">Restore Logic AI</h1>
           <button 
             className="nav-close"
             onClick={() => setIsOpen(false)}

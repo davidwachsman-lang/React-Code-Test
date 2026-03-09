@@ -7,7 +7,7 @@ import './ResourceCenter.css';
 
 const emptyForm = () => ({
   name: '',
-  category: 'OTHER',
+  categories: [],
   phone: '',
   email: '',
   notes: ''
@@ -110,9 +110,12 @@ const ResourceCenter = () => {
 
   const openEdit = (vendor) => {
     setEditingVendor(vendor);
+    const cats = vendor.category
+      ? vendor.category.split(',').map(c => c.trim()).filter(Boolean)
+      : [];
     setFormData({
       name: vendor.name ?? '',
-      category: vendor.category ?? 'Other',
+      categories: cats,
       phone: vendor.phone ?? '',
       email: vendor.email ?? '',
       notes: vendor.notes ?? ''
@@ -140,10 +143,14 @@ const ResourceCenter = () => {
       setFormError('Name is required.');
       return;
     }
+    if (!formData.categories || formData.categories.length === 0) {
+      setFormError('Select at least one trade/category.');
+      return;
+    }
     setFormSaving(true);
     const payload = {
       name,
-      category: formData.category || 'Other',
+      category: formData.categories.join(', '),
       phone: (formData.phone || '').trim(),
       email: (formData.email || '').trim(),
       notes: (formData.notes || '').trim()
@@ -176,32 +183,46 @@ const ResourceCenter = () => {
     return () => { cancelled = true; };
   }, []);
 
+  // Parse a vendor's category string into an array of trades
+  const getVendorCategories = (vendor) => {
+    if (!vendor.category) return [];
+    return vendor.category.split(',').map(c => c.trim()).filter(Boolean);
+  };
+
   // Filter vendors based on search and category
   const filteredVendors = useMemo(() => {
     const list = Array.isArray(vendors) ? vendors : [];
     return list.filter(vendor => {
-      // Category filter
-      const matchesCategory = selectedCategory === 'All' || vendor.category === selectedCategory;
-      
-      // Search filter (name, phone, email, notes)
+      // Category filter — match if vendor has the selected category in their list
+      const vendorCats = getVendorCategories(vendor);
+      const matchesCategory = selectedCategory === 'All' || vendorCats.includes(selectedCategory);
+
+      // Search filter (name, phone, email, notes, categories)
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch = !searchTerm ||
         (vendor.name && vendor.name.toLowerCase().includes(searchLower)) ||
         (vendor.phone && vendor.phone.toLowerCase().includes(searchLower)) ||
         (vendor.email && vendor.email.toLowerCase().includes(searchLower)) ||
-        (vendor.notes && vendor.notes.toLowerCase().includes(searchLower));
+        (vendor.notes && vendor.notes.toLowerCase().includes(searchLower)) ||
+        (vendor.category && vendor.category.toLowerCase().includes(searchLower));
       return matchesCategory && matchesSearch;
     });
   }, [vendors, searchTerm, selectedCategory]);
 
-  // Group vendors by category for display
+  // Group vendors by category — a multi-trade vendor appears in each group
   const groupedVendors = useMemo(() => {
     const groups = {};
     filteredVendors.forEach(vendor => {
-      if (!groups[vendor.category]) {
-        groups[vendor.category] = [];
+      const cats = getVendorCategories(vendor);
+      if (cats.length === 0) {
+        if (!groups['OTHER']) groups['OTHER'] = [];
+        groups['OTHER'].push(vendor);
+      } else {
+        cats.forEach(cat => {
+          if (!groups[cat]) groups[cat] = [];
+          groups[cat].push(vendor);
+        });
       }
-      groups[vendor.category].push(vendor);
     });
     return groups;
   }, [filteredVendors]);
@@ -646,16 +667,37 @@ const VendorFormModal = ({
           />
         </div>
         <div className="vendor-form-row">
-          <label htmlFor="vendor-category">Category</label>
-          <select
-            id="vendor-category"
-            value={formData.category}
-            onChange={(e) => onChange('category', e.target.value)}
-          >
-            {VENDOR_CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
+          <label>Trades / Categories *</label>
+          <div className="vendor-category-grid">
+            {VENDOR_CATEGORIES.map((cat) => {
+              const isChecked = (formData.categories || []).includes(cat);
+              return (
+                <label
+                  key={cat}
+                  className={`vendor-category-chip${isChecked ? ' selected' : ''}`}
+                  style={isChecked ? { '--chip-color': CATEGORY_COLORS[cat] || '#64748B' } : undefined}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => {
+                      const current = formData.categories || [];
+                      const updated = isChecked
+                        ? current.filter(c => c !== cat)
+                        : [...current, cat];
+                      onChange('categories', updated);
+                    }}
+                  />
+                  <span className="chip-label">{cat}</span>
+                </label>
+              );
+            })}
+          </div>
+          {formData.categories && formData.categories.length > 0 && (
+            <div className="selected-trades-summary">
+              {formData.categories.length} trade{formData.categories.length !== 1 ? 's' : ''} selected
+            </div>
+          )}
         </div>
         <div className="vendor-form-row">
           <label htmlFor="vendor-phone">Phone</label>
@@ -702,8 +744,10 @@ const VendorFormModal = ({
 
 // Vendor Card Component
 const VendorCard = ({ vendor, formatPhone, onEdit }) => {
-  const categoryColor = CATEGORY_COLORS[vendor.category] || '#64748b';
-  
+  const categories = vendor.category
+    ? vendor.category.split(',').map(c => c.trim()).filter(Boolean)
+    : [];
+
   return (
     <div className="vendor-card">
       <div className="card-header">
@@ -724,12 +768,17 @@ const VendorCard = ({ vendor, formatPhone, onEdit }) => {
             </button>
           )}
         </div>
-        <span 
-          className="category-badge"
-          style={{ backgroundColor: categoryColor }}
-        >
-          {vendor.category}
-        </span>
+        <div className="category-badges">
+          {categories.map(cat => (
+            <span
+              key={cat}
+              className="category-badge"
+              style={{ backgroundColor: CATEGORY_COLORS[cat] || '#64748B' }}
+            >
+              {cat}
+            </span>
+          ))}
+        </div>
       </div>
       
       <div className="card-body">

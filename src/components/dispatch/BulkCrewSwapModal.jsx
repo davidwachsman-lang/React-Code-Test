@@ -199,16 +199,16 @@ export default function BulkCrewSwapModal({ lanes, schedule, driveTimeByCrew, on
               redistributionPreview.map((r) => (
                 <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '2px 0' }}>
                   <span>→ {r.name}</span>
-                  <span style={{ color: r.willOverflow ? '#ef4444' : 'inherit' }}>
+                  <span style={{ color: r.willOverflow ? '#DC2626' : 'inherit' }}>
                     {r.jobCount} job{r.jobCount !== 1 ? 's' : ''} ({r.totalHours.toFixed(1)}h)
                     {r.willOverflow && ' ⚠️ overtime'}
                   </span>
                 </div>
               ))
             ) : sourceJobs.length > 0 ? (
-              <div style={{ fontSize: '13px', color: '#94a3b8' }}>No other crews available</div>
+              <div style={{ fontSize: '13px', color: '#64748B' }}>No other crews available</div>
             ) : (
-              <div style={{ fontSize: '13px', color: '#94a3b8' }}>No jobs to redistribute</div>
+              <div style={{ fontSize: '13px', color: '#64748B' }}>No jobs to redistribute</div>
             )}
           </div>
         )}

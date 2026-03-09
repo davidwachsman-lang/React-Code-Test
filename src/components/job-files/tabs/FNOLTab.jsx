@@ -12,11 +12,11 @@ export default function FNOLTab({ job, localState, onSupabaseChange, onLocalChan
   };
 
   const sectionColors = {
-    'Caller Information': '#3b82f6',
-    'Property & Access': '#8b5cf6',
-    'Loss Details': '#ef4444',
-    'Insurance': '#f59e0b',
-    'Dispatch': '#22c55e',
+    'Caller Information': '#2563EB',
+    'Property & Access': '#9333EA',
+    'Loss Details': '#DC2626',
+    'Insurance': '#D97706',
+    'Dispatch': '#16A34A',
     'Authorization & Payment': '#06b6d4',
   };
 
@@ -160,7 +160,7 @@ export default function FNOLTab({ job, localState, onSupabaseChange, onLocalChan
     <div className="fnol-tab">
       {FNOL_SECTIONS.map((section) => {
         const isCollapsed = collapsed[section.label];
-        const borderColor = sectionColors[section.label] || '#3b82f6';
+        const borderColor = sectionColors[section.label] || '#2563EB';
         const { filled, total } = getSectionCompletion(section);
 
         return (

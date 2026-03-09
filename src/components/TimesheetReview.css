@@ -1,8 +1,8 @@
-/* TimesheetReview — tsr- prefix, dark theme matching PMCommandCenter */
+/* TimesheetReview — tsr- prefix, DW Brand System (light theme) */
 
 .tsr-container {
   padding: 1.5rem;
-  color: #f1f5f9;
+  color: #0A2540;
 }
 
 /* Top Bar */
@@ -22,14 +22,14 @@
 
 .tsr-pm-selector label {
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: #94A3B8;
   font-weight: 500;
 }
 
 .tsr-pm-select {
-  background: rgba(15, 23, 42, 0.8);
-  color: #f1f5f9;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: #FFFFFF;
+  color: #0A2540;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   padding: 0.4rem 0.75rem;
   font-size: 0.85rem;
@@ -38,7 +38,7 @@
 
 .tsr-pm-select:focus {
   outline: none;
-  border-color: rgba(59, 130, 246, 0.6);
+  border: 1.5px solid #635BFF;
 }
 
 .tsr-week-picker {
@@ -48,9 +48,9 @@
 }
 
 .tsr-week-btn {
-  background: rgba(15, 23, 42, 0.8);
-  color: #94a3b8;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: #FFFFFF;
+  color: #94A3B8;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   width: 32px;
   height: 32px;
@@ -63,24 +63,25 @@
 }
 
 .tsr-week-btn:hover {
-  color: #f1f5f9;
-  border-color: rgba(59, 130, 246, 0.5);
+  color: #0A2540;
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 .tsr-week-label {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #e5e7eb;
+  color: #0A2540;
   min-width: 200px;
   text-align: center;
 }
 
 .tsr-submit-btn {
   margin-left: auto;
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  border-radius: 8px;
+  background: #635BFF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
   padding: 0.5rem 1.25rem;
   font-size: 0.85rem;
   font-weight: 600;
@@ -89,8 +90,7 @@
 }
 
 .tsr-submit-btn:hover:not(:disabled) {
-  background: rgba(34, 197, 94, 0.25);
-  border-color: rgba(34, 197, 94, 0.5);
+  background: #5046e5;
 }
 
 .tsr-submit-btn:disabled {
@@ -107,15 +107,16 @@
 }
 
 .tsr-kpi-card {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 1rem 1.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .tsr-kpi-label {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #94A3B8;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.25rem;
@@ -124,12 +125,12 @@
 .tsr-kpi-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: #0A2540;
 }
 
 .tsr-kpi-sub {
   font-size: 0.75rem;
-  color: #64748b;
+  color: #64748B;
   margin-top: 0.15rem;
 }
 
@@ -137,14 +138,14 @@
 .tsr-tabs {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+  border-bottom: 1px solid #E2E8F0;
   margin-bottom: 1.25rem;
 }
 
 .tsr-tab {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: #94A3B8;
   padding: 0.6rem 1.25rem;
   font-size: 0.85rem;
   font-weight: 500;
@@ -154,21 +155,22 @@
 }
 
 .tsr-tab:hover {
-  color: #e5e7eb;
+  color: #0A2540;
 }
 
 .tsr-tab.tsr-tab-active {
-  color: #3b82f6;
-  border-bottom-color: #3b82f6;
+  color: #635BFF;
+  border-bottom-color: #635BFF;
 }
 
 /* By Technician Tab — Accordion */
 .tsr-tech-card {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(59, 130, 246, 0.15);
-  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   margin-bottom: 0.75rem;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .tsr-tech-header {
@@ -181,11 +183,11 @@
 }
 
 .tsr-tech-header:hover {
-  background: rgba(15, 23, 42, 0.8);
+  background: #F8FAFC;
 }
 
 .tsr-tech-chevron {
-  color: #64748b;
+  color: #64748B;
   font-size: 0.75rem;
   transition: transform 0.2s;
   width: 16px;
@@ -199,18 +201,18 @@
 .tsr-tech-name {
   font-weight: 600;
   font-size: 0.95rem;
-  color: #f1f5f9;
+  color: #0A2540;
   flex: 1;
 }
 
 .tsr-tech-hours {
   font-size: 0.85rem;
-  color: #94a3b8;
+  color: #94A3B8;
 }
 
 .tsr-tech-ot {
   font-size: 0.75rem;
-  color: #f59e0b;
+  color: #D97706;
   font-weight: 600;
 }
 
@@ -224,23 +226,23 @@
 }
 
 .tsr-status-badge.tsr-status-pending {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  background: #FEF3C7;
+  color: #D97706;
 }
 
 .tsr-status-badge.tsr-status-approved {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  background: #DCFCE7;
+  color: #16A34A;
 }
 
 .tsr-status-badge.tsr-status-rejected {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  background: #FEF2F2;
+  color: #DC2626;
 }
 
 .tsr-status-badge.tsr-status-mixed {
-  background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
+  background: #DBEAFE;
+  color: #2563EB;
 }
 
 .tsr-tech-actions {
@@ -249,9 +251,9 @@
 }
 
 .tsr-btn-approve {
-  background: rgba(34, 197, 94, 0.12);
-  color: #22c55e;
-  border: 1px solid rgba(34, 197, 94, 0.25);
+  background: #DCFCE7;
+  color: #16A34A;
+  border: 1px solid #DCFCE7;
   border-radius: 6px;
   padding: 0.25rem 0.75rem;
   font-size: 0.75rem;
@@ -261,13 +263,13 @@
 }
 
 .tsr-btn-approve:hover {
-  background: rgba(34, 197, 94, 0.25);
+  background: #bbf7d0;
 }
 
 .tsr-btn-reject {
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FEF2F2;
   border-radius: 6px;
   padding: 0.25rem 0.75rem;
   font-size: 0.75rem;
@@ -277,7 +279,7 @@
 }
 
 .tsr-btn-reject:hover {
-  background: rgba(239, 68, 68, 0.25);
+  background: #fecaca;
 }
 
 /* Expanded entries table */
@@ -290,18 +292,19 @@
 .tsr-entries-table th {
   text-align: left;
   padding: 0.5rem 1rem;
-  color: #64748b;
-  font-weight: 500;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
-  font-size: 0.75rem;
+  color: #94A3B8;
+  font-weight: 600;
+  border-bottom: 1px solid #E2E8F0;
+  font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  background: #F8FAFC;
 }
 
 .tsr-entries-table td {
   padding: 0.5rem 1rem;
-  color: #e5e7eb;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.05);
+  color: #0A2540;
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .tsr-entry-status-cell {
@@ -312,7 +315,7 @@
 
 .tsr-entry-toggle {
   background: none;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid #E2E8F0;
   border-radius: 4px;
   width: 22px;
   height: 22px;
@@ -325,21 +328,21 @@
 }
 
 .tsr-entry-toggle.tsr-toggle-approved {
-  background: rgba(34, 197, 94, 0.2);
-  border-color: rgba(34, 197, 94, 0.4);
-  color: #22c55e;
+  background: #DCFCE7;
+  border-color: #DCFCE7;
+  color: #16A34A;
 }
 
 .tsr-entry-toggle.tsr-toggle-rejected {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #ef4444;
+  background: #FEF2F2;
+  border-color: #FEF2F2;
+  color: #DC2626;
 }
 
 .tsr-entry-toggle.tsr-toggle-pending {
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.3);
-  color: #f59e0b;
+  background: #FEF3C7;
+  border-color: #FEF3C7;
+  color: #D97706;
 }
 
 /* Daily View Tab */
@@ -352,12 +355,13 @@
 .tsr-daily-grid th {
   text-align: center;
   padding: 0.6rem 0.5rem;
-  color: #64748b;
+  color: #94A3B8;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+  border-bottom: 1px solid #E2E8F0;
+  background: #F8FAFC;
 }
 
 .tsr-daily-grid th:first-child {
@@ -367,13 +371,13 @@
 .tsr-daily-grid td {
   text-align: center;
   padding: 0.6rem 0.5rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.05);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .tsr-daily-grid td:first-child {
   text-align: left;
   font-weight: 600;
-  color: #f1f5f9;
+  color: #0A2540;
 }
 
 .tsr-daily-cell {
@@ -385,39 +389,40 @@
 }
 
 .tsr-daily-cell-approved {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  background: #DCFCE7;
+  color: #16A34A;
 }
 
 .tsr-daily-cell-pending {
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
+  background: #FEF3C7;
+  color: #D97706;
 }
 
 .tsr-daily-cell-rejected {
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
+  background: #FEF2F2;
+  color: #DC2626;
 }
 
 .tsr-daily-cell-empty {
-  color: #475569;
+  color: #CBD5E1;
 }
 
 .tsr-daily-total {
   font-weight: 700;
-  color: #f1f5f9;
+  color: #0A2540;
 }
 
 /* Exceptions Tab */
 .tsr-flag-card {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(245, 158, 11, 0.2);
-  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 0.85rem 1.25rem;
   margin-bottom: 0.6rem;
   display: flex;
   align-items: center;
   gap: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .tsr-flag-icon {
@@ -432,23 +437,23 @@
 }
 
 .tsr-flag-icon-overtime {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  background: #FEF3C7;
+  color: #D97706;
 }
 
 .tsr-flag-icon-missing_clockout {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  background: #FEF2F2;
+  color: #DC2626;
 }
 
 .tsr-flag-icon-no_lunch {
-  background: rgba(168, 85, 247, 0.15);
-  color: #a855f7;
+  background: #F3E8FF;
+  color: #9333EA;
 }
 
 .tsr-flag-icon-weekend {
-  background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
+  background: #DBEAFE;
+  color: #2563EB;
 }
 
 .tsr-flag-details {
@@ -458,18 +463,18 @@
 .tsr-flag-title {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: #0A2540;
   margin-bottom: 0.15rem;
 }
 
 .tsr-flag-meta {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #94A3B8;
 }
 
 .tsr-flag-desc {
   font-size: 0.8rem;
-  color: #cbd5e1;
+  color: #64748B;
   margin-top: 0.2rem;
 }
 
@@ -486,8 +491,8 @@
   letter-spacing: 0.05em;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  background: rgba(59, 130, 246, 0.1);
-  color: #94a3b8;
+  background: #F1F5F9;
+  color: #64748B;
 }
 
 /* Summary table — By Technician tab */
@@ -500,12 +505,13 @@
 .tsr-summary-table th {
   text-align: center;
   padding: 0.6rem 0.75rem;
-  color: #64748b;
+  color: #94A3B8;
   font-weight: 600;
-  font-size: 0.7rem;
+  font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+  border-bottom: 1px solid #E2E8F0;
+  background: #F8FAFC;
 }
 
 .tsr-summary-th-name {
@@ -515,7 +521,7 @@
 .tsr-summary-table td {
   text-align: center;
   padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.06);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .tsr-summary-row {
@@ -524,13 +530,13 @@
 }
 
 .tsr-summary-row:hover {
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(99,91,255,0.04);
 }
 
 .tsr-summary-td-name {
   text-align: left !important;
   font-weight: 600;
-  color: #f1f5f9;
+  color: #0A2540;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -538,31 +544,31 @@
 
 .tsr-summary-total-cell {
   font-weight: 700;
-  color: #f1f5f9;
+  color: #0A2540;
 }
 
 /* Job header row (expanded) */
 .tsr-job-header-row td {
   padding: 0.5rem 0.75rem 0.35rem 2.25rem;
   border-bottom: none;
-  background: rgba(59, 130, 246, 0.04);
+  background: #F8FAFC;
 }
 
 .tsr-job-number {
   font-weight: 700;
-  color: #3b82f6;
+  color: #635BFF;
   font-size: 0.8rem;
   margin-right: 0.75rem;
 }
 
 .tsr-job-customer {
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.78rem;
   margin-right: 0.75rem;
 }
 
 .tsr-job-hours {
-  color: #64748b;
+  color: #64748B;
   font-size: 0.75rem;
   font-weight: 600;
 }
@@ -571,20 +577,20 @@
 .tsr-detail-row td {
   padding: 0.35rem 0.75rem;
   font-size: 0.78rem;
-  color: #cbd5e1;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.03);
-  background: rgba(15, 23, 42, 0.25);
+  color: #64748B;
+  border-bottom: 1px solid #E2E8F0;
+  background: #FFFFFF;
 }
 
 .tsr-detail-date {
   text-align: left !important;
   padding-left: 2.75rem !important;
-  color: #94a3b8;
+  color: #94A3B8;
 }
 
 .tsr-detail-notes {
   text-align: left !important;
-  color: #64748b;
+  color: #64748B;
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -599,21 +605,21 @@
 
 .tsr-summary-group-header {
   font-size: 0.65rem !important;
-  color: #94a3b8 !important;
+  color: #94A3B8 !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.08) !important;
+  border-bottom: 1px solid #E2E8F0 !important;
   padding-bottom: 0.2rem !important;
 }
 
 /* Stat columns */
 .tsr-stat-header {
-  color: #94a3b8 !important;
+  color: #94A3B8 !important;
   font-size: 0.65rem !important;
 }
 
 .tsr-stat-cell {
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.8rem;
   font-weight: 500;
 }
@@ -628,13 +634,13 @@
 }
 
 .tsr-role-crew-chief {
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
+  background: #FEF3C7;
+  color: #D97706;
 }
 
 .tsr-role-tech {
-  background: rgba(59, 130, 246, 0.12);
-  color: #3b82f6;
+  background: #DBEAFE;
+  color: #2563EB;
 }
 
 /* Time type badges & pills */
@@ -655,7 +661,7 @@
   width: auto;
   border-collapse: collapse;
   margin-bottom: 1rem;
-  background: rgba(15, 23, 42, 0.4);
+  background: #F8FAFC;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -667,7 +673,7 @@
   letter-spacing: 0.04em;
   padding: 0.4rem 1.25rem;
   text-align: center;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .tsr-type-summary-table td {
@@ -678,14 +684,14 @@
 }
 
 .tsr-type-summary-total {
-  color: #f1f5f9;
+  color: #0A2540;
   font-weight: 700;
 }
 
 .tsr-ot-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #ef4444;
+  color: #DC2626;
 }
 
 /* KPI type breakdown */
@@ -720,7 +726,7 @@
 .tsr-daily-day-total {
   font-size: 0.7rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: #0A2540;
   margin-top: 1px;
 }
 
@@ -737,7 +743,7 @@
   align-items: center;
   gap: 0.35rem;
   font-size: 0.72rem;
-  color: #94a3b8;
+  color: #94A3B8;
 }
 
 .tsr-legend-dot {

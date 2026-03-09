@@ -10,7 +10,7 @@
 }
 
 .scoreboard-header h2 {
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
@@ -18,25 +18,26 @@
 
 .scoreboard-year {
   padding: 0.25rem 0.75rem;
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 12px;
-  color: #60a5fa;
+  background: #EEEDFF;
+  border: 1px solid rgba(99, 91, 255, 0.2);
+  border-radius: 999px;
+  color: #635BFF;
   font-size: 0.75rem;
   font-weight: 600;
 }
 
 .scoreboard-loading {
-  color: #9ca3af;
+  color: #94A3B8;
   text-align: center;
   padding: 3rem;
 }
 
 .scoreboard-table-wrapper {
   overflow-x: auto;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(55, 65, 81, 0.6);
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
 }
 
 .scoreboard-table {
@@ -48,32 +49,32 @@
 
 /* Header */
 .scoreboard-table thead th {
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(30, 41, 59, 0.8) 100%);
-  color: #94a3b8;
+  background: #F8FAFC;
+  color: #64748B;
   font-weight: 600;
   font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 0.75px;
   padding: 0.875rem 1rem;
-  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+  border-bottom: 2px solid #E2E8F0;
   white-space: nowrap;
   position: sticky;
   top: 0;
 }
 
 .scoreboard-table thead th:first-child {
-  border-top-left-radius: 12px;
+  border-top-left-radius: 8px;
 }
 
 .scoreboard-table thead th:last-child {
-  border-top-right-radius: 12px;
+  border-top-right-radius: 8px;
 }
 
 /* Body rows */
 .scoreboard-table tbody td {
   padding: 0.875rem 1rem;
-  color: #e5e7eb;
-  border-bottom: 1px solid rgba(55, 65, 81, 0.3);
+  color: #0A2540;
+  border-bottom: 1px solid #E2E8F0;
   transition: background 0.15s;
 }
 
@@ -82,44 +83,44 @@
 }
 
 .scoreboard-table tbody tr:hover {
-  background: rgba(59, 130, 246, 0.06);
+  background: rgba(99, 91, 255, 0.04);
 }
 
 .scoreboard-table tbody tr:hover td {
-  color: #f1f5f9;
+  color: #0A2540;
 }
 
 /* Alternating row tint */
 .scoreboard-table tbody tr:nth-child(even) {
-  background: rgba(30, 41, 59, 0.25);
+  background: #F8FAFC;
 }
 
 .scoreboard-table tbody tr:nth-child(even):hover {
-  background: rgba(59, 130, 246, 0.08);
+  background: rgba(99, 91, 255, 0.06);
 }
 
 /* Footer */
 .scoreboard-table tfoot td {
   padding: 0.875rem 1rem;
-  color: #f1f5f9;
+  color: #0A2540;
   font-weight: 700;
-  border-top: 2px solid rgba(59, 130, 246, 0.25);
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.6) 0%, rgba(30, 41, 59, 0.4) 100%);
+  border-top: 2px solid #E2E8F0;
+  background: #F8FAFC;
 }
 
 .scoreboard-table tfoot td:first-child {
-  border-bottom-left-radius: 12px;
+  border-bottom-left-radius: 8px;
 }
 
 .scoreboard-table tfoot td:last-child {
-  border-bottom-right-radius: 12px;
+  border-bottom-right-radius: 8px;
 }
 
 /* Column alignments */
 .col-name {
   text-align: left;
   font-weight: 600;
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 0.9375rem;
 }
 
@@ -140,47 +141,47 @@
 }
 
 .col-pct.positive {
-  color: #4ade80;
+  color: #16A34A;
 }
 
 .col-pct.negative {
-  color: #f87171;
+  color: #DC2626;
 }
 
 .col-pct.warning {
-  color: #fbbf24;
+  color: #D97706;
 }
 
 /* Quota cell */
 .col-quota {
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: background 0.15s;
 }
 
 .col-quota:hover {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(99, 91, 255, 0.06);
 }
 
 .quota-value {
-  color: #64748b;
+  color: #94A3B8;
   font-style: italic;
   font-size: 0.8125rem;
 }
 
 /* Show set value in normal style */
 .col-quota .quota-value:not(:empty) {
-  color: #94a3b8;
+  color: #64748B;
 }
 
 .quota-input {
   width: 100%;
   max-width: 120px;
   padding: 0.25rem 0.5rem;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(59, 130, 246, 0.5);
-  border-radius: 4px;
-  color: #e5e7eb;
+  background: #FFFFFF;
+  border: 1px solid rgba(99, 91, 255, 0.3);
+  border-radius: 6px;
+  color: #0A2540;
   font-size: 0.875rem;
   text-align: right;
   outline: none;
@@ -188,8 +189,8 @@
 }
 
 .quota-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: #635BFF;
+  box-shadow: 0 0 0 2px rgba(99, 91, 255, 0.1);
 }
 
 /* Rep name column highlight */
@@ -206,11 +207,11 @@
   height: 50%;
   width: 3px;
   border-radius: 2px;
-  background: #3b82f6;
+  background: #635BFF;
 }
 
-.scoreboard-table tbody tr:nth-child(1) .col-name::before { background: #f59e0b; }
-.scoreboard-table tbody tr:nth-child(2) .col-name::before { background: #3b82f6; }
-.scoreboard-table tbody tr:nth-child(3) .col-name::before { background: #10b981; }
-.scoreboard-table tbody tr:nth-child(4) .col-name::before { background: #8b5cf6; }
-.scoreboard-table tbody tr:nth-child(5) .col-name::before { background: #ec4899; }
+.scoreboard-table tbody tr:nth-child(1) .col-name::before { background: #D97706; }
+.scoreboard-table tbody tr:nth-child(2) .col-name::before { background: #635BFF; }
+.scoreboard-table tbody tr:nth-child(3) .col-name::before { background: #16A34A; }
+.scoreboard-table tbody tr:nth-child(4) .col-name::before { background: #9333EA; }
+.scoreboard-table tbody tr:nth-child(5) .col-name::before { background: #DB2777; }

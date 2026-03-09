@@ -1,9 +1,10 @@
+/* DW Brand System — Storm Triage Table */
+
 .storm-triage-table {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%);
-  border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
+  background: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .storm-triage-header {
@@ -11,7 +12,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+  border-bottom: 1px solid #E2E8F0;
   gap: 1rem;
 }
 
@@ -20,25 +21,24 @@
   max-width: 300px;
 }
 
-.search-input {
+.storm-triage-table .search-input {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
   font-size: 0.875rem;
-  background: rgba(15, 23, 42, 0.4);
-  color: #cbd5e1;
+  background: #FFFFFF;
+  color: #0A2540;
 }
 
-.search-input::placeholder {
-  color: #64748b;
+.storm-triage-table .search-input::placeholder {
+  color: #94A3B8;
 }
 
-.search-input:focus {
+.storm-triage-table .search-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-  background: rgba(15, 23, 42, 0.6);
+  border-color: #635BFF;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.12);
 }
 
 .storm-triage-bulk-actions {
@@ -50,7 +50,7 @@
 .selected-count {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: #64748B;
   margin-right: 0.5rem;
 }
 
@@ -59,17 +59,17 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: white;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #635BFF;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .bulk-action-button:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  background: #5046E5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 91, 255, 0.25);
 }
 
 .storm-triage-table-container {
@@ -87,19 +87,21 @@
 .storm-triage-table-container thead {
   position: sticky;
   top: 0;
-  background: rgba(15, 23, 42, 0.8);
+  background: #F8FAFC;
   z-index: 10;
-  backdrop-filter: blur(10px);
 }
 
 .storm-triage-table-container th {
   padding: 1rem 0.75rem;
   text-align: left;
   font-weight: 600;
-  color: #f1f5f9;
-  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+  color: #64748B;
+  border-bottom: 2px solid #E2E8F0;
   white-space: nowrap;
-  background: rgba(15, 23, 42, 0.8);
+  background: #F8FAFC;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .storm-triage-table-container th.sortable {
@@ -108,8 +110,8 @@
 }
 
 .storm-triage-table-container th.sortable:hover {
-  background: rgba(59, 130, 246, 0.1);
-  color: #60a5fa;
+  background: rgba(99, 91, 255, 0.04);
+  color: #635BFF;
 }
 
 .th-content {
@@ -118,16 +120,16 @@
   gap: 0.5rem;
 }
 
-.sort-indicator {
-  color: #64748b;
+.storm-triage-table .sort-indicator {
+  color: #94A3B8;
   font-size: 0.75rem;
 }
 
 .storm-triage-table-container td {
   padding: 1rem 0.75rem;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  border-bottom: 1px solid #E2E8F0;
   vertical-align: middle;
-  color: #cbd5e1;
+  color: #0A2540;
 }
 
 .storm-job-row {
@@ -136,11 +138,11 @@
 }
 
 .storm-job-row:hover {
-  background-color: rgba(59, 130, 246, 0.12);
+  background-color: rgba(99, 91, 255, 0.04);
 }
 
 .storm-job-row.selected {
-  background-color: rgba(59, 130, 246, 0.15);
+  background-color: rgba(99, 91, 255, 0.06);
 }
 
 /* Row styling */
@@ -151,7 +153,7 @@
 .link-button {
   background: none;
   border: none;
-  color: #60a5fa;
+  color: #635BFF;
   cursor: pointer;
   text-decoration: underline;
   font-size: inherit;
@@ -159,13 +161,13 @@
 }
 
 .link-button:hover {
-  color: #93c5fd;
+  color: #5046E5;
 }
 
 .zip-highlight {
   font-weight: 700;
-  color: #a78bfa;
-  background-color: rgba(139, 92, 246, 0.2);
+  color: #635BFF;
+  background-color: rgba(99, 91, 255, 0.08);
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
 }
@@ -181,8 +183,8 @@
   padding: 0.125rem 0.5rem;
   font-size: 0.75rem;
   font-weight: 500;
-  background-color: rgba(99, 102, 241, 0.2);
-  color: #818cf8;
+  background-color: rgba(99, 91, 255, 0.08);
+  color: #635BFF;
   border-radius: 0.25rem;
   white-space: nowrap;
 }
@@ -196,13 +198,13 @@
 }
 
 .atp-badge.signed {
-  background-color: rgba(16, 185, 129, 0.2);
-  color: #34d399;
+  background-color: rgba(22, 163, 74, 0.1);
+  color: #16A34A;
 }
 
 .atp-badge.not-signed {
-  background-color: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+  background-color: rgba(220, 38, 38, 0.1);
+  color: #DC2626;
 }
 
 .priority-score {
@@ -211,11 +213,11 @@
   font-size: 0.875rem;
   font-weight: 700;
   border-radius: 0.25rem;
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
+  background: rgba(99, 91, 255, 0.08);
+  color: #635BFF;
 }
 
-.status-badge {
+.storm-triage-table .status-badge {
   display: inline-block;
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
@@ -224,29 +226,29 @@
   text-transform: capitalize;
 }
 
-.status-badge.status-red {
-  background-color: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+.storm-triage-table .status-badge.status-red {
+  background-color: rgba(220, 38, 38, 0.1);
+  color: #DC2626;
 }
 
-.status-badge.status-orange {
-  background-color: rgba(249, 115, 22, 0.2);
-  color: #fb923c;
+.storm-triage-table .status-badge.status-orange {
+  background-color: rgba(217, 119, 6, 0.1);
+  color: #D97706;
 }
 
-.status-badge.status-yellow {
-  background-color: rgba(234, 179, 8, 0.2);
-  color: #fbbf24;
+.storm-triage-table .status-badge.status-yellow {
+  background-color: rgba(217, 119, 6, 0.1);
+  color: #D97706;
 }
 
-.status-badge.status-green {
-  background-color: rgba(16, 185, 129, 0.2);
-  color: #34d399;
+.storm-triage-table .status-badge.status-green {
+  background-color: rgba(22, 163, 74, 0.1);
+  color: #16A34A;
 }
 
-.status-badge.status-blue {
-  background-color: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
+.storm-triage-table .status-badge.status-blue {
+  background-color: rgba(37, 99, 235, 0.1);
+  color: #2563EB;
 }
 
 .quick-actions {
@@ -257,30 +259,30 @@
 }
 
 .action-button {
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(99, 91, 255, 0.06);
+  border: 1px solid #E2E8F0;
   cursor: pointer;
   padding: 0.375rem 0.625rem;
   font-size: 0.75rem;
   font-weight: 500;
   border-radius: 6px;
   transition: all 0.2s ease;
-  color: #cbd5e1;
+  color: #64748B;
   white-space: nowrap;
 }
 
 .action-button:hover {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: #3b82f6;
-  color: #60a5fa;
+  background: rgba(99, 91, 255, 0.1);
+  border-color: #635BFF;
+  color: #635BFF;
   transform: translateY(-1px);
 }
 
 .storm-triage-loading,
-.empty-state {
+.storm-triage-table .empty-state {
   padding: 3rem;
   text-align: center;
-  color: #94a3b8;
+  color: #94A3B8;
   font-size: 0.875rem;
 }
 
@@ -289,13 +291,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-top: 1px solid rgba(59, 130, 246, 0.2);
+  border-top: 1px solid #E2E8F0;
   gap: 1rem;
 }
 
 .pagination-info {
   font-size: 0.875rem;
-  color: #94a3b8;
+  color: #64748B;
 }
 
 .pagination-controls {
@@ -307,18 +309,18 @@
 .pagination-controls button {
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.4);
-  color: #cbd5e1;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: #64748B;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .pagination-controls button:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: #3b82f6;
-  color: #60a5fa;
+  background: rgba(99, 91, 255, 0.06);
+  border-color: #635BFF;
+  color: #635BFF;
 }
 
 .pagination-controls button:disabled {
@@ -328,17 +330,17 @@
 
 .pagination-controls span {
   font-size: 0.875rem;
-  color: #cbd5e1;
+  color: #0A2540;
   padding: 0 0.5rem;
 }
 
 .pagination-controls select {
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.4);
-  color: #cbd5e1;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: #0A2540;
   cursor: pointer;
 }
 

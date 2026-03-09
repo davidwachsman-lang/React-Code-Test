@@ -355,9 +355,9 @@ export default function DispatchScheduleModal({ lanes, dispatchDate, onSchedule,
                   padding: '0.45rem 0.75rem',
                   fontSize: '0.85rem',
                   borderRadius: '6px',
-                  border: type === t.value ? '1px solid #3b82f6' : '1px solid #334155',
-                  background: type === t.value ? 'rgba(59,130,246,0.2)' : 'rgba(30,41,59,0.8)',
-                  color: type === t.value ? '#93c5fd' : '#94a3b8',
+                  border: type === t.value ? '1px solid #635BFF' : '1px solid #E2E8F0',
+                  background: type === t.value ? 'rgba(99,91,255,0.08)' : '#FFFFFF',
+                  color: type === t.value ? '#635BFF' : '#64748B',
                   cursor: 'pointer',
                 }}
                 onClick={() => handleTypeChange(t.value)}
@@ -379,9 +379,9 @@ export default function DispatchScheduleModal({ lanes, dispatchDate, onSchedule,
                 padding: '0.4rem 0.6rem',
                 fontSize: '0.8rem',
                 borderRadius: '6px',
-                border: jobSource === 'existing' ? '1px solid #3b82f6' : '1px solid #334155',
-                background: jobSource === 'existing' ? 'rgba(59,130,246,0.2)' : 'rgba(30,41,59,0.8)',
-                color: jobSource === 'existing' ? '#93c5fd' : '#94a3b8',
+                border: jobSource === 'existing' ? '1px solid #635BFF' : '1px solid #E2E8F0',
+                background: jobSource === 'existing' ? 'rgba(99,91,255,0.08)' : '#FFFFFF',
+                color: jobSource === 'existing' ? '#635BFF' : '#64748B',
                 cursor: 'pointer',
               }}
               onClick={() => { setJobSource('existing'); setSelectedJob(null); setJobSearch(''); }}
@@ -395,9 +395,9 @@ export default function DispatchScheduleModal({ lanes, dispatchDate, onSchedule,
                 padding: '0.4rem 0.6rem',
                 fontSize: '0.8rem',
                 borderRadius: '6px',
-                border: jobSource === 'new' ? '1px solid #22c55e' : '1px solid #334155',
-                background: jobSource === 'new' ? 'rgba(34,197,94,0.15)' : 'rgba(30,41,59,0.8)',
-                color: jobSource === 'new' ? '#86efac' : '#94a3b8',
+                border: jobSource === 'new' ? '1px solid #16A34A' : '1px solid #E2E8F0',
+                background: jobSource === 'new' ? 'rgba(22,163,74,0.08)' : '#FFFFFF',
+                color: jobSource === 'new' ? '#16A34A' : '#64748B',
                 cursor: 'pointer',
               }}
               onClick={() => { setJobSource('new'); setSelectedJob(null); }}
@@ -416,7 +416,7 @@ export default function DispatchScheduleModal({ lanes, dispatchDate, onSchedule,
                 onChange={(e) => { setJobSearch(e.target.value); setSelectedJob(null); }}
               />
               {searchLoading && (
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>Searching...</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '4px' }}>Searching...</div>
               )}
               {jobResults.length > 0 && !selectedJob && (
                 <div className="sched-job-results">
@@ -501,7 +501,7 @@ export default function DispatchScheduleModal({ lanes, dispatchDate, onSchedule,
             onChange={(e) => setSchedDate(e.target.value)}
           />
           {!isToday && schedDate && (
-            <span style={{ fontSize: '0.75rem', color: '#fbbf24', marginTop: '4px', display: 'block' }}>
+            <span style={{ fontSize: '0.75rem', color: '#D97706', marginTop: '4px', display: 'block' }}>
               Scheduling for a future date — will appear on the dispatch grid when you navigate to that day.
             </span>
           )}
@@ -547,7 +547,7 @@ export default function DispatchScheduleModal({ lanes, dispatchDate, onSchedule,
 
         {/* Error */}
         {error && (
-          <div style={{ padding: '8px 12px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '6px', color: '#fca5a5', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+          <div style={{ padding: '8px 12px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: '6px', color: '#DC2626', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
             {error}
           </div>
         )}

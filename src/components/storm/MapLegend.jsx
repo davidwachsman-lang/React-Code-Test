@@ -3,11 +3,11 @@ import './MapLegend.css';
 
 // Default status color mapping - used when no dynamic mapping is provided
 const DEFAULT_STATUS_COLORS = [
-  { status: 'Stabilization', color: '#ef4444' },
+  { status: 'Stabilization', color: '#DC2626' },
   { status: 'Monitoring', color: '#f97316' },
   { status: 'Demo', color: '#eab308' },
-  { status: 'Pickup', color: '#22c55e' },
-  { status: 'Walk-Thru', color: '#3b82f6' },
+  { status: 'Pickup', color: '#16A34A' },
+  { status: 'Walk-Thru', color: '#2563EB' },
   { status: 'No Work', color: '#6b7280' }
 ];
 

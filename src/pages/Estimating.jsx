@@ -1191,9 +1191,9 @@ function Estimating() {
           <div className="field-group">
             <label htmlFor="property-address">
               Property Address
-              {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
-              {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
-              {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
+              {autocompleteStatus === 'ready' && <span style={{ color: '#16A34A', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
+              {autocompleteStatus === 'loading' && <span style={{ color: '#D97706', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
+              {autocompleteStatus === 'error' && <span style={{ color: '#DC2626', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
               {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
             </label>
             <input
@@ -1206,7 +1206,7 @@ function Estimating() {
               autoComplete="off"
             />
             {autocompleteStatus === 'error' && (
-              <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
+              <small style={{ color: '#DC2626', display: 'block', marginTop: '4px' }}>
                 Google Maps API error. Please enter address manually or check browser console for details.
               </small>
             )}
@@ -1415,7 +1415,7 @@ function Estimating() {
           const roomItems = roomLineItems[room.id] || [];
           return (
             <div key={room.id} style={{ marginBottom: '30px', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '15px' }}>
-              <h3 style={{ marginTop: '0', marginBottom: '15px', color: '#1e293b' }}>
+              <h3 style={{ marginTop: '0', marginBottom: '15px', color: '#0A2540' }}>
                 {room.name || `Room ${room.id}`}
               </h3>
         <table className="estimate-table">

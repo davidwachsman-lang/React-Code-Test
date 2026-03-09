@@ -37,9 +37,9 @@ function SalesFunnelTracker({ recordId }) {
               className={`funnel-stage-pill ${isActive ? 'active' : ''}`}
               style={{
                 '--stage-color': stage.color,
-                background: isActive ? stage.color : 'rgba(30, 41, 59, 0.8)',
-                color: isActive ? '#0f172a' : '#9ca3af',
-                borderColor: isActive ? stage.color : 'rgba(55, 65, 81, 0.8)',
+                background: isActive ? stage.color : '#FFFFFF',
+                color: isActive ? '#FFFFFF' : '#64748B',
+                borderColor: isActive ? stage.color : '#E2E8F0',
               }}
               onClick={() => handleToggle(index)}
               title={stage.name}

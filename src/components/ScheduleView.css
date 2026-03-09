@@ -1,30 +1,35 @@
+/* ScheduleView — DW Brand System (light theme) */
+
 .schedule-view-container {
   padding: 1.5rem;
   max-width: 1000px;
   margin: 0 auto;
+  color: #0A2540;
 }
 
 .schedule-view-card {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   padding: 2rem;
 }
 
 .schedule-view-card h2 {
-  color: #f1f5f9;
+  color: #0A2540;
   font-size: 1.5rem;
   font-weight: 600;
+  letter-spacing: -0.003em;
   margin: 0 0 1.5rem 0;
 }
 
 .schedule-error {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: #FEF2F2;
+  border: 1px solid #FEF2F2;
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  color: #fca5a5;
-  font-size: 0.875rem;
+  color: #DC2626;
+  font-size: 14px;
   margin-bottom: 1rem;
 }
 
@@ -39,24 +44,50 @@
   flex: 1;
 }
 
+.schedule-form label {
+  color: #94A3B8;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.schedule-form input {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 10px 14px;
+  width: 100%;
+  color: #0A2540;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.schedule-form input:focus {
+  background: #FFFFFF;
+  border: 1.5px solid #635BFF;
+  outline: none;
+}
+
 .load-schedule-button {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  padding: 8px 16px;
+  background: #635BFF;
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 0.9375rem;
+  border-radius: 6px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
   height: 44px;
+  white-space: nowrap;
+  transition: background 0.2s ease;
 }
 
 .load-schedule-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  background: #5046e5;
 }
 
 .load-schedule-button:disabled {
@@ -67,9 +98,9 @@
 .loading-state,
 .no-tech-message {
   text-align: center;
-  color: #94a3b8;
+  color: #94A3B8;
   padding: 2rem;
-  background: rgba(30, 41, 59, 0.4);
+  background: #F8FAFC;
   border-radius: 8px;
   margin-top: 1rem;
 }
@@ -89,36 +120,39 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 2px solid rgba(71, 85, 105, 0.3);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .section-header h3 {
-  color: #f1f5f9;
-  font-size: 1.25rem;
+  font-size: 11px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94A3B8;
   margin: 0;
 }
 
 .schedule-count {
-  color: #64748b;
-  font-size: 0.875rem;
-  font-weight: 500;
-  padding: 0.25rem 0.75rem;
-  background: rgba(30, 41, 59, 0.6);
-  border-radius: 12px;
+  color: #64748B;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: #F1F5F9;
+  border-radius: 999px;
 }
 
 /* No Schedule Message */
 .no-schedule-message {
   text-align: center;
-  color: #94a3b8;
+  color: #94A3B8;
   padding: 2rem;
-  background: rgba(30, 41, 59, 0.4);
+  background: #F8FAFC;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+  font-size: 14px;
 }
 
 .no-schedule-icon {
@@ -134,24 +168,23 @@
 }
 
 .schedule-card {
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   padding: 1.25rem;
   transition: all 0.2s ease;
 }
 
 .schedule-card:hover {
-  background: rgba(30, 41, 59, 0.6);
-  border-color: rgba(59, 130, 246, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 .schedule-card.with-date {
   padding: 0;
   background: transparent;
   border: none;
+  box-shadow: none;
 }
 
 .schedule-card.with-date:hover {
@@ -161,20 +194,17 @@
 }
 
 .schedule-date-header {
-  color: #3b82f6;
-  font-size: 0.875rem;
+  color: #0A2540;
+  font-size: 14px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   padding: 0.5rem 1rem;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  border-bottom: none;
+  background: transparent;
+  border: none;
   border-radius: 8px 8px 0 0;
 }
 
 .schedule-card.with-date .schedule-card {
-  border-radius: 0 0 8px 8px;
+  border-radius: 8px;
   margin-top: 0;
 }
 
@@ -184,7 +214,7 @@
   align-items: flex-start;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .schedule-time-block {
@@ -194,14 +224,15 @@
 }
 
 .schedule-time {
-  color: #f1f5f9;
-  font-size: 1.25rem;
+  color: #0A2540;
+  font-size: 18px;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .schedule-duration {
-  color: #64748b;
-  font-size: 0.8125rem;
+  color: #94A3B8;
+  font-size: 13px;
   font-weight: 500;
 }
 
@@ -211,36 +242,36 @@
 }
 
 .schedule-status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
   white-space: nowrap;
 }
 
 .status-scheduled {
-  background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
+  background: #DBEAFE;
+  color: #2563EB;
 }
 
 .status-confirmed {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+  background: #FEF3C7;
+  color: #D97706;
 }
 
 .status-in-progress {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
+  background: #DCFCE7;
+  color: #16A34A;
 }
 
 .status-completed {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  background: #DCFCE7;
+  color: #16A34A;
 }
 
 .status-cancelled {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  background: #FEF2F2;
+  color: #DC2626;
 }
 
 /* Schedule Card Body */
@@ -251,34 +282,34 @@
 }
 
 .schedule-job-number {
-  color: #3b82f6;
-  font-size: 0.875rem;
+  color: #635BFF;
+  font-size: 13px;
   font-weight: 600;
 }
 
 .schedule-customer {
-  color: #f1f5f9;
-  font-size: 1rem;
-  font-weight: 500;
+  color: #0A2540;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .schedule-address {
-  color: #94a3b8;
-  font-size: 0.875rem;
+  color: #94A3B8;
+  font-size: 14px;
   line-height: 1.4;
 }
 
 .schedule-notes {
   margin-top: 0.5rem;
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(71, 85, 105, 0.3);
-  color: #cbd5e1;
-  font-size: 0.875rem;
+  border-top: 1px solid #E2E8F0;
+  color: #0A2540;
+  font-size: 14px;
   line-height: 1.5;
 }
 
 .notes-label {
-  color: #64748b;
+  color: #94A3B8;
   font-weight: 600;
 }
 
@@ -335,7 +366,7 @@
   }
 
   .schedule-time {
-    font-size: 1.125rem;
+    font-size: 16px;
   }
 
   .no-schedule-icon {
@@ -343,35 +374,33 @@
   }
 }
 
-/* ─── Status Advance Buttons ───────────────────────────────────────────── */
+/* --- Status Advance Buttons --- */
 
 .schedule-card-actions {
-  padding: 0.5rem 1rem 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.75rem 0 0 0;
+  margin-top: 0.75rem;
+  border-top: 1px solid #E2E8F0;
 }
 
 .schedule-advance-btn {
   width: 100%;
-  padding: 8px 0;
-  border: none;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #635BFF;
   border-radius: 6px;
-  font-size: 0.85rem;
+  color: #635BFF;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: all 0.2s ease;
 }
+
 .schedule-advance-btn:hover {
-  opacity: 0.85;
+  background: rgba(99,91,255,0.04);
 }
-.status-advance-scheduled {
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
-}
-.status-advance-confirmed {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
-}
+
+.status-advance-scheduled,
+.status-advance-confirmed,
 .status-advance-in_progress {
-  background: rgba(34, 197, 94, 0.2);
-  color: #4ade80;
+  /* Inherits ghost button styles from above */
 }

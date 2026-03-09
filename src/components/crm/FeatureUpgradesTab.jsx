@@ -207,9 +207,9 @@ function FeatureUpgradesTab() {
                     width: '100%',
                     padding: '0.5rem',
                     borderRadius: '4px',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                    color: '#f1f5f9',
+                    border: '1px solid #E2E8F0',
+                    backgroundColor: '#FFFFFF',
+                    color: '#0A2540',
                     fontSize: '0.95rem',
                     fontFamily: 'inherit',
                     resize: 'vertical'

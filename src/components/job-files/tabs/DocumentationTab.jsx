@@ -39,7 +39,7 @@ export default function DocumentationTab({ job, localState, onSupabaseChange, on
             className="doc-progress-bar-fill"
             style={{
               width: `${pct}%`,
-              background: pct >= 75 ? '#22c55e' : pct >= 50 ? '#fbbf24' : '#ef4444',
+              background: pct >= 75 ? '#16A34A' : pct >= 50 ? '#D97706' : '#DC2626',
             }}
           />
         </div>

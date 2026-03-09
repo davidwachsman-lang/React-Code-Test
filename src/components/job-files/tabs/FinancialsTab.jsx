@@ -15,9 +15,9 @@ function formatCurrency(val) {
 }
 
 function gpColor(pct) {
-  if (pct >= 50) return '#22c55e';
-  if (pct >= 30) return '#fbbf24';
-  return '#ef4444';
+  if (pct >= 50) return '#16A34A';
+  if (pct >= 30) return '#D97706';
+  return '#DC2626';
 }
 
 export default function FinancialsTab({ job, onSupabaseChange }) {

@@ -98,7 +98,7 @@ export default function DispatchMapView({
       title: 'Home Office',
       icon: {
         path: window.google.maps.SymbolPath.CIRCLE,
-        scale: 9, fillColor: '#f59e0b', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2,
+        scale: 9, fillColor: '#D97706', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2,
       },
     });
     depotMarker.addListener('click', () => {
@@ -160,7 +160,7 @@ export default function DispatchMapView({
         </div>
         <div className="dispatch-map-crew-card dispatch-map-depot-card">
           <div className="dispatch-map-crew-top">
-            <span className="dispatch-map-crew-swatch" style={{ background: '#f59e0b' }} />
+            <span className="dispatch-map-crew-swatch" style={{ background: '#D97706' }} />
             <span className="dispatch-map-crew-label">Home Office</span>
           </div>
           <div className="dispatch-map-crew-detail">{HOME_OFFICE}</div>

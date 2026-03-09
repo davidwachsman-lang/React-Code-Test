@@ -1,10 +1,11 @@
 .prospect-list-container {
   overflow-x: auto;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 1rem;
   width: 100%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .prospect-list-table {
@@ -16,18 +17,18 @@
 }
 
 .prospect-list-table thead {
-  background: rgba(30, 41, 59, 0.8);
+  background: #F8FAFC;
 }
 
 .prospect-list-table th {
   padding: 1rem 1.5rem;
   text-align: left;
-  color: #9ca3af;
-  font-size: 0.875rem;
+  color: #94A3B8;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 2px solid rgba(55, 65, 81, 0.8);
+  border-bottom: 1px solid #E2E8F0;
   white-space: nowrap;
 }
 
@@ -92,16 +93,16 @@
 .prospect-row {
   cursor: pointer;
   transition: all 0.2s;
-  border-bottom: 1px solid rgba(55, 65, 81, 0.5);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .prospect-row:hover {
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(99, 91, 255, 0.04);
 }
 
 .prospect-row td {
   padding: 1rem 1.5rem;
-  color: #e5e7eb;
+  color: #0A2540;
   font-size: 0.875rem;
   vertical-align: top;
 }
@@ -112,10 +113,10 @@
 }
 
 .top-10-badge {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: white;
+  background: #FEF3C7;
+  color: #D97706;
   padding: 0.125rem 0.5rem;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -127,12 +128,12 @@
 }
 
 .contact-name {
-  color: #e5e7eb;
+  color: #0A2540;
   font-weight: 500;
 }
 
 .contact-title {
-  color: #9ca3af;
+  color: #94A3B8;
   font-size: 0.75rem;
   font-style: italic;
 }
@@ -140,54 +141,54 @@
 .status-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: capitalize;
 }
 
 .status-active {
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
+  background: #DBEAFE;
+  color: #2563EB;
 }
 
 .status-lead {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
+  background: #FEF3C7;
+  color: #D97706;
 }
 
 .status-won {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
+  background: #DCFCE7;
+  color: #16A34A;
 }
 
 .status-lost {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+  background: #FEF2F2;
+  color: #DC2626;
 }
 
 .priority-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: capitalize;
 }
 
 .priority-hot {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+  background: #FEF2F2;
+  color: #DC2626;
 }
 
 .priority-warm {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
+  background: #FEF3C7;
+  color: #D97706;
 }
 
 .priority-cold {
-  background: rgba(107, 114, 128, 0.2);
-  color: #9ca3af;
+  background: #F1F5F9;
+  color: #64748B;
 }
 
 .prospect-followup {
@@ -197,7 +198,7 @@
 }
 
 .prospect-followup.overdue {
-  color: #f87171;
+  color: #DC2626;
   font-weight: 600;
 }
 
@@ -206,12 +207,12 @@
 }
 
 .prospect-value {
-  color: #10b981;
+  color: #16A34A;
   font-weight: 600;
 }
 
 .prospect-sales-rep {
-  color: #9ca3af;
+  color: #64748B;
 }
 
 .prospect-actions {
@@ -230,22 +231,21 @@
 }
 
 .btn-quick-action:hover {
-  background: rgba(59, 130, 246, 0.2);
+  background: rgba(99, 91, 255, 0.08);
 }
 
 .prospect-list-empty {
   text-align: center;
   padding: 3rem;
-  color: #9ca3af;
+  color: #94A3B8;
 }
 
 @media (max-width: 1024px) {
   .prospect-list-container {
     overflow-x: scroll;
   }
-  
+
   .prospect-list-table {
     min-width: 1200px;
   }
 }
-

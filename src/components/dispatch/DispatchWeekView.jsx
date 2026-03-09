@@ -1,3 +1,4 @@
+/* APPLE THEME TEST — revert to original DS to undo */
 import React, { useMemo, useEffect, useState } from 'react';
 import { supabase } from '../../services/supabaseClient';
 
@@ -67,7 +68,7 @@ export default function DispatchWeekView({
       if (moveJobBetweenDays) {
         moveJobBetweenDays(payload.sourceDate, targetDateStr, payload.job, payload.crewName);
       }
-    } catch (_) {}
+    } catch (_) { }
   };
 
   // Load pre-scheduled items (estimates, site visits) from job_schedules
@@ -100,7 +101,7 @@ export default function DispatchWeekView({
           byDate[ps.scheduled_date].push(ps);
         });
         setPreScheduledByDate(byDate);
-      } catch (_) {}
+      } catch (_) { }
     };
 
     loadPreScheduled();

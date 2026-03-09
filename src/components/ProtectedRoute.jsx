@@ -21,15 +21,15 @@ const ProtectedRoute = ({ children }) => {
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background: linear-gradient(180deg, #222a0f 0%, #1e293b 50%, #0f172a 100%);
-            color: rgba(255, 255, 255, 0.87);
+            background: #F6F9FC;
+            color: #0A2540;
             gap: 1rem;
           }
           .loading-spinner {
             width: 40px;
             height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top-color: #3b82f6;
+            border: 3px solid #E2E8F0;
+            border-top-color: #635BFF;
             border-radius: 50%;
             animation: spin 1s linear infinite;
           }

@@ -10,31 +10,32 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 1rem;
-  background: rgba(15, 23, 42, 0.6);
+  background: #FFFFFF;
   border-radius: 8px;
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .prospect-search-bar label {
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: #94A3B8;
   font-weight: 500;
 }
 
 .search-input {
   padding: 0.75rem;
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
-  background: rgba(30, 41, 59, 0.8);
-  color: #e5e7eb;
+  background: #FFFFFF;
+  color: #0A2540;
   font-size: 0.875rem;
   width: 100%;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border: 1.5px solid #635BFF;
+  box-shadow: none;
 }
 
 .prospect-filters {
@@ -42,9 +43,10 @@
   flex-wrap: wrap;
   gap: 1rem;
   padding: 1rem;
-  background: rgba(15, 23, 42, 0.6);
+  background: #FFFFFF;
   border-radius: 8px;
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
 .filter-group {
@@ -57,23 +59,23 @@
 
 .filter-group label {
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: #94A3B8;
   font-weight: 500;
 }
 
 .filter-select {
   padding: 0.5rem;
-  border: 1px solid rgba(55, 65, 81, 0.8);
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
-  background: rgba(30, 41, 59, 0.8);
-  color: #e5e7eb;
+  background: #FFFFFF;
+  color: #0A2540;
   font-size: 0.875rem;
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border: 1.5px solid #635BFF;
+  box-shadow: none;
 }
 
 .filter-checkbox {
@@ -87,7 +89,7 @@
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  color: #e5e7eb;
+  color: #0A2540;
 }
 
 .filter-checkbox input[type="checkbox"] {
@@ -100,9 +102,8 @@
   .prospect-filters {
     flex-direction: column;
   }
-  
+
   .filter-group {
     min-width: 100%;
   }
 }
-

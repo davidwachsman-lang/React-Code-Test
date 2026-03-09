@@ -25,23 +25,23 @@ const TABS = [
 ];
 
 const STATUS_COLORS = {
-  Pending: '#f59e0b',
-  WIP: '#3b82f6',
-  'Ready to Bill': '#22c55e',
-  AR: '#ef4444',
+  Pending: '#D97706',
+  WIP: '#2563EB',
+  'Ready to Bill': '#16A34A',
+  AR: '#DC2626',
 };
 
 const TYPE_COLORS = {
-  Water: '#3b82f6',
-  Fire: '#ef4444',
-  Mold: '#a855f7',
+  Water: '#2563EB',
+  Fire: '#DC2626',
+  Mold: '#9333EA',
 };
 
 const PRIORITY_COLORS = {
-  Critical: '#ef4444',
-  High: '#f59e0b',
-  Medium: '#3b82f6',
-  Low: '#6b7280',
+  Critical: '#DC2626',
+  High: '#D97706',
+  Medium: '#2563EB',
+  Low: '#64748B',
 };
 
 const DOC_ICONS = { done: '✓', missing: '✗', pending: '⏳' };
@@ -320,9 +320,9 @@ export default function PMCommandCenter() {
               </div>
             )}
             {[
-              { key: 'overdue', label: 'Overdue', color: '#ef4444' },
-              { key: 'today', label: 'Due Today', color: '#f59e0b' },
-              { key: 'upcoming', label: 'Upcoming', color: '#3b82f6' },
+              { key: 'overdue', label: 'Overdue', color: '#DC2626' },
+              { key: 'today', label: 'Due Today', color: '#D97706' },
+              { key: 'upcoming', label: 'Upcoming', color: '#2563EB' },
             ].map((group) => (
               <div key={group.key} className="pmc-task-group">
                 <h4 className="pmc-task-group-title" style={{ color: group.color }}>
@@ -378,7 +378,7 @@ export default function PMCommandCenter() {
             </div>
             {unassignedJobs.length > 0 && (
               <div className="pmc-unassigned-section">
-                <h4 className="pmc-task-group-title" style={{ color: '#f59e0b' }}>
+                <h4 className="pmc-task-group-title" style={{ color: '#D97706' }}>
                   Unassigned Jobs
                   <span className="pmc-task-count">{unassignedJobs.length}</span>
                 </h4>
@@ -417,7 +417,7 @@ export default function PMCommandCenter() {
                     <tr key={est.id} className="pmc-table-row">
                       <td className="pmc-td-bold">
                         {est.id}
-                        {est.supplement && <span className="pmc-pill" style={{ background: '#a855f722', color: '#a855f7', marginLeft: '0.4rem', fontSize: '0.65rem' }}>SUPP</span>}
+                        {est.supplement && <span className="pmc-pill" style={{ background: '#9333EA22', color: '#9333EA', marginLeft: '0.4rem', fontSize: '0.65rem' }}>SUPP</span>}
                       </td>
                       <td>{est.jobId}</td>
                       <td>{est.customer}</td>
@@ -429,8 +429,8 @@ export default function PMCommandCenter() {
                       <td className="pmc-td-bold">{formatCurrency(est.estimateTotal)}</td>
                       <td>
                         <span className="pmc-pill" style={{
-                          background: (est.status === 'Approved' ? '#22c55e' : est.status === 'Pending' ? '#f59e0b' : '#64748b') + '22',
-                          color: est.status === 'Approved' ? '#22c55e' : est.status === 'Pending' ? '#f59e0b' : '#94a3b8',
+                          background: (est.status === 'Approved' ? '#16A34A' : est.status === 'Pending' ? '#D97706' : '#64748B') + '22',
+                          color: est.status === 'Approved' ? '#16A34A' : est.status === 'Pending' ? '#D97706' : '#94A3B8',
                         }}>
                           {est.status}
                         </span>
@@ -445,13 +445,13 @@ export default function PMCommandCenter() {
                       <td className="pmc-td-bold" colSpan={4}>Totals</td>
                       <td className="pmc-td-bold">{formatCurrency(filteredEstimates.reduce((s, e) => s + e.estimateTotal, 0))}</td>
                       <td colSpan={4}>
-                        <span style={{ color: '#22c55e', marginRight: '0.75rem' }}>
+                        <span style={{ color: '#16A34A', marginRight: '0.75rem' }}>
                           {filteredEstimates.filter((e) => e.status === 'Approved').length} Approved
                         </span>
-                        <span style={{ color: '#f59e0b', marginRight: '0.75rem' }}>
+                        <span style={{ color: '#D97706', marginRight: '0.75rem' }}>
                           {filteredEstimates.filter((e) => e.status === 'Pending').length} Pending
                         </span>
-                        <span style={{ color: '#94a3b8' }}>
+                        <span style={{ color: '#94A3B8' }}>
                           {filteredEstimates.filter((e) => e.status === 'Draft').length} Draft
                         </span>
                       </td>

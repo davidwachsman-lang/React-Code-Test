@@ -421,9 +421,9 @@ function Intake() {
               <div className="col-12">
                 <label htmlFor="address">
                   Address
-                  {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
-                  {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
-                  {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
+                  {autocompleteStatus === 'ready' && <span style={{ color: '#16A34A', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
+                  {autocompleteStatus === 'loading' && <span style={{ color: '#D97706', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
+                  {autocompleteStatus === 'error' && <span style={{ color: '#DC2626', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
                   {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
                 </label>
                 <input 
@@ -439,7 +439,7 @@ function Intake() {
                 />
                 {renderFieldError('address')}
                 {autocompleteStatus === 'error' && (
-                  <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
+                  <small style={{ color: '#DC2626', display: 'block', marginTop: '4px' }}>
                     Google Maps API error. Please enter address manually or check browser console for details.
                   </small>
                 )}
@@ -577,9 +577,9 @@ function Intake() {
           <div className="col-12">
             <label htmlFor="address">
               Loss Address
-              {autocompleteStatus === 'ready' && <span style={{ color: '#22c55e', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
-              {autocompleteStatus === 'loading' && <span style={{ color: '#f59e0b', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
-              {autocompleteStatus === 'error' && <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
+              {autocompleteStatus === 'ready' && <span style={{ color: '#16A34A', marginLeft: '8px', fontSize: '0.8em' }}>✓ Autocomplete active</span>}
+              {autocompleteStatus === 'loading' && <span style={{ color: '#D97706', marginLeft: '8px', fontSize: '0.8em' }}>Loading...</span>}
+              {autocompleteStatus === 'error' && <span style={{ color: '#DC2626', marginLeft: '8px', fontSize: '0.8em' }}>⚠ API Error</span>}
               {autocompleteStatus === 'unavailable' && <span style={{ color: '#94a3b8', marginLeft: '8px', fontSize: '0.8em' }}>Manual entry</span>}
             </label>
             <input 
@@ -595,7 +595,7 @@ function Intake() {
             />
             {renderFieldError('address')}
             {autocompleteStatus === 'error' && (
-              <small style={{ color: '#ef4444', display: 'block', marginTop: '4px' }}>
+              <small style={{ color: '#DC2626', display: 'block', marginTop: '4px' }}>
                 Google Maps API error. Please enter address manually or check browser console for details.
               </small>
             )}
@@ -875,13 +875,13 @@ function Intake() {
 
       {/* Success/Error Messages */}
       {submitSuccess && (
-        <div className="intake-panel" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)', borderColor: 'rgba(34, 197, 94, 0.3)' }}>
-          <p style={{ color: '#22c55e', margin: 0, fontWeight: 600 }}>✓ {submitSuccess}</p>
+        <div className="intake-panel" style={{ backgroundColor: 'rgba(22, 163, 74, 0.1)', borderColor: 'rgba(22, 163, 74, 0.3)' }}>
+          <p style={{ color: '#16A34A', margin: 0, fontWeight: 600 }}>✓ {submitSuccess}</p>
         </div>
       )}
       {submitError && (
-        <div className="intake-panel" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
-          <p style={{ color: '#ef4444', margin: 0, fontWeight: 600 }}>✗ {submitError}</p>
+        <div className="intake-panel" style={{ backgroundColor: 'rgba(220, 38, 38, 0.1)', borderColor: 'rgba(220, 38, 38, 0.3)' }}>
+          <p style={{ color: '#DC2626', margin: 0, fontWeight: 600 }}>✗ {submitError}</p>
         </div>
       )}
 

@@ -26,13 +26,13 @@ function TopTargetsWidget({ onProspectClick }) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'won':
-        return '#10b981';
+        return '#16A34A';
       case 'active':
-        return '#3b82f6';
+        return '#2563EB';
       case 'lead':
-        return '#f59e0b';
+        return '#D97706';
       case 'lost':
-        return '#ef4444';
+        return '#DC2626';
       default:
         return '#6b7280';
     }

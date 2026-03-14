@@ -165,7 +165,7 @@ function MapFilters({
                           {column === colorColumn && (
                             <span 
                               className="filter-color-dot"
-                              style={{ backgroundColor: colorMapping[value] || '#6b7280' }}
+                              style={{ backgroundColor: colorMapping[value] || '#94A3B8' }}
                             />
                           )}
                           <span className="filter-value-label">{value}</span>

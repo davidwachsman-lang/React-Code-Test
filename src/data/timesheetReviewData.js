@@ -19,7 +19,7 @@ export const employeeRoles = {
 // Time types
 export const TIME_TYPES = {
   whip: { label: 'WIP', color: '#a855f7' },
-  job: { label: 'Job', color: '#3b82f6' },
+  job: { label: 'Job', color: '#635BFF' },
   training: { label: 'Training', color: '#06b6d4' },
 };
 

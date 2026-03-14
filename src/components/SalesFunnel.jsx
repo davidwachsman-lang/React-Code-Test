@@ -36,15 +36,18 @@ function SalesFunnel({ layers = [], salesRep = 'all' }) {
           // Use percentage to create funnel effect - each bar gets progressively narrower
           // Scale down percentages to make bars narrower (multiply by 0.5 to make them half width)
           const widthPercent = (layer.percentage || 100) * 0.5;
-          
-          const backgroundStyle = { backgroundColor: layer.color || '#635BFF' };
-          
+          const accentColor = layer.color || '#635BFF';
+
           return (
             <div key={index} className="funnel-row">
-              <div 
+              <div
                 className="funnel-bar"
                 style={{
-                  ...backgroundStyle,
+                  backgroundColor: '#FFFFFF',
+                  borderLeft: `3px solid ${accentColor}`,
+                  border: '1px solid #E2E8F0',
+                  borderLeftWidth: '3px',
+                  borderLeftColor: accentColor,
                   width: `${widthPercent}%`
                 }}
               >

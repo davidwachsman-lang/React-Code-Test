@@ -1,0 +1,66 @@
+.marketing-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.marketing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: #0A2540;
+  border-bottom: 3px solid #635BFF;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 24px;
+}
+
+.marketing-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.marketing-header p {
+  font-size: 13px;
+  color: #94A3B8;
+  margin: 4px 0 0;
+}
+
+.marketing-content {
+  padding: 0 24px 24px;
+}
+
+.marketing-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 32px;
+  text-align: center;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.marketing-empty-icon {
+  color: #94A3B8;
+  margin-bottom: 16px;
+}
+
+.marketing-empty h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0A2540;
+  margin: 0 0 8px;
+}
+
+.marketing-empty p {
+  font-size: 13px;
+  color: #64748B;
+  max-width: 320px;
+  line-height: 1.6;
+  margin: 0;
+}

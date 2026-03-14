@@ -260,7 +260,7 @@
 
 .metric-item-dash:hover .metric-value {
   background: rgba(99,91,255,0.12);
-  color: #4F46E5;
+  color: #635BFF;
   transform: scale(1.1);
 }
 
@@ -508,7 +508,7 @@
 }
 
 .btn-edit:hover {
-  background: #4F46E5;
+  background: #635BFF;
   box-shadow: 0 1px 3px rgba(99,91,255,0.3);
 }
 

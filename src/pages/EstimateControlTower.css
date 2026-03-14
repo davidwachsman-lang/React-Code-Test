@@ -142,24 +142,24 @@
   border-bottom: 4px solid transparent;
 }
 
-/* Segment colors - light brand variants */
-.ect-cycle-segment.seg-cyan {
-  background: #ECFEFF;
-  border: 1px solid #A5F3FC;
+/* Segment colors - brand palette variants */
+.ect-cycle-segment.seg-fieldops {
+  background: #FEF9C3;
+  border: 1px solid #FDE68A;
 }
-.seg-cyan .ect-cycle-days { color: #0891B2; }
+.seg-fieldops .ect-cycle-days { color: #CA8A04; }
 
 .ect-cycle-segment.seg-blue {
-  background: #EFF6FF;
-  border: 1px solid #BFDBFE;
+  background: #DBEAFE;
+  border: 1px solid #93C5FD;
 }
 .seg-blue .ect-cycle-days { color: #2563EB; }
 
-.ect-cycle-segment.seg-indigo {
-  background: #EEF2FF;
-  border: 1px solid #C7D2FE;
+.ect-cycle-segment.seg-sales {
+  background: #F3E8FF;
+  border: 1px solid #D8B4FE;
 }
-.seg-indigo .ect-cycle-days { color: #4F46E5; }
+.seg-sales .ect-cycle-days { color: #9333EA; }
 
 .ect-cycle-segment.seg-total {
   background: #F5F3FF;
@@ -176,7 +176,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  border-left: 3px solid transparent;
+  border-top: 3px solid transparent;
   transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
@@ -187,16 +187,16 @@
 }
 
 .ect-kpi-label {
-  font-size: 0.72rem;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   color: #94A3B8;
 }
 
 .ect-kpi-value {
-  font-size: 1.65rem;
-  font-weight: 700;
+  font-size: 36px;
+  font-weight: 800;
   line-height: 1.2;
   color: #0A2540;
 }
@@ -207,12 +207,12 @@
 }
 
 /* Accent colors */
-.ect-kpi-card.accent-red    { border-left-color: #DC2626; }
-.ect-kpi-card.accent-blue   { border-left-color: #2563EB; }
-.ect-kpi-card.accent-purple { border-left-color: #635BFF; }
-.ect-kpi-card.accent-green  { border-left-color: #16A34A; }
-.ect-kpi-card.accent-amber  { border-left-color: #D97706; }
-.ect-kpi-card.accent-slate  { border-left-color: #64748B; }
+.ect-kpi-card.accent-red    { border-top-color: #DC2626; }
+.ect-kpi-card.accent-blue   { border-top-color: #2563EB; }
+.ect-kpi-card.accent-purple { border-top-color: #635BFF; }
+.ect-kpi-card.accent-green  { border-top-color: #16A34A; }
+.ect-kpi-card.accent-amber  { border-top-color: #D97706; }
+.ect-kpi-card.accent-finance { border-top-color: #EA580C; }
 
 /* Approval Rate toggle */
 .ect-kpi-toggle {
@@ -296,7 +296,7 @@
 
 .ect-export-btn:hover {
   background: rgba(99,91,255,0.06);
-  color: #4F46E5;
+  color: #635BFF;
   border-color: #635BFF;
 }
 
@@ -403,7 +403,7 @@
 
 .ect-contact-phone:hover {
   background: #DBEAFE;
-  color: #1D4ED8;
+  color: #2563EB;
 }
 
 .ect-contact-email {
@@ -412,7 +412,7 @@
 
 .ect-contact-email:hover {
   background: rgba(99,91,255,0.08);
-  color: #4F46E5;
+  color: #635BFF;
 }
 
 /* ================================================================== */
@@ -467,11 +467,11 @@
 .ect-aging-bucket.aging-yellow .ect-aging-label { color: #B45309; }
 
 .ect-aging-bucket.aging-orange {
-  background: #FFF7ED;
-  border: 1px solid #FED7AA;
+  background: #FEF3C7;
+  border: 1px solid #F59E0B;
 }
-.ect-aging-bucket.aging-orange .ect-aging-count { color: #EA580C; }
-.ect-aging-bucket.aging-orange .ect-aging-label { color: #C2410C; }
+.ect-aging-bucket.aging-orange .ect-aging-count { color: #B45309; }
+.ect-aging-bucket.aging-orange .ect-aging-label { color: #92400E; }
 
 .ect-aging-bucket.aging-red {
   background: #FEF2F2;
@@ -482,7 +482,7 @@
 
 /* Aging text colors (used in Conversion Center table) */
 .ect-aging-text-yellow { color: #D97706; font-weight: 600; }
-.ect-aging-text-orange { color: #EA580C; font-weight: 600; }
+.ect-aging-text-orange { color: #B45309; font-weight: 600; }
 .ect-aging-text-red    { color: #DC2626; font-weight: 600; }
 
 /* ================================================================== */

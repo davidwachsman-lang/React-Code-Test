@@ -42,7 +42,7 @@
   padding: 0.15rem 0.5rem;
   background: #635BFF;
   color: white;
-  border-radius: 10px;
+  border-radius: 999px;
   font-weight: 500;
 }
 
@@ -69,12 +69,12 @@
 
 .map-filters-content::-webkit-scrollbar-track {
   background: #F1F5F9;
-  border-radius: 3px;
+  border-radius: 6px;
 }
 
 .map-filters-content::-webkit-scrollbar-thumb {
   background: #CBD5E1;
-  border-radius: 3px;
+  border-radius: 6px;
 }
 
 .clear-all-btn {
@@ -206,7 +206,7 @@
 
 .filter-values::-webkit-scrollbar-thumb {
   background: #CBD5E1;
-  border-radius: 2px;
+  border-radius: 6px;
 }
 
 .filter-value {

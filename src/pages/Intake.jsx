@@ -579,6 +579,14 @@ function Intake() {
 
   return (
     <div className="intake-wrap">
+      {/* Page Header */}
+      <div className="intake-header">
+        <div>
+          <h1>Intake</h1>
+          <p>FNOL</p>
+        </div>
+      </div>
+
       {/* Division Selection */}
       <div className="division-buttons">
         <button

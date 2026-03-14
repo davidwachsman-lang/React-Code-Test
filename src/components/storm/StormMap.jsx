@@ -212,7 +212,7 @@ function StormMap({
     } else if (status === 'completed' || status === 'complete') {
       return '#2563EB'; // Blue
     }
-    return '#6b7280'; // Gray
+    return '#94A3B8'; // Gray
   };
 
   const updateMarkers = () => {

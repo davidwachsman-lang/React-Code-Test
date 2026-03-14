@@ -34,7 +34,7 @@ function Forms() {
       name: 'HR & ADMIN',
       description: 'Human Resources & Administration',
       icon: '👥',
-      color: '#D97706',
+      color: '#0284C7',
       subcategories: []
     },
     {
@@ -42,7 +42,7 @@ function Forms() {
       name: 'LEGAL',
       description: 'Legal Documents & Contracts',
       icon: '⚖️',
-      color: '#6366f1',
+      color: '#DC2626',
       subcategories: []
     },
     {

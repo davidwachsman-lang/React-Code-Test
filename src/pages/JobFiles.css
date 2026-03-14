@@ -235,7 +235,7 @@
 .bulk-upload-panel .btn-primary:hover:not(:disabled),
 .close-modal .btn-primary:hover:not(:disabled),
 .filters-section .btn-primary:hover:not(:disabled) {
-  background: #4F46E5;
+  background: #635BFF;
 }
 
 .job-files-header .btn-primary:disabled,
@@ -850,7 +850,7 @@
 /* ===== Status Badges ===== */
 .status-badge {
   padding: 0.25rem 0.75rem;
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -914,7 +914,7 @@
 }
 
 .btn-back:hover {
-  color: #4F46E5;
+  color: #635BFF;
 }
 
 .job-detail-title {
@@ -1744,7 +1744,7 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.35rem 0.75rem;
-  border-radius: 20px;
+  border-radius: 999px;
   border: 1px solid #E2E8F0;
   background: #FFFFFF;
   color: #64748B;

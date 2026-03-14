@@ -26,15 +26,15 @@ function TopTargetsWidget({ onProspectClick }) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'won':
-        return '#16A34A';
+        return { bg: '#DCFCE7', text: '#16A34A' };
       case 'active':
-        return '#2563EB';
+        return { bg: '#DBEAFE', text: '#2563EB' };
       case 'lead':
-        return '#D97706';
+        return { bg: '#FEF3C7', text: '#D97706' };
       case 'lost':
-        return '#DC2626';
+        return { bg: '#FEF2F2', text: '#DC2626' };
       default:
-        return '#6b7280';
+        return { bg: '#F1F5F9', text: '#64748B' };
     }
   };
 
@@ -59,7 +59,7 @@ function TopTargetsWidget({ onProspectClick }) {
                     <span className="target-company">{target.company_name || 'Unnamed'}</span>
                     <span
                       className="target-status"
-                      style={{ backgroundColor: getStatusColor(target.status) }}
+                      style={{ backgroundColor: getStatusColor(target.status).bg, color: getStatusColor(target.status).text }}
                     >
                       {target.status}
                     </span>

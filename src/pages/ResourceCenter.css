@@ -47,7 +47,7 @@
 }
 
 .resource-add-btn:hover {
-  background: #4F46E5;
+  background: #635BFF;
 }
 
 .resource-loading,
@@ -72,7 +72,7 @@
 }
 
 .resource-error button:hover {
-  background: #4F46E5;
+  background: #635BFF;
 }
 
 /* Back button */
@@ -333,9 +333,11 @@
 }
 
 .category-pill.active {
-  background: var(--pill-color, #635BFF);
+  background: #FFFFFF;
   border-color: var(--pill-color, #635BFF);
-  color: #fff;
+  border-width: 2px;
+  color: var(--pill-color, #635BFF);
+  font-weight: 600;
 }
 
 /* Results Info */
@@ -365,7 +367,7 @@
 }
 
 .no-results button:hover {
-  background: #4F46E5;
+  background: #635BFF;
 }
 
 /* Vendor Groups */
@@ -393,7 +395,6 @@
   height: 28px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #fff;
   border-radius: 50%;
 }
 
@@ -473,11 +474,12 @@
 
 .category-badge {
   padding: 0.2rem 0.6rem;
-  font-size: 0.7rem;
+  font-size: 11px;
   font-weight: 600;
-  color: #fff;
   border-radius: 999px;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .card-body {
@@ -709,7 +711,7 @@
 }
 
 .vendor-form-submit:hover:not(:disabled) {
-  background: #4F46E5;
+  background: #635BFF;
 }
 
 .vendor-form-submit:disabled {
@@ -760,12 +762,13 @@
 }
 
 .vendor-category-chip.selected {
-  background: var(--chip-color, #635BFF);
+  background: #FFFFFF;
   border-color: var(--chip-color, #635BFF);
+  border-width: 2px;
 }
 
 .vendor-category-chip.selected .chip-label {
-  color: #FFFFFF;
+  color: var(--chip-color, #635BFF);
   font-weight: 600;
 }
 

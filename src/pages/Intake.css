@@ -6,10 +6,35 @@
   --intake-muted: #F8FAFC;
   --intake-text: #0A2540;
   --intake-accent: #635BFF;
-  --intake-accent2: #4F46E5;
+  --intake-accent2: #635BFF;
   --intake-ok: #16A34A;
   --intake-warn: #D97706;
   --intake-danger: #DC2626;
+}
+
+.intake-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: #0A2540;
+  border-bottom: 3px solid #635BFF;
+  border-radius: 8px 8px 0 0;
+  margin: 0 24px 24px;
+}
+
+.intake-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.intake-header p {
+  font-size: 13px;
+  color: #94A3B8;
+  margin: 4px 0 0;
 }
 
 .intake-wrap {
@@ -72,30 +97,10 @@
 }
 
 .division-btn.active:hover {
-  background: #4F46E5;
+  background: #635BFF;
 }
 
-.intake-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-  gap: 16px;
-  padding: 0 2rem;
-}
-
-.intake-header h1 {
-  font-size: 28px;
-  margin: 0;
-  color: #0A2540;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  background: none;
-  -webkit-background-clip: unset;
-  -webkit-text-fill-color: #0A2540;
-  background-clip: unset;
-}
+/* duplicate .intake-header removed — defined at top of file */
 
 .intake-wrap .badge {
   font-size: 11px;
@@ -534,7 +539,7 @@
 }
 
 .intake-wrap .btn-primary:hover {
-  background: #4F46E5;
+  background: #635BFF;
   box-shadow: 0 2px 8px rgba(99, 91, 255, 0.35);
   transform: none;
 }
@@ -613,12 +618,12 @@
   }
 
   .intake-header {
-    flex-direction: column;
-    align-items: flex-start;
+    margin: 0 12px 16px;
+    border-radius: 8px 8px 0 0;
   }
 
   .intake-header h1 {
-    font-size: 24px;
+    font-size: 18px;
   }
 
   .intake-panel {

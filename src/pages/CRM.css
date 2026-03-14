@@ -11,11 +11,16 @@
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
+  background: #0A2540;
+  border-bottom: 3px solid #635BFF;
+  padding: 1.25rem 1.5rem;
+  border-radius: 8px 8px 0 0;
+  margin: -1rem -1rem 0 -1rem;
 }
 
 .crm-header h1 {
   margin: 0;
-  color: #0A2540;
+  color: #FFFFFF;
 }
 
 /* Controls Section */
@@ -40,11 +45,12 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.6rem 1rem;
-  border: none;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 600;
-  color: white;
+  color: #0A2540;
+  background: #FFFFFF;
   cursor: pointer;
   transition: all 0.15s ease;
   box-shadow: none;
@@ -58,91 +64,53 @@
 }
 
 .action-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: #F8FAFC;
+  border-color: #CBD5E1;
 }
 
 .action-btn:active {
-  transform: translateY(0);
+  background: #F1F5F9;
 }
 
 .btn-icon {
   font-size: 1.2rem;
 }
 
-.action-btn-blue {
+/* Primary action buttons: #635BFF bg, white text */
+.action-btn-primary {
   background: #635BFF;
+  color: #FFFFFF;
+  border: 1px solid #635BFF;
 }
 
-.action-btn-blue:hover {
-  background: #4F46E5;
-}
-
-.action-btn-green {
-  background: #16A34A;
-}
-
-.action-btn-green:hover {
-  background: #15803D;
-}
-
-.action-btn-purple {
+.action-btn-primary:hover {
   background: #635BFF;
+  border-color: #635BFF;
+  box-shadow: 0 2px 8px rgba(99, 91, 255, 0.25);
 }
 
-.action-btn-purple:hover {
-  background: #4F46E5;
+/* Secondary action buttons: white bg, border, navy text */
+.action-btn-secondary {
+  background: #FFFFFF;
+  color: #0A2540;
+  border: 1px solid #E2E8F0;
 }
 
-.action-btn-orange {
-  background: #D97706;
+.action-btn-secondary:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
 }
 
-.action-btn-orange:hover {
-  background: #B45309;
-}
-
-.action-btn-teal {
-  background: #0D9488;
-}
-
-.action-btn-teal:hover {
-  background: #0F766E;
-}
-
-.action-btn-pink {
-  background: #DB2777;
-}
-
-.action-btn-pink:hover {
-  background: #BE185D;
-}
-
-.action-btn-indigo {
+/* Active tab button: primary style to indicate selected state */
+.action-btn-active {
   background: #635BFF;
+  color: #FFFFFF;
+  border: 1px solid #635BFF;
 }
 
-.action-btn-indigo:hover {
-  background: #4F46E5;
-}
-
-.action-btn-gray {
-  background: #64748B;
-}
-
-.action-btn-gray:hover {
-  background: #475569;
-}
-
-.action-btn-yellow {
-  background: #D97706;
-  border: 1px solid #D97706;
-}
-
-.action-btn-yellow:hover {
-  background: #B45309;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);
+.action-btn-active:hover {
+  background: #635BFF;
+  border-color: #635BFF;
 }
 
 /* Insight Meeting Playbook Form */
@@ -179,7 +147,7 @@
 }
 
 .crm-page .btn-primary:hover {
-  background: #4F46E5;
+  background: #635BFF;
   box-shadow: 0 2px 8px rgba(99, 91, 255, 0.25);
 }
 
@@ -272,7 +240,6 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -612,9 +579,10 @@
 .status-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
   white-space: nowrap;
 }
 
@@ -632,7 +600,7 @@
 
 .status-inactive {
   background: #F1F5F9;
-  color: #94A3B8;
+  color: #64748B;
   border: 1px solid #E2E8F0;
 }
 
@@ -653,7 +621,7 @@
 
 .email-link:hover,
 .phone-link:hover {
-  color: #4F46E5;
+  color: #635BFF;
   text-decoration: underline;
 }
 
@@ -1097,14 +1065,15 @@
   display: inline-block;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 11px;
   font-weight: 600;
-  text-transform: capitalize;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .status-pending {
   background-color: #F1F5F9;
-  color: #94A3B8;
+  color: #64748B;
 }
 
 .status-in_review {
@@ -1189,6 +1158,6 @@
 }
 
 .customers-header .btn-primary:hover {
-  background: #4F46E5;
+  background: #635BFF;
   box-shadow: 0 2px 8px rgba(99, 91, 255, 0.25);
 }

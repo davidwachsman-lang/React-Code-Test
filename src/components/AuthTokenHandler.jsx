@@ -103,7 +103,7 @@ const AuthTokenHandler = ({ children }) => {
           .token-processing-card {
             background: #FFFFFF;
             border: 1px solid #E2E8F0;
-            border-radius: 16px;
+            border-radius: 8px;
             padding: 2.5rem;
             text-align: center;
             color: #0A2540;

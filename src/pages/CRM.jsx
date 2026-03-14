@@ -274,60 +274,60 @@ function CRM() {
       {/* Action Buttons */}
       <div className="crm-action-buttons">
         <button
-          className={`action-btn ${activeTab === 'all' ? 'action-btn-green' : 'action-btn-gray'}`}
+          className={`action-btn ${activeTab === 'all' ? 'action-btn-active' : 'action-btn-secondary'}`}
           onClick={() => setActiveTab('all')}
         >
           <span className="btn-icon">📋</span>
           CRM
         </button>
-        <button className="action-btn action-btn-blue" onClick={() => {
+        <button className="action-btn action-btn-primary" onClick={() => {
           setEditingRecord(null);
           setShowForm(true);
         }}>
           <span className="btn-icon">👤</span>
           Add CRM Record
         </button>
-        <button className="action-btn action-btn-indigo" onClick={() => setShowMassEmailModal(true)}>
+        <button className="action-btn action-btn-primary" onClick={() => setShowMassEmailModal(true)}>
           <span className="btn-icon">✉️</span>
           Email Book
         </button>
         <button
-          className={`action-btn ${activeTab === 'funnel' ? 'action-btn-purple' : 'action-btn-gray'}`}
+          className={`action-btn ${activeTab === 'funnel' ? 'action-btn-active' : 'action-btn-secondary'}`}
           onClick={() => setActiveTab('funnel')}
         >
           <span className="btn-icon">📊</span>
           Sales Funnel
         </button>
         <button
-          className={`action-btn ${activeTab === 'playbook' ? 'action-btn-orange' : 'action-btn-gray'}`}
+          className={`action-btn ${activeTab === 'playbook' ? 'action-btn-active' : 'action-btn-secondary'}`}
           onClick={() => setActiveTab('playbook')}
         >
           <span className="btn-icon">📋</span>
           Insight Meeting Playbook
         </button>
         <button
-          className={`action-btn ${activeTab === 'activity' ? 'action-btn-blue' : 'action-btn-gray'}`}
+          className={`action-btn ${activeTab === 'activity' ? 'action-btn-active' : 'action-btn-secondary'}`}
           onClick={() => setActiveTab('activity')}
         >
           <span className="btn-icon">📝</span>
           Activity Tracking
         </button>
         <button
-          className={`action-btn ${activeTab === 'topTargets' ? 'action-btn-green' : 'action-btn-gray'}`}
+          className={`action-btn ${activeTab === 'topTargets' ? 'action-btn-active' : 'action-btn-secondary'}`}
           onClick={() => setActiveTab('topTargets')}
         >
           <span className="btn-icon">🎯</span>
           Top 10 Targets
         </button>
         <button
-          className={`action-btn ${activeTab === 'scoreboard' ? 'action-btn-yellow' : 'action-btn-gray'}`}
+          className={`action-btn ${activeTab === 'scoreboard' ? 'action-btn-active' : 'action-btn-secondary'}`}
           onClick={() => setActiveTab('scoreboard')}
         >
           <span className="btn-icon">🏆</span>
           Scoreboard
         </button>
         <button
-          className={`action-btn ${activeTab === 'featureUpgrades' ? 'action-btn-teal' : 'action-btn-gray'}`}
+          className={`action-btn ${activeTab === 'featureUpgrades' ? 'action-btn-active' : 'action-btn-secondary'}`}
           onClick={() => setActiveTab('featureUpgrades')}
         >
           <span className="btn-icon">✨</span>

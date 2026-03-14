@@ -39,9 +39,9 @@ const MOCK_JOBS = [
 ];
 
 const TEAM_COLOR = {
-  hb_mit: '#0f766e',
-  hb_recon: '#0b4f8a',
-  large_loss: '#92400e',
+  hb_mit: '#0284C7',
+  hb_recon: '#2563EB',
+  large_loss: '#EA580C',
 };
 
 function formatCurrency(amount) {

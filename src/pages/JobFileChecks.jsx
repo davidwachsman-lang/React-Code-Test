@@ -736,7 +736,7 @@ function JobFileChecks() {
         {!rows ? (
           <div className="jfc-upload-area">
             {enriching && (
-              <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
+              <div style={{ padding: '16px', textAlign: 'center', color: '#94A3B8', fontSize: '14px' }}>
                 Loading existing check data from Supabase...
               </div>
             )}

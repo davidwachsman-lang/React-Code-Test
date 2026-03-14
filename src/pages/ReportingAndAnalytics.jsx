@@ -10,50 +10,50 @@ function ReportingAndAnalytics() {
     {
       title: 'Sales Pipeline',
       description: 'Track leads and opportunities through each stage of the sales process',
-      icon: '📊',
-      color: 'rgba(37, 99, 235, 0.2)'
+      icon: '\u{1F4CA}',
+      categoryColor: '#9333EA'
     },
     {
       title: 'PM / Estimator Scorecard',
       description: 'Performance metrics for project managers and estimators',
-      icon: '🎯',
-      color: 'rgba(22, 163, 74, 0.2)'
+      icon: '\u{1F3AF}',
+      categoryColor: '#CA8A04'
     },
     {
       title: 'Revenue Pipeline by Stage',
       description: 'Revenue breakdown across different project stages',
-      icon: '💰',
-      color: 'rgba(147, 51, 234, 0.2)'
+      icon: '\u{1F4B0}',
+      categoryColor: '#EA580C'
     },
     {
       title: 'Job Profitability',
       description: 'Analyze profit margins and financial performance by job',
-      icon: '📈',
-      color: 'rgba(22, 163, 74, 0.2)'
+      icon: '\u{1F4C8}',
+      categoryColor: '#EA580C'
     },
     {
       title: 'Referral Source Report',
       description: 'Track which referral sources generate the most business',
-      icon: '🔗',
-      color: 'rgba(217, 119, 6, 0.2)'
+      icon: '\u{1F517}',
+      categoryColor: '#9333EA'
     },
     {
       title: 'Capacity and Scheduling Utilization',
       description: 'Monitor team capacity and resource allocation efficiency',
-      icon: '⚡',
-      color: 'rgba(37, 99, 235, 0.2)'
+      icon: '\u26A1',
+      categoryColor: '#CA8A04'
     },
     {
       title: 'Job Cycle Time Analysis',
       description: 'Measure time from job start to completion across stages',
-      icon: '⏱️',
-      color: 'rgba(220, 38, 38, 0.2)'
+      icon: '\u23F1\uFE0F',
+      categoryColor: '#CA8A04'
     },
     {
       title: 'Job QA & Compliance Report',
       description: 'Quality assurance metrics and compliance tracking',
-      icon: '✓',
-      color: 'rgba(14, 165, 233, 0.2)'
+      icon: '\u2713',
+      categoryColor: '#059669'
     }
   ];
 
@@ -96,8 +96,12 @@ function ReportingAndAnalytics() {
       {/* Reports Grid */}
       <div className="reports-grid">
         {reports.map((report, index) => (
-          <div key={index} className="report-card">
-            <div className="report-icon" style={{ background: report.color }}>
+          <div
+            key={index}
+            className="report-card"
+            style={{ borderLeft: `3px solid ${report.categoryColor}` }}
+          >
+            <div className="report-icon">
               {report.icon}
             </div>
             <div className="report-content">

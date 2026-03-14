@@ -144,7 +144,7 @@ function Storm() {
       return {
         ...job,
         colorValue: colorValue,
-        color: newColorMapping[colorValue] || '#6b7280'
+        color: newColorMapping[colorValue] || '#94A3B8'
       };
     });
     

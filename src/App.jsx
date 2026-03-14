@@ -31,6 +31,7 @@ import Sandbox from './pages/Sandbox';
 import InsuranceJobSOPs from './pages/InsuranceJobSOPs';
 import Conversion from './pages/Conversion';
 import JobFileChecks from './pages/JobFileChecks';
+import Marketing from './pages/Marketing';
 import './App.css';
 
 function ScrollToTop() {
@@ -287,6 +288,7 @@ function AppContent() {
                   <Route path="/job-files/:id" element={<JobDetail />} />
                   <Route path="/forms" element={<Forms />} />
                   <Route path="/crm" element={<CRM />} />
+                  <Route path="/marketing" element={<Marketing />} />
                   <Route path="/field-services" element={<FieldServices />} />
                   <Route path="/goals" element={<Goals />} />
                   <Route path="/tm-estimate" element={<TMEstimate />} />

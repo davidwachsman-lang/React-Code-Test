@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { VENDOR_CATEGORIES, CATEGORY_COLORS } from '../data/vendorData';
+import { VENDOR_CATEGORIES, CATEGORY_COLORS, CATEGORY_BADGE_COLORS } from '../data/vendorData';
 import { INTERNAL_DIRECTORY } from '../data/internalDirectoryData';
 import { vendorService } from '../services';
 import InsuranceSLAs from '../components/resource-center/InsuranceSLAs';
@@ -340,7 +340,7 @@ const ResourceCenter = () => {
                 Object.keys(groupedVendors).sort().map(category => (
                   <div key={category} className="vendor-group">
                     <h2 className="group-title" style={{ borderColor: CATEGORY_COLORS[category] }}>
-                      <span className="group-badge" style={{ backgroundColor: CATEGORY_COLORS[category] }}>
+                      <span className="group-badge" style={{ backgroundColor: (CATEGORY_BADGE_COLORS[category] || { bg: '#F1F5F9' }).bg, color: (CATEGORY_BADGE_COLORS[category] || { text: '#64748B' }).text }}>
                         {groupedVendors[category].length}
                       </span>
                       {category}
@@ -769,15 +769,18 @@ const VendorCard = ({ vendor, formatPhone, onEdit }) => {
           )}
         </div>
         <div className="category-badges">
-          {categories.map(cat => (
-            <span
-              key={cat}
-              className="category-badge"
-              style={{ backgroundColor: CATEGORY_COLORS[cat] || '#64748B' }}
-            >
-              {cat}
-            </span>
-          ))}
+          {categories.map(cat => {
+            const badge = CATEGORY_BADGE_COLORS[cat] || { bg: '#F1F5F9', text: '#64748B' };
+            return (
+              <span
+                key={cat}
+                className="category-badge"
+                style={{ backgroundColor: badge.bg, color: badge.text }}
+              >
+                {cat}
+              </span>
+            );
+          })}
         </div>
       </div>
       

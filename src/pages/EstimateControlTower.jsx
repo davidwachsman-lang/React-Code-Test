@@ -120,7 +120,7 @@ function EstimateControlTower() {
           <span className="ect-kpi-label">Pending Jobs w/o Estimates</span>
           <span className="ect-kpi-value">{kpis.pendingNoEstimate.count}</span>
         </div>
-        <div className="ect-kpi-card accent-slate">
+        <div className="ect-kpi-card accent-blue">
           <span className="ect-kpi-label">Total Open Estimates</span>
           <span className="ect-kpi-value">{kpis.totalOpen.count}</span>
           <span className="ect-kpi-subtitle">{kpis.totalOpen.dollarFormatted}</span>
@@ -156,7 +156,7 @@ function EstimateControlTower() {
       <section className="ect-section-card">
         <h2 className="ect-section-title">Estimate Cycle Time</h2>
         <div className="ect-cycle-flow">
-        <div className="ect-cycle-segment seg-cyan">
+        <div className="ect-cycle-segment seg-fieldops">
           <span className="ect-cycle-label">FNOL to Inspection</span>
           <span className="ect-cycle-days">{kpis.fnolToInspection.avgDays}<small>d</small></span>
         </div>
@@ -166,7 +166,7 @@ function EstimateControlTower() {
           <span className="ect-cycle-days">{kpis.inspectionToEstimate.avgDays}<small>d</small></span>
         </div>
         <span className="ect-cycle-arrow" />
-        <div className="ect-cycle-segment seg-indigo">
+        <div className="ect-cycle-segment seg-sales">
           <span className="ect-cycle-label">Estimate to Close</span>
           <span className="ect-cycle-days">{kpis.estimateToClose.avgDays}<small>d</small></span>
         </div>

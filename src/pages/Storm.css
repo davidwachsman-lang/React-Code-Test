@@ -1901,7 +1901,7 @@ input[type="checkbox"] {
 /* Status Badge Styles for Jobs Table */
 .jobs-table .status-badge {
   padding: 0.35rem 0.75rem;
-  border-radius: 16px;
+  border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -2339,7 +2339,7 @@ input[type="checkbox"] {
   padding: 0.35rem 0.75rem;
   background: rgba(99, 91, 255, 0.08);
   border: 1px solid rgba(99, 91, 255, 0.15);
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 0.8rem;
   color: #635BFF;
 }

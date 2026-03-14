@@ -1,0 +1,758 @@
+/* ================================================================== */
+/*  Billing & AR Control Center                                        */
+/* ================================================================== */
+.billing-ar-page {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ---------- Header ---------- */
+.billing-ar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: #0A2540;
+  border-bottom: 3px solid #635BFF;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 16px;
+}
+
+.billing-ar-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Bulk email button */
+/* Bulk actions bar */
+.bar-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 16px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+}
+
+.bar-bulk-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0A2540;
+  margin-right: auto;
+}
+
+.bar-bulk-email-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: #635BFF;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.bar-bulk-email-btn:hover {
+  background: #4F46E5;
+  color: #FFFFFF;
+}
+
+.bar-bulk-email-adj {
+  background: #2563EB;
+}
+
+.bar-bulk-email-adj:hover {
+  background: #1D4ED8;
+}
+
+/* ================================================================== */
+/*  KPI Ribbon                                                         */
+/* ================================================================== */
+.bar-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.bar-kpi-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 3px solid transparent;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.bar-kpi-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.bar-kpi-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94A3B8;
+}
+
+.bar-kpi-value {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #0A2540;
+}
+
+.bar-kpi-value small {
+  font-size: 0.45em;
+  font-weight: 600;
+  color: #94A3B8;
+}
+
+/* Accent colors */
+.bar-kpi-card.accent-purple { border-top-color: #635BFF; }
+.bar-kpi-card.accent-blue   { border-top-color: #2563EB; }
+.bar-kpi-card.accent-amber  { border-top-color: #D97706; }
+.bar-kpi-card.accent-green  { border-top-color: #16A34A; }
+.bar-kpi-card.accent-red    { border-top-color: #DC2626; }
+
+/* ================================================================== */
+/*  Aging Heatmap                                                      */
+/* ================================================================== */
+.bar-aging-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.bar-aging-bucket {
+  border: none;
+  border-radius: 8px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, outline 0.15s;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.bar-aging-bucket:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.bar-aging-bucket.active {
+  outline: 2px solid currentColor;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.bar-aging-count {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.bar-aging-dollars {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.bar-aging-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Aging bucket colors */
+.bar-aging-bucket.aging-green {
+  background: #DCFCE7;
+  border: 1px solid #BBF7D0;
+}
+.bar-aging-bucket.aging-green .bar-aging-count,
+.bar-aging-bucket.aging-green .bar-aging-dollars { color: #16A34A; }
+.bar-aging-bucket.aging-green .bar-aging-label   { color: #15803D; }
+
+.bar-aging-bucket.aging-yellow {
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+}
+.bar-aging-bucket.aging-yellow .bar-aging-count,
+.bar-aging-bucket.aging-yellow .bar-aging-dollars { color: #D97706; }
+.bar-aging-bucket.aging-yellow .bar-aging-label   { color: #B45309; }
+
+.bar-aging-bucket.aging-orange {
+  background: #FEF3C7;
+  border: 1px solid #F59E0B;
+}
+.bar-aging-bucket.aging-orange .bar-aging-count,
+.bar-aging-bucket.aging-orange .bar-aging-dollars { color: #EA580C; }
+.bar-aging-bucket.aging-orange .bar-aging-label   { color: #92400E; }
+
+.bar-aging-bucket.aging-red {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+}
+.bar-aging-bucket.aging-red .bar-aging-count,
+.bar-aging-bucket.aging-red .bar-aging-dollars { color: #DC2626; }
+.bar-aging-bucket.aging-red .bar-aging-label   { color: #B91C1C; }
+
+/* ================================================================== */
+/*  Filter Bar                                                         */
+/* ================================================================== */
+.bar-filters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.bar-filters select {
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #0A2540;
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  min-width: 150px;
+}
+
+.bar-filters select:focus {
+  outline: none;
+  border-color: #635BFF;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.1);
+}
+
+.bar-clear-btn {
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #DC2626;
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.bar-clear-btn:hover {
+  background: #FEF2F2;
+  border-color: #FECACA;
+}
+
+/* ================================================================== */
+/*  Loading / Error / Empty States                                     */
+/* ================================================================== */
+.bar-state-msg {
+  text-align: center;
+  padding: 48px 24px;
+  color: #64748B;
+  font-size: 14px;
+}
+
+.bar-state-error {
+  color: #DC2626;
+  background: #FEF2F2;
+  border-radius: 8px;
+}
+
+.billing-ar-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 32px;
+  text-align: center;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.billing-ar-empty-icon {
+  color: #94A3B8;
+  margin-bottom: 16px;
+}
+
+.billing-ar-empty h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0A2540;
+  margin: 0 0 8px;
+}
+
+.billing-ar-empty p {
+  font-size: 13px;
+  color: #64748B;
+  max-width: 320px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ================================================================== */
+/*  AR Job Table                                                       */
+/* ================================================================== */
+.bar-table-wrap {
+  overflow-x: auto;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.bar-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bar-table thead th {
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #635BFF;
+  padding: 10px 12px;
+  border-bottom: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  white-space: nowrap;
+}
+
+.bar-th-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+
+.bar-th-sortable:hover {
+  color: #0A2540;
+}
+
+.bar-th-check {
+  width: 40px;
+  text-align: center !important;
+}
+
+.bar-table tbody td {
+  padding: 10px 12px;
+  font-size: 0.84rem;
+  color: #64748B;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.bar-row {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.bar-row:nth-child(4n+1) {
+  background: #FFFFFF;
+}
+
+.bar-row:nth-child(4n+3) {
+  background: #F8FAFC;
+}
+
+.bar-row:hover {
+  background: rgba(99, 91, 255, 0.04);
+}
+
+.bar-row.expanded {
+  background: rgba(99, 91, 255, 0.06);
+}
+
+.bar-td-check {
+  width: 40px;
+  text-align: center;
+}
+
+.bar-job-number {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-weight: 600;
+  color: #635BFF;
+  white-space: nowrap;
+}
+
+/* Division pill */
+.bar-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Balance styling */
+.bar-balance {
+  font-weight: 600;
+  color: #0A2540;
+}
+
+.bar-balance-overdue {
+  font-weight: 700;
+  color: #DC2626;
+}
+
+/* Days outstanding badges */
+.bar-days {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.bar-days.bar-aging-green  { background: #DCFCE7; color: #16A34A; }
+.bar-days.bar-aging-yellow { background: #FEF3C7; color: #D97706; }
+.bar-days.bar-aging-orange { background: #FEF3C7; color: #EA580C; }
+.bar-days.bar-aging-red    { background: #FEF2F2; color: #DC2626; }
+
+/* ================================================================== */
+/*  Action Buttons                                                     */
+/* ================================================================== */
+.bar-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.bar-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  background: #FFFFFF;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  color: inherit;
+  padding: 0;
+}
+
+.bar-action-btn:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  transform: translateY(-1px);
+}
+
+.bar-action-paid {
+  border-color: #BBF7D0;
+}
+
+.bar-action-paid:hover {
+  background: #DCFCE7;
+  border-color: #16A34A;
+}
+
+/* ================================================================== */
+/*  Expanded Row Detail Panel                                          */
+/* ================================================================== */
+.bar-expanded-row td {
+  padding: 0 !important;
+  background: #F8FAFC;
+}
+
+.bar-detail-panel {
+  padding: 20px 24px;
+  border-top: 2px solid #635BFF;
+}
+
+.bar-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.bar-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bar-detail-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94A3B8;
+}
+
+.bar-detail-item span:last-child {
+  font-size: 0.85rem;
+  color: #0A2540;
+}
+
+/* ================================================================== */
+/*  Collection Activity Log (within expanded row)                      */
+/* ================================================================== */
+.bar-activity-section {
+  border-top: 1px solid #E2E8F0;
+  padding-top: 16px;
+}
+
+.bar-activity-section h4 {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0A2540;
+}
+
+.bar-activity-loading,
+.bar-activity-empty {
+  font-size: 0.82rem;
+  color: #94A3B8;
+  padding: 8px 0;
+}
+
+.bar-activity-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bar-activity-table thead th {
+  text-align: left;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94A3B8;
+  padding: 6px 10px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.bar-activity-table tbody td {
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  color: #64748B;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.bar-method-pill {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* ================================================================== */
+/*  Modal (shared: LogContact + MarkPaid confirm)                      */
+/* ================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 37, 64, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0A2540;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  color: #0A2540;
+}
+
+.bar-modal-job-info {
+  display: flex;
+  gap: 20px;
+  padding: 12px 24px;
+  background: #F8FAFC;
+  font-size: 0.84rem;
+  color: #64748B;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.form-group {
+  padding: 0 24px;
+  margin-top: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #0A2540;
+  margin-bottom: 6px;
+}
+
+.form-group select,
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: #0A2540;
+  background: #FFFFFF;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.form-group select:focus,
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #635BFF;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px 24px;
+}
+
+.btn-secondary {
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: #64748B;
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-secondary:hover {
+  background: #F8FAFC;
+  color: #0A2540;
+}
+
+.btn-primary {
+  border: none;
+  border-radius: 6px;
+  background: #635BFF;
+  color: #FFFFFF;
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-primary:hover {
+  background: #4F46E5;
+}
+
+.btn-primary:disabled {
+  background: #CBD5E1;
+  cursor: not-allowed;
+}
+
+/* ================================================================== */
+/*  Responsive                                                         */
+/* ================================================================== */
+@media (max-width: 1200px) {
+  .bar-kpi-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .bar-detail-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .bar-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .bar-aging-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .bar-detail-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .bar-kpi-row {
+    grid-template-columns: 1fr;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    display: flex;
+    gap: 10px;
+    padding-bottom: 8px;
+  }
+  .bar-kpi-card {
+    min-width: 160px;
+    flex-shrink: 0;
+  }
+  .bar-aging-row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .bar-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .bar-filters select {
+    min-width: auto;
+  }
+  .bar-detail-grid {
+    grid-template-columns: 1fr;
+  }
+  .billing-ar-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

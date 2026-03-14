@@ -8,21 +8,21 @@
 .dispatch-header {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
-  background-color: var(--color-navy);
-  border-bottom: 3px solid var(--color-purple);
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
   padding: 20px 24px;
-  border-radius: var(--radius-card);
-  /* Optional: round it if it doesn't touch edges */
+  border-radius: 8px;
 }
 
 .dispatch-header h1 {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
-  color: var(--text-inverse);
+  color: #0A2540;
   margin: 0;
-  line-height: tight;
+  letter-spacing: -0.01em;
 }
 
 .dispatch-header-row {
@@ -41,27 +41,28 @@
   gap: 0;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  border: 1px solid #E2E8F0;
+  background: #ffffff;
 }
 
 .dispatch-range-toggle button {
   padding: 0.5rem 0.9rem;
   font-size: 0.9rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: #64748B;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .dispatch-range-toggle button:hover {
-  color: #e2e8f0;
-  background: rgba(148, 163, 184, 0.08);
+  color: #0A2540;
+  background: #F8FAFC;
 }
 
 .dispatch-range-toggle button.active {
-  background: rgba(148, 163, 184, 0.18);
-  color: #e2e8f0;
+  background: #EEF2FF;
+  color: #4F46E5;
 }
 
 .dispatch-range-toggle button:disabled {
@@ -153,15 +154,15 @@
   align-items: center;
   font-size: 0.85rem;
   margin-left: 0.25rem;
-  color: #94a3b8;
+  color: #64748B;
 }
 
 .dispatch-email-status.ok {
-  color: #4ade80;
+  color: #16A34A;
 }
 
 .dispatch-email-status.error {
-  color: #f87171;
+  color: #DC2626;
 }
 
 .dispatch-view-toggle {
@@ -169,28 +170,29 @@
   gap: 0;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid rgba(37, 99, 235, 0.3);
+  border: 1px solid #E2E8F0;
+  background: #ffffff;
 }
 
 .dispatch-view-toggle button {
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: #64748B;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
   position: relative;
 }
 
 .dispatch-view-toggle button:hover {
-  color: #e2e8f0;
-  background: rgba(37, 99, 235, 0.1);
+  color: #0A2540;
+  background: #F8FAFC;
 }
 
 .dispatch-view-toggle button.active {
-  background: rgba(37, 99, 235, 0.25);
-  color: #60a5fa;
+  background: #EEF2FF;
+  color: #4F46E5;
 }
 
 .dispatch-view-toggle button:disabled {
@@ -817,16 +819,17 @@
 .dispatch-date-nav button {
   padding: 0.5rem 0.75rem;
   font-size: 0.9rem;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(37, 99, 235, 0.3);
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
-  color: #e2e8f0;
+  color: #0A2540;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .dispatch-date-nav button:hover {
-  background: rgba(37, 99, 235, 0.2);
+  background: #F8FAFC;
+  border-color: #CBD5E1;
 }
 
 .dispatch-date-nav .today-btn {
@@ -836,7 +839,7 @@
 .dispatch-date-label {
   margin-left: 0.5rem;
   font-size: 1rem;
-  color: #DC2626;
+  color: #0A2540;
   font-weight: 600;
 }
 
@@ -1718,7 +1721,8 @@
   gap: 0;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  border: 1px solid #E2E8F0;
+  background: #ffffff;
 }
 
 .dispatch-undo-btn,
@@ -1726,17 +1730,17 @@
   padding: 0.5rem 0.75rem;
   font-size: 0.85rem;
   font-weight: 500;
-  background: rgba(30, 41, 59, 0.8);
+  background: transparent;
   border: none;
-  color: #94a3b8;
+  color: #64748B;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .dispatch-undo-btn:hover:not(:disabled),
 .dispatch-redo-btn:hover:not(:disabled) {
-  color: #e2e8f0;
-  background: rgba(148, 163, 184, 0.12);
+  color: #0A2540;
+  background: #F8FAFC;
 }
 
 .dispatch-undo-btn:disabled,
@@ -1769,9 +1773,9 @@
 }
 
 .dispatch-finalize-btn.finalized {
-  background: rgba(22, 163, 74, 0.08);
-  border-color: rgba(22, 163, 74, 0.25);
-  color: #86efac;
+  background: #DCFCE7;
+  border-color: #86EFAC;
+  color: #166534;
 }
 
 /* ─── Conflict warnings ──────────────────────────────────────────────────── */
@@ -1794,15 +1798,15 @@
 }
 
 .dispatch-conflict-item.overtime {
-  background: rgba(217, 119, 6, 0.12);
-  border: 1px solid rgba(217, 119, 6, 0.35);
+  background: #FFFBEB;
+  border: 1px solid #FCD34D;
   color: #D97706;
 }
 
 .dispatch-conflict-item.duplicate {
-  background: rgba(220, 38, 38, 0.12);
-  border: 1px solid rgba(220, 38, 38, 0.35);
-  color: #f87171;
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #DC2626;
 }
 
 /* ─── Per-job hours input ─────────────────────────────────────────────────── */
@@ -2513,18 +2517,19 @@
 
 .dispatch-copy-from-btn {
   padding: 6px 14px;
-  background: rgba(22, 163, 74, 0.12);
-  border: 1px solid rgba(22, 163, 74, 0.35);
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
-  color: #4ade80;
+  color: #0A2540;
   font-size: 0.82rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.15s;
 }
 
 .dispatch-copy-from-btn:hover {
-  background: rgba(22, 163, 74, 0.22);
+  background: #F8FAFC;
+  border-color: #CBD5E1;
 }
 
 .dispatch-copy-date-input {
@@ -2720,18 +2725,19 @@
 
 .dispatch-manage-teams-btn {
   padding: 6px 14px;
-  background: rgba(6, 182, 212, 0.12);
-  border: 1px solid rgba(6, 182, 212, 0.35);
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
-  color: #22d3ee;
+  color: #0A2540;
   font-size: 0.82rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.15s;
 }
 
 .dispatch-manage-teams-btn:hover {
-  background: rgba(6, 182, 212, 0.22);
+  background: #F8FAFC;
+  border-color: #CBD5E1;
 }
 
 /* ─── Team Management Modal ────────────────────────────────────────────── */
@@ -3015,10 +3021,10 @@
 }
 
 .dispatch-header h1 {
-  color: var(--text-inverse);
-  font-size: 20px;
+  color: #0A2540 !important;
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: normal;
+  letter-spacing: -0.01em;
 }
 
 /* Toggles */
@@ -3051,21 +3057,16 @@
   box-shadow: none !important;
 }
 
-/* Primary buttons */
+/* Header action hierarchy */
 .dispatch-job-status-planning-btn,
 .dispatch-export-pdf-btn,
 .dispatch-email-schedule-btn,
 .dispatch-upload-excel-btn,
-.dispatch-schedule-direct-btn,
-.dispatch-crew-swap-btn,
-.dispatch-schedule-pdf-btn,
-.dispatch-status-apply-btn,
 .dispatch-manage-teams-btn,
-.dispatch-copy-from-btn,
-.dispatch-finalize-btn {
-  background: var(--color-purple) !important;
-  color: var(--text-inverse) !important;
-  border: none !important;
+.dispatch-copy-from-btn {
+  background: #ffffff !important;
+  color: #0A2540 !important;
+  border: 1px solid #E2E8F0 !important;
   border-radius: var(--radius-btn) !important;
   font-weight: 500 !important;
   box-shadow: none !important;
@@ -3077,15 +3078,34 @@
 .dispatch-export-pdf-btn:hover,
 .dispatch-email-schedule-btn:hover,
 .dispatch-upload-excel-btn:hover,
-.dispatch-schedule-direct-btn:hover,
-.dispatch-crew-swap-btn:hover,
-.dispatch-schedule-pdf-btn:hover,
-.dispatch-status-apply-btn:hover,
 .dispatch-manage-teams-btn:hover,
-.dispatch-copy-from-btn:hover,
-.dispatch-finalize-btn:hover {
+.dispatch-copy-from-btn:hover {
+  background: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+}
+
+.dispatch-job-status-planning-btn {
+  background: #635BFF !important;
+  color: #ffffff !important;
+  border: 1px solid #635BFF !important;
+}
+
+.dispatch-job-status-planning-btn:hover {
   background: #4F46E5 !important;
+  border-color: #4F46E5 !important;
   box-shadow: 0 2px 8px rgba(99, 91, 255, 0.35) !important;
+}
+
+.dispatch-finalize-btn {
+  background: #16A34A !important;
+  color: #ffffff !important;
+  border: 1px solid #16A34A !important;
+}
+
+.dispatch-finalize-btn:hover {
+  background: #15803D !important;
+  border-color: #15803D !important;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35) !important;
 }
 
 /* Remove dark backgrounds from headers/panels */
@@ -3351,4 +3371,110 @@
 
 .outlook-crew-group {
   border-top: 1px solid var(--color-border) !important;
+}
+
+/* =========================================================
+   FINAL LIGHT NORMALIZATION (Dispatch Page)
+   ========================================================= */
+
+.dispatch-status-planning-modal,
+.team-mgmt-modal,
+.dispatch-progress-card,
+.status-panel {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--text-primary) !important;
+}
+
+.dispatch-status-planning-header,
+.dispatch-status-planning-toolbar,
+.team-mgmt-header,
+.status-panel-header,
+.status-crew-header {
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.dispatch-status-planning-header h3,
+.team-mgmt-header h3,
+.dispatch-progress-card h3,
+.status-panel-header h3,
+.status-crew-name,
+.status-job-number,
+.dispatch-map-sidebar-header h3 {
+  color: var(--text-primary) !important;
+}
+
+.dispatch-status-planning-header button,
+.dispatch-status-table select,
+.dispatch-hours-adjust button {
+  background: var(--color-surface) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.dispatch-status-planning-header .dispatch-status-apply-btn {
+  background: var(--color-purple) !important;
+  color: var(--text-inverse) !important;
+  border-color: var(--color-purple) !important;
+}
+
+.dispatch-status-table th,
+.dispatch-week-table th {
+  background: var(--color-bg) !important;
+  color: var(--text-secondary) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.dispatch-status-table td,
+.dispatch-week-table td {
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.dispatch-status-count,
+.dispatch-status-empty,
+.dispatch-progress-step,
+.dispatch-progress-count,
+.dispatch-week-sub,
+.dispatch-week-empty,
+.dispatch-week-daydate,
+.status-panel-progress-label,
+.status-panel-legend,
+.status-crew-progress,
+.status-job-customer,
+.status-job-status,
+.status-panel-empty,
+.dispatch-map-sidebar-count {
+  color: var(--text-secondary) !important;
+}
+
+.dispatch-progress-bar-wrap,
+.status-panel-progress-bar {
+  background: var(--color-border) !important;
+}
+
+.dispatch-week-view,
+.dispatch-week-table-wrap,
+.dispatch-map-crew-card {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.dispatch-map-depot-card {
+  background: var(--color-amberBg) !important;
+  border-color: #FCD34D !important;
+}
+
+.status-job-row:hover {
+  background: var(--color-bg) !important;
+}
+
+.dispatch-notify-toast {
+  background: #F0FDF4 !important;
+  border: 1px solid #86EFAC !important;
+  color: #166534 !important;
+}
+
+.dispatch-notify-warn {
+  color: #D97706 !important;
 }

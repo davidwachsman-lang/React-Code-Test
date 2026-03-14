@@ -2,10 +2,38 @@ import React, { useState, useEffect, useRef } from 'react';
 import intakeService from '../services/intakeService';
 import './Intake.css';
 
+const INTAKE_TEST_MODE = false;
+const SKIP_VALIDATION_FOR_FLOW_TEST = INTAKE_TEST_MODE;
+const INTAKE_DRAFT_KEY = 'dw_intake_draft_v1';
+const PHONE_FIELDS = new Set([
+  'callerPhone',
+  'onsitePhone',
+  'customerPhone',
+  'restorationPhone',
+  'insuranceAdjusterPhone',
+  'adjPhone',
+]);
+
+const formatPhoneInput = (value) => {
+  const digits = String(value || '').replace(/\D/g, '').slice(0, 10);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+};
+
+const formatCurrencyInput = (value) => {
+  const cleaned = String(value || '').replace(/[^\d.]/g, '');
+  const [rawInt = '', rawDec = ''] = cleaned.split('.');
+  const intPart = rawInt.replace(/^0+(?=\d)/, '') || (cleaned.includes('.') ? '0' : '');
+  const decPart = rawDec.slice(0, 2);
+  return decPart.length > 0 ? `${intPart}.${decPart}` : intPart;
+};
 
 function Intake() {
   const addressInputRef = useRef(null);
   const autocompleteRef = useRef(null);
+  const draftHydratedRef = useRef(false);
+  const autosaveTimeoutRef = useRef(null);
   const [autocompleteStatus, setAutocompleteStatus] = useState('loading');
   
   const [formData, setFormData] = useState({
@@ -27,10 +55,15 @@ function Intake() {
 
   const [affectedAreas, setAffectedAreas] = useState([]);
   const [customerForms, setCustomerForms] = useState([]);
+  const [standardStep, setStandardStep] = useState(1);
+  const [onsiteSameAsCaller, setOnsiteSameAsCaller] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
+  const [actionMessage, setActionMessage] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
+  const [pendingDraft, setPendingDraft] = useState(null);
+  const [lastDraftSavedAt, setLastDraftSavedAt] = useState(null);
 
   const fieldLabel = {
     jobName: 'Job Name',
@@ -42,7 +75,10 @@ function Intake() {
     callerType: 'Caller Type',
     callerName: 'Caller Name',
     callerPhone: 'Caller Phone',
+    access: 'Access Instructions',
     lossType: 'Loss Type',
+    activeLeak: 'Active Leak',
+    urgency: 'Urgency',
     category: 'Water Category',
     wclass: 'Water Class',
   };
@@ -70,12 +106,21 @@ function Intake() {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
+    let nextValue = value;
+
+    if (PHONE_FIELDS.has(id)) {
+      nextValue = formatPhoneInput(value);
+    } else if (id === 'claim' || id === 'insurancePolicyNumber') {
+      nextValue = String(value || '').toUpperCase().replace(/[^A-Z0-9-]/g, '');
+    } else if (id === 'deductible') {
+      nextValue = formatCurrencyInput(value);
+    }
 
     setValidationErrors((prev) => {
-      if (!prev[id] && !(id === 'lossType' && value !== 'Water' && (prev.category || prev.wclass))) return prev;
+      if (!prev[id] && !(id === 'lossType' && nextValue !== 'Water' && (prev.category || prev.wclass))) return prev;
       const next = { ...prev };
       delete next[id];
-      if (id === 'lossType' && value !== 'Water') {
+      if (id === 'lossType' && nextValue !== 'Water') {
         delete next.category;
         delete next.wclass;
       }
@@ -83,11 +128,11 @@ function Intake() {
     });
 
     // If loss type is changed, automatically update division
-    if (id === 'lossType' && value) {
-      const mappedDivision = getLossTypeDivision(value);
-      setFormData(prev => ({ ...prev, [id]: value, division: mappedDivision }));
+    if (id === 'lossType' && nextValue) {
+      const mappedDivision = getLossTypeDivision(nextValue);
+      setFormData(prev => ({ ...prev, [id]: nextValue, division: mappedDivision }));
     } else {
-      setFormData(prev => ({ ...prev, [id]: value }));
+      setFormData(prev => ({ ...prev, [id]: nextValue }));
     }
   };
 
@@ -97,10 +142,34 @@ function Intake() {
     );
   };
 
-  const validateRequired = () => {
+  const handleDivisionChange = (division) => {
+    setFormData(prev => ({ ...prev, division }));
+    setStandardStep(1);
+    setOnsiteSameAsCaller(false);
+  };
+
+  const getStandardStepOneErrors = () => {
+    const errors = {};
+    const required = ['callerType', 'callerName', 'callerPhone', 'address', 'lossType', 'urgency', 'activeLeak', 'access'];
+
+    for (const field of required) {
+      if (!formData[field]) {
+        errors[field] = `${fieldLabel[field]} is required`;
+      }
+    }
+
+    return errors;
+  };
+
+  const validateRequired = ({ stepOneOnly = false } = {}) => {
+    if (SKIP_VALIDATION_FOR_FLOW_TEST) {
+      setValidationErrors({});
+      return true;
+    }
+
     // Check if this is a Referral or Large Loss intake
     const isReferralOrLargeLoss = formData.division === 'Referral' || formData.division === 'Large Loss';
-    const errors = {};
+    let errors = {};
 
     if (isReferralOrLargeLoss) {
       // Validation for Referral/Large Loss forms
@@ -119,8 +188,11 @@ function Intake() {
         }
       }
     } else {
+      if (stepOneOnly) {
+        errors = getStandardStepOneErrors();
+      } else {
       // Validation for standard intake form
-      const required = ['callerType', 'callerName', 'callerPhone', 'address', 'lossType'];
+      const required = ['callerType', 'callerName', 'callerPhone', 'address', 'lossType', 'urgency', 'activeLeak', 'access'];
       for (const field of required) {
         if (!formData[field]) {
           errors[field] = `${fieldLabel[field]} is required`;
@@ -132,6 +204,7 @@ function Intake() {
           if (!formData.wclass) errors.wclass = `${fieldLabel.wclass} is required for Water loss`;
         }
       }
+      }
     }
 
     setValidationErrors(errors);
@@ -142,15 +215,38 @@ function Intake() {
     return true;
   };
 
+  const goToStandardStepTwo = () => {
+    if (!validateRequired({ stepOneOnly: true })) return;
+    setStandardStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOnsiteSameAsCallerChange = (checked) => {
+    setOnsiteSameAsCaller(checked);
+    if (checked) {
+      setFormData(prev => ({
+        ...prev,
+        onsiteName: prev.callerName || '',
+        onsitePhone: prev.callerPhone || '',
+      }));
+    }
+  };
+
   const submitIntake = async () => {
     if (!validateRequired()) return;
 
     setSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(null);
+    setActionMessage(null);
     setValidationErrors({});
 
     try {
+      if (INTAKE_TEST_MODE) {
+        setSubmitSuccess('Test mode is ON. Flow validated and no job was created.');
+        return;
+      }
+
       const result = await intakeService.submitIntake({
         ...formData,
         affectedAreas
@@ -189,8 +285,148 @@ function Intake() {
     });
     setAffectedAreas([]);
     setCustomerForms([]);
+    setStandardStep(1);
+    setOnsiteSameAsCaller(false);
+    setActionMessage(null);
     setValidationErrors({});
+    localStorage.removeItem(INTAKE_DRAFT_KEY);
+    setLastDraftSavedAt(null);
+    setPendingDraft(null);
+    draftHydratedRef.current = true;
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    if (!onsiteSameAsCaller) return;
+    setFormData(prev => {
+      const nextName = prev.callerName || '';
+      const nextPhone = prev.callerPhone || '';
+      if (prev.onsiteName === nextName && prev.onsitePhone === nextPhone) return prev;
+      return {
+        ...prev,
+        onsiteName: nextName,
+        onsitePhone: nextPhone,
+      };
+    });
+  }, [onsiteSameAsCaller, formData.callerName, formData.callerPhone]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(INTAKE_DRAFT_KEY);
+      if (!raw) {
+        draftHydratedRef.current = true;
+        return;
+      }
+      const parsed = JSON.parse(raw);
+      if (!parsed || !parsed.payload) {
+        draftHydratedRef.current = true;
+        return;
+      }
+      setPendingDraft(parsed);
+      setLastDraftSavedAt(parsed.savedAt || null);
+    } catch (error) {
+      draftHydratedRef.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!pendingDraft) return;
+    draftHydratedRef.current = false;
+  }, [pendingDraft]);
+
+  useEffect(() => {
+    if (!draftHydratedRef.current) return;
+    if (autosaveTimeoutRef.current) clearTimeout(autosaveTimeoutRef.current);
+    autosaveTimeoutRef.current = setTimeout(() => {
+      try {
+        const savedAt = new Date().toISOString();
+        const payload = {
+          formData,
+          affectedAreas,
+          customerForms,
+          standardStep,
+          onsiteSameAsCaller,
+        };
+        localStorage.setItem(
+          INTAKE_DRAFT_KEY,
+          JSON.stringify({ savedAt, payload })
+        );
+        setLastDraftSavedAt(savedAt);
+      } catch (error) {
+        // No-op: draft persistence is best effort only.
+      }
+    }, 400);
+
+    return () => {
+      if (autosaveTimeoutRef.current) clearTimeout(autosaveTimeoutRef.current);
+    };
+  }, [formData, affectedAreas, customerForms, standardStep, onsiteSameAsCaller]);
+
+  const standardStepOneErrors = getStandardStepOneErrors();
+  const standardStepOneMissing = Object.keys(standardStepOneErrors);
+  const standardStepOneTotal = 8;
+  const standardStepOneComplete = standardStepOneTotal - standardStepOneMissing.length;
+
+  const copyToClipboard = async (text, label) => {
+    if (!text) {
+      setActionMessage(`No ${label} to copy yet.`);
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      setActionMessage(`${label} copied.`);
+    } catch (error) {
+      setActionMessage(`Could not copy ${label.toLowerCase()}.`);
+    }
+  };
+
+  const openAddressInMaps = () => {
+    if (!formData.address) {
+      setActionMessage('No address available to open.');
+      return;
+    }
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formData.address)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setActionMessage('Opened address in maps.');
+  };
+
+  const createDispatchNote = () => {
+    const stamp = new Date().toLocaleString();
+    const summary = [
+      `[Dispatch ${stamp}]`,
+      `Caller: ${formData.callerName || 'N/A'} (${formData.callerPhone || 'N/A'})`,
+      `Address: ${formData.address || 'N/A'}`,
+      `Urgency: ${formData.urgency || 'N/A'}`,
+      `Active Leak: ${formData.activeLeak || 'N/A'}`,
+    ].join('\n');
+    setFormData((prev) => ({
+      ...prev,
+      notes: prev.notes ? `${prev.notes}\n\n${summary}` : summary,
+    }));
+    setStandardStep(2);
+    setActionMessage('Dispatch note added to Notes.');
+  };
+
+  const restoreDraft = (draft) => {
+    if (!draft) return;
+    const payload = draft.payload || {};
+    setFormData((prev) => ({ ...prev, ...(payload.formData || {}) }));
+    setAffectedAreas(payload.affectedAreas || []);
+    setCustomerForms(payload.customerForms || []);
+    setStandardStep(payload.standardStep || 1);
+    setOnsiteSameAsCaller(Boolean(payload.onsiteSameAsCaller));
+    setLastDraftSavedAt(draft.savedAt || null);
+    setPendingDraft(null);
+    draftHydratedRef.current = true;
+    setActionMessage('Draft restored.');
+  };
+
+  const discardDraft = () => {
+    localStorage.removeItem(INTAKE_DRAFT_KEY);
+    setPendingDraft(null);
+    setLastDraftSavedAt(null);
+    draftHydratedRef.current = true;
+    setActionMessage('Saved draft discarded.');
   };
 
   // Initialize Google Places Autocomplete for property address
@@ -347,23 +583,46 @@ function Intake() {
       <div className="division-buttons">
         <button
           className={`division-btn ${formData.division === 'HB - Nashville' || formData.division === 'MIT' || formData.division === 'RECON' ? 'active' : ''}`}
-          onClick={() => setFormData(prev => ({ ...prev, division: 'HB - Nashville' }))}
+          onClick={() => handleDivisionChange('HB - Nashville')}
         >
           HB - Nashville
         </button>
         <button
           className={`division-btn ${formData.division === 'Large Loss' ? 'active' : ''}`}
-          onClick={() => setFormData(prev => ({ ...prev, division: 'Large Loss' }))}
+          onClick={() => handleDivisionChange('Large Loss')}
         >
           Large Loss
         </button>
         <button
           className={`division-btn ${formData.division === 'Referral' ? 'active' : ''}`}
-          onClick={() => setFormData(prev => ({ ...prev, division: 'Referral' }))}
+          onClick={() => handleDivisionChange('Referral')}
         >
           Referral
         </button>
       </div>
+
+      {INTAKE_TEST_MODE && (
+        <section className="intake-panel intake-test-banner">
+          <p><strong>TEST MODE</strong> is on. Submitting intake will not create a job.</p>
+        </section>
+      )}
+
+      {pendingDraft && (
+        <section className="intake-panel intake-draft-banner">
+          <div>
+            <strong>Saved draft found.</strong>{' '}
+            {pendingDraft.savedAt ? `Saved ${new Date(pendingDraft.savedAt).toLocaleString()}.` : ''}
+          </div>
+          <div className="btn-group">
+            <button type="button" className="btn btn-primary" onClick={() => restoreDraft(pendingDraft)}>
+              Restore Draft
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={discardDraft}>
+              Discard Draft
+            </button>
+          </div>
+        </section>
+      )}
 
       {Object.keys(validationErrors).length > 0 && (
         <section className="intake-panel intake-validation-panel">
@@ -526,7 +785,42 @@ function Intake() {
         </>
       ) : (
         <>
-      {/* STANDARD FORM - Full intake form */}
+      <div className="intake-standard-layout">
+      <div className="intake-standard-main">
+      <section className="intake-panel intake-step-panel">
+        <p className="section-title">FNOL INTAKE FLOW</p>
+        <div className="step-chip-row">
+          <button
+            type="button"
+            className={`step-chip ${standardStep === 1 ? 'active' : ''}`}
+            onClick={() => setStandardStep(1)}
+          >
+            1. Dispatch Essentials
+          </button>
+          <button
+            type="button"
+            className={`step-chip ${standardStep === 2 ? 'active' : ''}`}
+            onClick={goToStandardStepTwo}
+          >
+            2. Insurance & Admin
+          </button>
+        </div>
+        <div className="step-missing-row">
+          {standardStepOneMissing.length === 0 ? (
+            <span className="step-complete-chip">Step 1 essentials complete</span>
+          ) : (
+            standardStepOneMissing.map((field) => (
+              <span key={field} className="step-missing-chip">
+                Missing: {fieldLabel[field]}
+              </span>
+            ))
+          )}
+        </div>
+      </section>
+
+      {standardStep === 1 && (
+      <>
+      {/* STANDARD FORM - Step 1 */}
       {/* Caller & Loss Identification */}
       <section className="intake-panel">
         <p className="section-title">CALLER & LOSS IDENTIFICATION</p>
@@ -602,15 +896,85 @@ function Intake() {
           </div>
           <div className="col-6">
             <label htmlFor="access">Access Instructions</label>
-            <input id="access" value={formData.access} onChange={handleInputChange} placeholder="Gate code, lockbox, pets…" />
+            <input id="access" className={fieldClassName('access')} value={formData.access} onChange={handleInputChange} placeholder="Gate code, lockbox, pets…" aria-invalid={!!validationErrors.access} />
+            {renderFieldError('access')}
+            <label className="inline-check">
+              <input
+                type="checkbox"
+                checked={onsiteSameAsCaller}
+                onChange={(e) => handleOnsiteSameAsCallerChange(e.target.checked)}
+              />
+              On-site contact same as caller
+            </label>
           </div>
           <div className="col-3">
             <label htmlFor="onsiteName">On-site Contact Name</label>
-            <input id="onsiteName" value={formData.onsiteName} onChange={handleInputChange} />
+            <input id="onsiteName" value={formData.onsiteName} onChange={handleInputChange} disabled={onsiteSameAsCaller} />
           </div>
           <div className="col-3">
             <label htmlFor="onsitePhone">On-site Contact Phone</label>
-            <input id="onsitePhone" value={formData.onsitePhone} onChange={handleInputChange} />
+            <input id="onsitePhone" value={formData.onsitePhone} onChange={handleInputChange} disabled={onsiteSameAsCaller} />
+          </div>
+        </div>
+      </section>
+
+      {/* Dispatch-Critical Loss Details */}
+      <section className="intake-panel">
+        <p className="section-title">DISPATCH-CRITICAL LOSS DETAILS</p>
+        <div className="intake-grid">
+          <div className="col-3">
+            <label htmlFor="lossType">Loss Type</label>
+            <select id="lossType" className={fieldClassName('lossType')} value={formData.lossType} onChange={handleInputChange} aria-invalid={!!validationErrors.lossType} required>
+              <option value="">Select…</option>
+              <option>Water</option>
+              <option>Fire</option>
+              <option>Mold</option>
+              <option>Bio</option>
+              <option>Trauma</option>
+              <option>Board-up</option>
+              <option>Reconstruction</option>
+              <option>Contents</option>
+            </select>
+            {renderFieldError('lossType')}
+          </div>
+          <div className="col-3">
+            <label htmlFor="activeLeak">Active Leak?</label>
+            <select id="activeLeak" className={fieldClassName('activeLeak')} value={formData.activeLeak} onChange={handleInputChange} aria-invalid={!!validationErrors.activeLeak}>
+              <option value="">Select…</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+            {renderFieldError('activeLeak')}
+          </div>
+          <div className="col-3">
+            <label htmlFor="urgency">Urgency</label>
+            <select id="urgency" className={fieldClassName('urgency')} value={formData.urgency} onChange={handleInputChange} aria-invalid={!!validationErrors.urgency}>
+              <option value="">Select…</option>
+              <option>Emergency (1–3 hrs)</option>
+              <option>Same Day</option>
+              <option>Next Day</option>
+              <option>Scheduled</option>
+            </select>
+            {renderFieldError('urgency')}
+          </div>
+        </div>
+      </section>
+
+      </>
+      )}
+
+      {standardStep === 2 && (
+      <>
+      <section className="intake-panel">
+        <p className="section-title">PROPERTY PROFILE</p>
+        <div className="intake-grid">
+          <div className="col-3">
+            <label htmlFor="propertyType">Property Type</label>
+            <select id="propertyType" value={formData.propertyType} onChange={handleInputChange}>
+              <option value="">Select…</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+            </select>
           </div>
           <div className="col-3">
             <label htmlFor="propertyStatus">Property Status</label>
@@ -643,33 +1007,9 @@ function Intake() {
         </div>
       </section>
 
-      {/* Loss Details */}
       <section className="intake-panel">
-        <p className="section-title">LOSS DETAILS</p>
+        <p className="section-title">LOSS DETAILS (DETAILED)</p>
         <div className="intake-grid">
-          <div className="col-3">
-            <label htmlFor="propertyType">Property Type</label>
-            <select id="propertyType" value={formData.propertyType} onChange={handleInputChange} required>
-              <option value="">Select…</option>
-              <option value="Residential">Residential</option>
-              <option value="Commercial">Commercial</option>
-            </select>
-          </div>
-          <div className="col-3">
-            <label htmlFor="lossType">Loss Type</label>
-            <select id="lossType" className={fieldClassName('lossType')} value={formData.lossType} onChange={handleInputChange} aria-invalid={!!validationErrors.lossType} required>
-              <option value="">Select…</option>
-              <option>Water</option>
-              <option>Fire</option>
-              <option>Mold</option>
-              <option>Bio</option>
-              <option>Trauma</option>
-              <option>Board-up</option>
-              <option>Reconstruction</option>
-              <option>Contents</option>
-            </select>
-            {renderFieldError('lossType')}
-          </div>
           <div className="col-3">
             <label htmlFor="source">Source of Loss</label>
             <input id="source" value={formData.source} onChange={handleInputChange} placeholder="e.g., burst supply line" />
@@ -677,14 +1017,6 @@ function Intake() {
           <div className="col-3">
             <label htmlFor="lossDate">Loss Date/Time</label>
             <input id="lossDate" type="datetime-local" value={formData.lossDate} onChange={handleInputChange} />
-          </div>
-          <div className="col-3">
-            <label htmlFor="activeLeak">Active Leak?</label>
-            <select id="activeLeak" value={formData.activeLeak} onChange={handleInputChange}>
-              <option value="">Select…</option>
-              <option>Yes</option>
-              <option>No</option>
-            </select>
           </div>
           <div className="col-3">
             <label htmlFor="category">Water Category</label>
@@ -712,8 +1044,8 @@ function Intake() {
             <div className="pill-container">
               {['Kitchen', 'Bath', 'Living Room', 'Bedroom', 'Basement', 'Attic', 'Exterior'].map(area => (
                 <label key={area} className="pill">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={affectedAreas.includes(area)}
                     onChange={() => handleCheckboxChange(area, setAffectedAreas, affectedAreas)}
                   />
@@ -775,7 +1107,7 @@ function Intake() {
           </div>
           <div className="col-3">
             <label htmlFor="deductible">Deductible ($)</label>
-            <input id="deductible" type="number" min="0" step="0.01" value={formData.deductible} onChange={handleInputChange} />
+            <input id="deductible" type="text" inputMode="decimal" value={formData.deductible} onChange={handleInputChange} placeholder="0.00" />
           </div>
           <div className="col-3">
             <label htmlFor="coverage">Coverage Confirmed</label>
@@ -792,16 +1124,6 @@ function Intake() {
       <section className="intake-panel">
         <p className="section-title">DISPATCH</p>
         <div className="intake-grid">
-          <div className="col-3">
-            <label htmlFor="urgency">Urgency</label>
-            <select id="urgency" value={formData.urgency} onChange={handleInputChange}>
-              <option value="">Select…</option>
-              <option>Emergency (1–3 hrs)</option>
-              <option>Same Day</option>
-              <option>Next Day</option>
-              <option>Scheduled</option>
-            </select>
-          </div>
           <div className="col-3">
             <label htmlFor="arrival">Preferred Arrival Window</label>
             <input id="arrival" value={formData.arrival} onChange={handleInputChange} placeholder="e.g., 2–4pm" />
@@ -870,6 +1192,59 @@ function Intake() {
           ))}
         </div>
       </section>
+      </>
+      )}
+      </div>
+      <aside className="intake-panel intake-dispatch-card">
+        <p className="section-title">DISPATCH CARD</p>
+        {lastDraftSavedAt && (
+          <p className="dispatch-meta">Draft saved {new Date(lastDraftSavedAt).toLocaleTimeString()}.</p>
+        )}
+        <div className="dispatch-progress">
+          <span>Step 1 Essentials</span>
+          <strong>{standardStepOneComplete}/{standardStepOneTotal}</strong>
+        </div>
+        <div className="dispatch-item">
+          <span>Current Step</span>
+          <strong>{standardStep === 1 ? 'Dispatch Essentials' : 'Insurance & Admin'}</strong>
+        </div>
+        <div className="dispatch-item">
+          <span>Caller</span>
+          <strong>{formData.callerName || 'Not set'}</strong>
+        </div>
+        <div className="dispatch-item">
+          <span>Callback</span>
+          <strong>{formData.callerPhone || 'Not set'}</strong>
+        </div>
+        <div className="dispatch-item">
+          <span>Loss Address</span>
+          <strong>{formData.address || 'Not set'}</strong>
+        </div>
+        <div className="dispatch-item">
+          <span>Urgency</span>
+          <strong>{formData.urgency || 'Not set'}</strong>
+        </div>
+        <div className="dispatch-item">
+          <span>Active Leak</span>
+          <strong>{formData.activeLeak || 'Not set'}</strong>
+        </div>
+        <div className="dispatch-actions">
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => copyToClipboard(formData.callerPhone, 'Callback')}>
+            Copy Callback
+          </button>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => copyToClipboard(formData.address, 'Address')}>
+            Copy Address
+          </button>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={openAddressInMaps}>
+            Open in Maps
+          </button>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={createDispatchNote}>
+            Create Dispatch Note
+          </button>
+        </div>
+        {actionMessage && <p className="dispatch-meta">{actionMessage}</p>}
+      </aside>
+      </div>
         </>
       )}
 
@@ -887,15 +1262,38 @@ function Intake() {
 
       {/* Controls */}
       <section className="intake-panel intake-controls">
-        <div className="btn-group">
-          <button
-            className="btn btn-primary"
-            onClick={submitIntake}
-            disabled={submitting}
-          >
-            {submitting ? 'Submitting...' : 'Submit Intake'}
-          </button>
-        </div>
+        {formData.division !== 'Referral' && formData.division !== 'Large Loss' ? (
+          <div className="btn-group">
+            {standardStep === 2 && (
+              <button className="btn btn-ghost" onClick={() => setStandardStep(1)} disabled={submitting}>
+                Back to Step 1
+              </button>
+            )}
+            {standardStep === 1 ? (
+              <button className="btn btn-primary" onClick={goToStandardStepTwo} disabled={submitting}>
+                Continue to Step 2
+              </button>
+            ) : (
+              <button
+                className="btn btn-primary"
+                onClick={submitIntake}
+                disabled={submitting}
+              >
+                {submitting ? 'Submitting...' : 'Submit Intake'}
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="btn-group">
+            <button
+              className="btn btn-primary"
+              onClick={submitIntake}
+              disabled={submitting}
+            >
+              {submitting ? 'Submitting...' : 'Submit Intake'}
+            </button>
+          </div>
+        )}
         <div className="btn-group">
           <button className="btn btn-danger" onClick={clearForm} disabled={submitting}>Clear Form</button>
         </div>

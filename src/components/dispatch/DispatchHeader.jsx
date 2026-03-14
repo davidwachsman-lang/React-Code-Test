@@ -33,7 +33,7 @@ export default function DispatchHeader({
   };
   return (
     <div className="dispatch-header">
-      <h1>Schedule</h1>
+      <h1>Scheduling Command Center</h1>
       {/* Row 1: nav, range toggle, undo/redo, view toggle */}
       <div className="dispatch-header-row dispatch-header-nav-row">
         <div className="dispatch-date-nav">

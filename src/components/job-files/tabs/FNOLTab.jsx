@@ -1,36 +1,24 @@
-import { useState } from 'react';
 import { FNOL_SECTIONS } from '../../../constants/jobFileConstants';
 
+const SECTION_COLORS = {
+  'Caller Information': '#2563EB',
+  'Property & Access': '#9333EA',
+  'Loss Details': '#DC2626',
+  'Insurance': '#D97706',
+  'Dispatch': '#16A34A',
+  'Authorization & Payment': '#06b6d4',
+};
+
 export default function FNOLTab({ job, localState, onSupabaseChange, onLocalChange }) {
-  // #9: All sections start collapsed
-  const [collapsed, setCollapsed] = useState(() =>
-    Object.fromEntries(FNOL_SECTIONS.map(s => [s.label, true]))
-  );
-
-  const toggle = (label) => {
-    setCollapsed(prev => ({ ...prev, [label]: !prev[label] }));
-  };
-
-  const sectionColors = {
-    'Caller Information': '#2563EB',
-    'Property & Access': '#9333EA',
-    'Loss Details': '#DC2626',
-    'Insurance': '#D97706',
-    'Dispatch': '#16A34A',
-    'Authorization & Payment': '#06b6d4',
-  };
-
   // Get value for a field — Supabase, readonly, or local
   const getFieldValue = (field) => {
     if (field.readonlyFrom) return job?.[field.readonlyFrom] || '';
     if (field.supabaseField) return job?.[field.supabaseField] || '';
-    // Pills stored as comma-separated string in localStorage
     return localState[field.key] || '';
   };
 
-  // Handle change for a field
   const handleFieldChange = (field, value) => {
-    if (field.readonlyFrom) return; // readonly fields can't be changed
+    if (field.readonlyFrom) return;
     if (field.supabaseField) {
       onSupabaseChange(field.supabaseField, value);
     } else {
@@ -38,16 +26,6 @@ export default function FNOLTab({ job, localState, onSupabaseChange, onLocalChan
     }
   };
 
-  // Completion count per section
-  const getSectionCompletion = (section) => {
-    const filled = section.fields.filter(f => {
-      const val = getFieldValue(f);
-      return val !== '' && val !== undefined && val !== null;
-    }).length;
-    return { filled, total: section.fields.length };
-  };
-
-  // Toggle a pill value (comma-separated string in localStorage)
   const togglePill = (field, pill) => {
     const current = (localState[field.key] || '').split(',').filter(Boolean);
     const updated = current.includes(pill)
@@ -56,11 +34,18 @@ export default function FNOLTab({ job, localState, onSupabaseChange, onLocalChan
     onLocalChange(field.key, updated.join(','));
   };
 
+  const getSectionCompletion = (section) => {
+    const filled = section.fields.filter(f => {
+      const val = getFieldValue(f);
+      return val !== '' && val !== undefined && val !== null;
+    }).length;
+    return { filled, total: section.fields.length };
+  };
+
   const renderField = (field) => {
     const value = getFieldValue(field);
     const isReadonly = !!field.readonlyFrom;
 
-    // Readonly fields
     if (isReadonly) {
       return (
         <div key={field.key} className="form-group">
@@ -70,11 +55,10 @@ export default function FNOLTab({ job, localState, onSupabaseChange, onLocalChan
       );
     }
 
-    // Pills (checkbox group)
     if (field.type === 'pills') {
       const selected = (value || '').split(',').filter(Boolean);
       return (
-        <div key={field.key} className="form-group form-group-full">
+        <div key={field.key} className="form-group">
           <label>{field.label}</label>
           <div className="fnol-pill-container">
             {field.options.map(opt => (
@@ -92,10 +76,9 @@ export default function FNOLTab({ job, localState, onSupabaseChange, onLocalChan
       );
     }
 
-    // Textarea
     if (field.type === 'textarea') {
       return (
-        <div key={field.key} className="form-group form-group-full">
+        <div key={field.key} className="form-group">
           <label>{field.label}</label>
           <textarea
             className="form-input"
@@ -109,7 +92,6 @@ export default function FNOLTab({ job, localState, onSupabaseChange, onLocalChan
       );
     }
 
-    // Dropdown
     if (field.type === 'dropdown') {
       return (
         <div key={field.key} className="form-group">
@@ -131,7 +113,6 @@ export default function FNOLTab({ job, localState, onSupabaseChange, onLocalChan
       );
     }
 
-    // Standard input (text, email, number, date, datetime-local)
     const inputType = field.type === 'email' ? 'email'
       : field.type === 'date' ? 'date'
       : field.type === 'datetime-local' ? 'datetime-local'
@@ -158,36 +139,28 @@ export default function FNOLTab({ job, localState, onSupabaseChange, onLocalChan
 
   return (
     <div className="fnol-tab">
-      {FNOL_SECTIONS.map((section) => {
-        const isCollapsed = collapsed[section.label];
-        const borderColor = sectionColors[section.label] || '#2563EB';
-        const { filled, total } = getSectionCompletion(section);
+      <div className="fnol-columns-grid">
+        {FNOL_SECTIONS.map((section) => {
+          const borderColor = SECTION_COLORS[section.label] || '#2563EB';
+          const { filled, total } = getSectionCompletion(section);
 
-        return (
-          <div
-            key={section.label}
-            className="fnol-section"
-            style={{ borderLeftColor: borderColor }}
-          >
+          return (
             <div
-              className="fnol-section-header"
-              onClick={() => toggle(section.label)}
+              key={section.label}
+              className="fnol-column"
+              style={{ borderTopColor: borderColor }}
             >
-              <h4>
-                {section.label}
+              <div className="fnol-column-header">
+                <h4>{section.label}</h4>
                 <span className="fnol-completion-badge">{filled}/{total}</span>
-              </h4>
-              <span className="fnol-collapse-icon">{isCollapsed ? '+' : '-'}</span>
-            </div>
-
-            {!isCollapsed && (
-              <div className="fnol-fields-grid">
+              </div>
+              <div className="fnol-column-fields">
                 {section.fields.map(renderField)}
               </div>
-            )}
-          </div>
-        );
-      })}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

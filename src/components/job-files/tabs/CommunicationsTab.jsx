@@ -1,134 +1,213 @@
-import { useState } from 'react';
-import { ESCALATION_SEVERITIES } from '../../../constants/jobFileConstants';
+import { useState, useRef, useCallback } from 'react';
+import { useAuth } from '../../../contexts/AuthContext';
 
-const COMM_TYPES = [
-  { key: 'internal', label: 'Internal Notes', supabase: true, dbField: 'internal_notes' },
-  { key: 'customer', label: 'Customer Communication', supabase: false, localField: 'customer_communication' },
-  { key: 'adjuster', label: 'Adjuster/Carrier Communication', supabase: false, localField: 'adjuster_carrier_communication' },
-  { key: 'escalations', label: 'Escalations', supabase: false, localField: 'escalations', hasServerity: true },
-  { key: 'timeline', label: 'Job Timeline Events', supabase: false, localField: 'job_timeline_events', readOnly: true },
-];
+const API_BASE = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
-export default function CommunicationsTab({ job, localState, onSupabaseChange, onLocalChange, onAddNote }) {
-  // #11: Track which sections are open (multiple can be open at once)
-  const [openSections, setOpenSections] = useState({ internal: true });
-  const [newEntries, setNewEntries] = useState({});
-  const [severity, setSeverity] = useState('Medium');
+function getSpeechRecognition() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
 
-  const toggleSection = (key) => {
-    setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
-  };
+function getInitials(email) {
+  if (!email) return '??';
+  const name = email.split('@')[0];
+  const parts = name.split(/[._-]/).filter(Boolean);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+}
 
-  const getLog = (type) => {
-    if (type.supabase) return job[type.dbField] || '';
-    return localState[type.localField] || '';
-  };
+export default function CommunicationsTab({ job, onAddNote }) {
+  const { user } = useAuth();
+  const [newNote, setNewNote] = useState('');
+  const [summary, setSummary] = useState(null);
+  const [summarizing, setSummarizing] = useState(false);
+  const [listening, setListening] = useState(false);
+  const recognitionRef = useRef(null);
+  const initials = getInitials(user?.email);
 
-  const handleAdd = (type) => {
-    const text = (newEntries[type.key] || '').trim();
+  const handleAdd = () => {
+    const text = newNote.trim();
     if (!text) return;
+    const now = new Date();
+    const date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const entry = `${date} ${time}\n${initials}: ${text}`;
+    onAddNote(entry);
+    setNewNote('');
+  };
 
-    const timestamp = `[${new Date().toLocaleString()}]`;
-    const prefix = type.hasServerity ? `[${severity}] ` : '';
-    const entry = `${timestamp}\n${prefix}${text}`;
-
-    if (type.supabase) {
-      onAddNote(text);
-    } else {
-      const existing = localState[type.localField] || '';
-      const updated = existing ? `${existing}\n\n${entry}` : entry;
-      onLocalChange(type.localField, updated);
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      handleAdd();
     }
-    setNewEntries(prev => ({ ...prev, [type.key]: '' }));
   };
 
-  const sectionColors = {
-    internal: '#2563EB',
-    customer: '#16A34A',
-    adjuster: '#D97706',
-    escalations: '#DC2626',
-    timeline: '#9333EA',
+  const hasSpeech = !!getSpeechRecognition();
+
+  const toggleVoice = useCallback(() => {
+    const SR = getSpeechRecognition();
+    if (!SR) {
+      alert('Speech recognition is not supported in this browser. Try Chrome or Edge.');
+      return;
+    }
+
+    if (listening) {
+      recognitionRef.current?.stop();
+      setListening(false);
+      return;
+    }
+
+    const recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    recognitionRef.current = recognition;
+
+    let finalTranscript = '';
+
+    recognition.onresult = (event) => {
+      let interim = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interim = transcript;
+        }
+      }
+      setNewNote(prev => {
+        // Replace everything after the last final transcript with interim
+        const base = prev.endsWith(finalTranscript) ? prev : (prev ? prev + ' ' : '') + finalTranscript;
+        return interim ? base + interim : base;
+      });
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      setListening(false);
+    };
+
+    recognition.start();
+    setListening(true);
+    // Capture current note as the base
+    finalTranscript = newNote ? newNote + ' ' : '';
+  }, [listening, newNote]);
+
+  const handleSummarize = async () => {
+    const notes = (job.internal_notes || '').trim();
+    if (!notes) return;
+    setSummarizing(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/ai/summarize-notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to summarize');
+      setSummary(data.summary);
+    } catch (err) {
+      console.error('Summarize failed:', err);
+      setSummary('Failed to generate summary. Is the backend running?');
+    } finally {
+      setSummarizing(false);
+    }
   };
+
+  // Parse notes — each entry separated by double newline, already newest first
+  const notes = (job.internal_notes || '').trim();
+  const entries = notes
+    ? notes.split(/\n{2,}/).filter(Boolean)
+    : [];
 
   return (
-    <div className="communications-tab">
-      {COMM_TYPES.map((type) => {
-        const isOpen = openSections[type.key];
-        const log = getLog(type);
-        const borderColor = sectionColors[type.key] || '#2563EB';
-
-        return (
-          <div
-            key={type.key}
-            className="fnol-section"
-            style={{ borderLeftColor: borderColor }}
-          >
-            <div
-              className="fnol-section-header"
-              onClick={() => toggleSection(type.key)}
+    <div className="comm-simple">
+      <div className="comm-input-section">
+        <div className="comm-textarea-wrap">
+          <textarea
+            className="comm-textarea"
+            placeholder="Add a note... (Cmd+Enter to submit)"
+            value={newNote}
+            onChange={(e) => setNewNote(e.target.value)}
+            onKeyDown={handleKeyDown}
+            rows={3}
+          />
+          {hasSpeech && (
+            <button
+              type="button"
+              className={`comm-voice-btn${listening ? ' active' : ''}`}
+              onClick={toggleVoice}
+              title={listening ? 'Stop listening' : 'Voice input'}
             >
-              <h4>{type.label}</h4>
-              <span className="fnol-collapse-icon">{isOpen ? '-' : '+'}</span>
-            </div>
+              <span style={{ fontSize: '16px', lineHeight: 1 }}>{listening ? '🔴' : '🎤'}</span>
+            </button>
+          )}
+        </div>
+        {listening && <div className="comm-listening-indicator">Listening...</div>}
+        <div className="comm-input-footer">
+          <span className="comm-char-count">{newNote.length}/2000</span>
+          <button
+            className="btn-primary"
+            onClick={handleAdd}
+            disabled={!newNote.trim()}
+          >
+            Add Note
+          </button>
+        </div>
+      </div>
 
-            {isOpen && (
-              <div style={{ padding: '0 1.25rem 1.25rem' }}>
-                {!type.readOnly && (
-                  <div style={{ marginBottom: '1rem' }}>
-                    {type.hasServerity && (
-                      <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-                        <label>Severity</label>
-                        <select
-                          className="form-input"
-                          value={severity}
-                          onChange={(e) => setSeverity(e.target.value)}
-                        >
-                          {ESCALATION_SEVERITIES.map((s) => (
-                            <option key={s} value={s}>{s}</option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                    <textarea
-                      className="note-textarea"
-                      placeholder={`Enter ${type.label.toLowerCase()}...`}
-                      value={newEntries[type.key] || ''}
-                      onChange={(e) => setNewEntries(prev => ({ ...prev, [type.key]: e.target.value }))}
-                      rows={4}
-                      maxLength={2000}
-                    />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <button
-                        className="btn-primary"
-                        onClick={() => handleAdd(type)}
-                        disabled={!(newEntries[type.key] || '').trim()}
-                      >
-                        Add Entry
-                      </button>
-                      <span style={{ color: '#64748b', fontSize: '0.8rem' }}>
-                        {(newEntries[type.key] || '').length}/2000
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <h4 style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-                    History
-                  </h4>
-                  {type.readOnly ? (
-                    <p className="no-notes">Job timeline events will be auto-populated in a future update.</p>
-                  ) : log ? (
-                    <div className="notes-history">{log}</div>
-                  ) : (
-                    <p className="no-notes">No entries yet.</p>
-                  )}
-                </div>
+      {/* Summary — hidden for now, enable later */}
+      {false && entries.length > 0 && (
+        <div className="comm-summary-section">
+          <button
+            className="comm-summarize-btn"
+            onClick={handleSummarize}
+            disabled={summarizing}
+          >
+            {summarizing ? 'Summarizing...' : 'Summarize Notes'}
+          </button>
+          {summary && (
+            <div className="comm-summary-card">
+              <div className="comm-summary-header">
+                <span>AI Summary</span>
+                <button className="comm-summary-close" onClick={() => setSummary(null)}>&times;</button>
               </div>
-            )}
-          </div>
-        );
-      })}
+              <div className="comm-summary-body">{summary}</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="comm-history">
+        {entries.length === 0 ? (
+          <p className="comm-empty">No notes yet.</p>
+        ) : (
+          entries.map((entry, i) => {
+            const lines = entry.split('\n');
+            const dateLine = lines[0] || '';
+            const bodyLine = lines.slice(1).join('\n');
+            // Bold initials if line starts with "XX: "
+            const initialsMatch = bodyLine.match(/^([A-Z]{2}):\s/);
+            return (
+              <div key={i} className="comm-entry">
+                <div className="comm-entry-date">{dateLine}</div>
+                {initialsMatch ? (
+                  <div className="comm-entry-body">
+                    <strong className="comm-entry-initials">{initialsMatch[1]}</strong>: {bodyLine.slice(initialsMatch[0].length)}
+                  </div>
+                ) : (
+                  <div className="comm-entry-body">{bodyLine || dateLine}</div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 }

@@ -12,7 +12,6 @@ export default function DocumentationTab({ job, localState, onSupabaseChange, on
   };
 
   const handleToggle = (key, newValue) => {
-    // Write to Supabase chk_* column
     if (onSupabaseChange) {
       onSupabaseChange(toDbCol(key), newValue);
     } else {
@@ -45,30 +44,32 @@ export default function DocumentationTab({ job, localState, onSupabaseChange, on
         </div>
       </div>
 
-      {DOC_CHECK_GROUPS.map((group) => (
-        <div key={group.label} className="doc-group">
-          <h4 className="doc-group-label">{group.label}</h4>
-          <div className="doc-checks-grid">
-            {group.items.map((key) => {
-              const item = getItemByKey(key);
-              if (!item) return null;
-              const checked = isChecked(key);
-              return (
-                <div
-                  key={key}
-                  className={`doc-check-item ${checked ? 'checked' : ''}`}
-                  onClick={() => handleToggle(key, !checked)}
-                >
-                  <div className={`doc-toggle ${checked ? 'on' : 'off'}`}>
-                    <div className="doc-toggle-knob" />
+      <div className="doc-columns-grid">
+        {DOC_CHECK_GROUPS.map((group) => (
+          <div key={group.label} className="doc-group">
+            <h4 className="doc-group-label">{group.label}</h4>
+            <div className="doc-checks-list">
+              {group.items.map((key) => {
+                const item = getItemByKey(key);
+                if (!item) return null;
+                const checked = isChecked(key);
+                return (
+                  <div
+                    key={key}
+                    className={`doc-check-item ${checked ? 'checked' : ''}`}
+                    onClick={() => handleToggle(key, !checked)}
+                  >
+                    <div className={`doc-toggle ${checked ? 'on' : 'off'}`}>
+                      <div className="doc-toggle-knob" />
+                    </div>
+                    <span className="doc-check-label">{item.label}</span>
                   </div>
-                  <span className="doc-check-label">{item.label}</span>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,9 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, useReducer } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import JobBulkUpload from '../components/job-files/JobBulkUpload';
+import EmptyState from '../components/job-files/EmptyState';
+import Pagination from '../components/job-files/Pagination';
+import JobFilesFilterBar from '../components/job-files/JobFilesFilterBar';
 import {
   useReactTable,
   getCoreRowModel,
@@ -14,16 +17,9 @@ import intakeService from '../services/intakeService';
 import { supabase } from '../services/supabaseClient';
 import useJobLocalState from '../hooks/useJobLocalState';
 import {
-  STATUS_OPTIONS,
-  STATUS_DB_MAP,
   STATUS_DISPLAY_MAP,
   DIVISION_OPTIONS,
-  GROUP_OPTIONS,
   DEPARTMENT_OPTIONS,
-  PM_OPTIONS,
-  CREW_CHIEF_OPTIONS,
-  JFC_OPTIONS,
-  BIZ_DEV_OPTIONS,
 } from '../constants/jobFileConstants';
 import './Page.css';
 import './JobFiles.css';
@@ -32,6 +28,30 @@ const INITIAL_FILTERS = {
   status: 'all', division: 'all', group: 'all', jobType: 'all',
   propertyType: 'all', pm: 'all', cc: 'all', jfc: 'all', bdr: 'all',
 };
+
+const INITIAL_UI = {
+  showColumnPicker: false,
+  showUpload: false,
+  showNewJobModal: false,
+  newJobDiv: '',
+  newJobDept: '',
+  creatingJob: false,
+};
+
+function uiReducer(state, action) {
+  switch (action.type) {
+    case 'SET':
+      return { ...state, [action.key]: action.value };
+    case 'OPEN_NEW_JOB':
+      return { ...state, showNewJobModal: true, newJobDiv: '', newJobDept: '' };
+    case 'CLOSE_NEW_JOB':
+      return { ...state, showNewJobModal: false, creatingJob: false };
+    case 'RESET':
+      return { ...INITIAL_UI };
+    default:
+      return state;
+  }
+}
 
 function JobFiles() {
   const navigate = useNavigate();
@@ -42,7 +62,6 @@ function JobFiles() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
-  // #1: Consolidated filter state
   const [filters, setFilters] = useState(() => {
     const initial = { ...INITIAL_FILTERS };
     for (const key of Object.keys(INITIAL_FILTERS)) {
@@ -65,26 +84,22 @@ function JobFiles() {
     jfc: false,
     business_dev_rep: false,
   });
-  const [showColumnPicker, setShowColumnPicker] = useState(false);
-  const [showUpload, setShowUpload] = useState(false);
-  const [showNewJobModal, setShowNewJobModal] = useState(false);
-  const [newJobDiv, setNewJobDiv] = useState('');
-  const [newJobDept, setNewJobDept] = useState('');
-  const [creatingJob, setCreatingJob] = useState(false);
+
+  const [ui, dispatchUI] = useReducer(uiReducer, INITIAL_UI);
 
   const { getLocalState } = useJobLocalState();
   const columnPickerRef = useRef(null);
 
   useEffect(() => {
-    if (!showColumnPicker) return;
+    if (!ui.showColumnPicker) return;
     const handleClick = (e) => {
       if (columnPickerRef.current && !columnPickerRef.current.contains(e.target)) {
-        setShowColumnPicker(false);
+        dispatchUI({ type: 'SET', key: 'showColumnPicker', value: false });
       }
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [showColumnPicker]);
+  }, [ui.showColumnPicker]);
 
   // Abbreviation maps (3 chars max)
   const DIV_ABBREV = { HB: 'HB', LL: 'LL', REFERRAL: 'REF' };
@@ -115,8 +130,8 @@ function JobFiles() {
   };
 
   const handleCreateNewJob = async () => {
-    if (!newJobDiv || !newJobDept) return;
-    setCreatingJob(true);
+    if (!ui.newJobDiv || !ui.newJobDept) return;
+    dispatchUI({ type: 'SET', key: 'creatingJob', value: true });
     try {
       // Create placeholder customer
       const { data: customer, error: custErr } = await supabase
@@ -143,7 +158,7 @@ function JobFiles() {
       if (propErr) throw propErr;
 
       // Auto-generate job number
-      const jobNumber = await generateJobNumber(newJobDiv, newJobDept);
+      const jobNumber = await generateJobNumber(ui.newJobDiv, ui.newJobDept);
 
       // Create the job
       const job = await jobService.create({
@@ -151,18 +166,18 @@ function JobFiles() {
         customer_id: customer.id,
         property_id: property.id,
         status: 'pending',
-        division: newJobDiv,
-        department: newJobDept,
+        division: ui.newJobDiv,
+        department: ui.newJobDept,
         date_opened: new Date().toISOString().split('T')[0],
       });
 
-      setShowNewJobModal(false);
+      dispatchUI({ type: 'CLOSE_NEW_JOB' });
       navigate(`/job-files/${job.id}`);
     } catch (err) {
       console.error('Failed to create new job:', err);
       setError('Failed to create new job: ' + (err.message || 'Unknown error'));
     } finally {
-      setCreatingJob(false);
+      dispatchUI({ type: 'SET', key: 'creatingJob', value: false });
     }
   };
 
@@ -460,17 +475,17 @@ function JobFiles() {
           <p>Access and manage all project files and information</p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <button onClick={() => { setNewJobDiv(''); setNewJobDept(''); setShowNewJobModal(true); }} className="btn-new-job" disabled={creatingJob}>
-            {creatingJob ? 'Creating...' : '+ New Job'}
+          <button onClick={() => dispatchUI({ type: 'OPEN_NEW_JOB' })} className="btn-new-job" disabled={ui.creatingJob}>
+            {ui.creatingJob ? 'Creating...' : '+ New Job'}
           </button>
-          <button onClick={() => setShowUpload(true)} className="btn-primary">
+          <button onClick={() => dispatchUI({ type: 'SET', key: 'showUpload', value: true })} className="btn-primary">
             Upload Excel
           </button>
           <div className="column-picker-wrapper" ref={columnPickerRef}>
-            <button onClick={() => setShowColumnPicker(prev => !prev)} className="btn-secondary">
+            <button onClick={() => dispatchUI({ type: 'SET', key: 'showColumnPicker', value: !ui.showColumnPicker })} className="btn-secondary">
               Columns
             </button>
-            {showColumnPicker && (
+            {ui.showColumnPicker && (
               <div className="column-picker-dropdown">
                 {table.getAllLeafColumns().map(column => (
                   <label key={column.id} className="column-picker-item">
@@ -491,8 +506,8 @@ function JobFiles() {
         </div>
       </div>
 
-      {showUpload && (
-        <JobBulkUpload onComplete={() => { setShowUpload(false); loadJobs(); }} />
+      {ui.showUpload && (
+        <JobBulkUpload onComplete={() => { dispatchUI({ type: 'SET', key: 'showUpload', value: false }); loadJobs(); }} />
       )}
 
       {/* Search */}
@@ -507,118 +522,16 @@ function JobFiles() {
       </div>
 
       {/* Filters */}
-      <div className="filters-section">
-        <div className="filters-row filters-row-1">
-          <div className="filters-grid">
-            <div className="filter-group">
-              <label>Status</label>
-              <select value={filters.status} onChange={(e) => setFilter('status', e.target.value)} className="filter-select">
-                <option value="all">All Statuses</option>
-                {STATUS_OPTIONS.map(s => (
-                  <option key={s} value={STATUS_DB_MAP[s]}>{s}</option>
-                ))}
-                <option value="complete">Complete</option>
-                <option value="closed">Closed</option>
-              </select>
-            </div>
-            <div className="filter-group">
-              <label>Division</label>
-              <select value={filters.division} onChange={(e) => setFilter('division', e.target.value)} className="filter-select">
-                <option value="all">All Divisions</option>
-                {DIVISION_OPTIONS.map(d => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-group">
-              <label>Group</label>
-              <select value={filters.group} onChange={(e) => setFilter('group', e.target.value)} className="filter-select">
-                <option value="all">All Groups</option>
-                {GROUP_OPTIONS.map(g => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-group">
-              <label>Job Type</label>
-              <select value={filters.jobType} onChange={(e) => setFilter('jobType', e.target.value)} className="filter-select">
-                <option value="all">All Job Types</option>
-                {DEPARTMENT_OPTIONS.map(d => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-group">
-              <label>Property Type</label>
-              <select value={filters.propertyType} onChange={(e) => setFilter('propertyType', e.target.value)} className="filter-select">
-                <option value="all">All Property Types</option>
-                <option value="RESIDENTIAL">RESIDENTIAL</option>
-                <option value="COMMERCIAL">COMMERCIAL</option>
-              </select>
-            </div>
-          </div>
-          <button onClick={clearFilters} className="btn-clear">Clear Filters</button>
-        </div>
-        <div className="filters-row filters-row-2">
-          <div className="filters-grid">
-            <div className="filter-group">
-              <label>PM</label>
-              <select value={filters.pm} onChange={(e) => setFilter('pm', e.target.value)} className="filter-select">
-                <option value="all">All PMs</option>
-                {PM_OPTIONS.map(p => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-group">
-              <label>CC</label>
-              <select value={filters.cc} onChange={(e) => setFilter('cc', e.target.value)} className="filter-select">
-                <option value="all">All CCs</option>
-                {CREW_CHIEF_OPTIONS.map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-group">
-              <label>JFC</label>
-              <select value={filters.jfc} onChange={(e) => setFilter('jfc', e.target.value)} className="filter-select">
-                <option value="all">All JFCs</option>
-                {JFC_OPTIONS.map(j => (
-                  <option key={j} value={j}>{j}</option>
-                ))}
-              </select>
-            </div>
-            <div className="filter-group">
-              <label>BDR</label>
-              <select value={filters.bdr} onChange={(e) => setFilter('bdr', e.target.value)} className="filter-select">
-                <option value="all">All BDRs</option>
-                {BIZ_DEV_OPTIONS.map(b => (
-                  <option key={b} value={b}>{b}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
+      <JobFilesFilterBar filters={filters} setFilter={setFilter} onClear={clearFilters} />
 
       <div className="results-summary">
         Showing {filteredJobs.length} of {jobs.length} jobs
       </div>
 
-      {/* #16: Mobile card view */}
+      {/* Mobile card view */}
       <div className="mobile-card-list">
         {filteredJobs.length === 0 ? (
-          <div className="empty-state-container">
-            <svg className="empty-state-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="28" cy="28" r="20" stroke="#64748b" strokeWidth="3" />
-              <line x1="42" y1="42" x2="56" y2="56" stroke="#64748b" strokeWidth="3" strokeLinecap="round" />
-              <line x1="20" y1="28" x2="36" y2="28" stroke="#64748b" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-            <p className="empty-state-message">No jobs match your filters</p>
-            {hasActiveFilters && (
-              <button onClick={clearFilters} className="btn-primary">Clear Filters</button>
-            )}
-          </div>
+          <EmptyState hasActiveFilters={hasActiveFilters} onClearFilters={clearFilters} />
         ) : (
           table.getRowModel().rows.map(row => {
             const job = row.original;
@@ -659,17 +572,7 @@ function JobFiles() {
       {/* TanStack Table (desktop) */}
       <div className="jobs-table-container">
         {filteredJobs.length === 0 ? (
-          <div className="empty-state-container">
-            <svg className="empty-state-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="28" cy="28" r="20" stroke="#64748b" strokeWidth="3" />
-              <line x1="42" y1="42" x2="56" y2="56" stroke="#64748b" strokeWidth="3" strokeLinecap="round" />
-              <line x1="20" y1="28" x2="36" y2="28" stroke="#64748b" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-            <p className="empty-state-message">No jobs match your filters</p>
-            {hasActiveFilters && (
-              <button onClick={clearFilters} className="btn-primary">Clear Filters</button>
-            )}
-          </div>
+          <EmptyState hasActiveFilters={hasActiveFilters} onClearFilters={clearFilters} />
         ) : (
           <>
             <div className="jobs-table-scroll">
@@ -725,97 +628,20 @@ function JobFiles() {
             </table>
             </div>
 
-            {/* Pagination */}
-            <div className="table-pagination">
-              <div className="pagination-info">
-                <label>
-                  Rows per page:
-                  <select
-                    value={table.getState().pagination.pageSize}
-                    onChange={e => table.setPageSize(Number(e.target.value))}
-                    className="page-size-select"
-                  >
-                    {[10, 25, 50, 100].map(size => (
-                      <option key={size} value={size}>{size}</option>
-                    ))}
-                  </select>
-                </label>
-                <span className="pagination-separator">|</span>
-                {filteredJobs.length} results
-              </div>
-              <div className="pagination-buttons">
-                <button
-                  onClick={() => table.setPageIndex(0)}
-                  disabled={!table.getCanPreviousPage()}
-                  className="pagination-btn"
-                >
-                  &#171;
-                </button>
-                <button
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  className="pagination-btn"
-                >
-                  &#8249;
-                </button>
-                {(() => {
-                  const pageCount = table.getPageCount();
-                  const currentPage = table.getState().pagination.pageIndex;
-                  const pages = [];
-                  if (pageCount <= 7) {
-                    for (let i = 0; i < pageCount; i++) pages.push(i);
-                  } else {
-                    pages.push(0);
-                    if (currentPage > 2) pages.push('...');
-                    for (let i = Math.max(1, currentPage - 1); i <= Math.min(pageCount - 2, currentPage + 1); i++) {
-                      pages.push(i);
-                    }
-                    if (currentPage < pageCount - 3) pages.push('...');
-                    pages.push(pageCount - 1);
-                  }
-                  return pages.map((page, idx) =>
-                    page === '...' ? (
-                      <span key={`ellipsis-${idx}`} className="pagination-ellipsis">...</span>
-                    ) : (
-                      <button
-                        key={page}
-                        onClick={() => table.setPageIndex(page)}
-                        className={`pagination-page${page === currentPage ? ' active' : ''}`}
-                      >
-                        {page + 1}
-                      </button>
-                    )
-                  );
-                })()}
-                <button
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  className="pagination-btn"
-                >
-                  &#8250;
-                </button>
-                <button
-                  onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                  disabled={!table.getCanNextPage()}
-                  className="pagination-btn"
-                >
-                  &#187;
-                </button>
-              </div>
-            </div>
+            <Pagination table={table} totalResults={filteredJobs.length} />
           </>
         )}
       </div>
 
       {/* New Job Modal */}
-      {showNewJobModal && (
-        <div className="modal-overlay" onClick={() => setShowNewJobModal(false)}>
+      {ui.showNewJobModal && (
+        <div className="modal-overlay" onClick={() => dispatchUI({ type: 'CLOSE_NEW_JOB' })}>
           <div className="new-job-modal" onClick={(e) => e.stopPropagation()}>
             <h2>Create New Job</h2>
             <div className="new-job-form">
               <div className="filter-group">
                 <label>Division</label>
-                <select value={newJobDiv} onChange={(e) => setNewJobDiv(e.target.value)} className="filter-select">
+                <select value={ui.newJobDiv} onChange={(e) => dispatchUI({ type: 'SET', key: 'newJobDiv', value: e.target.value })} className="filter-select">
                   <option value="">Select Division</option>
                   {DIVISION_OPTIONS.map(d => (
                     <option key={d} value={d}>{d}</option>
@@ -824,27 +650,27 @@ function JobFiles() {
               </div>
               <div className="filter-group">
                 <label>Job Type</label>
-                <select value={newJobDept} onChange={(e) => setNewJobDept(e.target.value)} className="filter-select">
+                <select value={ui.newJobDept} onChange={(e) => dispatchUI({ type: 'SET', key: 'newJobDept', value: e.target.value })} className="filter-select">
                   <option value="">Select Job Type</option>
                   {DEPARTMENT_OPTIONS.map(d => (
                     <option key={d} value={d}>{d}</option>
                   ))}
                 </select>
               </div>
-              {newJobDiv && newJobDept && (
+              {ui.newJobDiv && ui.newJobDept && (
                 <p className="new-job-preview">
-                  Job ID format: {new Date().getFullYear().toString().slice(-2)}-{DIV_ABBREV[newJobDiv] || newJobDiv.slice(0,3)}-{DEPT_ABBREV[newJobDept] || newJobDept.slice(0,3)}-XXXX
+                  Job ID format: {new Date().getFullYear().toString().slice(-2)}-{DIV_ABBREV[ui.newJobDiv] || ui.newJobDiv.slice(0,3)}-{DEPT_ABBREV[ui.newJobDept] || ui.newJobDept.slice(0,3)}-XXXX
                 </p>
               )}
             </div>
             <div className="new-job-actions">
-              <button onClick={() => setShowNewJobModal(false)} className="btn-secondary">Cancel</button>
+              <button onClick={() => dispatchUI({ type: 'CLOSE_NEW_JOB' })} className="btn-secondary">Cancel</button>
               <button
                 onClick={handleCreateNewJob}
                 className="btn-new-job"
-                disabled={!newJobDiv || !newJobDept || creatingJob}
+                disabled={!ui.newJobDiv || !ui.newJobDept || ui.creatingJob}
               >
-                {creatingJob ? 'Creating...' : 'Create Job'}
+                {ui.creatingJob ? 'Creating...' : 'Create Job'}
               </button>
             </div>
           </div>

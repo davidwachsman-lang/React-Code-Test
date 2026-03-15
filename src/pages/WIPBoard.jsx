@@ -60,14 +60,6 @@ function riskLabel(score) {
   return 'low';
 }
 
-function heatClass(avgRisk) {
-  if (avgRisk >= 85) return 'heat-critical';
-  if (avgRisk >= 70) return 'heat-high';
-  if (avgRisk >= 50) return 'heat-medium';
-  if (avgRisk > 0) return 'heat-low';
-  return 'heat-empty';
-}
-
 function ProductionPipelinePage() {
   const [viewMode, setViewMode] = useState('flow');
   const [scope, setScope] = useState('all');
@@ -225,30 +217,34 @@ function ProductionPipelinePage() {
       </header>
 
       <section className="kpi-strip">
-        {stageKpis.map((kpi) => (
-          <button key={kpi.stageId} type="button" className={`kpi-card kpi-stage kpi-${kpi.stageId}`}>
-            <span className="kpi-label">{kpi.label}</span>
-            <span className="kpi-value">{kpi.count}</span>
-            {kpi.stageId === 'pending' ? (
-              <span className="kpi-subvalue-row">
-                <span className="kpi-subvalue">{formatCurrency(kpi.value)}</span>
-                <span className="kpi-meta-line">
-                  No Est {kpi.noEstimateCount} ({kpi.count ? Math.round((kpi.noEstimateCount / kpi.count) * 100) : 0}%)
-                </span>
-              </span>
-            ) : (
-              <span className="kpi-subvalue">{formatCurrency(kpi.value)}</span>
-            )}
-          </button>
-        ))}
-        <button type="button" className="kpi-card kpi-stage kpi-total">
-          <span className="kpi-label">Pipeline Value</span>
+        <button type="button" className="kpi-card kpi-total">
+          <span className="kpi-label">Total Pipeline</span>
           <span className="kpi-value-row">
             <span className="kpi-value">{formatCurrency(pipelineKpi.totalValue)}</span>
             <span className="kpi-count-pill">{pipelineKpi.jobCount} jobs</span>
           </span>
           <span className="kpi-subvalue">Weighted {formatCurrency(pipelineKpi.weightedValue)}</span>
         </button>
+        <div className="kpi-stages-group">
+          {stageKpis.map((kpi) => (
+            <button key={kpi.stageId} type="button" className={`kpi-card kpi-stage kpi-${kpi.stageId}`}>
+              <span className="kpi-label">{kpi.label}</span>
+              <span className="kpi-value">{kpi.count}</span>
+              {kpi.stageId === 'pending' ? (
+                <span className="kpi-subvalue-row">
+                  <span className="kpi-subvalue">{formatCurrency(kpi.value)}</span>
+                  {kpi.noEstimateCount > 0 && (
+                    <span className="brand-pill brand-pill-red">No Est {kpi.noEstimateCount}</span>
+                  )}
+                </span>
+              ) : (
+                <span className="kpi-subvalue-row">
+                  <span className="kpi-subvalue">{formatCurrency(kpi.value)}</span>
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </section>
 
       <main className="pipeline-main-grid">
@@ -266,9 +262,14 @@ function ProductionPipelinePage() {
                   <header className="flow-group-header">
                     <h3>{group.title}</h3>
                     <div className="flow-group-metrics">
-                      <span>{group.subtitle}</span>
-                      <span>{group.jobCount} jobs</span>
-                      <span>{formatCurrency(group.pipelineValue)}</span>
+                      <span className="flow-group-metrics-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                        {group.jobCount} jobs
+                      </span>
+                      <span className="flow-group-metrics-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        {formatCurrency(group.pipelineValue)}
+                      </span>
                     </div>
                   </header>
                   <div className="flow-group-rows">
@@ -286,17 +287,23 @@ function ProductionPipelinePage() {
                           const noEstimateCount = jobs.filter((j) => !(Number(j.value) > 0)).length;
                           const estimatedValue = jobs.filter((j) => Number(j.value) > 0).reduce((sum, j) => sum + j.value, 0);
                           return (
-                            <div key={stage.id} className={`flow-cell ${heatClass(avgRisk)}`}>
-                              <div className="flow-count">{count}</div>
-                              {stage.id === 'pending' ? (
-                                <>
-                                  <div className="flow-value">Est {formatCurrency(estimatedValue)}</div>
-                                  <div className="flow-meta flow-meta-alert">No Est {noEstimateCount}</div>
-                                </>
-                              ) : (
-                                <div className="flow-value">{formatCurrency(value)}</div>
-                              )}
-                              <div className="flow-meta">{avgAging ? `${avgAging}d avg` : '-'}</div>
+                            <div key={stage.id} className="flow-cell">
+                              <div className="flow-cell-main">
+                                {stage.id === 'pending' ? (
+                                  <div className="flow-value-hero">{formatCurrency(estimatedValue)}</div>
+                                ) : (
+                                  <div className="flow-value-hero">{formatCurrency(value)}</div>
+                                )}
+                                <div className="flow-count-pill">{count}</div>
+                              </div>
+                              <div className="flow-cell-meta">
+                                {stage.id === 'pending' && noEstimateCount > 0 ? (
+                                  <div className="flow-aging" style={{ color: 'var(--pp-red)', fontWeight: 600 }}>{noEstimateCount} No Est</div>
+                                ) : (
+                                  <div className="flow-aging">{avgAging ? `${avgAging}d` : '-'}</div>
+                                )}
+                                {avgRisk >= 75 && <span className="brand-pill brand-pill-red">Risk {avgRisk}</span>}
+                              </div>
                             </div>
                           );
                         })}

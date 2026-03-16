@@ -62,6 +62,7 @@ function Intake() {
   const [submitSuccess, setSubmitSuccess] = useState(null);
   const [actionMessage, setActionMessage] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
+  const [hasAttemptedAdvance, setHasAttemptedAdvance] = useState(false);
   const [pendingDraft, setPendingDraft] = useState(null);
   const [lastDraftSavedAt, setLastDraftSavedAt] = useState(null);
 
@@ -216,6 +217,7 @@ function Intake() {
   };
 
   const goToStandardStepTwo = () => {
+    setHasAttemptedAdvance(true);
     if (!validateRequired({ stepOneOnly: true })) return;
     setStandardStep(2);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -233,6 +235,7 @@ function Intake() {
   };
 
   const submitIntake = async () => {
+    setHasAttemptedAdvance(true);
     if (!validateRequired()) return;
 
     setSubmitting(true);
@@ -289,6 +292,7 @@ function Intake() {
     setOnsiteSameAsCaller(false);
     setActionMessage(null);
     setValidationErrors({});
+    setHasAttemptedAdvance(false);
     localStorage.removeItem(INTAKE_DRAFT_KEY);
     setLastDraftSavedAt(null);
     setPendingDraft(null);
@@ -632,7 +636,7 @@ function Intake() {
         </section>
       )}
 
-      {Object.keys(validationErrors).length > 0 && (
+      {hasAttemptedAdvance && Object.keys(validationErrors).length > 0 && (
         <section className="intake-panel intake-validation-panel">
           <p className="section-title">REQUIRED FIELDS</p>
           <ul className="intake-error-list">
@@ -813,6 +817,7 @@ function Intake() {
             2. Insurance & Admin
           </button>
         </div>
+        {hasAttemptedAdvance && (
         <div className="step-missing-row">
           {standardStepOneMissing.length === 0 ? (
             <span className="step-complete-chip">Step 1 essentials complete</span>
@@ -824,6 +829,7 @@ function Intake() {
             ))
           )}
         </div>
+        )}
       </section>
 
       {standardStep === 1 && (

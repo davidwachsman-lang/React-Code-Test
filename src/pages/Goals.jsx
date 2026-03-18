@@ -11,14 +11,15 @@ import {
 
 // ── Status helpers ─────────────────────────────────────────
 const STATUS_COLORS = {
-  on_track: '#16A34A',
-  at_risk: '#D97706',
-  off_track: '#DC2626',
-  not_started: '#6b7280',
-  in_progress: '#2563EB',
-  complete: '#16A34A',
-  overdue: '#DC2626',
+  on_track:     { bg: '#DCFCE7', text: '#16A34A' },
+  at_risk:      { bg: '#FEF3C7', text: '#D97706' },
+  off_track:    { bg: '#FEF2F2', text: '#DC2626' },
+  not_started:  { bg: '#F1F5F9', text: '#64748B' },
+  in_progress:  { bg: '#DBEAFE', text: '#2563EB' },
+  complete:     { bg: '#DCFCE7', text: '#16A34A' },
+  overdue:      { bg: '#FEF2F2', text: '#DC2626' },
 };
+const FALLBACK_STATUS = { bg: '#F1F5F9', text: '#94A3B8' };
 
 const STATUS_LABELS = {
   on_track: 'On Track',
@@ -35,9 +36,9 @@ const CADENCE_LABELS = { weekly: 'W', monthly: 'M', quarterly: 'Q' };
 
 function StatusBadge({ status, hide_not_started = false }) {
   if (hide_not_started && status === 'not_started') return null;
-  const color = STATUS_COLORS[status] || '#6b7280';
+  const { bg, text } = STATUS_COLORS[status] || FALLBACK_STATUS;
   return (
-    <span className="status-badge" style={{ backgroundColor: `${color}20`, color }}>
+    <span className="status-badge" style={{ backgroundColor: bg, color: text }}>
       {STATUS_LABELS[status] || status}
     </span>
   );
@@ -226,8 +227,8 @@ function InitiativeTracker({ initiatives, onStatusChange }) {
                         value={init.status}
                         onChange={(e) => onStatusChange(init.id, e.target.value)}
                         style={{
-                          color: STATUS_COLORS[init.status] || '#6b7280',
-                          borderColor: `${STATUS_COLORS[init.status] || '#6b7280'}40`,
+                          color: (STATUS_COLORS[init.status] || FALLBACK_STATUS).text,
+                          borderColor: `${(STATUS_COLORS[init.status] || FALLBACK_STATUS).text}40`,
                         }}
                       >
                         {INITIATIVE_STATUSES.map((s) => (

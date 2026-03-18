@@ -27,6 +27,8 @@ export const VENDOR_CATEGORIES = [
   'OTHER'
 ];
 
+// CATEGORY_COLORS stores the accent color used for 3px left-border stripes only.
+// For badges, use CATEGORY_BADGE_COLORS which provides brand-compliant bg/text pairs.
 export const CATEGORY_COLORS = {
   'Plumbers': '#2563EB',
   'Electricians': '#D97706',
@@ -53,4 +55,33 @@ export const CATEGORY_COLORS = {
   'Driveway Repair': '#635BFF',
   'Specialty': '#9333EA',
   'OTHER': '#64748B'
+};
+
+// Brand-compliant badge bg/text pairs for each category
+export const CATEGORY_BADGE_COLORS = {
+  'Plumbers':            { bg: '#DBEAFE', text: '#2563EB' },
+  'Electricians':        { bg: '#FEF3C7', text: '#D97706' },
+  'HVAC':                { bg: '#DCFCE7', text: '#16A34A' },
+  'Tree Removal':        { bg: '#DCFCE7', text: '#16A34A' },
+  'Roofing':             { bg: '#FEF2F2', text: '#DC2626' },
+  'Cabinets':            { bg: '#F3E8FF', text: '#9333EA' },
+  'Flooring':            { bg: '#FCE7F3', text: '#DB2777' },
+  'Drywall':             { bg: '#F1F5F9', text: '#64748B' },
+  'Painting':            { bg: '#D1FAE5', text: '#059669' },
+  'Glass/Windows':       { bg: '#E0F2FE', text: '#0284C7' },
+  'Asbestos':            { bg: '#FEF9C3', text: '#CA8A04' },
+  'Moving':              { bg: '#FFF7ED', text: '#EA580C' },
+  'Textiles':            { bg: '#F3E8FF', text: '#9333EA' },
+  'Pods':                { bg: '#E0F2FE', text: '#0284C7' },
+  'Structural Engineers':{ bg: '#EEF2FF', text: '#635BFF' },
+  'Dumpsters':           { bg: '#F1F5F9', text: '#64748B' },
+  'Landscaping':         { bg: '#DCFCE7', text: '#16A34A' },
+  'Pressure Washer':     { bg: '#E0F2FE', text: '#0284C7' },
+  'Portable Bathroom':   { bg: '#FCE7F3', text: '#DB2777' },
+  'Siding':              { bg: '#FEF9C3', text: '#CA8A04' },
+  'Masonry':             { bg: '#F1F5F9', text: '#64748B' },
+  'Equipment Rentals':   { bg: '#DBEAFE', text: '#2563EB' },
+  'Driveway Repair':     { bg: '#EEF2FF', text: '#635BFF' },
+  'Specialty':           { bg: '#F3E8FF', text: '#9333EA' },
+  'OTHER':               { bg: '#F1F5F9', text: '#64748B' }
 };

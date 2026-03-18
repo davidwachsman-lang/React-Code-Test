@@ -20,6 +20,7 @@ import JobDetail from './pages/JobDetail';
 import Forms from './pages/Forms';
 import CRM from './pages/CRM';
 import FieldServices from './pages/FieldServices';
+import FieldTimeTracking from './pages/FieldTimeTracking';
 import Goals from './pages/Goals';
 import TMEstimate from './pages/TMEstimate';
 import ReportingAndAnalytics from './pages/ReportingAndAnalytics';
@@ -31,6 +32,8 @@ import Sandbox from './pages/Sandbox';
 import InsuranceJobSOPs from './pages/InsuranceJobSOPs';
 import Conversion from './pages/Conversion';
 import JobFileChecks from './pages/JobFileChecks';
+import Marketing from './pages/Marketing';
+import BillingAR from './pages/BillingAR';
 import './App.css';
 
 function ScrollToTop() {
@@ -287,7 +290,10 @@ function AppContent() {
                   <Route path="/job-files/:id" element={<JobDetail />} />
                   <Route path="/forms" element={<Forms />} />
                   <Route path="/crm" element={<CRM />} />
+                  <Route path="/marketing" element={<Marketing />} />
+                  <Route path="/billing-ar" element={<BillingAR />} />
                   <Route path="/field-services" element={<FieldServices />} />
+                  <Route path="/field-services/time-tracking" element={<FieldTimeTracking />} />
                   <Route path="/goals" element={<Goals />} />
                   <Route path="/tm-estimate" element={<TMEstimate />} />
                   <Route path="/reporting" element={<ReportingAndAnalytics />} />

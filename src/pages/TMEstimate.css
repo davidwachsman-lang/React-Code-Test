@@ -74,7 +74,7 @@
 }
 
 .email-button:hover {
-  background: #4F46E5;
+  background: #635BFF;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(99, 91, 255, 0.25);
 }
@@ -610,7 +610,7 @@
 }
 
 .send-button:hover:not(:disabled) {
-  background: #4F46E5;
+  background: #635BFF;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(99, 91, 255, 0.25);
 }

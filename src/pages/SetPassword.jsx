@@ -71,7 +71,7 @@ const SetPassword = () => {
           <h1>Welcome!</h1>
           <p>Create a password for your account</p>
           {user && (
-            <p style={{ color: '#60a5fa', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+            <p style={{ color: '#635BFF', marginTop: '0.5rem', fontSize: '0.9rem' }}>
               {user.email}
             </p>
           )}

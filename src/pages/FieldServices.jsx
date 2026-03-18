@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TimeTracking from '../components/TimeTracking';
 import PMCommandCenter from '../components/PMCommandCenter';
 import TimesheetReview from '../components/TimesheetReview';
@@ -156,6 +157,7 @@ const TimesheetReviewIcon = () => (
 function FieldServices() {
   const [activeSection, setActiveSection] = useState(null);
   const [selectedPm, setSelectedPm] = useState('');
+  const navigate = useNavigate();
 
   const sections = [
     {
@@ -206,7 +208,13 @@ function FieldServices() {
             <button
               key={section.id}
               className={`field-service-card${section.highlight ? ' field-service-card-highlight' : ''}`}
-              onClick={() => setActiveSection(section.id)}
+              onClick={() => {
+                if (section.id === 'time-tracking') {
+                  navigate('/field-services/time-tracking');
+                  return;
+                }
+                setActiveSection(section.id);
+              }}
             >
               <div className="field-service-card-icon">
                 {section.icon}

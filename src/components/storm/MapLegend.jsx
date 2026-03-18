@@ -8,7 +8,7 @@ const DEFAULT_STATUS_COLORS = [
   { status: 'Demo', color: '#eab308' },
   { status: 'Pickup', color: '#16A34A' },
   { status: 'Walk-Thru', color: '#2563EB' },
-  { status: 'No Work', color: '#6b7280' }
+  { status: 'No Work', color: '#94A3B8' }
 ];
 
 /**

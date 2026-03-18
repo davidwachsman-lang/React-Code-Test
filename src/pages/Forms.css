@@ -8,11 +8,16 @@
 
 .forms-header {
   flex-shrink: 0;
+  background: #0A2540;
+  border-bottom: 3px solid #635BFF;
+  border-radius: 8px 8px 0 0;
+  padding: 1.5rem 2rem;
+  margin: -3rem -2rem 0 -2rem;
 }
 
 .forms-header h1 {
   margin: 0;
-  color: #0A2540;
+  color: #FFFFFF;
 }
 
 /* Search Container */
@@ -101,7 +106,7 @@
 .category-card {
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
-  border-left: 4px solid var(--category-color);
+  border-left: 3px solid var(--category-color);
   border-radius: 8px;
   padding: 2rem;
   cursor: pointer;
@@ -114,22 +119,7 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
-.category-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--category-color);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  display: none;
-}
-
-.category-card:hover::before {
-  opacity: 0;
-}
+/* Category color is applied only as left-border stripe per brand rules */
 
 .category-card:hover {
   border-color: var(--category-color);
@@ -143,9 +133,6 @@
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-.category-card.active::before {
-  opacity: 0;
-}
 
 .category-icon {
   font-size: 3rem;
@@ -273,8 +260,9 @@
 
 .subcategory-forms h4 {
   margin: 0 0 1rem 0;
-  color: #635BFF;
+  color: #0A2540;
   font-size: 1.2rem;
+  font-weight: 700;
 }
 
 .subcategory-forms p {

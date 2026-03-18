@@ -1,4 +1,3 @@
-/* APPLE THEME TEST — revert to original DS to undo */
 .login-container {
   display: flex;
   align-items: center;
@@ -7,16 +6,16 @@
   width: 100%;
   flex: 1;
   color-scheme: light;
-  background: #F5F5F7;
+  background: #F6F9FC;
   padding: 1rem;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #1D1D1F;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #0A2540;
 }
 
 .login-card {
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 18px;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
   padding: 2.5rem;
   width: 100%;
   max-width: 420px;
@@ -29,16 +28,15 @@
 }
 
 .login-header h1 {
-  font-size: 32px;
+  font-size: 1.875rem;
   font-weight: 600;
-  color: #1D1D1F;
-  letter-spacing: -0.003em;
+  color: #0A2540;
   margin-bottom: 0.5rem;
 }
 
 .login-header p {
-  color: #86868B;
-  font-size: 14px;
+  color: #64748B;
+  font-size: 0.95rem;
 }
 
 .login-form {
@@ -48,12 +46,12 @@
 }
 
 .login-error {
-  background: #ffebeb;
-  border: 1px solid transparent;
-  color: #ff3b30;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  color: #DC2626;
   padding: 0.875rem 1rem;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
   text-align: center;
 }
 
@@ -64,20 +62,18 @@
 }
 
 .form-group label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #86868B;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #0A2540;
 }
 
 .form-group input {
-  padding: 10px 14px;
-  font-size: 14px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  background: #f5f5f7 !important;
-  color: #1D1D1F !important;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #0A2540;
   transition: all 0.2s ease;
 }
 
@@ -85,20 +81,19 @@
 .form-group input:-webkit-autofill:hover,
 .form-group input:-webkit-autofill:focus,
 .form-group input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px #f5f5f7 inset !important;
-  -webkit-text-fill-color: #1D1D1F !important;
+  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+  -webkit-text-fill-color: #0A2540 !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
 .form-group input::placeholder {
-  color: #a1a1a6;
+  color: #94A3B8;
 }
 
 .form-group input:focus {
   outline: none;
-  background: #ffffff;
-  border-color: #0071e3;
-  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.2);
+  border: 1.5px solid #635BFF;
+  box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.1);
 }
 
 .form-group input:disabled {
@@ -107,24 +102,22 @@
 }
 
 .login-button {
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 400;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
   color: white;
-  background: #0071e3;
+  background: #635BFF;
   border: none;
-  border-radius: 999px;
-  /* Pill shape */
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
   margin-top: 0.5rem;
-  height: 44px;
-  /* Slightly taller for touch targets */
 }
 
 .login-button:hover:not(:disabled) {
-  background: #0077ed;
-  /* NO transform hover */
+  background: #635BFF;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 91, 255, 0.4);
 }
 
 .login-button:disabled {
@@ -138,24 +131,25 @@
 }
 
 .forgot-password-link {
-  color: #0071e3;
-  font-size: 14px;
+  color: #635BFF;
+  font-size: 0.875rem;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .forgot-password-link:hover {
-  color: #0077ed;
+  color: #635BFF;
+  text-decoration: underline;
 }
 
 /* Success message for password reset */
 .login-success {
-  background: #eaf9ef;
-  border: 1px solid transparent;
-  color: #34c759;
+  background: rgba(22, 163, 74, 0.08);
+  border: 1px solid rgba(22, 163, 74, 0.2);
+  color: #16A34A;
   padding: 0.875rem 1rem;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
   text-align: center;
 }
 
@@ -168,6 +162,6 @@
   }
 
   .login-header h1 {
-    font-size: 28px;
+    font-size: 1.5rem;
   }
 }

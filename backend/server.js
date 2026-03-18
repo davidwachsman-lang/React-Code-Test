@@ -285,6 +285,55 @@ app.post('/api/ai/extract-checklist', async (req, res) => {
   }
 });
 
+/* ------------------------------------------------------------------ */
+/*  AI Summarize Notes                                                 */
+/* ------------------------------------------------------------------ */
+
+const SUMMARIZE_PROMPT = `You are a helpful assistant for a restoration company. Given a collection of internal job notes (newest first), produce a concise summary that captures:
+
+- Key events and decisions
+- Current status and any blockers
+- Outstanding action items or follow-ups
+- Important dates or deadlines mentioned
+
+Keep the summary to 3-6 bullet points. Be direct and use plain business language. Do not include timestamps or initials — just the substance.
+
+Return ONLY the bullet points as plain text (one per line, starting with "- "). No markdown headers, no preamble.`;
+
+app.post('/api/ai/summarize-notes', async (req, res) => {
+  const { notes } = req.body || {};
+
+  if (!notes || typeof notes !== 'string' || !notes.trim()) {
+    return res.status(400).json({ error: 'notes is required' });
+  }
+
+  const truncated = notes.length > 50000
+    ? notes.slice(0, 50000) + '\n\n[...notes truncated...]'
+    : notes;
+
+  try {
+    const openai = getOpenAIClient();
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      temperature: 0.3,
+      messages: [
+        { role: 'system', content: SUMMARIZE_PROMPT },
+        { role: 'user', content: truncated },
+      ],
+    });
+
+    const content = response.choices?.[0]?.message?.content?.trim();
+    if (!content) {
+      return res.status(502).json({ error: 'OpenAI returned an empty response' });
+    }
+
+    return res.status(200).json({ summary: content });
+  } catch (err) {
+    console.error('AI summarize-notes error:', err);
+    return res.status(500).json({ error: 'Failed to summarize notes' });
+  }
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });

@@ -364,7 +364,7 @@ function ExcelJobUpload({ onJobsLoaded, onCancel }) {
           property_address: row.fullAddress || '',
           address: row.fullAddress || '',
           colorValue: colorValue, // The value from the selected color column
-          color: finalColorMapping[colorValue] || '#6b7280', // The assigned color
+          color: finalColorMapping[colorValue] || '#94A3B8', // The assigned color
           job_number: row[columnMapping.jobNumber] || '',
           notes: row[columnMapping.notes] || '',
           latitude: row.latitude,
@@ -684,7 +684,7 @@ function ExcelJobUpload({ onJobsLoaded, onCancel }) {
                       <td>
                         <span 
                           className="color-dot-inline"
-                          style={{ backgroundColor: colorMapping[row[colorColumn]] || '#6b7280' }}
+                          style={{ backgroundColor: colorMapping[row[colorColumn]] || '#94A3B8' }}
                         />
                         {row[colorColumn] || '-'}
                       </td>
@@ -749,7 +749,7 @@ function ExcelJobUpload({ onJobsLoaded, onCancel }) {
               Save imported jobs to Supabase? External job numbers will be preserved for enrichment.
             </p>
             {saveStatus === 'saving' && (
-              <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>Saving to Supabase...</p>
+              <p style={{ margin: 0, fontSize: '13px', color: '#94A3B8' }}>Saving to Supabase...</p>
             )}
             {saveStatus && saveStatus !== 'saving' && (
               <p style={{ margin: 0, fontSize: '13px', color: '#16A34A' }}>

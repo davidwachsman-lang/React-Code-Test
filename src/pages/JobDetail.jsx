@@ -32,7 +32,7 @@ const TABS = [
   { key: 'personnel', label: 'Personnel' },
   { key: 'dates', label: 'Dates' },
   { key: 'financials', label: 'Financials' },
-  { key: 'documentation', label: 'Documentation' },
+  { key: 'documentation', label: 'File Checks' },
   { key: 'communications', label: 'Communications' },
 ];
 
@@ -125,11 +125,9 @@ export default function JobDetail() {
   const handleAddNote = async (noteText) => {
     if (!noteText.trim() || !job) return;
     try {
-      const timestamp = new Date().toLocaleString();
-      const newEntry = `[${timestamp}]\n${noteText}`;
       const updatedNotes = job.internal_notes
-        ? `${newEntry}\n\n${job.internal_notes}`
-        : newEntry;
+        ? `${noteText}\n\n${job.internal_notes}`
+        : noteText;
 
       await jobService.update(job.id, { internal_notes: updatedNotes });
       setJob(prev => ({ ...prev, internal_notes: updatedNotes }));

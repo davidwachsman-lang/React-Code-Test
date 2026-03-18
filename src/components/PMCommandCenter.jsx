@@ -25,23 +25,23 @@ const TABS = [
 ];
 
 const STATUS_COLORS = {
-  Pending: '#D97706',
-  WIP: '#2563EB',
-  'Ready to Bill': '#16A34A',
-  AR: '#DC2626',
+  Pending:        { bg: '#FEF3C7', text: '#D97706' },
+  WIP:            { bg: '#DBEAFE', text: '#2563EB' },
+  'Ready to Bill':{ bg: '#DCFCE7', text: '#16A34A' },
+  AR:             { bg: '#FEF2F2', text: '#DC2626' },
 };
 
 const TYPE_COLORS = {
-  Water: '#2563EB',
-  Fire: '#DC2626',
-  Mold: '#9333EA',
+  Water: { bg: '#DBEAFE', text: '#2563EB' },
+  Fire:  { bg: '#FEF2F2', text: '#DC2626' },
+  Mold:  { bg: '#F3E8FF', text: '#9333EA' },
 };
 
 const PRIORITY_COLORS = {
-  Critical: '#DC2626',
-  High: '#D97706',
-  Medium: '#2563EB',
-  Low: '#64748B',
+  Critical: { bg: '#FEF2F2', text: '#DC2626' },
+  High:     { bg: '#FEF3C7', text: '#D97706' },
+  Medium:   { bg: '#DBEAFE', text: '#2563EB' },
+  Low:      { bg: '#F1F5F9', text: '#64748B' },
 };
 
 const DOC_ICONS = { done: '✓', missing: '✗', pending: '⏳' };
@@ -242,19 +242,19 @@ export default function PMCommandCenter() {
                         <td className="pmc-td-bold">{job.id}</td>
                         <td>{job.customer}</td>
                         <td>
-                          <span className="pmc-pill" style={{ background: TYPE_COLORS[job.type] + '22', color: TYPE_COLORS[job.type] }}>
+                          <span className="pmc-pill" style={{ background: (TYPE_COLORS[job.type] || {}).bg, color: (TYPE_COLORS[job.type] || {}).text }}>
                             {job.type}
                           </span>
                         </td>
                         <td>
-                          <span className="pmc-pill" style={{ background: STATUS_COLORS[job.status] + '22', color: STATUS_COLORS[job.status] }}>
+                          <span className="pmc-pill" style={{ background: (STATUS_COLORS[job.status] || {}).bg, color: (STATUS_COLORS[job.status] || {}).text }}>
                             {job.status}
                           </span>
                         </td>
                         <td>{job.agingDays}d</td>
                         <td>{job.crewChief ? job.crewChief.charAt(0) + job.crewChief.slice(1).toLowerCase() : <span className="pmc-unassigned">Unassigned</span>}</td>
                         <td>
-                          <span className="pmc-priority-badge" style={{ background: PRIORITY_COLORS[job.priority] + '22', color: PRIORITY_COLORS[job.priority] }}>
+                          <span className="pmc-priority-badge" style={{ background: (PRIORITY_COLORS[job.priority] || {}).bg, color: (PRIORITY_COLORS[job.priority] || {}).text }}>
                             {job.priority}
                           </span>
                         </td>
@@ -343,7 +343,7 @@ export default function PMCommandCenter() {
                         {task.jobId} &middot; Due {task.dueDate}
                       </span>
                     </div>
-                    <span className="pmc-priority-badge" style={{ background: PRIORITY_COLORS[task.priority] + '22', color: PRIORITY_COLORS[task.priority] }}>
+                    <span className="pmc-priority-badge" style={{ background: (PRIORITY_COLORS[task.priority] || {}).bg, color: (PRIORITY_COLORS[task.priority] || {}).text }}>
                       {task.priority}
                     </span>
                   </div>
@@ -368,8 +368,8 @@ export default function PMCommandCenter() {
                   </div>
                   <div className="pmc-crew-jobs">
                     {crew.jobs.map((j) => (
-                      <span key={j.jobId} className="pmc-job-chip" style={{ borderColor: TYPE_COLORS[j.type] }}>
-                        {j.jobId} <span style={{ color: TYPE_COLORS[j.type] }}>{j.type}</span>
+                      <span key={j.jobId} className="pmc-job-chip" style={{ borderColor: (TYPE_COLORS[j.type] || {}).text }}>
+                        {j.jobId} <span style={{ color: (TYPE_COLORS[j.type] || {}).text }}>{j.type}</span>
                       </span>
                     ))}
                   </div>
@@ -417,20 +417,20 @@ export default function PMCommandCenter() {
                     <tr key={est.id} className="pmc-table-row">
                       <td className="pmc-td-bold">
                         {est.id}
-                        {est.supplement && <span className="pmc-pill" style={{ background: '#9333EA22', color: '#9333EA', marginLeft: '0.4rem', fontSize: '0.65rem' }}>SUPP</span>}
+                        {est.supplement && <span className="pmc-pill" style={{ background: '#F3E8FF', color: '#9333EA', marginLeft: '0.4rem', fontSize: '0.65rem' }}>SUPP</span>}
                       </td>
                       <td>{est.jobId}</td>
                       <td>{est.customer}</td>
                       <td>
-                        <span className="pmc-pill" style={{ background: TYPE_COLORS[est.type] + '22', color: TYPE_COLORS[est.type] }}>
+                        <span className="pmc-pill" style={{ background: (TYPE_COLORS[est.type] || {}).bg, color: (TYPE_COLORS[est.type] || {}).text }}>
                           {est.type}
                         </span>
                       </td>
                       <td className="pmc-td-bold">{formatCurrency(est.estimateTotal)}</td>
                       <td>
                         <span className="pmc-pill" style={{
-                          background: (est.status === 'Approved' ? '#16A34A' : est.status === 'Pending' ? '#D97706' : '#64748B') + '22',
-                          color: est.status === 'Approved' ? '#16A34A' : est.status === 'Pending' ? '#D97706' : '#94A3B8',
+                          background: est.status === 'Approved' ? '#DCFCE7' : est.status === 'Pending' ? '#FEF3C7' : '#F1F5F9',
+                          color: est.status === 'Approved' ? '#16A34A' : est.status === 'Pending' ? '#D97706' : '#64748B',
                         }}>
                           {est.status}
                         </span>

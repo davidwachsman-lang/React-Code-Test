@@ -127,7 +127,7 @@
 }
 
 .dispatch-new-job-btn:hover {
-  background: #4F46E5;
+  background: #635BFF;
 }
 
 .dispatch-map-now-btn {
@@ -560,7 +560,7 @@
 }
 
 .dispatch-add-modal-actions button.primary:hover {
-  background: #4F46E5;
+  background: #635BFF;
 }
 
 /* Map modal */

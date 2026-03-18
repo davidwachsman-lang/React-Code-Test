@@ -11,7 +11,7 @@ export const LANE_COLORS = [
   '#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#8b5cf6', '#ec4899', '#84cc16',
   '#f43f5e', '#fb923c', '#a3e635', '#2dd4bf',
 ];
-export const PM_COLORS = ['#3b82f6', '#8b5cf6', '#22c55e', '#f97316', '#ef4444', '#06b6d4', '#ec4899', '#84cc16'];
+export const PM_COLORS = ['#635BFF', '#8b5cf6', '#22c55e', '#f97316', '#ef4444', '#06b6d4', '#ec4899', '#84cc16'];
 export const UNASSIGNED = { id: 'unassigned', name: 'Unassigned', color: '#64748b' };
 
 export const JOB_TYPES = [

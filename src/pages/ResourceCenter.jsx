@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { VENDOR_CATEGORIES, CATEGORY_COLORS } from '../data/vendorData';
+import { VENDOR_CATEGORIES, CATEGORY_COLORS, CATEGORY_BADGE_COLORS } from '../data/vendorData';
 import { INTERNAL_DIRECTORY } from '../data/internalDirectoryData';
 import { vendorService } from '../services';
 import InsuranceSLAs from '../components/resource-center/InsuranceSLAs';
@@ -10,8 +10,31 @@ const emptyForm = () => ({
   categories: [],
   phone: '',
   email: '',
-  notes: ''
+  notes: '',
+  coiReceived: false,
+  workersCompReceived: false,
+  coiExpirationDate: '',
+  taxFormReceived: false,
+  taxFormExpirationDate: '',
+  paymentTerms: '',
+  vendorTier: '',
+  contractFile: null,
+  contractFileName: '',
+  contractFileUrl: '',
+  contractFilePath: '',
 });
+
+const PAYMENT_TERMS = ['Net 15', 'Net 30', 'Net 60', 'Net 75', 'Net 90'];
+const VENDOR_TIERS = ['Tier 1', 'Tier 2', 'Tier 3', 'Tier 4'];
+const VENDOR_SORT_FIELDS = {
+  NAME: 'name',
+  CATEGORY: 'category',
+  PAYMENT_TERMS: 'payment_terms',
+  VENDOR_TIER: 'vendor_tier',
+  COI: 'coi_received',
+  TAX_FORM: 'tax_form_received',
+  CONTRACT: 'contract_file_name',
+};
 
 const RESOURCE_TAB = {
   LANDING: 'landing',
@@ -91,6 +114,10 @@ const ResourceCenter = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedTier, setSelectedTier] = useState('All');
+  const [sortField, setSortField] = useState(VENDOR_SORT_FIELDS.NAME);
+  const [sortDirection, setSortDirection] = useState('asc');
+  const [selectedVendorId, setSelectedVendorId] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingVendor, setEditingVendor] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
@@ -118,7 +145,18 @@ const ResourceCenter = () => {
       categories: cats,
       phone: vendor.phone ?? '',
       email: vendor.email ?? '',
-      notes: vendor.notes ?? ''
+      notes: vendor.notes ?? '',
+      coiReceived: !!vendor.coi_received,
+      workersCompReceived: !!vendor.workers_comp_received,
+      coiExpirationDate: vendor.coi_expiration_date ?? '',
+      taxFormReceived: !!vendor.tax_form_received,
+      taxFormExpirationDate: vendor.tax_form_expiration_date ?? '',
+      paymentTerms: vendor.payment_terms ?? '',
+      vendorTier: vendor.vendor_tier ?? '',
+      contractFile: null,
+      contractFileName: vendor.contract_file_name ?? '',
+      contractFileUrl: vendor.contract_file_url ?? '',
+      contractFilePath: vendor.contract_file_path ?? '',
     });
     setFormError(null);
     setModalOpen(true);
@@ -135,7 +173,7 @@ const ResourceCenter = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     setFormError(null);
     const name = (formData.name || '').trim();
@@ -153,16 +191,35 @@ const ResourceCenter = () => {
       category: formData.categories.join(', '),
       phone: (formData.phone || '').trim(),
       email: (formData.email || '').trim(),
-      notes: (formData.notes || '').trim()
+      notes: (formData.notes || '').trim(),
+      coi_received: !!formData.coiReceived,
+      workers_comp_received: !!formData.workersCompReceived,
+      coi_expiration_date: formData.coiExpirationDate || null,
+      tax_form_received: !!formData.taxFormReceived,
+      tax_form_expiration_date: formData.taxFormExpirationDate || null,
+      payment_terms: formData.paymentTerms || null,
+      vendor_tier: formData.vendorTier || null,
     };
-    const promise = editingVendor
-      ? vendorService.update(editingVendor.id, payload)
-      : vendorService.create(payload);
-    promise
-      .then(() => refetchVendors())
-      .then(closeModal)
-      .catch((err) => setFormError(err?.message ?? 'Failed to save vendor'))
-      .finally(() => setFormSaving(false));
+    try {
+      const savedVendor = editingVendor
+        ? await vendorService.update(editingVendor.id, payload)
+        : await vendorService.create(payload);
+
+      if (formData.contractFile) {
+        await vendorService.uploadContract(
+          savedVendor.id,
+          formData.contractFile,
+          savedVendor.contract_file_path || editingVendor?.contract_file_path || null
+        );
+      }
+
+      await refetchVendors();
+      closeModal();
+    } catch (err) {
+      setFormError(err?.message ?? 'Failed to save vendor');
+    } finally {
+      setFormSaving(false);
+    }
   };
 
   useEffect(() => {
@@ -196,6 +253,7 @@ const ResourceCenter = () => {
       // Category filter — match if vendor has the selected category in their list
       const vendorCats = getVendorCategories(vendor);
       const matchesCategory = selectedCategory === 'All' || vendorCats.includes(selectedCategory);
+      const matchesTier = selectedTier === 'All' || (vendor.vendor_tier || '') === selectedTier;
 
       // Search filter (name, phone, email, notes, categories)
       const searchLower = searchTerm.toLowerCase();
@@ -204,28 +262,53 @@ const ResourceCenter = () => {
         (vendor.phone && vendor.phone.toLowerCase().includes(searchLower)) ||
         (vendor.email && vendor.email.toLowerCase().includes(searchLower)) ||
         (vendor.notes && vendor.notes.toLowerCase().includes(searchLower)) ||
-        (vendor.category && vendor.category.toLowerCase().includes(searchLower));
-      return matchesCategory && matchesSearch;
+        (vendor.category && vendor.category.toLowerCase().includes(searchLower)) ||
+        (vendor.payment_terms && vendor.payment_terms.toLowerCase().includes(searchLower)) ||
+        (vendor.vendor_tier && vendor.vendor_tier.toLowerCase().includes(searchLower));
+      return matchesCategory && matchesTier && matchesSearch;
     });
-  }, [vendors, searchTerm, selectedCategory]);
+  }, [vendors, searchTerm, selectedCategory, selectedTier]);
 
-  // Group vendors by category — a multi-trade vendor appears in each group
-  const groupedVendors = useMemo(() => {
-    const groups = {};
-    filteredVendors.forEach(vendor => {
-      const cats = getVendorCategories(vendor);
-      if (cats.length === 0) {
-        if (!groups['OTHER']) groups['OTHER'] = [];
-        groups['OTHER'].push(vendor);
-      } else {
-        cats.forEach(cat => {
-          if (!groups[cat]) groups[cat] = [];
-          groups[cat].push(vendor);
-        });
+  const sortedVendors = useMemo(() => {
+    const list = [...filteredVendors];
+    list.sort((a, b) => {
+      const aValue = a[sortField];
+      const bValue = b[sortField];
+
+      if (typeof aValue === 'boolean' || typeof bValue === 'boolean') {
+        const boolA = aValue ? 1 : 0;
+        const boolB = bValue ? 1 : 0;
+        return sortDirection === 'asc' ? boolA - boolB : boolB - boolA;
       }
+
+      const stringA = String(aValue || '').toLowerCase();
+      const stringB = String(bValue || '').toLowerCase();
+      const comparison = stringA.localeCompare(stringB, undefined, { sensitivity: 'base' });
+      return sortDirection === 'asc' ? comparison : -comparison;
     });
-    return groups;
-  }, [filteredVendors]);
+    return list;
+  }, [filteredVendors, sortDirection, sortField]);
+
+  const handleVendorSort = (field) => {
+    if (sortField === field) {
+      setSortDirection((current) => (current === 'asc' ? 'desc' : 'asc'));
+      return;
+    }
+    setSortField(field);
+    setSortDirection('asc');
+  };
+
+  const selectedVendor = useMemo(
+    () => vendors.find((vendor) => vendor.id === selectedVendorId) ?? null,
+    [selectedVendorId, vendors]
+  );
+
+  useEffect(() => {
+    if (!selectedVendorId) return;
+    if (!sortedVendors.some((vendor) => vendor.id === selectedVendorId)) {
+      setSelectedVendorId(null);
+    }
+  }, [selectedVendorId, sortedVendors]);
 
   const formatPhone = (phone) => {
     if (!phone) return '';
@@ -324,40 +407,42 @@ const ResourceCenter = () => {
                     </button>
                   ))}
                 </div>
+                <div className="resource-segment-filters">
+                  <label className="resource-filter-label" htmlFor="vendor-tier-filter">Tier</label>
+                  <select
+                    id="vendor-tier-filter"
+                    className="resource-filter-select"
+                    value={selectedTier}
+                    onChange={(e) => setSelectedTier(e.target.value)}
+                  >
+                    <option value="All">All tiers</option>
+                    {VENDOR_TIERS.map((tier) => (
+                      <option key={tier} value={tier}>{tier}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="results-info">
                 {filteredVendors.length} vendor{filteredVendors.length !== 1 ? 's' : ''} found
                 {selectedCategory !== 'All' && ` in ${selectedCategory}`}
+                {selectedTier !== 'All' && ` • ${selectedTier}`}
               </div>
               {filteredVendors.length === 0 ? (
                 <div className="no-results">
                   <p>No vendors found matching your criteria.</p>
-                  <button onClick={() => { setSearchTerm(''); setSelectedCategory('All'); }}>
+                  <button onClick={() => { setSearchTerm(''); setSelectedCategory('All'); setSelectedTier('All'); }}>
                     Clear filters
                   </button>
                 </div>
-              ) : selectedCategory === 'All' ? (
-                Object.keys(groupedVendors).sort().map(category => (
-                  <div key={category} className="vendor-group">
-                    <h2 className="group-title" style={{ borderColor: CATEGORY_COLORS[category] }}>
-                      <span className="group-badge" style={{ backgroundColor: CATEGORY_COLORS[category] }}>
-                        {groupedVendors[category].length}
-                      </span>
-                      {category}
-                    </h2>
-                    <div className="vendor-grid">
-                      {groupedVendors[category].map(vendor => (
-                        <VendorCard key={vendor.id} vendor={vendor} formatPhone={formatPhone} onEdit={openEdit} />
-                      ))}
-                    </div>
-                  </div>
-                ))
               ) : (
-                <div className="vendor-grid">
-                  {filteredVendors.map(vendor => (
-                    <VendorCard key={vendor.id} vendor={vendor} formatPhone={formatPhone} onEdit={openEdit} />
-                  ))}
-                </div>
+                <VendorList
+                  vendors={sortedVendors}
+                  onSort={handleVendorSort}
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  selectedVendorId={selectedVendorId}
+                  onSelectVendor={setSelectedVendorId}
+                />
               )}
               {modalOpen && (
                 <VendorFormModal
@@ -368,6 +453,14 @@ const ResourceCenter = () => {
                   onClose={closeModal}
                   onChange={handleFormChange}
                   onSubmit={handleFormSubmit}
+                />
+              )}
+              {selectedVendor && (
+                <VendorDetailDrawer
+                  vendor={selectedVendor}
+                  formatPhone={formatPhone}
+                  onClose={() => setSelectedVendorId(null)}
+                  onEdit={openEdit}
                 />
               )}
             </>
@@ -729,6 +822,104 @@ const VendorFormModal = ({
             rows={3}
           />
         </div>
+        <div className="vendor-form-section">
+          <h3>Compliance</h3>
+          <p>Track paperwork, terms, and contract readiness for each vendor.</p>
+        </div>
+        <div className="vendor-form-check-grid">
+          <div className="vendor-form-check-card">
+            <label className="vendor-form-toggle">
+              <input
+                type="checkbox"
+                checked={!!formData.coiReceived}
+                onChange={(e) => onChange('coiReceived', e.target.checked)}
+              />
+              <span>COI on file</span>
+            </label>
+            <label className="vendor-form-toggle">
+              <input
+                type="checkbox"
+                checked={!!formData.workersCompReceived}
+                onChange={(e) => onChange('workersCompReceived', e.target.checked)}
+              />
+              <span>Workers&apos; Comp</span>
+            </label>
+            <label htmlFor="vendor-coi-expiration">COI expiration date</label>
+            <input
+              id="vendor-coi-expiration"
+              type="date"
+              value={formData.coiExpirationDate}
+              onChange={(e) => onChange('coiExpirationDate', e.target.value)}
+            />
+          </div>
+          <div className="vendor-form-check-card">
+            <label className="vendor-form-toggle">
+              <input
+                type="checkbox"
+                checked={!!formData.taxFormReceived}
+                onChange={(e) => onChange('taxFormReceived', e.target.checked)}
+              />
+              <span>Tax form on file</span>
+            </label>
+            <label htmlFor="vendor-tax-form-expiration">Tax form expiration date</label>
+            <input
+              id="vendor-tax-form-expiration"
+              type="date"
+              value={formData.taxFormExpirationDate}
+              onChange={(e) => onChange('taxFormExpirationDate', e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="vendor-form-row">
+          <label htmlFor="vendor-payment-terms">Payment Terms</label>
+          <select
+            id="vendor-payment-terms"
+            value={formData.paymentTerms}
+            onChange={(e) => onChange('paymentTerms', e.target.value)}
+          >
+            <option value="">Select payment terms</option>
+            {PAYMENT_TERMS.map((term) => (
+              <option key={term} value={term}>
+                {term}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="vendor-form-row">
+          <label htmlFor="vendor-tier">Vendor Tier</label>
+          <select
+            id="vendor-tier"
+            value={formData.vendorTier}
+            onChange={(e) => onChange('vendorTier', e.target.value)}
+          >
+            <option value="">Select vendor tier</option>
+            {VENDOR_TIERS.map((tier) => (
+              <option key={tier} value={tier}>
+                {tier}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="vendor-form-row">
+          <label htmlFor="vendor-contract-file">Contract</label>
+          <input
+            id="vendor-contract-file"
+            type="file"
+            accept=".pdf,.doc,.docx"
+            onChange={(e) => onChange('contractFile', e.target.files?.[0] || null)}
+          />
+          <div className="vendor-form-file-help">
+            {formData.contractFile ? (
+              <span>Selected: {formData.contractFile.name}</span>
+            ) : formData.contractFileUrl ? (
+              <a href={formData.contractFileUrl} target="_blank" rel="noreferrer">
+                Current file: {formData.contractFileName || 'View contract'}
+              </a>
+            ) : (
+              <span>No contract uploaded</span>
+            )}
+          </div>
+        </div>
         <div className="vendor-form-actions">
           <button type="button" className="vendor-form-cancel" onClick={onClose}>
             Cancel
@@ -742,85 +933,208 @@ const VendorFormModal = ({
   </div>
 );
 
-// Vendor Card Component
-const VendorCard = ({ vendor, formatPhone, onEdit }) => {
-  const categories = vendor.category
-    ? vendor.category.split(',').map(c => c.trim()).filter(Boolean)
-    : [];
+const VendorList = ({ vendors, onSort, sortField, sortDirection, selectedVendorId, onSelectVendor }) => {
+  const renderSort = (field) => {
+    if (sortField !== field) return null;
+    return <span className="vendor-table-sort-indicator">{sortDirection === 'asc' ? '↑' : '↓'}</span>;
+  };
+
+  const renderStatus = (value, yesLabel = 'Yes', noLabel = 'No') => (
+    <span className={`vendor-status-chip ${value ? 'is-complete' : 'is-missing'}`}>
+      {value ? yesLabel : noLabel}
+    </span>
+  );
 
   return (
-    <div className="vendor-card">
-      <div className="card-header">
-        <div className="card-header-title-row">
-          <h3 className="vendor-name">{vendor.name}</h3>
-          {onEdit && (
-            <button
-              type="button"
-              className="vendor-card-edit"
-              onClick={() => onEdit(vendor)}
-              aria-label={`Edit ${vendor.name}`}
-              title="Edit"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-              </svg>
-            </button>
-          )}
+    <div className="vendor-master-detail">
+      <div className="vendor-list-shell">
+        <div className="vendor-list-header">
+          <button type="button" className="vendor-list-sort" onClick={() => onSort(VENDOR_SORT_FIELDS.NAME)}>
+            Vendor {renderSort(VENDOR_SORT_FIELDS.NAME)}
+          </button>
+          <button type="button" className="vendor-list-sort" onClick={() => onSort(VENDOR_SORT_FIELDS.VENDOR_TIER)}>
+            Tier {renderSort(VENDOR_SORT_FIELDS.VENDOR_TIER)}
+          </button>
+          <button type="button" className="vendor-list-sort" onClick={() => onSort(VENDOR_SORT_FIELDS.COI)}>
+            Compliance {renderSort(VENDOR_SORT_FIELDS.COI)}
+          </button>
+          <button type="button" className="vendor-list-sort" onClick={() => onSort(VENDOR_SORT_FIELDS.PAYMENT_TERMS)}>
+            Terms {renderSort(VENDOR_SORT_FIELDS.PAYMENT_TERMS)}
+          </button>
         </div>
-        <div className="category-badges">
-          {categories.map(cat => (
-            <span
-              key={cat}
-              className="category-badge"
-              style={{ backgroundColor: CATEGORY_COLORS[cat] || '#64748B' }}
-            >
-              {cat}
-            </span>
-          ))}
+        <div className="vendor-list">
+          {vendors.map((vendor) => {
+            const categories = vendor.category
+              ? vendor.category.split(',').map((c) => c.trim()).filter(Boolean)
+              : [];
+            const isSelected = vendor.id === selectedVendorId;
+            return (
+              <button
+                key={vendor.id}
+                type="button"
+                className={`vendor-row${isSelected ? ' selected' : ''}`}
+                onClick={() => onSelectVendor(vendor.id)}
+              >
+                <div className="vendor-row-primary">
+                  <div className="vendor-row-name">{vendor.name}</div>
+                  <div className="category-badges category-badges-table">
+                    {categories.map((cat) => {
+                      const badge = CATEGORY_BADGE_COLORS[cat] || { bg: '#F1F5F9', text: '#64748B' };
+                      return (
+                        <span
+                          key={cat}
+                          className="category-badge"
+                          style={{ backgroundColor: badge.bg, color: badge.text }}
+                        >
+                          {cat}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="vendor-row-tier">{vendor.vendor_tier || 'No tier'}</div>
+                <div className="vendor-row-compliance">
+                  {renderStatus(!!vendor.coi_received, 'COI', 'COI')}
+                  {renderStatus(!!vendor.workers_comp_received, 'WC', 'WC')}
+                  {renderStatus(!!vendor.tax_form_received, 'Tax', 'Tax')}
+                  {renderStatus(!!vendor.contract_file_url, 'Contract', 'Contract')}
+                </div>
+                <div className="vendor-row-terms">{vendor.payment_terms || 'No terms'}</div>
+              </button>
+            );
+          })}
         </div>
-      </div>
-      
-      <div className="card-body">
-        {/* Phone */}
-        {(vendor.phone != null && vendor.phone !== '') && (
-          <div className="contact-row">
-            <svg className="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
-            </svg>
-            <a href={`tel:${formatPhone(vendor.phone)}`} className="contact-link phone">
-              {vendor.phone}
-            </a>
-          </div>
-        )}
-
-        {/* Email */}
-        {(vendor.email != null && vendor.email !== '') && (
-          <div className="contact-row">
-            <svg className="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-              <polyline points="22,6 12,13 2,6" />
-            </svg>
-            <a href={`mailto:${vendor.email}`} className="contact-link email">
-              {vendor.email}
-            </a>
-          </div>
-        )}
-        
-        {/* Notes */}
-        {vendor.notes && (
-          <div className="notes-row">
-            <svg className="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-            </svg>
-            <span className="notes-text">{vendor.notes}</span>
-          </div>
-        )}
       </div>
     </div>
+  );
+};
+
+const VendorDetailDrawer = ({ vendor, formatPhone, onClose, onEdit }) => {
+  const categories = vendor.category
+    ? vendor.category.split(',').map((c) => c.trim()).filter(Boolean)
+    : [];
+
+  const complianceItems = [
+    {
+      label: 'COI',
+      status: vendor.coi_received,
+      detail: vendor.coi_expiration_date ? `Expires ${vendor.coi_expiration_date}` : 'No expiration date',
+    },
+    {
+      label: "Workers' Comp",
+      status: vendor.workers_comp_received,
+      detail: vendor.workers_comp_received ? 'On file' : 'Missing',
+    },
+    {
+      label: 'Tax Form',
+      status: vendor.tax_form_received,
+      detail: vendor.tax_form_expiration_date ? `Expires ${vendor.tax_form_expiration_date}` : 'No expiration date',
+    },
+    {
+      label: 'Contract',
+      status: !!vendor.contract_file_url,
+      detail: vendor.contract_file_name || 'No contract uploaded',
+    },
+  ];
+
+  return (
+    <>
+      <div className="vendor-drawer-backdrop" onClick={onClose} />
+      <aside className="vendor-drawer" aria-label="Vendor details">
+        <div className="vendor-drawer-header">
+          <div>
+            <div className="vendor-drawer-eyebrow">Vendor Detail</div>
+            <h2>{vendor.name}</h2>
+          </div>
+          <button type="button" className="vendor-drawer-close" onClick={onClose} aria-label="Close vendor detail">
+            ×
+          </button>
+        </div>
+
+        <div className="vendor-drawer-body">
+          <section className="vendor-drawer-section">
+            <div className="vendor-drawer-summary-row">
+              <span className="vendor-drawer-tier">{vendor.vendor_tier || 'No tier assigned'}</span>
+              <span className="vendor-drawer-terms">{vendor.payment_terms || 'No payment terms'}</span>
+            </div>
+            <div className="category-badges">
+              {categories.map((cat) => {
+                const badge = CATEGORY_BADGE_COLORS[cat] || { bg: '#F1F5F9', text: '#64748B' };
+                return (
+                  <span
+                    key={cat}
+                    className="category-badge"
+                    style={{ backgroundColor: badge.bg, color: badge.text }}
+                  >
+                    {cat}
+                  </span>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="vendor-drawer-section">
+            <h3>Compliance</h3>
+            <div className="vendor-drawer-compliance">
+              {complianceItems.map((item) => (
+                <div key={item.label} className="vendor-drawer-compliance-item">
+                  <div className="vendor-drawer-compliance-top">
+                    <span>{item.label}</span>
+                    <span className={`vendor-status-chip ${item.status ? 'is-complete' : 'is-missing'}`}>
+                      {item.status ? 'Complete' : 'Missing'}
+                    </span>
+                  </div>
+                  <div className="vendor-table-meta">{item.detail}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="vendor-drawer-section">
+            <h3>Contact</h3>
+            <div className="vendor-drawer-contact">
+              <div>
+                <span className="vendor-drawer-label">Phone</span>
+                {vendor.phone ? (
+                  <a href={`tel:${formatPhone(vendor.phone)}`} className="contact-link phone">{vendor.phone}</a>
+                ) : (
+                  <span className="vendor-drawer-value">—</span>
+                )}
+              </div>
+              <div>
+                <span className="vendor-drawer-label">Email</span>
+                {vendor.email ? (
+                  <a href={`mailto:${vendor.email}`} className="contact-link email">{vendor.email}</a>
+                ) : (
+                  <span className="vendor-drawer-value">—</span>
+                )}
+              </div>
+            </div>
+          </section>
+
+          <section className="vendor-drawer-section">
+            <h3>Contract</h3>
+            {vendor.contract_file_url ? (
+              <a href={vendor.contract_file_url} className="vendor-contract-link" target="_blank" rel="noreferrer">
+                {vendor.contract_file_name || 'Open contract'}
+              </a>
+            ) : (
+              <div className="vendor-drawer-value">No contract uploaded</div>
+            )}
+          </section>
+
+          <section className="vendor-drawer-section">
+            <h3>Notes</h3>
+            <div className="vendor-drawer-notes">{vendor.notes || 'No notes added'}</div>
+          </section>
+        </div>
+
+        <div className="vendor-drawer-footer">
+          <button type="button" className="vendor-form-cancel" onClick={onClose}>Close</button>
+          <button type="button" className="vendor-form-submit" onClick={() => onEdit(vendor)}>Edit Vendor</button>
+        </div>
+      </aside>
+    </>
   );
 };
 

@@ -20,6 +20,7 @@ import JobDetail from './pages/JobDetail';
 import Forms from './pages/Forms';
 import CRM from './pages/CRM';
 import FieldServices from './pages/FieldServices';
+import FieldTimeTracking from './pages/FieldTimeTracking';
 import Goals from './pages/Goals';
 import TMEstimate from './pages/TMEstimate';
 import ReportingAndAnalytics from './pages/ReportingAndAnalytics';
@@ -292,6 +293,7 @@ function AppContent() {
                   <Route path="/marketing" element={<Marketing />} />
                   <Route path="/billing-ar" element={<BillingAR />} />
                   <Route path="/field-services" element={<FieldServices />} />
+                  <Route path="/field-services/time-tracking" element={<FieldTimeTracking />} />
                   <Route path="/goals" element={<Goals />} />
                   <Route path="/tm-estimate" element={<TMEstimate />} />
                   <Route path="/reporting" element={<ReportingAndAnalytics />} />
